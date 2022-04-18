@@ -1,4 +1,10 @@
-const { defineConfig } = require('@vue/cli-service')
-module.exports = defineConfig({
-  transpileDependencies: true
-})
+module.exports = {
+  pwa: {
+    manifestOptions: {
+      gcm_sender_id: '103953800507'
+    },
+    workboxOptions: {
+      exclude: ['_redirects']
+    }
+  }
+}
