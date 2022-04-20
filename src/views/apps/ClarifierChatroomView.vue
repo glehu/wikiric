@@ -1,41 +1,43 @@
 <template>
   <div style="min-height: 100vh" class="darkergray">
-    <div class="header-margin"
-         style="min-height: 60px; box-shadow: 0 0 15px 15px black; z-index: 3; position: relative"></div>
     <div class="clarifier_chatroom" style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip">
       <div id="channel_section" class="channel_section darkgray"
-           style="height: 80vh; max-height: 80vh; min-width: 250px; z-index: 4">
-        <p class="purple channel_section"
-           style="font-weight: bold; font-size: 125%; color: white;
-           padding: 15px; margin: 0;
-           height: 10%; position: relative">
-          <button class="btn-no-outline"
-                  title="Go back"
-                  style="color: #101010"
-                  v-on:click="this.$router.push('/apps/clarifier')">
-            <i class="bi bi-arrow-left-circle"></i>
-          </button>
-          {{ clarifierUniChatroom.title }}
-        </p>
+           style="height: 100vh; min-width: 250px; z-index: 4">
+        <div class="header-margin" style="box-shadow: none"></div>
         <div
-          style="color: white;
-          height: 90%; overflow-y: auto; overflow-x: clip;">
+          style="color: white; overflow-y: auto; overflow-x: clip;">
           <div v-for="session in this.$store.state.clarifierSessions" :key="session">
-            <p class="darkergray" style="font-weight: bold; font-size: 125%; padding: 1ch; margin: 0">
+            <div class="darkergray"
+                 style="font-weight: bold; font-size: 125%; padding: 10px;">
               <a class="fw-bold text-white orange-hover" style="text-decoration: none"
                  :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
                 <span class="orange-hover">{{ JSON.parse(session).title }}</span>
               </a>
-            </p>
+            </div>
           </div>
         </div>
       </div>
-      <div id="chat_section" class="chat_section" style="width: 100%; height: 100%; z-index: 2">
+      <div id="chat_section" class="chat_section darkblue" style="width: 100%; height: 100%; z-index: 2">
+        <div class="header-margin" style="box-shadow: none"></div>
+        <!-- #### CHAT HEADER #### -->
+        <div style="width: 100%; height: 35px; background-color: #143b92; box-shadow: 0 0 5px 5px black;"
+        class="justify-content-center align-items-center">
+          <div style="font-weight: bold; font-size: 125%; color: white;">
+            <button class="btn-no-outline ms-1"
+                    title="Go back"
+                    v-on:click="this.$router.push('/apps/clarifier')">
+              <i class="bi bi-arrow-left-circle orange-hover"></i>
+            </button>
+            {{ clarifierUniChatroom.title }}
+          </div>
+        </div>
+        <!-- #### MESSAGES #### -->
         <div id="messages_section"
-             class="messages_section darkblue"
-             style="overflow-y: auto; overflow-x: clip; padding-top: 25px;
+             class="messages_section"
+             style="overflow-y: auto; overflow-x: clip;
+             height: calc(100vh - 35px - 60px - 7ch);
+             padding-top: 10px;
              display: flex; flex-direction: column-reverse">
-          <!-- Messages -->
           <div v-for="msg in messages" :key="msg"
                style="color: white; padding-left: 25px; padding-right: 25px; padding-bottom: 25px">
             <!-- #### CLIENT GIF MESSAGE #### -->
@@ -57,7 +59,7 @@
             </div>
             <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
             <div v-else-if="JSON.parse(msg).message.startsWith('[s:LoginNotification]')">
-              <span class="serverMessage">{{ JSON.parse(msg).message.substring(21) }}</span>
+              <!--<span class="serverMessage">{{ JSON.parse(msg).message.substring(21) }}</span>-->
             </div>
             <!-- #### CLIENT MESSAGE #### -->
             <div v-else style="width: 100%; text-wrap: normal; word-wrap: break-word">
@@ -73,29 +75,38 @@
             </div>
           </div>
         </div>
-        <div style="display: inline;">
-          <input id="new_comment"
-                 type="text"
-                 style="width: 80%; height: 4ch; padding-left: 1ch"
-                 v-model="new_message"
-                 :placeholder="'Message to ' + clarifierUniChatroom.title"
-                 v-on:keyup.enter="addMessage()">
-          <button class="btn-dark" style="width: 10%; height: 4ch"
-                  title="Search on GIPHY"
-                  v-on:click="toggleSelectingGIF">
-            <span class="fw-bold">GIF</span>
-          </button>
-          <button class="btn-dark" style="width: 10%; height: 4ch"
-                  title="Send the message"
-                  v-on:click="addMessage">
-            <i class="bi bi-send"></i>
-          </button>
+        <!-- #### USER INPUT FIELD #### -->
+        <div class="align-bottom" style="display: inline-flex; height: 7ch; width: 100%">
+          <div style="width: 100%; padding-left: 2ch; padding-right: 2ch">
+            <input id="new_comment"
+                   class="new_comment"
+                   type="text"
+                   style="width: calc(100% - 10ch - 2ch); height: 5ch; padding-left: 1ch; color: white;
+                   background-color: #143b92; border-color: transparent; border-radius: 1em"
+                   v-model="new_message"
+                   :placeholder="'Message to ' + clarifierUniChatroom.title"
+                   v-on:keyup.enter="addMessage()">
+            <button class="btn-outline-light" style="width: 5ch; height: 5ch; margin-left: 1ch;
+                    background-color: #143b92; border-color: transparent; border-radius: 1em"
+                    title="Search on GIPHY"
+                    v-on:click="toggleSelectingGIF">
+              <span class="fw-bold">GIF</span>
+            </button>
+            <button class="btn-outline-light" style="width: 5ch; height: 5ch; margin-left: 1ch;
+                    background-color: #143b92; border-color: transparent; border-radius: 1em"
+                    title="Send the message"
+                    v-on:click="addMessage">
+              <i class="bi bi-send"></i>
+            </button>
+          </div>
         </div>
       </div>
+      <!-- #### MEMBERS #### -->
       <div id="member_section" class="member_section darkgray"
            style="color: white; z-index: 4;
-           height: 80vh; max-height: 80vh; overflow-y: auto; overflow-x: clip;
+           height: 100vh; overflow-y: auto; overflow-x: clip;
            min-width: 200px">
+        <div class="header-margin" style="box-shadow: none"></div>
         <div style="padding: 10px">
           <div v-for="usr in clarifierUniChatroom.members" :key="usr"
                style="padding: 1ch"
@@ -117,6 +128,7 @@
       </div>
     </div>
   </div>
+  <!-- #### GIF SELECTION #### -->
   <div class="giphygrid purple" style="overflow: hidden" v-show="isSelectingGIF" @click.stop>
     <div style="width: 100%; margin-top: 68vh; position: absolute">
       <input id="gif_query"
@@ -131,31 +143,39 @@
     </div>
     <div style="height: 88%; width: 100%; overflow-x: clip; overflow-y: scroll; margin-top: 1ch" class="darkergray">
       <div v-for="gif in gifSelection" :key="gif"
-           style="padding: 10px; display: inline-flex"
+           style="padding-top: 10px; padding-left: 10px; display: inline-flex"
            v-on:click="this.addMessagePar('[c:GIF]' + gif.images.fixed_height.url, true)">
         <img :src="gif.images.fixed_height.url" alt=":(" class="selectableGIF"
-             style="width: 150px; height: 125px">
+             style="width: 155px; height: 155px">
       </div>
     </div>
   </div>
   <div class="user_profile darkgray" style="overflow: hidden" v-show="isViewingUserProfile" @click.stop>
     <div style="width: 100%" class="text-end mt-2">
       <i class="bi bi-x-lg lead" style="cursor: pointer; margin-top: 2ch" title="Close"
-         v-on:click="isViewingUserProfile = false"></i>
+         v-on:click="hideUserProfile"></i>
     </div>
     <h2 class="fw-bold"> {{ this.viewedUserProfile.username.split('@')[0] }}</h2>
-    <div v-if="this.viewedUserProfile.roles.length > 0" style="margin-top: 30px">
-      <span v-for="role in this.viewedUserProfile.roles" :key="role"
-            class="purple" style="border-radius: 2rem; padding: 1ch; margin-right: 1ch">
-        {{ JSON.parse(role).name }}
-      </span>
+    <div style="margin-top: 30px; display: flex; flex-wrap: wrap">
+      <div v-for="role in this.viewedUserProfile.roles" :key="role"
+           class="purple"
+           style="border-radius: 10px; padding: 0.5ch; margin-right: 1ch; margin-bottom: 1ch;">
+        {{ JSON.parse(role).name.replace(' ', '&nbsp;') }}
+      </div>
       <span style="border-radius: 2rem; padding: 1ch; margin-right: 1ch" class="orange-hover"
             v-on:click="addUserRole">
-        <i class="bi bi-plus-circle"></i>
-      </span>
+      <i class="bi bi-plus-circle"></i>
+    </span>
     </div>
   </div>
-  <div class="user_role darkgray" style="overflow: hidden" v-show="isAddingRole" @click.stop>
+  <div class="user_role darkgray align-items-center"
+       style="overflow: hidden; border: 2px solid black; border-radius: 20px;
+       padding-top: 2ch; padding-bottom: 2ch;"
+       v-show="isAddingRole" @click.stop>
+    <div style="width: 100%" class="text-end mt-2">
+      <i class="bi bi-x-lg lead" style="cursor: pointer; margin-top: 2ch" title="Close"
+         v-on:click="isAddingRole = false"></i>
+    </div>
     <h3 class="fw-bold">Add a new Role</h3>
     <input id="new_role"
            type="text"
@@ -305,8 +325,10 @@ export default {
     },
     toggleSelectingGIF: function () {
       this.isSelectingGIF = !this.isSelectingGIF
+      if (this.isSelectingGIF) this.hideUserProfile()
     },
     showUserProfile: function (user) {
+      this.isSelectingGIF = false
       this.isViewingUserProfile = true
       this.viewedUserProfile = user
     },
@@ -318,21 +340,26 @@ export default {
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const content = JSON.stringify({
-        uniChatroomGUID: this.getSession(),
         member: this.viewedUserProfile.username,
         role: this.new_role
       })
       console.log(content)
       fetch(
-        this.$store.state.serverIP + '/api/m5/addrole',
+        this.$store.state.serverIP + '/api/m5/addrole/' + this.getSession(),
         {
           method: 'post',
           headers: headers,
           body: content
         }
       )
+        .then((res) => res.json())
+        .then((data) => console.log(data))
         .catch((err) => console.log(err.message))
       this.new_role = ''
+    },
+    hideUserProfile: function () {
+      this.isViewingUserProfile = false
+      this.isAddingRole = false
     }
   }
 }
@@ -368,24 +395,18 @@ export default {
   .channel_section {
     display: none;
   }
-
-  .header-margin {
-    display: none;
-  }
-
-  .messages_section {
-    height: 90vh;
-    max-height: 90vh;
-  }
 }
 
 @media only screen and (min-width: 992px) {
-  .messages_section {
-    height: 80vh;
-    max-height: 80vh;
+  .giphygrid {
+    transform: translateX(15vw);
   }
 
-  .giphygrid {
+  .user_profile {
+    transform: translateX(15vw);
+  }
+
+  .user_role {
     transform: translateX(15vw);
   }
 }
@@ -448,7 +469,6 @@ export default {
   height: 75vh;
   padding: 5px 20px;
   box-sizing: border-box;
-  box-shadow: 0 0 10px 10px black;
 }
 
 .user_profile {
@@ -461,7 +481,6 @@ export default {
   height: 75vh;
   padding: 5px 20px;
   box-sizing: border-box;
-  box-shadow: 0 0 10px 10px black;
 }
 
 .user_role {
@@ -471,14 +490,43 @@ export default {
   left: calc(50% - 150px);
   color: white;
   width: 300px;
-  height: 200px;
   padding: 5px 20px;
   box-sizing: border-box;
-  box-shadow: 0 0 10px 10px black;
 }
 
 .serverMessage {
   color: #ff5d37
+}
+
+.header-margin {
+  min-height: 60px;
+  box-shadow: 0 0 5px 5px black;
+  z-index: 3;
+  position: relative;
+}
+
+.new_comment:focus {
+  outline: none;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: gray #101010;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #101010;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: gray;
+  border-radius: 20px;
+  border: 3px solid #101010;
 }
 
 </style>

@@ -161,6 +161,13 @@ export default {
     }
 
     firebase.initializeApp(firebaseConfig)
+
+    const bc = new BroadcastChannel('dlChannel')
+    bc.onmessage = event => {
+      console.log('dlChannel', event)
+      window.location.href = event.data
+    }
+
     // eslint-disable-next-line no-unused-vars
     const messaging = firebase.messaging()
 
@@ -173,6 +180,7 @@ export default {
     }).catch((err) => {
       console.log('An error occurred while retrieving token. ', err)
     })
+
     messaging.onMessage((payload) => {
       console.log('Message received. ', payload)
       if (!this.$route.fullPath.includes('/clarifier/wss/')) {
