@@ -3,7 +3,7 @@
     style="min-height: 100vh; overflow-x: clip;
     background-image: radial-gradient(circle, #002348, #00306e, #143b92, #4543b5, #4543b5, #4543b5, #4543b5, #143b92, #00306e, #002348, #021425)"
   >
-    <div style="min-height: 20vh"></div>
+    <div id="header_margin"></div>
     <div class="wrapper">
       <!-- Join or Create a new Session -->
       <div class="container c-modal">
@@ -154,9 +154,17 @@ export default {
   grid-template-columns: repeat(1, 1fr);
 }
 
+#header_margin {
+  min-height: 10vh
+}
+
 @media only screen and (min-width: 992px) {
   .wrapper {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  #header_margin {
+    min-height: 15vh
   }
 }
 
