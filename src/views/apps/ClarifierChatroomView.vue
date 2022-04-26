@@ -1,17 +1,24 @@
 <template>
   <div style="min-height: 100vh" class="darkergray">
     <div class="clarifier_chatroom" style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip">
-      <div id="channel_section" class="channel_section darkgray"
-           style="height: 100vh; min-width: 250px; z-index: 4">
+      <div id="channel_section" class="channel_section darkergray"
+           style="height: 100vh; width: 300px; max-width: 300px; z-index: 4">
         <div class="header-margin" style="box-shadow: none"></div>
+        <div style="width: 100%; height: 35px;"
+             class="justify-content-center align-items-center">
+          <span style="font-weight: bold; font-size: 125%; margin-left: 10px; color: white">
+            Channels
+          </span>
+        </div>
         <div
-          style="color: white; overflow-y: auto; overflow-x: clip;">
-          <div v-for="session in this.$store.state.clarifierSessions" :key="session">
-            <div class="darkergray"
-                 style="font-weight: bold; font-size: 125%; padding: 10px;">
+          style="color: white; height: 100%; overflow-y: auto; overflow-x: clip;">
+          <div v-for="session in this.$store.state.clarifierSessions" :key="session"
+               style="height: 35px; max-height: 35px; padding: 1ch">
+            <div style="font-weight: bold; font-size: 125%">
+              <i class="bi bi-chat-square-fill" style="font-size: 75%; margin-left: 10px"></i>
               <a class="fw-bold text-white orange-hover" style="text-decoration: none"
                  :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
-                <span class="orange-hover">{{ JSON.parse(session).title }}</span>
+                <span class="orange-hover">&nbsp;{{ JSON.parse(session).title }}</span>
               </a>
             </div>
           </div>
@@ -21,14 +28,14 @@
         <div class="header-margin" style="box-shadow: none"></div>
         <!-- #### CHAT HEADER #### -->
         <div style="width: 100%; height: 35px; background-color: #143b92; box-shadow: 0 0 5px 5px black;"
-        class="justify-content-center align-items-center">
+             class="justify-content-center align-items-center">
           <div style="font-weight: bold; font-size: 125%; color: white;">
             <button class="btn-no-outline ms-1"
                     title="Go back"
                     v-on:click="this.$router.push('/apps/clarifier')">
               <i class="bi bi-arrow-left-circle orange-hover"></i>
             </button>
-            {{ clarifierUniChatroom.title }}
+            {{ clarifierUniChatroom.t }}
           </div>
         </div>
         <!-- #### MESSAGES #### -->
@@ -41,16 +48,16 @@
           <div v-for="msg in messages" :key="msg"
                style="color: white; padding-left: 25px; padding-right: 25px; padding-bottom: 25px">
             <!-- #### CLIENT GIF MESSAGE #### -->
-            <div v-if="JSON.parse(msg).message.startsWith('[c:GIF]')">
+            <div v-if="JSON.parse(msg).msg.startsWith('[c:GIF]')">
               <div style="padding-bottom: 0; margin-bottom: 0; display: block">
                 <span class="orange-hover" style="font-weight: bold">
-                  {{ JSON.parse(msg).from }}
+                  {{ JSON.parse(msg).src }}
                 </span>
                 <span style="color: gray; font-size: 80%; padding-left: 1ch">
-                  {{ new Date(JSON.parse(msg).timestamp).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+                  {{ new Date(JSON.parse(msg).ts).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
                 </span>
               </div>
-              <img :src="JSON.parse(msg).message.substring(7)" :alt="JSON.parse(msg).message.substring(7)">
+              <img :src="JSON.parse(msg).msg.substring(7)" :alt="JSON.parse(msg).msg.substring(7)">
               <br>
               <div>
                 <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
@@ -58,20 +65,21 @@
               </div>
             </div>
             <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
-            <div v-else-if="JSON.parse(msg).message.startsWith('[s:LoginNotification]')">
-              <!--<span class="serverMessage">{{ JSON.parse(msg).message.substring(21) }}</span>-->
-            </div>
+            <template v-else-if="JSON.parse(msg).msg.startsWith('[s:RegistrationNotification]')">
+              <span class="serverMessage">{{ JSON.parse(msg).msg.substring(28) }}</span>
+              <span style="display: none"></span>
+            </template>
             <!-- #### CLIENT MESSAGE #### -->
             <div v-else style="width: 100%; text-wrap: normal; word-wrap: break-word">
               <div style="padding-bottom: 0; margin-bottom: 0; display: block">
                 <span class="orange-hover" style="font-weight: bold">
-                  {{ JSON.parse(msg).from }}
+                  {{ JSON.parse(msg).src }}
                 </span>
                 <span style="color: gray; font-size: 80%; padding-left: 1ch">
-                  {{ new Date(JSON.parse(msg).timestamp).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+                  {{ new Date(JSON.parse(msg).ts).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
                 </span>
               </div>
-              <span class="clientMessage">{{ JSON.parse(msg).message }}</span>
+              <span class="clientMessage">{{ JSON.parse(msg).msg }}</span>
             </div>
           </div>
         </div>
@@ -84,7 +92,7 @@
                    style="width: calc(100% - 10ch - 2ch); height: 5ch; padding-left: 1ch; color: white;
                    background-color: #143b92; border-color: transparent; border-radius: 1em"
                    v-model="new_message"
-                   :placeholder="'Message to ' + clarifierUniChatroom.title"
+                   :placeholder="'Message to ' + clarifierUniChatroom.t"
                    v-on:keyup.enter="addMessage()">
             <button class="btn-outline-light" style="width: 5ch; height: 5ch; margin-left: 1ch;
                     background-color: #143b92; border-color: transparent; border-radius: 1em"
@@ -102,17 +110,23 @@
         </div>
       </div>
       <!-- #### MEMBERS #### -->
-      <div id="member_section" class="member_section darkgray"
+      <div id="member_section" class="member_section darkergray"
            style="color: white; z-index: 4;
            height: 100vh; overflow-y: auto; overflow-x: clip;
-           min-width: 200px">
+           width: 300px; max-width: 300px">
         <div class="header-margin" style="box-shadow: none"></div>
+        <div style="width: 100%; height: 35px;"
+             class="justify-content-center align-items-center">
+          <span style="font-weight: bold; font-size: 125%; margin-left: 10px; color: white">
+            Members
+          </span>
+        </div>
         <div style="padding: 10px">
           <div v-for="usr in clarifierUniChatroom.members" :key="usr"
                style="padding: 1ch"
                class="user_badge"
                v-on:click="showUserProfile(JSON.parse(usr))">
-            <i class="bi bi-person-badge-fill"></i> {{ JSON.parse(usr).username.split('@')[0] }}
+            <i class="bi bi-person-badge-fill"></i> {{ JSON.parse(usr).usr.split('@')[0] }}
           </div>
           <div class="mt-2" style="padding: 1ch">
             <span>
@@ -155,7 +169,7 @@
       <i class="bi bi-x-lg lead" style="cursor: pointer; margin-top: 2ch" title="Close"
          v-on:click="hideUserProfile"></i>
     </div>
-    <h2 class="fw-bold"> {{ this.viewedUserProfile.username.split('@')[0] }}</h2>
+    <h2 class="fw-bold"> {{ this.viewedUserProfile.usr.split('@')[0] }}</h2>
     <div style="margin-top: 30px; display: flex; flex-wrap: wrap">
       <div v-for="role in this.viewedUserProfile.roles" :key="role"
            class="purple"
@@ -204,7 +218,7 @@ export default {
       isAddingRole: false,
       viewedUserProfile: {
         id: -1,
-        username: '',
+        usr: '',
         roles: []
       }
     }
@@ -243,7 +257,7 @@ export default {
     },
     showMessage: function (msg) {
       this.messages.unshift(msg)
-      if ((JSON.parse(msg).message).includes('[s:LoginNotification]')) {
+      if ((JSON.parse(msg).msg).includes('[s:RegistrationNotification]')) {
         this.getClarifierMetaData(false)
       }
     },
@@ -284,8 +298,8 @@ export default {
     },
     processResponse: function (updateMessages) {
       this.$store.commit('addClarifierSession', {
-        id: this.clarifierUniChatroom.chatroomGUID,
-        title: this.clarifierUniChatroom.title
+        id: this.clarifierUniChatroom.guid,
+        title: this.clarifierUniChatroom.t
       })
       if (updateMessages) {
         this.messages = this.clarifierUniChatroom.messages.reverse()
@@ -336,13 +350,14 @@ export default {
       this.isAddingRole = true
     },
     commitUserRole: function () {
-      this.isAddingRole = false
+      this.hideUserProfile()
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const content = JSON.stringify({
-        member: this.viewedUserProfile.username,
+        member: this.viewedUserProfile.usr,
         role: this.new_role
       })
+      this.new_role = ''
       console.log(content)
       fetch(
         this.$store.state.serverIP + '/api/m5/addrole/' + this.getSession(),
@@ -352,10 +367,8 @@ export default {
           body: content
         }
       )
-        .then((res) => res.json())
-        .then((data) => console.log(data))
+        .then(() => this.getClarifierMetaData(false))
         .catch((err) => console.log(err.message))
-      this.new_role = ''
     },
     hideUserProfile: function () {
       this.isViewingUserProfile = false
@@ -511,7 +524,7 @@ export default {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: gray #101010;
+  scrollbar-color: gray #041830;
 }
 
 /* Works on Chrome, Edge, and Safari */
@@ -520,7 +533,7 @@ export default {
 }
 
 *::-webkit-scrollbar-track {
-  background: #101010;
+  background: #041830;
 }
 
 *::-webkit-scrollbar-thumb {

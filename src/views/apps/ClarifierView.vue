@@ -94,7 +94,7 @@ export default {
         }
       )
         .then((res) => res.json())
-        .then((data) => (this.$router.push('/apps/clarifier/wss/' + data.chatroomGUID)))
+        .then((data) => (this.$router.push('/apps/clarifier/wss/' + data.guid)))
         .catch((err) => console.log(err.message))
     },
     join: function () {
