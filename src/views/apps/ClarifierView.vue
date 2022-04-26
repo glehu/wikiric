@@ -18,17 +18,19 @@
                     <br><br>Enter an invite ID and click Join or type in some description and create your own chatroom!
                   </div>
                   <hr style="color: white; height: 4px">
-                  <input v-model="uniChatroomGUID"
+                  <input id="input_session" v-model="input_string"
                          placeholder="Invite ID or Description..."
                          style="width: 100%; font-size: 150%; font-weight: bold; margin-bottom: 1ch; padding-left: 1ch">
                   <br>
-                  <button class="btn btn-outline-light" type="submit"
-                          style="width: 50%"
+                  <button id="btn_join_session"
+                          class="btn btn-outline-light" type="submit"
+                          style="max-height: 6ch; height: 6ch"
                           v-on:click="join()">
                     <span class="fw-bold lead">Join</span>
                   </button>
-                  <button class="btn btn-outline-light" type="submit"
-                          style="width: 50%"
+                  <button id="btn_create_session"
+                          class="btn btn-outline-light" type="submit"
+                          style="max-height: 6ch; height: 6ch"
                           v-on:click="create()">
                     <span class="fw-bold lead">Create</span>
                   </button>
@@ -57,7 +59,8 @@
                             v-on:click="this.removeSession(session)">
                       <i class="bi bi-x-lg"></i>
                     </button>
-                    <span class="orange-hover" style="padding-left: 2ch" v-on:click="joinActive(JSON.parse(session).id)">
+                    <span class="orange-hover" style="padding-left: 2ch"
+                          v-on:click="joinActive(JSON.parse(session).id)">
                       <span class="fw-bold">{{ JSON.parse(session).title }}</span>
                     </span>
                   </div>
@@ -76,8 +79,13 @@ export default {
   name: 'WClarifier',
   data () {
     return {
-      uniChatroomGUID: ''
+      input_string: ''
     }
+  },
+  mounted () {
+    document.getElementById('btn_join_session').disabled = true
+    document.getElementById('btn_create_session').disabled = true
+    document.getElementById('input_session').addEventListener('input', this.checkInput, false)
   },
   methods: {
     create: function () {
@@ -89,7 +97,7 @@ export default {
           method: 'post',
           headers: headers,
           body: JSON.stringify({
-            title: this.uniChatroomGUID
+            title: this.input_string
           })
         }
       )
@@ -98,13 +106,40 @@ export default {
         .catch((err) => console.log(err.message))
     },
     join: function () {
-      this.$router.push('/apps/clarifier/wss/' + this.uniChatroomGUID)
+      this.$router.push('/apps/clarifier/wss/' + this.input_string)
     },
     joinActive: function (id) {
       this.$router.push('/apps/clarifier/wss/' + id)
     },
     removeSession: function (session) {
       this.$store.commit('removeClarifierSession', session)
+    },
+    checkInput: function () {
+      const createBtn = document.getElementById('btn_create_session')
+      const joinBtn = document.getElementById('btn_join_session')
+      createBtn.disabled = true
+      if (createBtn.classList.contains('active')) createBtn.classList.remove('active')
+      if (this.input_string.length > 0) {
+        createBtn.disabled = false
+        if (!createBtn.classList.contains('active')) createBtn.classList.add('active')
+      }
+      /*
+      000000000011111111112222222222333333
+      012345678901234567890123456789012345
+      76f7fdc1-b699-4551-bb39-3719a25f23f3
+       */
+      joinBtn.disabled = true
+      if (joinBtn.classList.contains('active')) joinBtn.classList.remove('active')
+      if ((this.input_string.length === 36) &&
+        (this.input_string.substring(8, 9) === '-') &&
+        (this.input_string.substring(13, 14) === '-') &&
+        (this.input_string.substring(18, 19) === '-') &&
+        (this.input_string.substring(23, 24) === '-')) {
+        joinBtn.disabled = false
+        if (!joinBtn.classList.contains('active')) joinBtn.classList.add('active')
+        createBtn.disabled = true
+        if (createBtn.classList.contains('active')) createBtn.classList.remove('active')
+      }
     }
   }
 }
@@ -128,6 +163,23 @@ export default {
 .orange-hover:hover {
   color: #ff5d37;
   cursor: grab;
+}
+
+#btn_join_session,
+#btn_create_session {
+  width: 20%;
+  opacity: 0.5;
+  transition: ease-in-out all 0.5s;
+}
+
+#btn_join_session.active {
+  opacity: 1;
+  width: 80%;
+}
+
+#btn_create_session.active {
+  opacity: 1;
+  width: 80%;
 }
 
 </style>
