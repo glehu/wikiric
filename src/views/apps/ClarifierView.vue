@@ -20,7 +20,8 @@
                   <hr style="color: white; height: 4px">
                   <input id="input_session" v-model="input_string"
                          placeholder="Invite ID or Description..."
-                         style="width: 100%; font-size: 150%; font-weight: bold; margin-bottom: 1ch; padding-left: 1ch">
+                         style="width: 100%; font-size: 150%; font-weight: bold; margin-bottom: 1ch; padding-left: 1ch"
+                         v-on:keyup.enter="joinOrCreate()">
                   <br>
                   <button id="btn_join_session"
                           class="btn btn-outline-light" type="submit"
@@ -79,7 +80,8 @@ export default {
   name: 'WClarifier',
   data () {
     return {
-      input_string: ''
+      input_string: '',
+      join_type: ''
     }
   },
   mounted () {
@@ -122,6 +124,7 @@ export default {
       if (this.input_string.length > 0) {
         createBtn.disabled = false
         if (!createBtn.classList.contains('active')) createBtn.classList.add('active')
+        this.join_type = 'create'
       }
       /*
       000000000011111111112222222222333333
@@ -137,8 +140,16 @@ export default {
         (this.input_string.substring(23, 24) === '-')) {
         joinBtn.disabled = false
         if (!joinBtn.classList.contains('active')) joinBtn.classList.add('active')
+        this.join_type = 'join'
         createBtn.disabled = true
         if (createBtn.classList.contains('active')) createBtn.classList.remove('active')
+      }
+    },
+    joinOrCreate: function () {
+      if (this.join_type === 'join') {
+        this.join()
+      } else {
+        this.create()
       }
     }
   }

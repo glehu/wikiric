@@ -1,49 +1,82 @@
 <template>
   <div style="min-height: 100vh" class="darkergray">
-    <div class="clarifier_chatroom" style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip">
+    <div id="sidebar" class="sidebar darkgray"
+         style="height: 100vh; z-index: 1000">
+      <div class="header-margin" style="box-shadow: none"></div>
+      <div style="width: 100%; height: 35px; padding-top: 5px"
+           class="justify-content-center align-items-center">
+          <span class="sb_link_text" style="margin-left: 10px; color: white">
+            Menu
+          </span>
+      </div>
+      <button class="sb_btn btn-no-outline" v-on:click="toggleSidebar">
+        <i class="bi bi-list"></i>
+      </button>
+      <ul class="nav_list list-unstyled" style="color: white">
+        <li>
+          <div class="sb_link orange-hover" v-on:click="this.$router.push('/apps/clarifier')">
+            <i class="sb_link_icon bi bi-arrow-left-circle orange-hover"></i>
+            <span class="sb_link_text">Exit</span>
+          </div>
+        </li>
+        <li>
+          <div class="sb_link orange-hover">
+            <i class="sb_link_icon bi bi-tools">
+            </i>
+            <span class="sb_link_text">Settings</span>
+          </div>
+        </li>
+        <li>
+          <div class="sb_link orange-hover">
+            <i class="sb_link_icon bi bi-archive">
+            </i>
+            <span class="sb_link_text">Files</span>
+          </div>
+        </li>
+      </ul>
+      <!-- #### CHANNELS #### -->
       <div id="channel_section" class="channel_section darkergray"
-           style="height: 100vh; width: 300px; max-width: 300px; z-index: 4">
-        <div class="header-margin" style="box-shadow: none"></div>
-        <div style="width: 100%; height: 35px;"
+           style="height: 100vh; width: 250px; max-width: 250px; z-index: 4; padding-top: 10px">
+        <div style="width: 100%; height: 35px"
              class="justify-content-center align-items-center">
-          <span style="font-weight: bold; font-size: 125%; margin-left: 10px; color: white">
+          <span class="sb_link_text" style="margin-left: 10px; color: white">
             Channels
           </span>
         </div>
         <div
           style="color: white; height: 100%; overflow-y: auto; overflow-x: clip;">
           <div v-for="session in this.$store.state.clarifierSessions" :key="session"
-               style="height: 35px; max-height: 35px; padding: 1ch">
+               style="height: 35px; max-height: 35px; padding: 10px">
             <div style="font-weight: bold; font-size: 125%">
-              <i class="bi bi-chat-square-fill" style="font-size: 75%; margin-left: 10px"></i>
               <a class="fw-bold text-white orange-hover" style="text-decoration: none"
                  :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
-                <span class="orange-hover">&nbsp;{{ JSON.parse(session).title }}</span>
+                <span class="orange-hover">
+                  <i class="bi bi-chat-square-fill"
+                     style="font-size: 75%; margin-left: 8px">
+                  </i>
+                  <span class="sb_link_text">&nbsp;{{ JSON.parse(session).title }}</span>
+                </span>
               </a>
             </div>
           </div>
         </div>
       </div>
+    </div>
+    <div class="clarifier_chatroom" style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip">
       <div id="chat_section" class="chat_section darkblue" style="width: 100%; height: 100%; z-index: 2">
         <div class="header-margin" style="box-shadow: none"></div>
         <!-- #### CHAT HEADER #### -->
-        <div style="width: 100%; height: 35px; background-color: #143b92; box-shadow: 0 0 5px 5px black;"
+        <div style="width: 100%; height: 35px; background-color: #143b92; box-shadow: 0 0 5px 5px black;
+          font-weight: bold; font-size: 125%; color: white; padding-left: 10px"
              class="justify-content-center align-items-center">
-          <div style="font-weight: bold; font-size: 125%; color: white;">
-            <button class="btn-no-outline ms-1"
-                    title="Go back"
-                    v-on:click="this.$router.push('/apps/clarifier')">
-              <i class="bi bi-arrow-left-circle orange-hover"></i>
-            </button>
-            {{ clarifierUniChatroom.t }}
-          </div>
+          {{ clarifierUniChatroom.t }}
         </div>
         <!-- #### MESSAGES #### -->
         <div id="messages_section"
              class="messages_section"
-             style="overflow-y: auto; overflow-x: clip;
-             height: calc(100vh - 35px - 60px - 7ch);
-             padding-top: 10px;
+             style="overflow-y: auto; overflow-x: clip; z-index: 2;
+             height: calc(100vh - 70px - 7ch);
+             padding-top: 10px; padding-bottom: 20px;
              display: flex; flex-direction: column-reverse">
           <div v-for="msg in messages" :key="msg"
                style="color: white; padding-left: 25px; padding-right: 25px; padding-bottom: 25px">
@@ -67,7 +100,6 @@
             <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
             <template v-else-if="JSON.parse(msg).msg.startsWith('[s:RegistrationNotification]')">
               <span class="serverMessage">{{ JSON.parse(msg).msg.substring(28) }}</span>
-              <span style="display: none"></span>
             </template>
             <!-- #### CLIENT MESSAGE #### -->
             <div v-else style="width: 100%; text-wrap: normal; word-wrap: break-word">
@@ -84,51 +116,51 @@
           </div>
         </div>
         <!-- #### USER INPUT FIELD #### -->
-        <div class="align-bottom" style="display: inline-flex; height: 7ch; width: 100%">
-          <div style="width: 100%; padding-left: 2ch; padding-right: 2ch">
-            <input id="new_comment"
-                   class="new_comment"
-                   type="text"
-                   style="width: calc(100% - 10ch - 2ch); height: 5ch; padding-left: 1ch; color: white;
-                   background-color: #143b92; border-color: transparent; border-radius: 1em"
-                   v-model="new_message"
-                   :placeholder="'Message to ' + clarifierUniChatroom.t"
-                   v-on:keyup.enter="addMessage()">
-            <button class="btn-outline-light" style="width: 5ch; height: 5ch; margin-left: 1ch;
+        <div class="align-bottom" style="display: inline-flex; width: 100%">
+          <div style="width: 100%; padding-left: 2ch; padding-right: 2ch; position: relative">
+            <textarea id="new_comment"
+                      class="new_comment"
+                      type="text"
+                      style="position: absolute; bottom: 0; left: 10px;
+                      height: 5ch;
+                      width: calc(100% - 75px);
+                      padding-left: 1ch; color: white; background-color: #143b92; border-color: transparent;
+                      border-radius: 1em;
+                      resize: none; overflow: hidden; min-height: 50px;"
+                      v-model="new_message"
+                      :placeholder="'Message to ' + clarifierUniChatroom.t"
+                      v-on:keyup.enter="addMessage()" v-on:input="auto_grow('new_comment')">
+            </textarea>
+            <button class="btn-outline-light"
+                    style="position: absolute; bottom: 0; right: 15px; width: 5ch; height: 50px; margin-left: 1ch;
                     background-color: #143b92; border-color: transparent; border-radius: 1em"
                     title="Search on GIPHY"
                     v-on:click="toggleSelectingGIF">
               <span class="fw-bold">GIF</span>
             </button>
-            <button class="btn-outline-light" style="width: 5ch; height: 5ch; margin-left: 1ch;
-                    background-color: #143b92; border-color: transparent; border-radius: 1em"
-                    title="Send the message"
-                    v-on:click="addMessage">
-              <i class="bi bi-send"></i>
-            </button>
           </div>
         </div>
       </div>
-      <!-- #### MEMBERS #### -->
-      <div id="member_section" class="member_section darkergray"
-           style="color: white; z-index: 4;
-           height: 100vh; overflow-y: auto; overflow-x: clip;
-           width: 300px; max-width: 300px">
-        <div class="header-margin" style="box-shadow: none"></div>
-        <div style="width: 100%; height: 35px;"
-             class="justify-content-center align-items-center">
-          <span style="font-weight: bold; font-size: 125%; margin-left: 10px; color: white">
+    </div>
+    <!-- #### MEMBERS #### -->
+    <div id="member_section" class="member_section darkergray"
+         style="color: white; z-index: 4; position: absolute; right: 0;
+           height: 100vh; overflow-y: auto; overflow-x: clip">
+      <div class="header-margin" style="box-shadow: none"></div>
+      <div style="width: 100%; height: 35px; padding-top: 5px"
+           class="justify-content-center align-items-center">
+          <span style="margin-left: 10px; color: white">
             Members
           </span>
+      </div>
+      <div style="padding: 5px">
+        <div v-for="usr in clarifierUniChatroom.members" :key="usr"
+             style="padding: 10px"
+             class="user_badge"
+             v-on:click="showUserProfile(JSON.parse(usr))">
+          <i class="bi bi-person-badge-fill"></i> {{ JSON.parse(usr).usr.split('@')[0] }}
         </div>
-        <div style="padding: 10px">
-          <div v-for="usr in clarifierUniChatroom.members" :key="usr"
-               style="padding: 1ch"
-               class="user_badge"
-               v-on:click="showUserProfile(JSON.parse(usr))">
-            <i class="bi bi-person-badge-fill"></i> {{ JSON.parse(usr).usr.split('@')[0] }}
-          </div>
-          <div class="mt-2" style="padding: 1ch">
+        <div class="mt-2" style="padding: 1ch">
             <span>
               <button class="text-white btn-no-outline"
                       title="Invite"
@@ -137,7 +169,6 @@
               </button>
               <span class="tooltip-mock-destination" :class="{'show':showInviteCopied}">Copied!</span>
             </span>
-          </div>
         </div>
       </div>
     </div>
@@ -236,6 +267,9 @@ export default {
   },
   mounted () {
     this.getClarifierMetaData()
+    if (window.innerWidth > 991) {
+      document.getElementById('sidebar').classList.add('active')
+    }
   },
   methods: {
     subscribeFCM: function (uniChatroomGUID) {
@@ -275,6 +309,7 @@ export default {
       // Handle normal message
       this.connection.send(this.new_message)
       this.new_message = ''
+      document.getElementById('new_comment').style.height = '5ch'
     },
     addMessagePar: function (text, closeGIFSelection = false) {
       this.connection.send(text)
@@ -373,6 +408,14 @@ export default {
     hideUserProfile: function () {
       this.isViewingUserProfile = false
       this.isAddingRole = false
+    },
+    toggleSidebar: function () {
+      document.getElementById('sidebar').classList.toggle('active')
+    },
+    auto_grow: function (id) {
+      const elem = document.getElementById(id)
+      elem.style.height = '5ch'
+      elem.style.height = (elem.scrollHeight) + 'px'
     }
   }
 }
@@ -404,12 +447,6 @@ export default {
   background-color: #ff5d37;
 }
 
-@media only screen and (max-width: 991px) {
-  .channel_section {
-    display: none;
-  }
-}
-
 @media only screen and (min-width: 992px) {
   .giphygrid {
     transform: translateX(15vw);
@@ -421,12 +458,6 @@ export default {
 
   .user_role {
     transform: translateX(15vw);
-  }
-}
-
-@media only screen and (max-width: 1150px) {
-  .member_section {
-    display: none;
   }
 }
 
@@ -520,6 +551,85 @@ export default {
 
 .new_comment:focus {
   outline: none;
+}
+
+.member_section {
+  width: 200px;
+}
+
+.clarifier_chatroom {
+  position: absolute;
+  height: 100%;
+}
+
+.sidebar {
+  position: fixed;
+  width: 50px;
+  overflow-x: clip;
+  transition: ease-in-out all 0.5s;
+}
+
+.sidebar.active {
+  width: 225px;
+}
+
+@media only screen and (max-width: 991px) {
+  .member_section {
+    display: none;
+  }
+
+  .clarifier_chatroom {
+    width: calc(100% - 50px);
+    left: 50px;
+  }
+
+  .sidebar.active .clarifier_chatroom {
+    width: calc(100% - 225px);
+    left: 225px;
+  }
+}
+
+@media only screen and (min-width: 992px) {
+
+  .clarifier_chatroom {
+    width: calc(100% - 225px - 200px);
+    left: 225px;
+  }
+}
+
+.sb_btn {
+  position: absolute;
+  width: 30px;
+  right: 12px;
+  top: 60px;
+  color: white;
+  font-size: 150%;
+}
+
+.sb_link {
+  height: 35px;
+  max-height: 35px;
+  padding: 10px;
+  font-weight: bold;
+  font-size: 125%;
+}
+
+.sb_link_icon {
+  width: 30px;
+  max-width: 30px;
+  padding-left: 5px;
+}
+
+.sb_link_text {
+  position: absolute;
+  font-weight: bold;
+  padding-left: 20px;
+  opacity: 0;
+  transition: ease-in-out opacity 0.5s;
+}
+
+.sidebar.active .sb_link_text {
+  opacity: 1;
 }
 
 </style>
