@@ -12,7 +12,7 @@
                style="width: 20ch; font-weight: bold"
                v-model="keyword"
                v-on:keyup.enter="processKeyword(keyword)"
-               placeholder="alt+x"
+               placeholder="CTRL+Y"
                list="keywords">
         <!-- Autocompletion List -->
         <datalist id="keywords">
@@ -194,7 +194,7 @@ export default {
     })
 
     window.addEventListener('keydown', function (event) {
-      if (event.altKey && event.key === 'x') {
+      if (event.ctrlKey && event.key === 'y') {
         document.getElementById('keyword-search').focus()
         document.getElementById('keyword-search').select()
       }

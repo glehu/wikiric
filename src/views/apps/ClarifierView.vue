@@ -186,15 +186,16 @@ export default {
 
 #btn_join_session,
 #btn_create_session {
-  width: 6rem;
-  opacity: 0.5;
+  padding: 0;
+  width: 25%;
+  opacity: 0.45;
   transition: ease-in-out all 0.5s;
 }
 
 #btn_join_session.active,
 #btn_create_session.active {
   opacity: 1;
-  width: calc(80% - 6rem);
+  width: 75%;
 }
 
 </style>

@@ -2,62 +2,57 @@
   <div style="min-height: 100vh" class="darkergray">
     <div id="sidebar" class="sidebar darkgray"
          style="height: 100vh; z-index: 1000">
-      <div class="header-margin" style="box-shadow: none"></div>
-      <div style="width: 100%; height: 35px; padding-top: 5px"
-           class="justify-content-center align-items-center">
-          <span class="sb_link_text" style="margin-left: 10px; color: white">
-            Menu
-          </span>
+      <div style="height: 240px">
+        <div class="header-margin" style="box-shadow: none"></div>
+        <div style="width: 100%; height: 35px; padding-top: 5px"
+             class="justify-content-center align-items-center">
+          <span class="sb_link_text" style="margin-left: 10px; color: white">Menu</span>
+        </div>
+        <button class="sb_btn btn-no-outline" v-on:click="toggleSidebar">
+          <i class="bi bi-list"></i>
+        </button>
+        <ul class="nav_list list-unstyled" style="color: white">
+          <li>
+            <div class="sb_link orange-hover" v-on:click="this.$router.push('/apps/clarifier')">
+              <i class="sb_link_icon bi bi-arrow-left-circle orange-hover"></i>
+              <span class="sb_link_text">Exit</span>
+            </div>
+          </li>
+          <li>
+            <div class="sb_link orange-hover">
+              <i class="sb_link_icon bi bi-tools">
+              </i>
+              <span class="sb_link_text">Settings</span>
+            </div>
+          </li>
+          <li>
+            <div class="sb_link orange-hover">
+              <i class="sb_link_icon bi bi-archive">
+              </i>
+              <span class="sb_link_text">Files</span>
+            </div>
+          </li>
+        </ul>
       </div>
-      <button class="sb_btn btn-no-outline" v-on:click="toggleSidebar">
-        <i class="bi bi-list"></i>
-      </button>
-      <ul class="nav_list list-unstyled" style="color: white">
-        <li>
-          <div class="sb_link orange-hover" v-on:click="this.$router.push('/apps/clarifier')">
-            <i class="sb_link_icon bi bi-arrow-left-circle orange-hover"></i>
-            <span class="sb_link_text">Exit</span>
-          </div>
-        </li>
-        <li>
-          <div class="sb_link orange-hover">
-            <i class="sb_link_icon bi bi-tools">
-            </i>
-            <span class="sb_link_text">Settings</span>
-          </div>
-        </li>
-        <li>
-          <div class="sb_link orange-hover">
-            <i class="sb_link_icon bi bi-archive">
-            </i>
-            <span class="sb_link_text">Files</span>
-          </div>
-        </li>
-      </ul>
       <!-- #### CHANNELS #### -->
       <div id="channel_section" class="channel_section darkergray"
-           style="height: 100vh; width: 250px; max-width: 250px; z-index: 4; padding-top: 10px">
-        <div style="width: 100%; height: 35px"
-             class="justify-content-center align-items-center">
-          <span class="sb_link_text" style="margin-left: 10px; color: white">
-            Channels
-          </span>
-        </div>
-        <div
-          style="color: white; height: 100%; overflow-y: auto; overflow-x: clip;">
-          <div v-for="session in this.$store.state.clarifierSessions" :key="session"
-               style="height: 35px; max-height: 35px; padding: 10px">
-            <div style="font-weight: bold; font-size: 125%">
-              <a class="fw-bold text-white orange-hover" style="text-decoration: none"
-                 :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
-                <span class="orange-hover">
-                  <i class="bi bi-chat-square-fill"
-                     style="font-size: 75%; margin-left: 8px">
+           style="height: calc(100% - 60px - 180px); width: 100%; z-index: 4;
+           color: white; overflow-y: auto; overflow-x: clip;
+           padding-top: 10px; padding-bottom: 20px">
+        <div v-for="session in this.$store.state.clarifierSessions" :key="session"
+             style="padding-left: 8px">
+          <div style="font-weight: bold; font-size: 125%">
+            <a class="fw-bold text-white orange-hover" style="text-decoration: none"
+               :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
+                <span class="orange-hover" style="position: relative">
+                  <i class="bi bi-circle-fill"
+                     style="font-size: 175%">
                   </i>
-                  <span class="sb_link_text">&nbsp;{{ JSON.parse(session).title }}</span>
+                  <span class="sb_link_text text-nowrap"
+                        style="padding-left: 5px; position: absolute; bottom: 5px"
+                  >&nbsp;{{ JSON.parse(session).title }}</span>
                 </span>
-              </a>
-            </div>
+            </a>
           </div>
         </div>
       </div>
@@ -79,7 +74,7 @@
              padding-top: 10px; padding-bottom: 20px;
              display: flex; flex-direction: column-reverse">
           <div v-for="msg in messages" :key="msg"
-               style="color: white; padding-left: 25px; padding-right: 25px; padding-bottom: 25px">
+               style="color: white; padding-left: 15px; padding-right: 25px; padding-bottom: 15px">
             <!-- #### CLIENT GIF MESSAGE #### -->
             <div v-if="JSON.parse(msg).msg.startsWith('[c:GIF]')">
               <div style="padding-bottom: 0; margin-bottom: 0; display: block">
@@ -102,8 +97,11 @@
               <span class="serverMessage">{{ JSON.parse(msg).msg.substring(28) }}</span>
             </template>
             <!-- #### CLIENT MESSAGE #### -->
-            <div v-else style="width: 100%; text-wrap: normal; word-wrap: break-word">
-              <div style="padding-bottom: 0; margin-bottom: 0; display: block">
+            <div v-else style="width: 100%; position: relative">
+              <div style="position: relative;">
+                <i class="bi bi-circle-fill"
+                   style="font-size: 200%; padding-right: 10px; position: relative; top: 15px">
+                </i>
                 <span class="orange-hover" style="font-weight: bold">
                   {{ JSON.parse(msg).src }}
                 </span>
@@ -111,7 +109,11 @@
                   {{ new Date(JSON.parse(msg).ts).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
                 </span>
               </div>
-              <span class="clientMessage">{{ JSON.parse(msg).msg }}</span>
+              <div class="clientMessage"
+                   style="text-wrap: normal; word-wrap: break-word;
+                    padding-left: 42px">
+                {{ JSON.parse(msg).msg }}
+              </div>
             </div>
           </div>
         </div>
@@ -129,7 +131,7 @@
                       resize: none; overflow: hidden; min-height: 50px;"
                       v-model="new_message"
                       :placeholder="'Message to ' + clarifierUniChatroom.t"
-                      v-on:keyup.enter="addMessage()" v-on:input="auto_grow('new_comment')">
+                      v-on:input="auto_grow('new_comment')">
             </textarea>
             <button class="btn-outline-light"
                     style="position: absolute; bottom: 0; right: 15px; width: 5ch; height: 50px; margin-left: 1ch;
@@ -175,7 +177,7 @@
   </div>
   <!-- #### GIF SELECTION #### -->
   <div class="giphygrid purple" style="overflow: hidden" v-show="isSelectingGIF" @click.stop>
-    <div style="width: 100%; margin-top: 68vh; position: absolute">
+    <div style="width: 100%; margin-top: 66vh; position: absolute">
       <input id="gif_query"
              type="text"
              class="fw-bold darkergray"
@@ -186,7 +188,7 @@
       <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
            style="width: 125px; padding-left: 10px"/>
     </div>
-    <div style="height: 88%; width: 100%; overflow-x: clip; overflow-y: scroll; margin-top: 1ch" class="darkergray">
+    <div style="height: 85%; width: 100%; overflow-x: clip; overflow-y: scroll; margin-top: 2ch" class="darkergray">
       <div v-for="gif in gifSelection" :key="gif"
            style="padding-top: 10px; padding-left: 10px; display: inline-flex"
            v-on:click="this.addMessagePar('[c:GIF]' + gif.images.fixed_height.url, true)">
@@ -247,6 +249,7 @@ export default {
       isSelectingGIF: false,
       isViewingUserProfile: false,
       isAddingRole: false,
+      lastKeyPressed: '',
       viewedUserProfile: {
         id: -1,
         usr: '',
@@ -267,9 +270,9 @@ export default {
   },
   mounted () {
     this.getClarifierMetaData()
-    if (window.innerWidth > 991) {
-      document.getElementById('sidebar').classList.add('active')
-    }
+    window.addEventListener('resize', this.resizeCanvas, false)
+    this.resizeCanvas()
+    document.getElementById('new_comment').addEventListener('keydown', this.handleEnter, false)
   },
   methods: {
     subscribeFCM: function (uniChatroomGUID) {
@@ -278,7 +281,6 @@ export default {
       const content = JSON.stringify({
         fcmToken: this.$store.state.fcmToken
       })
-      console.log(content)
       fetch(
         this.$store.state.serverIP + '/api/m5/subscribe/' + uniChatroomGUID,
         {
@@ -287,7 +289,7 @@ export default {
           body: content
         }
       )
-        .catch((err) => console.log(err.message))
+        .catch((err) => console.error(err.message))
     },
     showMessage: function (msg) {
       this.messages.unshift(msg)
@@ -329,7 +331,7 @@ export default {
         .then((res) => res.json())
         .then((data) => (this.clarifierUniChatroom = data))
         .then(() => (this.processResponse(updateMessages)))
-        .catch((err) => console.log(err.message))
+        .catch((err) => console.error(err.message))
     },
     processResponse: function (updateMessages) {
       this.$store.commit('addClarifierSession', {
@@ -359,7 +361,7 @@ export default {
       )
         .then((res) => res.json())
         .then((data) => (this.addMessagePar('[c:GIF]' + data.data.images.fixed_height.url)))
-        .catch((err) => console.log(err.message))
+        .catch((err) => console.error(err.message))
     },
     getGIFSelection: function (text) {
       fetch(
@@ -370,7 +372,7 @@ export default {
       )
         .then((res) => res.json())
         .then((data) => (this.gifSelection = data.data))
-        .catch((err) => console.log(err.message))
+        .catch((err) => console.error(err.message))
     },
     toggleSelectingGIF: function () {
       this.isSelectingGIF = !this.isSelectingGIF
@@ -393,7 +395,6 @@ export default {
         role: this.new_role
       })
       this.new_role = ''
-      console.log(content)
       fetch(
         this.$store.state.serverIP + '/api/m5/addrole/' + this.getSession(),
         {
@@ -403,7 +404,7 @@ export default {
         }
       )
         .then(() => this.getClarifierMetaData(false))
-        .catch((err) => console.log(err.message))
+        .catch((err) => console.error(err.message))
     },
     hideUserProfile: function () {
       this.isViewingUserProfile = false
@@ -413,9 +414,24 @@ export default {
       document.getElementById('sidebar').classList.toggle('active')
     },
     auto_grow: function (id) {
+      if (this.lastKeyPressed === 'Enter') return
       const elem = document.getElementById(id)
       elem.style.height = '5ch'
       elem.style.height = (elem.scrollHeight) + 'px'
+    },
+    resizeCanvas: function () {
+      const sidebar = document.getElementById('sidebar')
+      if (window.innerWidth >= 992) {
+        if (!sidebar.classList.contains('active')) sidebar.classList.add('active')
+      } else {
+        if (sidebar.classList.contains('active')) sidebar.classList.remove('active')
+      }
+    },
+    handleEnter: function () {
+      if (event.code === 'Enter' && !event.shiftKey) {
+        event.preventDefault()
+        this.addMessage()
+      }
     }
   }
 }
@@ -562,11 +578,20 @@ export default {
   height: 100%;
 }
 
+.channel_section::-webkit-scrollbar {
+  display: none;
+}
+
+.channel_section {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .sidebar {
   position: fixed;
   width: 50px;
   overflow-x: clip;
-  transition: ease-in-out all 0.5s;
+  transition: ease-in-out all 0.2s;
 }
 
 .sidebar.active {
@@ -590,6 +615,9 @@ export default {
 }
 
 @media only screen and (min-width: 992px) {
+  .sb_btn {
+    display: none;
+  }
 
   .clarifier_chatroom {
     width: calc(100% - 225px - 200px);
@@ -610,6 +638,7 @@ export default {
   height: 35px;
   max-height: 35px;
   padding: 10px;
+  margin-bottom: 10px;
   font-weight: bold;
   font-size: 125%;
 }
@@ -621,11 +650,11 @@ export default {
 }
 
 .sb_link_text {
-  position: absolute;
+  position: relative;
   font-weight: bold;
   padding-left: 20px;
   opacity: 0;
-  transition: ease-in-out opacity 0.5s;
+  transition: ease-in-out opacity 0.2s;
 }
 
 .sidebar.active .sb_link_text {
