@@ -12,7 +12,7 @@
                style="width: 20ch; font-weight: bold"
                v-model="keyword"
                v-on:keyup.enter="processKeyword(keyword)"
-               placeholder="CTRL+Y"
+               placeholder="ctrl+y"
                list="keywords">
         <!-- Autocompletion List -->
         <datalist id="keywords">
