@@ -4,9 +4,8 @@
          style="height: 100vh; z-index: 1000">
       <div style="height: 240px">
         <div class="header-margin" style="box-shadow: none"></div>
-        <div style="width: 100%; height: 35px; padding-top: 5px"
-             class="justify-content-center align-items-center">
-          <span class="sb_link_text" style="margin-left: 10px; color: white">Menu</span>
+        <div style="width: 100%; height: 35px; padding-top: 5px">
+          <span class="sb_link_text" style="color: white">Menu</span>
         </div>
         <button class="sb_btn btn-no-outline" v-on:click="toggleSidebar">
           <i class="bi bi-list"></i>
@@ -14,21 +13,19 @@
         <ul class="nav_list list-unstyled" style="color: white">
           <li>
             <div class="sb_link orange-hover" v-on:click="this.$router.push('/apps/clarifier')">
-              <i class="sb_link_icon bi bi-arrow-left-circle orange-hover"></i>
+              <i class="sb_link_icon bi bi-arrow-return-left"></i>
               <span class="sb_link_text">Exit</span>
             </div>
           </li>
           <li>
             <div class="sb_link orange-hover">
-              <i class="sb_link_icon bi bi-tools">
-              </i>
+              <i class="sb_link_icon bi bi-tools"></i>
               <span class="sb_link_text">Settings</span>
             </div>
           </li>
           <li>
             <div class="sb_link orange-hover">
-              <i class="sb_link_icon bi bi-archive">
-              </i>
+              <i class="sb_link_icon bi bi-archive"></i>
               <span class="sb_link_text">Files</span>
             </div>
           </li>
@@ -75,43 +72,37 @@
              display: flex; flex-direction: column-reverse">
           <div v-for="msg in messages" :key="msg"
                style="color: white; padding-left: 15px; padding-right: 25px; padding-bottom: 15px">
-            <!-- #### CLIENT GIF MESSAGE #### -->
-            <div v-if="JSON.parse(msg).msg.startsWith('[c:GIF]')">
-              <div style="padding-bottom: 0; margin-bottom: 0; display: block">
-                <span class="orange-hover" style="font-weight: bold">
-                  {{ JSON.parse(msg).src }}
-                </span>
-                <span style="color: gray; font-size: 80%; padding-left: 1ch">
+            <div style="position: relative;">
+              <i class="bi bi-person-circle"
+                 style="font-size: 200%; padding-right: 10px; position: relative; top: 15px">
+              </i>
+              <span class="orange-hover" style="font-weight: bold">{{ JSON.parse(msg).src.split('@')[0] }}</span>
+              <span style="color: gray; font-size: 80%; padding-left: 10px">
                   {{ new Date(JSON.parse(msg).ts).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
                 </span>
-              </div>
-              <img :src="JSON.parse(msg).msg.substring(7)" :alt="JSON.parse(msg).msg.substring(7)">
-              <br>
-              <div>
-                <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
-                     style="width: 100px"/>
-              </div>
             </div>
             <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
-            <template v-else-if="JSON.parse(msg).msg.startsWith('[s:RegistrationNotification]')">
-              <span class="serverMessage">{{ JSON.parse(msg).msg.substring(28) }}</span>
+            <template v-if="JSON.parse(msg).msg.startsWith('[s:RegistrationNotification]')">
+              <div class="serverMessage"
+                   style="text-wrap: normal; word-wrap: break-word; padding-left: 42px">
+                {{ JSON.parse(msg).msg.substring(28) }}
+              </div>
             </template>
+            <!-- #### CLIENT GIF MESSAGE #### -->
+            <div v-else-if="JSON.parse(msg).msg.startsWith('[c:GIF]')">
+              <div style="padding-left: 42px">
+                <img :src="JSON.parse(msg).msg.substring(7)" :alt="JSON.parse(msg).msg.substring(7)">
+                <br>
+                <div>
+                  <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
+                       style="width: 100px"/>
+                </div>
+              </div>
+            </div>
             <!-- #### CLIENT MESSAGE #### -->
             <div v-else style="width: 100%; position: relative">
-              <div style="position: relative;">
-                <i class="bi bi-circle-fill"
-                   style="font-size: 200%; padding-right: 10px; position: relative; top: 15px">
-                </i>
-                <span class="orange-hover" style="font-weight: bold">
-                  {{ JSON.parse(msg).src }}
-                </span>
-                <span style="color: gray; font-size: 80%; padding-left: 1ch">
-                  {{ new Date(JSON.parse(msg).ts).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
-                </span>
-              </div>
               <div class="clientMessage"
-                   style="text-wrap: normal; word-wrap: break-word;
-                    padding-left: 42px">
+                   style="text-wrap: normal; word-wrap: break-word; padding-left: 42px">
                 {{ JSON.parse(msg).msg }}
               </div>
             </div>
@@ -124,17 +115,18 @@
                       class="new_comment"
                       type="text"
                       style="position: absolute; bottom: 0; left: 10px;
-                      height: 5ch;
                       width: calc(100% - 75px);
-                      padding-left: 1ch; color: white; background-color: #143b92; border-color: transparent;
+                      padding-top: 0.30em; padding-bottom: 0.4em; padding-left: 1ch;
+                      color: white; background-color: #143b92; border-color: transparent;
                       border-radius: 1em;
-                      resize: none; overflow: hidden; min-height: 50px;"
+                      resize: none; overflow: hidden;
+                      height: 2.5em; min-height: 2.5em;"
                       v-model="new_message"
                       :placeholder="'Message to ' + clarifierUniChatroom.t"
                       v-on:input="auto_grow('new_comment')">
             </textarea>
             <button class="btn-outline-light"
-                    style="position: absolute; bottom: 0; right: 15px; width: 5ch; height: 50px; margin-left: 1ch;
+                    style="position: absolute; bottom: 0; right: 15px; width: 5ch; height: 2.5em; margin-left: 1ch;
                     background-color: #143b92; border-color: transparent; border-radius: 1em"
                     title="Search on GIPHY"
                     v-on:click="toggleSelectingGIF">
@@ -149,18 +141,18 @@
          style="color: white; z-index: 4; position: absolute; right: 0;
            height: 100vh; overflow-y: auto; overflow-x: clip">
       <div class="header-margin" style="box-shadow: none"></div>
-      <div style="width: 100%; height: 35px; padding-top: 5px"
-           class="justify-content-center align-items-center">
-          <span style="margin-left: 10px; color: white">
-            Members
-          </span>
+      <div style="width: 100%; height: 35px; padding-top: 5px">
+        <span style="color: white; padding-left: 20px"> Members - {{ this.members.length }}</span>
       </div>
       <div style="padding: 5px">
         <div v-for="usr in clarifierUniChatroom.members" :key="usr"
-             style="padding: 10px"
+             style="padding-left: 10px; padding-bottom: 10px"
              class="user_badge"
              v-on:click="showUserProfile(JSON.parse(usr))">
-          <i class="bi bi-person-badge-fill"></i> {{ JSON.parse(usr).usr.split('@')[0] }}
+          <i class="bi bi-person-circle"
+             style="font-size: 200%; padding-right: 10px">
+          </i>
+          <span style="font-weight: bold">{{ JSON.parse(usr).usr.split('@')[0] }}</span>
         </div>
         <div class="mt-2" style="padding: 1ch">
             <span>
@@ -197,40 +189,41 @@
       </div>
     </div>
   </div>
-  <div class="user_profile darkgray" style="overflow: hidden" v-show="isViewingUserProfile" @click.stop>
-    <div style="width: 100%" class="text-end mt-2">
-      <i class="bi bi-x-lg lead" style="cursor: pointer; margin-top: 2ch" title="Close"
+  <div class="user_profile darkgray" style="overflow: hidden"
+       v-show="isViewingUserProfile" @click.stop>
+    <div style="position: relative; padding-top: 10px">
+      <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideUserProfile"></i>
-    </div>
-    <h2 class="fw-bold"> {{ this.viewedUserProfile.usr.split('@')[0] }}</h2>
-    <div style="margin-top: 30px; display: flex; flex-wrap: wrap">
-      <div v-for="role in this.viewedUserProfile.roles" :key="role"
-           class="purple"
-           style="border-radius: 10px; padding: 0.5ch; margin-right: 1ch; margin-bottom: 1ch;">
-        {{ JSON.parse(role).name.replace(' ', '&nbsp;') }}
+      <h2 class="fw-bold"> {{ this.viewedUserProfile.usr.split('@')[0] }}</h2>
+      <div style="margin-top: 30px; display: flex; flex-wrap: wrap">
+        <div v-for="role in this.viewedUserProfile.roles" :key="role"
+             class="purple"
+             style="border-radius: 10px; padding: 0.5ch; margin-right: 1ch; margin-bottom: 1ch;">
+          {{ JSON.parse(role).name.replace(' ', '&nbsp;') }}
+        </div>
+        <span style="border-radius: 2rem; padding: 1ch; margin-right: 1ch" class="orange-hover"
+              v-on:click="addUserRole">
+          <i class="bi bi-plus-circle"></i>
+        </span>
       </div>
-      <span style="border-radius: 2rem; padding: 1ch; margin-right: 1ch" class="orange-hover"
-            v-on:click="addUserRole">
-      <i class="bi bi-plus-circle"></i>
-    </span>
     </div>
   </div>
   <div class="user_role darkgray align-items-center"
        style="overflow: hidden; border: 2px solid black; border-radius: 20px;
        padding-top: 2ch; padding-bottom: 2ch;"
        v-show="isAddingRole" @click.stop>
-    <div style="width: 100%" class="text-end mt-2">
-      <i class="bi bi-x-lg lead" style="cursor: pointer; margin-top: 2ch" title="Close"
+    <div style="position: relative">
+      <i class="bi bi-x-lg lead" style="cursor: pointer; position: absolute; right: 0" title="Close"
          v-on:click="isAddingRole = false"></i>
+      <h3 class="fw-bold">Add a new Role</h3>
+      <input id="new_role"
+             type="text"
+             class="fw-bold darkergray"
+             style="height: 4ch; padding-left: 1ch; color: white; border: none"
+             v-model="new_role"
+             :placeholder="'Role'"
+             v-on:keyup.enter="commitUserRole">
     </div>
-    <h3 class="fw-bold">Add a new Role</h3>
-    <input id="new_role"
-           type="text"
-           class="fw-bold darkergray"
-           style="height: 4ch; padding-left: 1ch; color: white; border: none"
-           v-model="new_role"
-           :placeholder="'Role'"
-           v-on:keyup.enter="commitUserRole">
   </div>
 </template>
 
@@ -241,6 +234,7 @@ export default {
       clarifierUniChatroom: {},
       connection: null,
       messages: [],
+      members: [],
       new_message: '',
       gif_query_string: '',
       new_role: '',
@@ -341,6 +335,7 @@ export default {
       if (updateMessages) {
         this.messages = this.clarifierUniChatroom.messages.reverse()
       }
+      this.members = this.clarifierUniChatroom.members
     },
     getSession: function () {
       return this.$route.params.id
@@ -416,7 +411,7 @@ export default {
     auto_grow: function (id) {
       if (this.lastKeyPressed === 'Enter') return
       const elem = document.getElementById(id)
-      elem.style.height = '5ch'
+      elem.style.height = '2.5em'
       elem.style.height = (elem.scrollHeight) + 'px'
     },
     resizeCanvas: function () {
@@ -428,7 +423,7 @@ export default {
       }
     },
     handleEnter: function () {
-      if (event.code === 'Enter' && !event.shiftKey) {
+      if (event.code === 'Enter') {
         event.preventDefault()
         this.addMessage()
       }
@@ -481,6 +476,7 @@ export default {
   transition: 0.5s ease-in-out;
   border-radius: 1em;
   background-color: #ff5d37;
+  color: white;
   cursor: pointer;
 }
 

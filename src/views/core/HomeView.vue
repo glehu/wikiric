@@ -3,7 +3,7 @@
        :style="{backgroundImage: 'url('+require('@/assets/'+'account/pexels-anni-roenkae-2156881.jpg')+')',
        backgroundPosition: 'center top', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <section>
-      <div style="width: 100%; padding-top: 50px">
+      <div style="width: 100%; padding-top: 30px">
         <div class="row justify-content-center align-items-center text-center">
           <div class="bartext" style="pointer-events: none">
             wikiric.xyz
@@ -12,6 +12,7 @@
             <div class="wow">wikiric.xyz</div>
             <div class="wow">wikiric.xyz</div>
           </div>
+          <!--
           <div class="slider my-4 clearfix"
                style="vertical-align: center; pointer-events: none;
                text-shadow: 5px 5px 10px black;
@@ -25,10 +26,10 @@
               <div class="fw-bold">Insights</div>
             </div>
           </div>
+          -->
         </div>
       </div>
-      <div style="height: 3vw"></div>
-      <div class="container mb-5">
+      <div class="container mb-5" style="padding-top: 20px">
         <div class="card text-white shadow-box"
              style="z-index: 2; border: 2px solid #46b59b; pointer-events: none">
           <h2 class="card-body text-center fw-bold">
@@ -47,7 +48,7 @@
                     v-on:click="this.$router.push(card.link)">
               <i class="bi bi-app-indicator"/>
             </button>
-            <p v-else class="card-body fw-bold text-center">
+            <p v-else class="card-body fw-bold text-center" style="pointer-events: none">
               (Work In Progress)
             </p>
             <p style="pointer-events: none"
