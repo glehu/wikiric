@@ -211,8 +211,8 @@
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideUserProfile"></i>
       <div style="display: flex">
-        <i class="bi bi-person-circle"></i>
-        <h2 class="fw-bold"> {{ this.viewedUserProfile.usr.split('@')[0] }}</h2>
+        <i class="bi bi-person-circle" style="font-size: 300%; margin-right: 10px"></i>
+        <h2 class="fw-bold" style="padding-top: 20px"> {{ this.viewedUserProfile.usr.split('@')[0] }}</h2>
       </div>
       <!-- #### MEMBER ROLES #### -->
       <hr class="c_gray">
@@ -294,7 +294,9 @@ export default {
     this.getClarifierMetaData()
     window.addEventListener('resize', this.resizeCanvas, false)
     this.resizeCanvas()
-    document.getElementById('new_comment').addEventListener('keydown', this.handleEnter, false)
+    const newCommentInput = document.getElementById('new_comment')
+    newCommentInput.addEventListener('keydown', this.handleEnter, false)
+    setTimeout(() => newCommentInput.focus(), 0)
   },
   methods: {
     subscribeFCM: function (uniChatroomGUID) {
