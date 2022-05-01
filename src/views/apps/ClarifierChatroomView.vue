@@ -210,7 +210,10 @@
     <div style="position: relative; padding-top: 10px">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideUserProfile"></i>
-      <h2 class="fw-bold"> {{ this.viewedUserProfile.usr.split('@')[0] }}</h2>
+      <div style="display: flex">
+        <i class="bi bi-person-circle"></i>
+        <h2 class="fw-bold"> {{ this.viewedUserProfile.usr.split('@')[0] }}</h2>
+      </div>
       <!-- #### MEMBER ROLES #### -->
       <hr class="c_gray">
       <div style="display: flex; flex-wrap: wrap">
@@ -395,6 +398,10 @@ export default {
     },
     toggleSelectingGIF: function () {
       this.isSelectingGIF = !this.isSelectingGIF
+      if (this.isSelectingGIF) {
+        const gifInput = document.getElementById('gif_query')
+        setTimeout(() => gifInput.focus(), 0)
+      }
       if (this.isSelectingGIF) this.hideUserProfile()
     },
     showUserProfile: function (user) {
