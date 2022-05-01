@@ -1,13 +1,13 @@
 <template>
-  <div style="min-height: 100vh" class="darkergray">
-    <div id="sidebar" class="sidebar darkgray"
+  <div style="min-height: 100vh" class="b_darkergray">
+    <div id="sidebar" class="sidebar b_darkgray"
          style="height: 100vh; z-index: 1000">
-      <div style="height: 240px">
+      <div style="height: 240px; overflow-x: clip; position: relative">
         <div class="header-margin" style="box-shadow: none"></div>
         <div style="width: 100%; height: 35px; padding-top: 5px">
           <span class="sb_link_text" style="color: white">Menu</span>
         </div>
-        <button class="sb_btn btn-no-outline" v-on:click="toggleSidebar">
+        <button class="sb_toggler btn-no-outline" v-on:click="toggleSidebar">
           <i class="bi bi-list"></i>
         </button>
         <ul class="nav_list list-unstyled" style="color: white">
@@ -32,7 +32,7 @@
         </ul>
       </div>
       <!-- #### CHANNELS #### -->
-      <div id="channel_section" class="channel_section darkergray"
+      <div id="channel_section" class="channel_section b_darkergray"
            style="height: calc(100% - 60px - 180px); width: 100%; z-index: 4;
            color: white; overflow-y: auto; overflow-x: clip;
            padding-top: 10px; padding-bottom: 20px">
@@ -42,26 +42,35 @@
             <a class="fw-bold text-white orange-hover" style="text-decoration: none"
                :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
                 <span class="orange-hover" style="position: relative">
+                  <i v-if="JSON.parse(session).id === clarifierUniChatroom.guid"
+                     class="bi bi-three-dots-vertical" style="position: absolute; left: -13px; top: -8px"></i>
                   <i class="bi bi-circle-fill"
                      style="font-size: 175%">
                   </i>
                   <span class="sb_link_text text-nowrap"
-                        style="padding-left: 5px; position: absolute; bottom: 5px"
-                  >&nbsp;{{ JSON.parse(session).title }}</span>
+                        style="padding-left: 5px; position: absolute; bottom: 5px">
+                    &nbsp;{{ JSON.parse(session).title }}
+                  </span>
                 </span>
             </a>
           </div>
         </div>
       </div>
     </div>
-    <div class="clarifier_chatroom" style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip">
-      <div id="chat_section" class="chat_section darkblue" style="width: 100%; height: 100%; z-index: 2">
+    <div class="clarifier_chatroom" style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip"
+         v-on:click="closeModals">
+      <div id="chat_section" class="chat_section b_darkblue" style="width: 100%; height: 100%">
         <div class="header-margin" style="box-shadow: none"></div>
         <!-- #### CHAT HEADER #### -->
         <div style="width: 100%; height: 35px; background-color: #143b92; box-shadow: 0 0 5px 5px black;
           font-weight: bold; font-size: 125%; color: white; padding-left: 10px"
              class="justify-content-center align-items-center">
-          {{ clarifierUniChatroom.t }}
+          <span>{{ clarifierUniChatroom.t }}</span>
+          <button class="btn-no-outline member_section_toggler"
+                  title="Show Members"
+                  v-on:click="toggleMemberSidebar">
+            <i class="bi bi-people-fill"></i>
+          </button>
         </div>
         <!-- #### MESSAGES #### -->
         <div id="messages_section"
@@ -72,10 +81,10 @@
              display: flex; flex-direction: column-reverse">
           <div v-for="msg in messages" :key="msg"
                style="color: white; padding-left: 15px; padding-right: 25px; padding-bottom: 15px">
+            <!-- Chat Avatar and Date-->
             <div style="position: relative;">
-              <i class="bi bi-person-circle"
-                 style="font-size: 200%; padding-right: 10px; position: relative; top: 15px">
-              </i>
+              <i v-if="JSON.parse(msg).src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
+              <i v-else class="sender_avatar bi bi-person-circle"></i>
               <span class="orange-hover" style="font-weight: bold">{{ JSON.parse(msg).src.split('@')[0] }}</span>
               <span style="color: gray; font-size: 80%; padding-left: 10px">
                   {{ new Date(JSON.parse(msg).ts).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
@@ -101,10 +110,10 @@
             </div>
             <!-- #### CLIENT MESSAGE #### -->
             <div v-else style="width: 100%; position: relative">
-              <div class="clientMessage"
-                   style="text-wrap: normal; word-wrap: break-word; padding-left: 42px">
+              <span class="clientMessage"
+                    style="text-wrap: normal; word-wrap: break-word; padding-left: 42px">
                 {{ JSON.parse(msg).msg }}
-              </div>
+              </span>
             </div>
           </div>
         </div>
@@ -123,7 +132,8 @@
                       height: 2.5em; min-height: 2.5em;"
                       v-model="new_message"
                       :placeholder="'Message to ' + clarifierUniChatroom.t"
-                      v-on:input="auto_grow('new_comment')">
+                      v-on:input="auto_grow('new_comment')"
+                      v-on:click="hideAllSidebars">
             </textarea>
             <button class="btn-outline-light"
                     style="position: absolute; bottom: 0; right: 15px; width: 5ch; height: 2.5em; margin-left: 1ch;
@@ -137,42 +147,47 @@
       </div>
     </div>
     <!-- #### MEMBERS #### -->
-    <div id="member_section" class="member_section darkergray"
+    <div id="member_section" class="member_section b_darkergray"
          style="color: white; z-index: 4; position: absolute; right: 0;
            height: 100vh; overflow-y: auto; overflow-x: clip">
       <div class="header-margin" style="box-shadow: none"></div>
       <div style="width: 100%; height: 35px; padding-top: 5px">
-        <span style="color: white; padding-left: 20px"> Members - {{ this.members.length }}</span>
+        <span style="color: white; padding-left: 20px"> Members&nbsp;-&nbsp;{{ this.members.length }}</span>
+        <button class="btn-no-outline member_section_toggler"
+                title="Hide Members"
+                v-on:click="toggleMemberSidebar">
+          <i class="bi bi-eye-slash-fill"></i>
+        </button>
       </div>
       <div style="padding: 5px">
         <div v-for="usr in clarifierUniChatroom.members" :key="usr"
-             style="padding-left: 10px; padding-bottom: 10px"
+             style="padding-left: 10px; padding-bottom: 10px; position: relative"
              class="user_badge"
              v-on:click="showUserProfile(JSON.parse(usr))">
           <i class="bi bi-person-circle"
              style="font-size: 200%; padding-right: 10px">
           </i>
-          <span style="font-weight: bold">{{ JSON.parse(usr).usr.split('@')[0] }}</span>
+          <span style="font-weight: bold; position: absolute; padding-top: 0.7em">
+            {{ JSON.parse(usr).usr.split('@')[0] }}
+          </span>
         </div>
-        <div class="mt-2" style="padding: 1ch">
-            <span>
-              <button class="text-white btn-no-outline"
-                      title="Invite"
-                      v-on:click="invite()">
-                <i class="bi bi-envelope-plus lead"></i>
-              </button>
-              <span class="tooltip-mock-destination" :class="{'show':showInviteCopied}">Copied!</span>
-            </span>
+        <div class="mt-2 ms-1" style="padding: 1ch">
+          <button class="text-white btn-no-outline"
+                  title="Invite"
+                  v-on:click="invite()">
+            <i class="bi bi-envelope-plus lead"></i>
+          </button>
+          <span class="tooltip-mock-destination" :class="{'show':showInviteCopied}">Copied!</span>
         </div>
       </div>
     </div>
   </div>
   <!-- #### GIF SELECTION #### -->
-  <div class="giphygrid purple" style="overflow: hidden" v-show="isSelectingGIF" @click.stop>
+  <div class="giphygrid b_purple" style="overflow: hidden" v-show="isSelectingGIF" @click.stop>
     <div style="width: 100%; margin-top: 66vh; position: absolute">
       <input id="gif_query"
              type="text"
-             class="fw-bold darkergray"
+             class="fw-bold b_darkergray"
              style="height: 4ch; padding-left: 1ch; color: white; border: none"
              v-model="gif_query_string"
              :placeholder="'Search for GIFs on GIPHY'"
@@ -180,7 +195,7 @@
       <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
            style="width: 125px; padding-left: 10px"/>
     </div>
-    <div style="height: 85%; width: 100%; overflow-x: clip; overflow-y: scroll; margin-top: 2ch" class="darkergray">
+    <div style="height: 85%; width: 100%; overflow-x: clip; overflow-y: scroll; margin-top: 2ch" class="b_darkergray">
       <div v-for="gif in gifSelection" :key="gif"
            style="padding-top: 10px; padding-left: 10px; display: inline-flex"
            v-on:click="this.addMessagePar('[c:GIF]' + gif.images.fixed_height.url, true)">
@@ -189,37 +204,44 @@
       </div>
     </div>
   </div>
-  <div class="user_profile darkgray" style="overflow: hidden"
+  <!-- #### USER PROFILE #### -->
+  <div class="user_profile b_darkgray" style="overflow: hidden"
        v-show="isViewingUserProfile" @click.stop>
     <div style="position: relative; padding-top: 10px">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideUserProfile"></i>
       <h2 class="fw-bold"> {{ this.viewedUserProfile.usr.split('@')[0] }}</h2>
-      <div style="margin-top: 30px; display: flex; flex-wrap: wrap">
+      <!-- #### MEMBER ROLES #### -->
+      <hr class="c_gray">
+      <div style="display: flex; flex-wrap: wrap">
         <div v-for="role in this.viewedUserProfile.roles" :key="role"
-             class="purple"
-             style="border-radius: 10px; padding: 0.5ch; margin-right: 1ch; margin-bottom: 1ch;">
-          {{ JSON.parse(role).name.replace(' ', '&nbsp;') }}
+             class="b_purple"
+             style="border-radius: 5px; padding: 0 4px 4px 4px; margin-right: 1ch; margin-bottom: 1ch">
+          <i v-show="isEditingRoles" class="bi bi-x-circle-fill orange-hover" style="margin-right: 4px"></i>
+          <span>{{ JSON.parse(role).name.replace(' ', '&nbsp;') }}</span>
         </div>
-        <span style="border-radius: 2rem; padding: 1ch; margin-right: 1ch" class="orange-hover"
-              v-on:click="addUserRole">
+        <span style="border-radius: 2rem; margin-right: 1em" class="orange-hover"
+              v-on:click="addUserRole" title="Add new Role">
           <i class="bi bi-plus-circle"></i>
         </span>
       </div>
+      <hr class="c_gray">
     </div>
   </div>
-  <div class="user_role darkgray align-items-center"
+  <!-- #### ROLE ADDER #### -->
+  <div class="user_role b_darkergray align-items-center"
        style="overflow: hidden; border: 2px solid black; border-radius: 20px;
        padding-top: 2ch; padding-bottom: 2ch;"
        v-show="isAddingRole" @click.stop>
     <div style="position: relative">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position: absolute; right: 0" title="Close"
          v-on:click="isAddingRole = false"></i>
-      <h3 class="fw-bold">Add a new Role</h3>
+      <h4 class="fw-bold">Add a new Role</h4>
       <input id="new_role"
              type="text"
-             class="fw-bold darkergray"
-             style="height: 4ch; padding-left: 1ch; color: white; border: none"
+             class="fw-bold b_darkergray"
+             style="height: 4ch; padding-left: 1ch; color: white; width: calc(100% - 1ch);
+             border: 1px solid white; border-radius: 10px"
              v-model="new_role"
              :placeholder="'Role'"
              v-on:keyup.enter="commitUserRole">
@@ -240,9 +262,12 @@ export default {
       new_role: '',
       gifSelection: [],
       showInviteCopied: false,
+      // Conditions
       isSelectingGIF: false,
       isViewingUserProfile: false,
       isAddingRole: false,
+      isEditingRoles: false,
+      //
       lastKeyPressed: '',
       viewedUserProfile: {
         id: -1,
@@ -305,7 +330,6 @@ export default {
       // Handle normal message
       this.connection.send(this.new_message)
       this.new_message = ''
-      document.getElementById('new_comment').style.height = '5ch'
     },
     addMessagePar: function (text, closeGIFSelection = false) {
       this.connection.send(text)
@@ -407,6 +431,13 @@ export default {
     },
     toggleSidebar: function () {
       document.getElementById('sidebar').classList.toggle('active')
+      const memberSidebar = document.getElementById('member_section')
+      if (memberSidebar.classList.contains('active')) memberSidebar.classList.remove('active')
+    },
+    toggleMemberSidebar: function () {
+      document.getElementById('member_section').classList.toggle('active')
+      const sidebar = document.getElementById('sidebar')
+      if (sidebar.classList.contains('active')) sidebar.classList.remove('active')
     },
     auto_grow: function (id) {
       if (this.lastKeyPressed === 'Enter') return
@@ -415,18 +446,43 @@ export default {
       elem.style.height = (elem.scrollHeight) + 'px'
     },
     resizeCanvas: function () {
-      const sidebar = document.getElementById('sidebar')
       if (window.innerWidth >= 992) {
-        if (!sidebar.classList.contains('active')) sidebar.classList.add('active')
+        this.showSidebar()
+        this.showMemberSidebar()
       } else {
-        if (sidebar.classList.contains('active')) sidebar.classList.remove('active')
+        this.hideSidebar()
+        this.hideMemberSidebar()
       }
+    },
+    showSidebar: function () {
+      const sidebar = document.getElementById('sidebar')
+      if (!sidebar.classList.contains('active')) sidebar.classList.add('active')
+    },
+    hideSidebar: function () {
+      const sidebar = document.getElementById('sidebar')
+      if (sidebar.classList.contains('active')) sidebar.classList.remove('active')
+    },
+    showMemberSidebar: function () {
+      const memberSidebar = document.getElementById('member_section')
+      if (!memberSidebar.classList.contains('active')) memberSidebar.classList.add('active')
+    },
+    hideMemberSidebar: function () {
+      const memberSidebar = document.getElementById('member_section')
+      if (memberSidebar.classList.contains('active')) memberSidebar.classList.remove('active')
+    },
+    hideAllSidebars: function () {
+      this.hideSidebar()
+      this.hideMemberSidebar()
+      this.isSelectingGIF = false
     },
     handleEnter: function () {
       if (event.code === 'Enter') {
         event.preventDefault()
         this.addMessage()
       }
+    },
+    closeModals: function () {
+      this.hideUserProfile()
     }
   }
 }
@@ -434,28 +490,52 @@ export default {
 
 <style scoped>
 
-.purple {
+.b_purple {
   background-color: #8844dd;
 }
 
-.darkblue {
+.c_purple {
+  color: #8844dd;
+}
+
+.b_darkblue {
   background-color: #041830;
 }
 
-.darkgray {
+.c_darkblue {
+  color: #041830;
+}
+
+.b_darkgray {
   background-color: #293139;
 }
 
-.darkergray {
+.c_darkgray {
+  color: #293139;
+}
+
+.b_darkergray {
   background-color: #101010;
 }
 
-.gray {
+.c_darkergray {
+  color: #101010;
+}
+
+.b_gray {
   background-color: #b1a8b9;
 }
 
-.orange {
+.c_gray {
+  color: #b1a8b9;
+}
+
+.b_orange {
   background-color: #ff5d37;
+}
+
+.c_orange {
+  color: #ff5d37;
 }
 
 @media only screen and (min-width: 992px) {
@@ -473,7 +553,7 @@ export default {
 }
 
 .user_badge:hover {
-  transition: 0.5s ease-in-out;
+  transition: 0.2s ease-in-out;
   border-radius: 1em;
   background-color: #ff5d37;
   color: white;
@@ -524,30 +604,29 @@ export default {
   width: 400px;
   height: 75vh;
   padding: 5px 20px;
-  box-sizing: border-box;
+  border-radius: 20px;
 }
 
 .user_profile {
   position: fixed;
   z-index: 1001;
   top: 10vh;
-  left: calc(50% - 200px);
+  left: calc(50% - 150px);
   color: white;
-  width: 400px;
+  width: 300px;
   height: 75vh;
   padding: 5px 20px;
-  box-sizing: border-box;
+  border-radius: 20px;
 }
 
 .user_role {
   position: fixed;
   z-index: 1001;
   top: calc(50% - 100px);
-  left: calc(50% - 150px);
+  left: calc(50% - 125px);
   color: white;
-  width: 300px;
+  width: 250px;
   padding: 5px 20px;
-  box-sizing: border-box;
 }
 
 .serverMessage {
@@ -563,10 +642,6 @@ export default {
 
 .new_comment:focus {
   outline: none;
-}
-
-.member_section {
-  width: 200px;
 }
 
 .clarifier_chatroom {
@@ -590,44 +665,60 @@ export default {
   transition: ease-in-out all 0.2s;
 }
 
+.member_section {
+  width: 0;
+  overflow-x: clip;
+  transition: ease-in-out all 0.2s;
+}
+
 .sidebar.active {
-  width: 225px;
+  width: 250px;
+}
+
+.member_section.active {
+  width: 250px;
 }
 
 @media only screen and (max-width: 991px) {
-  .member_section {
-    display: none;
-  }
-
   .clarifier_chatroom {
     width: calc(100% - 50px);
     left: 50px;
   }
 
   .sidebar.active .clarifier_chatroom {
-    width: calc(100% - 225px);
-    left: 225px;
+    width: calc(100% - 250px);
+    left: 250px;
   }
 }
 
 @media only screen and (min-width: 992px) {
-  .sb_btn {
+  .sb_toggler {
+    display: none;
+  }
+
+  .member_section_toggler {
     display: none;
   }
 
   .clarifier_chatroom {
-    width: calc(100% - 225px - 200px);
-    left: 225px;
+    width: calc(100% - 250px - 250px);
+    left: 250px;
   }
 }
 
-.sb_btn {
+.sb_toggler {
   position: absolute;
   width: 30px;
   right: 12px;
   top: 60px;
   color: white;
   font-size: 150%;
+}
+
+.member_section_toggler {
+  position: absolute;
+  color: white;
+  right: 10px
 }
 
 .sb_link {
@@ -646,7 +737,7 @@ export default {
 }
 
 .sb_link_text {
-  position: relative;
+  position: absolute;
   font-weight: bold;
   padding-left: 20px;
   opacity: 0;
@@ -655,6 +746,13 @@ export default {
 
 .sidebar.active .sb_link_text {
   opacity: 1;
+}
+
+.sender_avatar {
+  font-size: 200%;
+  padding-right: 10px;
+  position: relative;
+  top: 15px
 }
 
 </style>

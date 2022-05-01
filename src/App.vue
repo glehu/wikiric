@@ -16,20 +16,22 @@
                list="keywords">
         <!-- Autocompletion List -->
         <datalist id="keywords">
-          <option value="Home"/>
-          <option value="Discover"/>
-          <option value="Artists"/>
-          <option value="Songs"/>
-          <option value="Shop"/>
           <option value="About"/>
           <option value="Account"/>
+          <option value="API Manager"/>
+          <option value="Artists"/>
           <option value="Cart"/>
+          <option value="Chat"/>
+          <option value="Clarifier"/>
+          <option value="Discover"/>
+          <option value="Home"/>
           <option value="Invoices"/>
+          <option value="Mockingbird"/>
+          <option value="Planner"/>
           <option value="Preferences"/>
           <option value="Settings"/>
-          <option value="Planner"/>
-          <option value="API Manager"/>
-          <option value="Mockingbird"/>
+          <option value="Shop"/>
+          <option value="Songs"/>
         </datalist>
         <button
           class="navbar-toggler"
@@ -277,8 +279,6 @@ export default {
           this.$router.push('/invoices')
           break
         case 'preferences':
-          this.$router.push('/preferences?redirect=/account')
-          break
         case 'settings':
           this.$router.push('/preferences?redirect=/account')
           break
@@ -286,15 +286,17 @@ export default {
           this.$router.push('/apps/planner/_user')
           break
         case 'apimanager':
-          this.$router.push('/dev/api')
-          break
         case 'mockingbird':
           this.$router.push('/dev/api')
+          break
+        case 'chat':
+        case 'clarifier':
+          this.$router.push('/apps/clarifier')
           break
         default:
           this.$notify(
             {
-              title: 'Nothing Found.',
+              title: 'Nothing Found :(',
               text: 'No results for ' + this.keyword + '. Try something else maybe?',
               type: 'error'
             })
