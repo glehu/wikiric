@@ -12,21 +12,30 @@
         </button>
         <ul class="nav_list list-unstyled" style="color: white">
           <li>
-            <div class="sb_link orange-hover" v-on:click="this.$router.push('/apps/clarifier')">
-              <i class="sb_link_icon bi bi-arrow-return-left"></i>
-              <span class="sb_link_text">Exit</span>
+            <div class="sb_link" v-on:click="this.$router.push('/apps/clarifier')">
+              <div class="orange-hover">
+                <i class="sb_link_icon bi bi-arrow-return-left"></i>
+                <span class="sb_link_text">Exit</span>
+              </div>
+              <span class="sidebar_tooltip">Exit</span>
             </div>
           </li>
           <li>
-            <div class="sb_link orange-hover">
-              <i class="sb_link_icon bi bi-tools"></i>
-              <span class="sb_link_text">Settings</span>
+            <div class="sb_link">
+              <div class="orange-hover">
+                <i class="sb_link_icon bi bi-tools"></i>
+                <span class="sb_link_text">Settings</span>
+              </div>
+              <span class="sidebar_tooltip">Settings</span>
             </div>
           </li>
           <li>
-            <div class="sb_link orange-hover">
-              <i class="sb_link_icon bi bi-archive"></i>
-              <span class="sb_link_text">Files</span>
+            <div class="sb_link">
+              <div class="orange-hover">
+                <i class="sb_link_icon bi bi-archive"></i>
+                <span class="sb_link_text">Files</span>
+              </div>
+              <span class="sidebar_tooltip">Files</span>
             </div>
           </li>
         </ul>
@@ -34,26 +43,25 @@
       <!-- #### CHANNELS #### -->
       <div id="channel_section" class="channel_section b_darkergray"
            style="height: calc(100% - 60px - 180px); width: 100%; z-index: 4;
-           color: white; overflow-y: auto; overflow-x: clip;
-           padding-top: 10px; padding-bottom: 20px">
+           color: white; overflow-y: auto; padding-top: 10px; padding-bottom: 20px">
         <div v-for="session in this.$store.state.clarifierSessions" :key="session"
-             style="padding-left: 8px">
-          <div style="font-weight: bold; font-size: 125%">
-            <a class="fw-bold text-white orange-hover" style="text-decoration: none"
-               :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
-                <span class="orange-hover" style="position: relative">
-                  <i v-if="JSON.parse(session).id === clarifierUniChatroom.guid"
-                     class="bi bi-three-dots-vertical" style="position: absolute; left: -13px; top: -8px"></i>
-                  <i class="bi bi-circle-fill"
-                     style="font-size: 175%">
-                  </i>
-                  <span class="sb_link_text text-nowrap"
-                        style="padding-left: 5px; position: absolute; bottom: 5px">
-                    &nbsp;{{ JSON.parse(session).title }}
-                  </span>
-                </span>
-            </a>
-          </div>
+             class="channel_link"
+             style="position: relative; padding-left: 8px; font-weight: bold; font-size: 125%">
+          <a class="fw-bold text-white orange-hover" style="text-decoration: none"
+             :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
+            <div class="orange-hover">
+              <i v-if="JSON.parse(session).id === clarifierUniChatroom.guid"
+                 class="bi bi-dot"
+                 style="position: absolute; left: -25px; top: -22px; font-size: 200%"></i>
+              <i class="bi bi-circle-fill"
+                 style="font-size: 175%">
+              </i>
+              <span class="sb_link_text text-nowrap" style="padding-left: 10px; position: absolute; bottom: 10px">
+                &nbsp;{{ JSON.parse(session).title }}
+              </span>
+            </div>
+          </a>
+          <span class="channel_tooltip">{{ JSON.parse(session).title }}</span>
         </div>
       </div>
     </div>
@@ -228,26 +236,26 @@
           <i class="bi bi-plus-circle"></i>
         </span>
       </div>
-      <hr class="c_gray">
-    </div>
-  </div>
-  <!-- #### ROLE ADDER #### -->
-  <div class="user_role b_darkergray align-items-center"
-       style="overflow: hidden; border: 2px solid black; border-radius: 20px;
-       padding-top: 2ch; padding-bottom: 2ch;"
-       v-show="isAddingRole" @click.stop>
-    <div style="position: relative">
-      <i class="bi bi-x-lg lead" style="cursor: pointer; position: absolute; right: 0" title="Close"
-         v-on:click="isAddingRole = false"></i>
-      <h4 class="fw-bold">Add a new Role</h4>
-      <input id="new_role"
-             type="text"
-             class="fw-bold b_darkergray"
-             style="height: 4ch; padding-left: 1ch; color: white; width: calc(100% - 1ch);
+      <!-- #### ROLE ADDER #### -->
+      <div class="user_role b_darkergray align-items-center"
+           style="overflow: hidden; border: 2px solid black; border-radius: 20px;
+                  padding-top: 2ch; padding-bottom: 2ch;"
+           v-show="isAddingRole" @click.stop>
+        <div style="position: relative">
+          <i class="bi bi-x-lg lead" style="cursor: pointer; position: absolute; right: 0" title="Close"
+             v-on:click="isAddingRole = false"></i>
+          <h4 class="fw-bold">Add a new Role</h4>
+          <input id="new_role"
+                 type="text"
+                 class="fw-bold b_darkergray"
+                 style="height: 4ch; padding-left: 1ch; color: white; width: calc(100% - 1ch);
              border: 1px solid white; border-radius: 10px"
-             v-model="new_role"
-             :placeholder="'Role'"
-             v-on:keyup.enter="commitUserRole">
+                 v-model="new_role"
+                 :placeholder="'Role'"
+                 v-on:keyup.enter="commitUserRole">
+        </div>
+      </div>
+      <hr class="c_gray">
     </div>
   </div>
 </template>
@@ -365,6 +373,7 @@ export default {
         this.messages = this.clarifierUniChatroom.messages.reverse()
       }
       this.members = this.clarifierUniChatroom.members
+      document.title = this.clarifierUniChatroom.t
     },
     getSession: function () {
       return this.$route.params.id
@@ -417,14 +426,13 @@ export default {
       setTimeout(() => roleInput.focus(), 0)
     },
     commitUserRole: function () {
-      this.hideUserProfile()
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const content = JSON.stringify({
         member: this.viewedUserProfile.usr,
         role: this.new_role
       })
-      this.new_role = ''
+      this.hideUserProfile()
       fetch(
         this.$store.state.serverIP + '/api/m5/addrole/' + this.getSession(),
         {
@@ -558,10 +566,6 @@ export default {
   .user_profile {
     transform: translateX(15vw);
   }
-
-  .user_role {
-    transform: translateX(15vw);
-  }
 }
 
 .user_badge:hover {
@@ -632,10 +636,7 @@ export default {
 }
 
 .user_role {
-  position: fixed;
   z-index: 1001;
-  top: calc(50% - 100px);
-  left: calc(50% - 125px);
   color: white;
   width: 250px;
   padding: 5px 20px;
@@ -691,6 +692,22 @@ export default {
   width: 250px;
 }
 
+.sidebar_tooltip {
+  position: fixed;
+  left: 58px;
+  transform: translateY(-32px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.channel_tooltip {
+  position: fixed;
+  left: 58px;
+  transform: translateY(-40px);
+  opacity: 0;
+  pointer-events: none;
+}
+
 @media only screen and (max-width: 991px) {
   .clarifier_chatroom {
     width: calc(100% - 50px);
@@ -701,6 +718,24 @@ export default {
     width: calc(100% - 250px);
     left: 250px;
   }
+
+  .sb_link:hover .sidebar_tooltip {
+    opacity: 1;
+    transition: ease-in-out opacity 0.2s;
+  }
+
+  .channel_link:hover .channel_tooltip {
+    opacity: 1;
+    transition: ease-in-out opacity 0.2s;
+  }
+}
+
+.sidebar.active .sidebar_tooltip {
+  display: none;
+}
+
+.sidebar.active .channel_tooltip {
+  display: none;
 }
 
 @media only screen and (min-width: 992px) {
