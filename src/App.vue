@@ -197,8 +197,9 @@ export default {
 
     window.addEventListener('keydown', function (event) {
       if (event.ctrlKey && event.key === 'y') {
-        document.getElementById('keyword-search').focus()
-        document.getElementById('keyword-search').select()
+        const keywordSearch = document.getElementById('keyword-search')
+        keywordSearch.focus()
+        keywordSearch.select()
       }
     })
   },

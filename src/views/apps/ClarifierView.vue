@@ -87,7 +87,9 @@ export default {
   mounted () {
     document.getElementById('btn_join_session').disabled = true
     document.getElementById('btn_create_session').disabled = true
-    document.getElementById('input_session').addEventListener('keyup', this.checkInput, false)
+    const sessionInput = document.getElementById('input_session')
+    sessionInput.focus()
+    sessionInput.addEventListener('keyup', this.checkInput, false)
   },
   methods: {
     create: function () {

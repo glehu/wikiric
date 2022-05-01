@@ -404,6 +404,8 @@ export default {
     },
     addUserRole: function () {
       this.isAddingRole = true
+      const roleInput = document.getElementById('new_role')
+      setTimeout(() => roleInput.focus(), 0)
     },
     commitUserRole: function () {
       this.hideUserProfile()
@@ -428,6 +430,7 @@ export default {
     hideUserProfile: function () {
       this.isViewingUserProfile = false
       this.isAddingRole = false
+      this.new_role = ''
     },
     toggleSidebar: function () {
       document.getElementById('sidebar').classList.toggle('active')
