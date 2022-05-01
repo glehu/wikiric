@@ -107,17 +107,16 @@ export default createStore({
       state.token = newServerToken
     },
     addClarifierSession (state, session) {
-      let found = false
       for (let i = 0; i < state.clarifierSessions.length; i++) {
         if (JSON.parse(state.clarifierSessions[i]).id === session.id) {
-          found = true
+          state.clarifierSessions.splice(i, 1)
           break
         }
       }
-      if (found) return
-      state.clarifierSessions.push(JSON.stringify({
+      state.clarifierSessions.unshift(JSON.stringify({
         id: session.id,
-        title: session.title
+        title: session.title,
+        img: session.img
       }))
     },
     removeClarifierSession (state, session) {

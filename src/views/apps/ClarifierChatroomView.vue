@@ -20,7 +20,7 @@
               <span class="sidebar_tooltip">Exit</span>
             </div>
           </li>
-          <li>
+          <li v-on:click="isViewingSessionSettings = true">
             <div class="sb_link">
               <div class="orange-hover">
                 <i class="sb_link_icon bi bi-tools"></i>
@@ -51,11 +51,11 @@
              :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
             <div class="orange-hover">
               <i v-if="JSON.parse(session).id === clarifierUniChatroom.guid"
-                 class="bi bi-dot"
-                 style="position: absolute; left: -25px; top: -22px; font-size: 200%"></i>
-              <i class="bi bi-circle-fill"
-                 style="font-size: 175%">
-              </i>
+                 class="bi bi-dot" style="position: absolute; left: -25px; top: -22px; font-size: 200%"></i>
+              <i class="bi bi-circle-fill" style="font-size: 180%"></i>
+              <img style="width: 40px; height: 40px; position: absolute; left: 6px; top: 8px; background-color: white;
+                   border-radius: 20px"
+                   v-bind:src="getImg(JSON.parse(session).img)" alt=""/>
               <span class="sb_link_text text-nowrap" style="padding-left: 10px; position: absolute; bottom: 10px">
                 &nbsp;{{ JSON.parse(session).title }}
               </span>
@@ -160,7 +160,9 @@
            height: 100vh; overflow-y: auto; overflow-x: clip">
       <div class="header-margin" style="box-shadow: none"></div>
       <div style="width: 100%; height: 35px; padding-top: 5px">
-        <span style="color: white; padding-left: 20px"> Members&nbsp;-&nbsp;{{ this.members.length }}</span>
+        <span class="member_count" style="color: white; padding-left: 20px">
+          Members&nbsp;-&nbsp;{{ this.members.length }}
+        </span>
         <button class="btn-no-outline member_section_toggler"
                 title="Hide Members"
                 v-on:click="toggleMemberSidebar">
@@ -179,11 +181,11 @@
             {{ JSON.parse(usr).usr.split('@')[0] }}
           </span>
         </div>
-        <div class="mt-2 ms-1" style="padding: 1ch">
+        <div class="mt-2" style="padding: 10px">
           <button class="text-white btn-no-outline"
                   title="Invite"
                   v-on:click="invite()">
-            <i class="bi bi-envelope-plus lead"></i>
+            <i class="bi bi-envelope-plus lead" style="font-size: 150%"></i>
           </button>
           <span class="tooltip-mock-destination" :class="{'show':showInviteCopied}">Copied!</span>
         </div>
@@ -258,6 +260,19 @@
       <hr class="c_gray">
     </div>
   </div>
+  <!-- #### Settings #### -->
+  <div class="session_settings b_darkgray" style="overflow: hidden"
+       v-show="isViewingSessionSettings" @click.stop>
+    <div style="position: relative; padding-top: 10px">
+      <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
+         v-on:click="hideSessionSettings"></i>
+      <h2 class="fw-bold"> Session Settings</h2>
+      <img style="max-width: 75%; max-height: 75%" v-bind:src="clarifierUniChatroom.img"
+           alt="No Image Available."/>
+      <div class="drop_zone" id="drop_zone">Upload a picture!</div>
+      <input type="file" class="file_input" id="files" name="files[]" multiple v-on:change="handleFileSelect"/>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -276,6 +291,7 @@ export default {
       // Conditions
       isSelectingGIF: false,
       isViewingUserProfile: false,
+      isViewingSessionSettings: false,
       isAddingRole: false,
       isEditingRoles: false,
       //
@@ -305,6 +321,9 @@ export default {
     const newCommentInput = document.getElementById('new_comment')
     newCommentInput.addEventListener('keydown', this.handleEnter, false)
     setTimeout(() => newCommentInput.focus(), 0)
+    const dropZone = document.getElementById('drop_zone')
+    dropZone.addEventListener('dragover', this.handleDragOver, false)
+    dropZone.addEventListener('drop', this.handleFileSelectDrop, false)
   },
   methods: {
     subscribeFCM: function (uniChatroomGUID) {
@@ -367,7 +386,8 @@ export default {
     processResponse: function (updateMessages) {
       this.$store.commit('addClarifierSession', {
         id: this.clarifierUniChatroom.guid,
-        title: this.clarifierUniChatroom.t
+        title: this.clarifierUniChatroom.t,
+        img: this.getImg(this.clarifierUniChatroom.img)
       })
       if (updateMessages) {
         this.messages = this.clarifierUniChatroom.messages.reverse()
@@ -449,6 +469,9 @@ export default {
       this.isAddingRole = false
       this.new_role = ''
     },
+    hideSessionSettings: function () {
+      this.isViewingSessionSettings = false
+    },
     toggleSidebar: function () {
       document.getElementById('sidebar').classList.toggle('active')
       const memberSidebar = document.getElementById('member_section')
@@ -503,6 +526,69 @@ export default {
     },
     closeModals: function () {
       this.hideUserProfile()
+    },
+    handleFileSelectDrop: function (evt) {
+      this.handleFileSelect(evt, true)
+    },
+    handleFileSelect: function (evt, drop = false) {
+      evt.stopPropagation()
+      evt.preventDefault()
+
+      let files
+      if (drop) {
+        files = evt.dataTransfer.files
+      } else {
+        files = evt.target.files
+      }
+      this.setSessionImage(files[0])
+    },
+    handleDragOver: function (evt) {
+      evt.stopPropagation()
+      evt.preventDefault()
+      evt.dataTransfer.dropEffect = 'copy'
+    },
+    getImg: function (string) {
+      const img = string
+      if (img === '') {
+        return ''
+      } else {
+        return img
+      }
+    },
+    getBase64: function (file, onLoadCallback) {
+      return new Promise(function (resolve, reject) {
+        const reader = new FileReader()
+        reader.onload = function () {
+          resolve(reader.result)
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+    },
+    setSessionImage: function (image) {
+      const headers = new Headers()
+      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      const url = this.$store.state.serverIP + '/api/m5/setimage/' + this.getSession()
+      let base64String = ''
+      const promise = this.getBase64(image)
+      promise
+        .then(function (result) {
+          base64String = result
+          const content = JSON.stringify({
+            imageBase64: base64String
+          })
+          fetch(
+            url,
+            {
+              method: 'post',
+              headers: headers,
+              body: content
+            }
+          )
+            .then((res) => console.log(res))
+            .catch((err) => console.error(err.message))
+        })
+        .then(() => setTimeout(() => this.getClarifierMetaData(false), 2000))
     }
   }
 }
@@ -635,6 +721,18 @@ export default {
   border-radius: 20px;
 }
 
+.session_settings {
+  position: fixed;
+  z-index: 1001;
+  top: 105px;
+  left: calc(50% - 178px);
+  color: white;
+  width: 400px;
+  height: 77vh;
+  padding: 5px 20px;
+  border-radius: 20px;
+}
+
 .user_role {
   z-index: 1001;
   color: white;
@@ -681,7 +779,19 @@ export default {
 .member_section {
   width: 0;
   overflow-x: clip;
+  opacity: 0;
   transition: ease-in-out all 0.2s;
+}
+
+.member_count,
+.user_badge {
+  opacity: 0;
+  transition: ease-in-out opacity 0.3s;
+}
+
+.member_section.active .member_count,
+.member_section.active .user_badge {
+  opacity: 1;
 }
 
 .sidebar.active {
@@ -690,6 +800,7 @@ export default {
 
 .member_section.active {
   width: 250px;
+  opacity: 1;
 }
 
 .sidebar_tooltip {
@@ -800,6 +911,16 @@ export default {
   padding-right: 10px;
   position: relative;
   top: 15px
+}
+
+.drop_zone {
+  border: 2px dashed #bbb;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  padding: 25px;
+  text-align: center;
+  color: #bbb;
 }
 
 </style>

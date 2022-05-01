@@ -89,7 +89,7 @@ export default {
     document.getElementById('btn_create_session').disabled = true
     const sessionInput = document.getElementById('input_session')
     sessionInput.focus()
-    sessionInput.addEventListener('keyup', this.checkInput, false)
+    sessionInput.addEventListener('input', this.checkInput, false)
   },
   methods: {
     create: function () {
