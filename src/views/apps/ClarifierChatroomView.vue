@@ -1,11 +1,11 @@
 <template>
   <div style="min-height: 100vh" class="b_darkergray">
-    <div id="sidebar" class="sidebar b_darkgray"
+    <div id="sidebar" class="sidebar b_gray"
          style="height: 100vh; z-index: 1000">
       <div style="height: 240px; overflow-x: clip; position: relative">
         <div class="header-margin" style="box-shadow: none"></div>
         <div style="width: 100%; height: 35px; padding-top: 5px">
-          <span class="sb_link_text" style="color: white">Menu</span>
+          <span class="sb_link_text sb_session_name" style="color: white">Menu</span>
         </div>
         <button class="sb_toggler btn-no-outline" v-on:click="toggleSidebar">
           <i class="bi bi-list"></i>
@@ -41,7 +41,7 @@
         </ul>
       </div>
       <!-- #### CHANNELS #### -->
-      <div id="channel_section" class="channel_section b_darkergray"
+      <div id="channel_section" class="channel_section b_darkgray"
            style="height: calc(100% - 60px - 180px); width: 100%; z-index: 4;
            color: white; overflow-y: auto; padding-top: 10px; padding-bottom: 20px">
         <div v-for="session in this.$store.state.clarifierSessions" :key="session"
@@ -53,8 +53,8 @@
               <i v-if="JSON.parse(session).id === clarifierUniChatroom.guid"
                  class="bi bi-dot" style="position: absolute; left: -25px; top: -22px; font-size: 200%"></i>
               <i class="bi bi-circle-fill" style="font-size: 180%"></i>
-              <img style="width: 40px; height: 40px; position: absolute; left: 6px; top: 8px; background-color: white;
-                   border-radius: 20px"
+              <img style="width: 40px; height: 40px; position: absolute; left: 5.5px; top: 8px; background-color: white;
+                   border-radius: 10px"
                    v-bind:src="getImg(JSON.parse(session).img)" alt=""/>
               <span class="sb_link_text text-nowrap" style="padding-left: 10px; position: absolute; bottom: 10px">
                 &nbsp;{{ JSON.parse(session).title }}
@@ -67,12 +67,12 @@
     </div>
     <div class="clarifier_chatroom" style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip"
          v-on:click="closeModals">
-      <div id="chat_section" class="chat_section b_darkblue" style="width: 100%; height: 100%">
+      <div id="chat_section" class="chat_section b_darkergray" style="width: 100%; height: 100%">
         <div class="header-margin" style="box-shadow: none"></div>
         <!-- #### CHAT HEADER #### -->
-        <div style="width: 100%; height: 35px; background-color: #143b92; box-shadow: 0 0 5px 5px black;
-          font-weight: bold; font-size: 125%; color: white; padding-left: 10px"
-             class="justify-content-center align-items-center">
+        <div style="width: 100%; height: 35px; box-shadow: 0 0 5px 5px black;
+             font-weight: bold; font-size: 125%; color: white; padding-left: 10px"
+             class="justify-content-center align-items-center b_gray">
           <span>{{ clarifierUniChatroom.t }}</span>
           <button class="btn-no-outline member_section_toggler"
                   title="Show Members"
@@ -129,13 +129,12 @@
         <div class="align-bottom" style="display: inline-flex; width: 100%">
           <div style="width: 100%; padding-left: 2ch; padding-right: 2ch; position: relative">
             <textarea id="new_comment"
-                      class="new_comment"
+                      class="new_comment b_gray"
                       type="text"
                       style="position: absolute; bottom: 0; left: 10px;
-                      width: calc(100% - 75px);
+                      width: calc(100% - 115px);
                       padding-top: 0.30em; padding-bottom: 0.4em; padding-left: 1ch;
-                      color: white; background-color: #143b92; border-color: transparent;
-                      border-radius: 1em;
+                      color: white; border-color: transparent; border-radius: 1em;
                       resize: none; overflow: hidden;
                       height: 2.5em; min-height: 2.5em;"
                       v-model="new_message"
@@ -143,19 +142,28 @@
                       v-on:input="auto_grow('new_comment')"
                       v-on:click="hideAllSidebars">
             </textarea>
-            <button class="btn-outline-light"
-                    style="position: absolute; bottom: 0; right: 15px; width: 5ch; height: 2.5em; margin-left: 1ch;
-                    background-color: #143b92; border-color: transparent; border-radius: 1em"
+            <button class="btn-outline-light b_gray"
+                    style="position: absolute; bottom: 0; right: 15px;
+                    width: 40px; height: 2.5em; margin-left: 1ch;
+                    border-color: transparent; border-radius: 1em"
                     title="Search on GIPHY"
                     v-on:click="toggleSelectingGIF">
               <span class="fw-bold">GIF</span>
+            </button>
+            <button class="btn-outline-light b_gray"
+                    style="position: absolute; bottom: 0; right: 60px;
+                    width: 40px; height: 2.5em; margin-left: 1ch;
+                    border-color: transparent; border-radius: 1em"
+                    title="Send"
+                    v-on:click="addMessage">
+              <span class="fw-bold"><i class="bi bi-send"></i></span>
             </button>
           </div>
         </div>
       </div>
     </div>
     <!-- #### MEMBERS #### -->
-    <div id="member_section" class="member_section b_darkergray"
+    <div id="member_section" class="member_section b_gray"
          style="color: white; z-index: 4; position: absolute; right: 0;
            height: 100vh; overflow-y: auto; overflow-x: clip">
       <div class="header-margin" style="box-shadow: none"></div>
@@ -189,28 +197,6 @@
           </button>
           <span class="tooltip-mock-destination" :class="{'show':showInviteCopied}">Copied!</span>
         </div>
-      </div>
-    </div>
-  </div>
-  <!-- #### GIF SELECTION #### -->
-  <div class="giphygrid b_purple" style="overflow: hidden" v-show="isSelectingGIF" @click.stop>
-    <div style="width: 100%; margin-top: 66vh; position: absolute">
-      <input id="gif_query"
-             type="text"
-             class="fw-bold b_darkergray"
-             style="height: 4ch; padding-left: 1ch; color: white; border: none"
-             v-model="gif_query_string"
-             :placeholder="'Search for GIFs on GIPHY'"
-             v-on:keyup.enter="getGIFSelection(gif_query_string)">
-      <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
-           style="width: 125px; padding-left: 10px"/>
-    </div>
-    <div style="height: 85%; width: 100%; overflow-x: clip; overflow-y: scroll; margin-top: 2ch" class="b_darkergray">
-      <div v-for="gif in gifSelection" :key="gif"
-           style="padding-top: 10px; padding-left: 10px; display: inline-flex"
-           v-on:click="this.addMessagePar('[c:GIF]' + gif.images.fixed_height.url, true)">
-        <img :src="gif.images.fixed_height.url" alt=":(" class="selectableGIF"
-             style="width: 155px; height: 155px">
       </div>
     </div>
   </div>
@@ -260,17 +246,47 @@
       <hr class="c_gray">
     </div>
   </div>
+  <!-- #### GIF SELECTION #### -->
+  <div class="giphygrid b_darkgray" style="overflow: hidden" v-show="isSelectingGIF" @click.stop>
+    <div style="width: 100%; position: absolute; bottom: 10px">
+      <input id="gif_query"
+             type="text"
+             class="fw-bold b_darkergray"
+             style="height: 4ch; padding-left: 1ch; color: white; border: none"
+             v-model="gif_query_string"
+             :placeholder="'Search for GIFs on GIPHY'"
+             v-on:keyup.enter="getGIFSelection(gif_query_string)">
+      <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
+           style="width: 125px; padding-left: 10px"/>
+    </div>
+    <div style="height: 85%; width: 100%; overflow-x: clip; overflow-y: scroll; margin-top: 2ch" class="b_darkergray">
+      <div v-for="gif in gifSelection" :key="gif"
+           style="padding-top: 10px; padding-left: 10px; display: inline-flex"
+           v-on:click="this.addMessagePar('[c:GIF]' + gif.images.fixed_height.url, true)">
+        <img :src="gif.images.fixed_height.url" alt="Loading" class="selectableGIF"
+             style="width: 155px; height: 155px">
+      </div>
+    </div>
+  </div>
   <!-- #### Settings #### -->
   <div class="session_settings b_darkgray" style="overflow: hidden"
        v-show="isViewingSessionSettings" @click.stop>
-    <div style="position: relative; padding-top: 10px">
+    <div style="position: relative; padding-top: 10px; width: 100%">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideSessionSettings"></i>
-      <h2 class="fw-bold"> Session Settings</h2>
-      <img style="max-width: 75%; max-height: 75%" v-bind:src="clarifierUniChatroom.img"
-           alt="No Image Available."/>
-      <div class="drop_zone" id="drop_zone">Upload a picture!</div>
-      <input type="file" class="file_input" id="files" name="files[]" multiple v-on:change="handleFileSelect"/>
+      <h2 class="fw-bold">Session Settings</h2>
+      <div style="display: flex; width: 100%; margin-bottom: 10px">
+        <img style="width: 80px; height: 80px; background-color: white; border-radius: 20px"
+             v-bind:src="clarifierUniChatroom.img" alt="No Image Available."/>
+        <div class="drop_zone" id="drop_zone">Upload a picture!</div>
+      </div>
+      <input type="file" class="file_input" id="files" name="files[]"
+             multiple v-on:change="handleFileSelect"/>
+      <div id="confirm_settings_loading" class="ms-3 mt-3" style="display: none">
+        <span class="spinner-grow spinner-grow-sm text-info" role="status" aria-hidden="true"></span>
+        <span class="jetb ms-2">Uploading...</span>
+      </div>
+      <hr style="color: white">
     </div>
   </div>
 </template>
@@ -316,6 +332,7 @@ export default {
   },
   mounted () {
     this.getClarifierMetaData()
+    this.getClarifierMessages()
     window.addEventListener('resize', this.resizeCanvas, false)
     this.resizeCanvas()
     const newCommentInput = document.getElementById('new_comment')
@@ -345,7 +362,7 @@ export default {
     showMessage: function (msg) {
       this.messages.unshift(msg)
       if ((JSON.parse(msg).msg).includes('[s:RegistrationNotification]')) {
-        this.getClarifierMetaData(false)
+        this.getClarifierMetaData()
       }
     },
     addMessage: function () {
@@ -357,17 +374,23 @@ export default {
       if (this.new_message.toLowerCase().startsWith('gif ')) {
         this.getGIF(this.new_message.substring(3))
         this.new_message = ''
+        this.focusComment()
         return
       }
       // Handle normal message
       this.connection.send(this.new_message)
       this.new_message = ''
+      this.focusComment()
+    },
+    focusComment: function () {
+      const input = document.getElementById('new_comment')
+      setTimeout(() => input.focus(), 0)
     },
     addMessagePar: function (text, closeGIFSelection = false) {
       this.connection.send(text)
       if (closeGIFSelection) this.isSelectingGIF = false
     },
-    getClarifierMetaData: function (updateMessages = true) {
+    getClarifierMetaData: function () {
       this.clarifierUniChatroom = {}
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
@@ -380,20 +403,35 @@ export default {
       )
         .then((res) => res.json())
         .then((data) => (this.clarifierUniChatroom = data))
-        .then(() => (this.processResponse(updateMessages)))
+        .then(() => (this.processMetaDataResponse()))
         .catch((err) => console.error(err.message))
     },
-    processResponse: function (updateMessages) {
+    processMetaDataResponse: function () {
       this.$store.commit('addClarifierSession', {
         id: this.clarifierUniChatroom.guid,
         title: this.clarifierUniChatroom.t,
         img: this.getImg(this.clarifierUniChatroom.img)
       })
-      if (updateMessages) {
-        this.messages = this.clarifierUniChatroom.messages.reverse()
-      }
       this.members = this.clarifierUniChatroom.members
       document.title = this.clarifierUniChatroom.t
+    },
+    getClarifierMessages: function () {
+      this.clarifierUniChatroom.messages = []
+      const headers = new Headers()
+      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      fetch(
+        this.$store.state.serverIP + '/api/m5/getmessages/' + this.getSession(),
+        {
+          method: 'get',
+          headers: headers
+        }
+      )
+        .then((res) => res.json())
+        .then((data) => (this.processMessagesResponse(data)))
+        .catch((err) => console.error(err.message))
+    },
+    processMessagesResponse: function (data) {
+      this.messages = data.messages.reverse()
     },
     getSession: function () {
       return this.$route.params.id
@@ -461,7 +499,7 @@ export default {
           body: content
         }
       )
-        .then(() => this.getClarifierMetaData(false))
+        .then(() => this.getClarifierMetaData())
         .catch((err) => console.error(err.message))
     },
     hideUserProfile: function () {
@@ -514,8 +552,10 @@ export default {
       if (memberSidebar.classList.contains('active')) memberSidebar.classList.remove('active')
     },
     hideAllSidebars: function () {
-      this.hideSidebar()
-      this.hideMemberSidebar()
+      if (window.innerWidth < 992) {
+        this.hideSidebar()
+        this.hideMemberSidebar()
+      }
       this.isSelectingGIF = false
     },
     handleEnter: function () {
@@ -533,6 +573,8 @@ export default {
     handleFileSelect: function (evt, drop = false) {
       evt.stopPropagation()
       evt.preventDefault()
+
+      this.toggleElement('confirm_settings_loading', 'flex')
 
       let files
       if (drop) {
@@ -588,7 +630,16 @@ export default {
             .then((res) => console.log(res))
             .catch((err) => console.error(err.message))
         })
-        .then(() => setTimeout(() => this.getClarifierMetaData(false), 2000))
+        .then(() => setTimeout(() => this.getClarifierMetaData(), 2000))
+        .then(() => setTimeout(() => this.toggleElement('confirm_settings_loading', 'flex'), 2000))
+    },
+    toggleElement: function (id, display = 'block') {
+      const explanation = document.getElementById(id)
+      if (explanation.style.display === display) {
+        explanation.style.display = 'none'
+      } else {
+        explanation.style.display = display
+      }
     }
   }
 }
@@ -613,11 +664,11 @@ export default {
 }
 
 .b_darkgray {
-  background-color: #293139;
+  background-color: #192129;
 }
 
 .c_darkgray {
-  color: #293139;
+  color: #192129;
 }
 
 .b_darkergray {
@@ -629,11 +680,11 @@ export default {
 }
 
 .b_gray {
-  background-color: #b1a8b9;
+  background-color: #293139;
 }
 
 .c_gray {
-  color: #b1a8b9;
+  color: #293139;
 }
 
 .b_orange {
@@ -697,18 +748,6 @@ export default {
   cursor: grab;
 }
 
-.giphygrid {
-  position: fixed;
-  z-index: 1001;
-  top: 10vh;
-  left: calc(50% - 200px);
-  color: white;
-  width: 400px;
-  height: 75vh;
-  padding: 5px 20px;
-  border-radius: 20px;
-}
-
 .user_profile {
   position: fixed;
   z-index: 1001;
@@ -721,6 +760,7 @@ export default {
   border-radius: 20px;
 }
 
+.giphygrid,
 .session_settings {
   position: fixed;
   z-index: 1001;
@@ -806,7 +846,7 @@ export default {
 .sidebar_tooltip {
   position: fixed;
   left: 58px;
-  transform: translateY(-32px);
+  transform: translateY(-36px);
   opacity: 0;
   pointer-events: none;
 }
@@ -814,7 +854,7 @@ export default {
 .channel_tooltip {
   position: fixed;
   left: 58px;
-  transform: translateY(-40px);
+  transform: translateY(-47px);
   opacity: 0;
   pointer-events: none;
 }
@@ -830,13 +870,12 @@ export default {
     left: 250px;
   }
 
-  .sb_link:hover .sidebar_tooltip {
-    opacity: 1;
-    transition: ease-in-out opacity 0.2s;
-  }
-
+  .sb_link:hover .sidebar_tooltip,
   .channel_link:hover .channel_tooltip {
     opacity: 1;
+    background-color: #192129;
+    padding: 5px 10px 5px 10px;
+    border-radius: 20px;
     transition: ease-in-out opacity 0.2s;
   }
 }
@@ -919,8 +958,10 @@ export default {
   -webkit-border-radius: 5px;
   border-radius: 5px;
   padding: 25px;
+  margin-left: 10px;
   text-align: center;
   color: #bbb;
+  width: 100%
 }
 
 </style>
