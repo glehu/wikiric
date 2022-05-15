@@ -43,7 +43,7 @@
       <!-- #### CHANNELS #### -->
       <div id="channel_section" class="channel_section b_darkgray"
            style="height: calc(100% - 60px - 180px); width: 100%; z-index: 4;
-           color: white; overflow-y: auto; padding-top: 10px; padding-bottom: 20px">
+           color: white; overflow-y: auto; overflow-x: clip; padding-top: 10px; padding-bottom: 20px">
         <div v-for="session in this.$store.state.clarifierSessions" :key="session"
              class="channel_link"
              style="position: relative; padding-left: 8px; font-weight: bold; font-size: 125%">
@@ -276,8 +276,9 @@
          v-on:click="hideSessionSettings"></i>
       <h2 class="fw-bold">Session Settings</h2>
       <div style="display: flex; width: 100%; margin-bottom: 10px">
-        <img style="width: 80px; height: 80px; background-color: white; border-radius: 20px"
-             v-bind:src="clarifierUniChatroom.img" alt="No Image Available."/>
+        <img style="min-width: 80px; width: 80px; min-height: 80px; height: 80px;
+             background-color: white; border-radius: 20px"
+             v-bind:src="clarifierUniChatroom.img" alt=""/>
         <div class="drop_zone" id="drop_zone">Upload a picture!</div>
       </div>
       <input type="file" class="file_input" id="files" name="files[]"
@@ -292,6 +293,8 @@
 </template>
 
 <script>
+import { Base64 } from 'js-base64'
+
 export default {
   data () {
     return {
@@ -320,29 +323,62 @@ export default {
     }
   },
   created () {
+    this.serverLogin()
     this.connection = new WebSocket('wss://wikiric.xyz/clarifier/' + this.getSession())
     this.connection.onopen = () => {
       this.connection.send(this.$store.state.token)
       // Subscribe to notifications
       this.subscribeFCM(this.getSession())
     }
+  },
+  mounted () {
     this.connection.onmessage = (event) => {
       this.showMessage(event.data)
     }
-  },
-  mounted () {
     this.getClarifierMetaData()
     this.getClarifierMessages()
     window.addEventListener('resize', this.resizeCanvas, false)
     this.resizeCanvas()
-    const newCommentInput = document.getElementById('new_comment')
-    newCommentInput.addEventListener('keydown', this.handleEnter, false)
-    setTimeout(() => newCommentInput.focus(), 0)
-    const dropZone = document.getElementById('drop_zone')
-    dropZone.addEventListener('dragover', this.handleDragOver, false)
-    dropZone.addEventListener('drop', this.handleFileSelectDrop, false)
+    setTimeout(() => this.initFunction(), 0)
   },
   methods: {
+    initFunction: function () {
+      const newCommentInput = document.getElementById('new_comment')
+      newCommentInput.addEventListener('keydown', this.handleEnter, false)
+      newCommentInput.focus()
+      const dropZone = document.getElementById('drop_zone')
+      dropZone.addEventListener('dragover', this.handleDragOver, false)
+      dropZone.addEventListener('drop', this.handleFileSelectDrop, false)
+    },
+    serverLogin: function () {
+      if (this.$store.state.username === undefined || this.$store.state.username === '') return
+      const headers = new Headers()
+      headers.set(
+        'Authorization',
+        'Basic ' + Base64.encode(this.$store.state.username + ':' + this.$store.state.password)
+      )
+      fetch(
+        this.$store.state.serverIP + '/login',
+        {
+          method: 'get',
+          headers: headers
+        }
+      )
+        .then((res) => res.json())
+        .then((data) => (this.loginResponse = JSON.parse(data.contentJson)))
+        .then(this.processLogin)
+        .catch((err) => this.$notify(
+          {
+            title: 'Unable to Login',
+            text: err.message,
+            type: 'error'
+          }))
+    },
+    processLogin: function () {
+      if (this.loginResponse.httpCode === 200) {
+        this.$store.commit('setServerToken', this.loginResponse.token)
+      }
+    },
     subscribeFCM: function (uniChatroomGUID) {
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
@@ -597,7 +633,7 @@ export default {
         return img
       }
     },
-    getBase64: function (file, onLoadCallback) {
+    getBase64: function (file) {
       return new Promise(function (resolve, reject) {
         const reader = new FileReader()
         reader.onload = function () {
@@ -613,6 +649,8 @@ export default {
       const url = this.$store.state.serverIP + '/api/m5/setimage/' + this.getSession()
       let base64String = ''
       const promise = this.getBase64(image)
+      const updateFun = this.getClarifierMetaData
+      const disableLoadingFun = this.toggleSettingsLoading
       promise
         .then(function (result) {
           base64String = result
@@ -627,11 +665,10 @@ export default {
               body: content
             }
           )
-            .then((res) => console.log(res))
+            .then(() => (updateFun()))
+            .then(() => (disableLoadingFun()))
             .catch((err) => console.error(err.message))
         })
-        .then(() => setTimeout(() => this.getClarifierMetaData(), 2000))
-        .then(() => setTimeout(() => this.toggleElement('confirm_settings_loading', 'flex'), 2000))
     },
     toggleElement: function (id, display = 'block') {
       const explanation = document.getElementById(id)
@@ -640,6 +677,9 @@ export default {
       } else {
         explanation.style.display = display
       }
+    },
+    toggleSettingsLoading: function () {
+      this.toggleElement('confirm_settings_loading', 'flex')
     }
   }
 }
@@ -696,11 +736,8 @@ export default {
 }
 
 @media only screen and (min-width: 992px) {
+  .user_profile,
   .giphygrid {
-    transform: translateX(15vw);
-  }
-
-  .user_profile {
     transform: translateX(15vw);
   }
 }
@@ -748,18 +785,7 @@ export default {
   cursor: grab;
 }
 
-.user_profile {
-  position: fixed;
-  z-index: 1001;
-  top: 10vh;
-  left: calc(50% - 150px);
-  color: white;
-  width: 300px;
-  height: 75vh;
-  padding: 5px 20px;
-  border-radius: 20px;
-}
-
+.user_profile,
 .giphygrid,
 .session_settings {
   position: fixed;
@@ -961,7 +987,7 @@ export default {
   margin-left: 10px;
   text-align: center;
   color: #bbb;
-  width: 100%
+  width: 100%;
 }
 
 </style>

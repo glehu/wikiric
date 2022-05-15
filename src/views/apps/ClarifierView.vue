@@ -24,13 +24,13 @@
                          v-on:keyup.enter="joinOrCreate()">
                   <br>
                   <button id="btn_join_session"
-                          class="btn btn-outline-light" type="submit"
+                          class="btn btn-outline-light"
                           style="max-height: 6ch; height: 6ch"
                           v-on:click="join()">
                     <span class="fw-bold lead">Join</span>
                   </button>
                   <button id="btn_create_session"
-                          class="btn btn-outline-light" type="submit"
+                          class="btn btn-outline-light"
                           style="max-height: 6ch; height: 6ch"
                           v-on:click="create()">
                     <span class="fw-bold lead">Create</span>
@@ -87,11 +87,14 @@ export default {
   mounted () {
     document.getElementById('btn_join_session').disabled = true
     document.getElementById('btn_create_session').disabled = true
-    const sessionInput = document.getElementById('input_session')
-    sessionInput.focus()
-    sessionInput.addEventListener('input', this.checkInput, false)
+    setTimeout(() => this.initFunction(), 0)
   },
   methods: {
+    initFunction: function () {
+      const sessionInput = document.getElementById('input_session')
+      sessionInput.focus()
+      sessionInput.addEventListener('input', this.checkInput, false)
+    },
     create: function () {
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
@@ -168,16 +171,12 @@ export default {
 }
 
 #header_margin {
-  min-height: 10vh
+  min-height: 80px
 }
 
 @media only screen and (min-width: 992px) {
   .wrapper {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  #header_margin {
-    min-height: 15vh
   }
 }
 

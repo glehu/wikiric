@@ -167,6 +167,7 @@ export default {
     const bc = new BroadcastChannel('dlChannel')
     bc.onmessage = event => {
       console.log('dlChannel', event)
+      this.serverLogin()
       window.location.href = event.data
     }
 
