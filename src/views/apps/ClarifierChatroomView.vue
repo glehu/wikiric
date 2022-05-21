@@ -51,11 +51,14 @@
              :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
             <div class="orange-hover">
               <i v-if="JSON.parse(session).id === clarifierUniChatroom.guid"
-                 class="bi bi-dot" style="position: absolute; left: -25px; top: -22px; font-size: 200%"></i>
-              <i class="bi bi-circle-fill" style="font-size: 180%"></i>
-              <img style="width: 40px; height: 40px; position: absolute; left: 5.5px; top: 8px; background-color: white;
+                 class="bi bi-dot"
+                 style="position: absolute; left: -18px; top: -4px; font-size: 200%; color: forestgreen">
+              </i>
+              <i class="bi bi-circle-fill" style="font-size: 180%; color: transparent"></i>
+              <img class="b_darkergray" style="width: 40px; height: 40px; position: absolute; left: 6px; top: 8px;
                    border-radius: 10px"
-                   v-bind:src="getImg(JSON.parse(session).img)" alt=""/>
+                   v-bind:src="getImg(JSON.parse(session).img)"
+                   :alt="'&nbsp;' + JSON.parse(session).title.substring(0,1)"/>
               <span class="sb_link_text text-nowrap" style="padding-left: 10px; position: absolute; bottom: 10px">
                 &nbsp;{{ JSON.parse(session).title }}
               </span>
@@ -108,7 +111,7 @@
             <!-- #### CLIENT GIF MESSAGE #### -->
             <div v-else-if="JSON.parse(msg).msg.startsWith('[c:GIF]')">
               <div style="padding-left: 42px">
-                <img :src="JSON.parse(msg).msg.substring(7)" :alt="JSON.parse(msg).msg.substring(7)">
+                <img :src="JSON.parse(msg).msg.substring(7)" :alt="JSON.parse(msg).msg.substring(7)" loading="lazy">
                 <br>
                 <div>
                   <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
@@ -269,19 +272,20 @@
     </div>
   </div>
   <!-- #### Settings #### -->
-  <div class="session_settings b_darkgray" style="overflow: hidden"
+  <div class="session_settings b_darkgray shadow" style="overflow: hidden"
        v-show="isViewingSessionSettings" @click.stop>
     <div style="position: relative; padding-top: 10px; width: 100%">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideSessionSettings"></i>
       <h2 class="fw-bold">Session Settings</h2>
       <div style="display: flex; width: 100%; margin-bottom: 10px">
-        <img style="min-width: 80px; width: 80px; min-height: 80px; height: 80px;
-             background-color: white; border-radius: 20px"
-             v-bind:src="clarifierUniChatroom.img" alt=""/>
+        <img class="b_darkergray" style="min-width: 80px; width: 80px; min-height: 80px; height: 80px;
+             border-radius: 20px"
+             v-bind:src="clarifierUniChatroom.img" :alt="'&nbsp;'"/>
         <div class="drop_zone" id="drop_zone">Upload a picture!</div>
       </div>
       <input type="file" class="file_input" id="files" name="files[]"
+             style="width: 100%"
              multiple v-on:change="handleFileSelect"/>
       <div id="confirm_settings_loading" class="ms-3 mt-3" style="display: none">
         <span class="spinner-grow spinner-grow-sm text-info" role="status" aria-hidden="true"></span>
@@ -301,6 +305,8 @@ export default {
       clarifierUniChatroom: {},
       connection: null,
       messages: [],
+      currentPage: 0,
+      lazyLoadingStatus: 'idle',
       members: [],
       new_message: '',
       gif_query_string: '',
@@ -338,6 +344,7 @@ export default {
     this.getClarifierMetaData()
     this.getClarifierMessages()
     window.addEventListener('resize', this.resizeCanvas, false)
+    document.getElementById('messages_section').addEventListener('scroll', this.checkScroll, false)
     this.resizeCanvas()
     setTimeout(() => this.initFunction(), 0)
   },
@@ -407,8 +414,8 @@ export default {
         return
       }
       // GIF Lookup?
-      if (this.new_message.toLowerCase().startsWith('gif ')) {
-        this.getGIF(this.new_message.substring(3))
+      if (this.new_message.toLowerCase().startsWith('/gif ')) {
+        this.getGIF(this.new_message.substring(4))
         this.new_message = ''
         this.focusComment()
         return
@@ -451,23 +458,43 @@ export default {
       this.members = this.clarifierUniChatroom.members
       document.title = this.clarifierUniChatroom.t
     },
-    getClarifierMessages: function () {
+    getClarifierMessages: function (lazyLoad = false) {
+      let pageIndex = this.currentPage
+      if (lazyLoad === true) {
+        this.lazyLoadingStatus = 'request'
+        pageIndex++
+      }
       this.clarifierUniChatroom.messages = []
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      const parameters = '?pageIndex=' + pageIndex + '&pageSize=20'
       fetch(
-        this.$store.state.serverIP + '/api/m5/getmessages/' + this.getSession(),
+        this.$store.state.serverIP + '/api/m5/getmessages/' + this.getSession() + parameters,
         {
           method: 'get',
           headers: headers
         }
       )
         .then((res) => res.json())
-        .then((data) => (this.processMessagesResponse(data)))
+        .then((data) => (this.processMessagesResponse(data, lazyLoad)))
         .catch((err) => console.error(err.message))
     },
-    processMessagesResponse: function (data) {
-      this.messages = data.messages.reverse()
+    processMessagesResponse: function (data, lazyLoad = false) {
+      if (data.messages === undefined || data.messages.length === 0) {
+        if (lazyLoad) this.lazyLoadingStatus = 'idle'
+        return
+      }
+      let pageIndex = this.currentPage
+      if (lazyLoad) pageIndex++
+      if (pageIndex === 0) {
+        this.messages = data.messages
+      } else {
+        data.messages.forEach(element => this.messages.push(element))
+      }
+      if (lazyLoad) {
+        this.currentPage++
+        this.lazyLoadingStatus = 'idle'
+      }
     },
     getSession: function () {
       return this.$route.params.id
@@ -557,7 +584,7 @@ export default {
       if (sidebar.classList.contains('active')) sidebar.classList.remove('active')
     },
     auto_grow: function (id) {
-      if (this.lastKeyPressed === 'Enter') return
+      // if (this.lastKeyPressed === 'Enter') return
       const elem = document.getElementById(id)
       elem.style.height = '2.5em'
       elem.style.height = (elem.scrollHeight) + 'px'
@@ -598,6 +625,7 @@ export default {
       if (event.code === 'Enter') {
         event.preventDefault()
         this.addMessage()
+        setTimeout(() => this.auto_grow('new_comment'), 0)
       }
     },
     closeModals: function () {
@@ -680,6 +708,18 @@ export default {
     },
     toggleSettingsLoading: function () {
       this.toggleElement('confirm_settings_loading', 'flex')
+    },
+    checkScroll: function () {
+      const el = document.getElementById('messages_section')
+      if ((el.scrollHeight - el.clientHeight) - (el.scrollTop * -1) < 10) {
+        if (this.lazyLoadingStatus === 'idle') {
+          this.lazyLoadingStatus = 'start'
+          this.lazyLoadMessages()
+        }
+      }
+    },
+    lazyLoadMessages: function () {
+      this.getClarifierMessages(true)
     }
   }
 }

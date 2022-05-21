@@ -1,7 +1,8 @@
 <template>
   <div
+    class="b_darkgray"
     style="min-height: 100vh; overflow-x: clip;
-    background-image: radial-gradient(circle, #002348, #00306e, #143b92, #4543b5, #4543b5, #4543b5, #4543b5, #143b92, #00306e, #002348, #021425)"
+    /*background-image: radial-gradient(circle, #002348, #00306e, #143b92, #4543b5, #4543b5, #4543b5, #4543b5, #143b92, #00306e, #002348, #021425)*/"
   >
     <div id="header_margin"></div>
     <div class="wrapper">
@@ -9,7 +10,7 @@
       <div class="container c-modal">
         <div class="row d-flex justify-content-center align-items-center">
           <div style="min-width: 400px; width: 80%">
-            <div class="card text-white" style="border-radius: 1rem; background: #041830">
+            <div class="card-subtitle text-white b_darkgray" style="border-radius: 1rem">
               <div class="card-body text-center">
                 <div class="mt-md-0">
                   <h1 class="fw-bold mb-2 text-uppercase">Clarifier</h1>
@@ -45,7 +46,7 @@
       <div class="container c-modal">
         <div class="row d-flex justify-content-center align-items-center">
           <div style="min-width: 400px; width: 80%">
-            <div class="card text-white" style="border-radius: 1rem; background: #041830">
+            <div class="card-subtitle text-white b_darkgray" style="border-radius: 1rem">
               <div class="card-body">
                 <div class="mt-md-0">
                   <h2 class="fw-bold mb-2 text-uppercase text-center">Active Sessions</h2>
@@ -54,16 +55,24 @@
                   </div>
                   <hr style="color: white; height: 4px">
                   <div v-for="session in this.$store.state.clarifierSessions" :key="session"
-                       style="padding-bottom: 2ch; padding-left: 3ch">
+                       style="padding-bottom: 2ch; padding-left: 3ch; display: flex">
                     <button class="btn btn-sm btn-outline-danger"
                             style="margin-right: 2ch"
                             v-on:click="this.removeSession(session)">
                       <i class="bi bi-x-lg"></i>
                     </button>
-                    <span class="orange-hover" style="padding-left: 2ch"
-                          v-on:click="joinActive(JSON.parse(session).id)">
-                      <span class="fw-bold">{{ JSON.parse(session).title }}</span>
-                    </span>
+                    <div class="orange-hover" style="padding-left: 2ch; position: relative"
+                         v-on:click="joinActive(JSON.parse(session).id)">
+                      <img class="b_darkergray"
+                           style="width: 40px; height: 40px; position: absolute; left: 6px; top: -6px;
+                           border-radius: 10px"
+                           v-bind:src="getImg(JSON.parse(session).img)"
+                           :alt="'&nbsp;' + JSON.parse(session).title.substring(0,1)"/>
+                      <span class="sb_link_text text-nowrap"
+                            style="padding-left: 40px; position: absolute; bottom: 10px">
+                        &nbsp;{{ JSON.parse(session).title }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -111,6 +120,14 @@ export default {
         .then((res) => res.json())
         .then((data) => (this.$router.push('/apps/clarifier/wss/' + data.guid)))
         .catch((err) => console.log(err.message))
+    },
+    getImg: function (string) {
+      const img = string
+      if (img === '') {
+        return ''
+      } else {
+        return img
+      }
     },
     join: function () {
       this.$router.push('/apps/clarifier/wss/' + this.input_string)
@@ -162,6 +179,54 @@ export default {
 </script>
 
 <style scoped>
+
+.b_purple {
+  background-color: #8844dd;
+}
+
+.c_purple {
+  color: #8844dd;
+}
+
+.b_darkblue {
+  background-color: #041830;
+}
+
+.c_darkblue {
+  color: #041830;
+}
+
+.b_darkgray {
+  background-color: #192129;
+}
+
+.c_darkgray {
+  color: #192129;
+}
+
+.b_darkergray {
+  background-color: #101010;
+}
+
+.c_darkergray {
+  color: #101010;
+}
+
+.b_gray {
+  background-color: #293139;
+}
+
+.c_gray {
+  color: #293139;
+}
+
+.b_orange {
+  background-color: #ff5d37;
+}
+
+.c_orange {
+  color: #ff5d37;
+}
 
 .wrapper {
   display: grid;

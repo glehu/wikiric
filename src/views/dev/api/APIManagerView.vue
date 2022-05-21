@@ -400,7 +400,7 @@ export default {
     },
     endpoint: function () {
       return this.$store.state.serverIP + '/mockingbird?who=' +
-        encodeURIComponent(Base64.encode(this.$store.state.username).split('').reverse().join(''))
+        encodeURIComponent(Base64.encode(this.$store.state.username.split('').reverse().join('')))
     }
   }
 }
