@@ -1,6 +1,6 @@
 <template>
   <div style="min-height: 100vh" class="b_darkergray">
-    <div id="sidebar" class="sidebar b_gray"
+    <div id="sidebar" class="sidebar b_darkgray"
          style="height: 100vh; z-index: 1000">
       <div style="height: 240px; overflow-x: clip; position: relative">
         <div class="header-margin" style="box-shadow: none"></div>
@@ -8,12 +8,12 @@
           <span class="sb_link_text sb_session_name" style="color: white">Menu</span>
         </div>
         <button class="sb_toggler btn-no-outline" v-on:click="toggleSidebar">
-          <i class="bi bi-list"></i>
+          <i class="bi bi-list c_lightgray"></i>
         </button>
         <ul class="nav_list list-unstyled" style="color: white">
           <li>
             <div class="sb_link" v-on:click="this.$router.push('/apps/clarifier')">
-              <div class="orange-hover">
+              <div class="c_lightgray orange-hover">
                 <i class="sb_link_icon bi bi-arrow-return-left"></i>
                 <span class="sb_link_text">Exit</span>
               </div>
@@ -22,7 +22,7 @@
           </li>
           <li v-on:click="isViewingSessionSettings = true">
             <div class="sb_link">
-              <div class="orange-hover">
+              <div class="c_lightgray orange-hover">
                 <i class="sb_link_icon bi bi-tools"></i>
                 <span class="sb_link_text">Settings</span>
               </div>
@@ -31,7 +31,7 @@
           </li>
           <li>
             <div class="sb_link">
-              <div class="orange-hover">
+              <div class="c_lightgray orange-hover">
                 <i class="sb_link_icon bi bi-archive"></i>
                 <span class="sb_link_text">Files</span>
               </div>
@@ -40,6 +40,7 @@
           </li>
         </ul>
       </div>
+      <hr style="color: #aeaeb7; margin: auto; width: 75%">
       <!-- #### CHANNELS #### -->
       <div id="channel_section" class="channel_section b_darkgray"
            style="height: calc(100% - 60px - 180px); width: 100%; z-index: 4;
@@ -49,17 +50,20 @@
              style="position: relative; padding-left: 8px; font-weight: bold; font-size: 125%">
           <a class="fw-bold text-white orange-hover" style="text-decoration: none"
              :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
-            <div class="orange-hover">
+            <div class="c_lightgray orange-hover">
               <i v-if="JSON.parse(session).id === clarifierUniChatroom.guid"
                  class="bi bi-dot"
-                 style="position: absolute; left: -18px; top: -4px; font-size: 200%; color: forestgreen">
+                 style="position: absolute; left: -18px; top: -5px; font-size: 200%; color: forestgreen">
               </i>
-              <i class="bi bi-circle-fill" style="font-size: 180%; color: transparent"></i>
-              <img class="b_darkergray" style="width: 40px; height: 40px; position: absolute; left: 6px; top: 8px;
+              <i class="bi bi-circle-fill"
+                 style="font-size: 180%; color: transparent"></i>
+              <img class="b_darkergray"
+                   style="width: 40px; height: 40px; position: absolute; left: 6px; top: 8px;
                    border-radius: 10px"
                    v-bind:src="getImg(JSON.parse(session).img)"
                    :alt="'&nbsp;' + JSON.parse(session).title.substring(0,1)"/>
-              <span class="sb_link_text text-nowrap" style="padding-left: 10px; position: absolute; bottom: 10px">
+              <span class="sb_link_text text-nowrap"
+                    style="padding-left: 10px; position: absolute; bottom: 10px">
                 &nbsp;{{ JSON.parse(session).title }}
               </span>
             </div>
@@ -73,9 +77,10 @@
       <div id="chat_section" class="chat_section b_darkergray" style="width: 100%; height: 100%">
         <div class="header-margin" style="box-shadow: none"></div>
         <!-- #### CHAT HEADER #### -->
-        <div style="width: 100%; height: 35px; box-shadow: 0 0 5px 5px black;
-             font-weight: bold; font-size: 125%; color: white; padding-left: 10px"
-             class="justify-content-center align-items-center b_gray">
+        <div style="width: 100%; height: 40px; box-shadow: 0 0 5px 5px black;
+             font-weight: bold; font-size: 125%; color: white; padding-left: 10px;
+             display: flex; padding-bottom: 4px"
+             class="align-items-center b_darkgray">
           <span>{{ clarifierUniChatroom.t }}</span>
           <button class="btn-no-outline member_section_toggler"
                   title="Show Members"
@@ -166,7 +171,7 @@
       </div>
     </div>
     <!-- #### MEMBERS #### -->
-    <div id="member_section" class="member_section b_gray"
+    <div id="member_section" class="member_section b_darkgray"
          style="color: white; z-index: 4; position: absolute; right: 0;
            height: 100vh; overflow-y: auto; overflow-x: clip">
       <div class="header-margin" style="box-shadow: none"></div>
@@ -204,7 +209,7 @@
     </div>
   </div>
   <!-- #### USER PROFILE #### -->
-  <div class="user_profile b_darkgray" style="overflow: hidden"
+  <div class="user_profile b_gray" style="overflow: hidden"
        v-show="isViewingUserProfile" @click.stop>
     <div style="position: relative; padding-top: 10px">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
@@ -214,7 +219,7 @@
         <h2 class="fw-bold" style="padding-top: 20px"> {{ this.viewedUserProfile.usr.split('@')[0] }}</h2>
       </div>
       <!-- #### MEMBER ROLES #### -->
-      <hr class="c_gray">
+      <hr style="color: white">
       <div style="display: flex; flex-wrap: wrap">
         <div v-for="role in this.viewedUserProfile.roles" :key="role"
              class="b_purple"
@@ -246,11 +251,11 @@
                  v-on:keyup.enter="commitUserRole">
         </div>
       </div>
-      <hr class="c_gray">
+      <hr style="color: white">
     </div>
   </div>
   <!-- #### GIF SELECTION #### -->
-  <div class="giphygrid b_darkgray" style="overflow: hidden" v-show="isSelectingGIF" @click.stop>
+  <div class="giphygrid b_gray" style="overflow: hidden" v-show="isSelectingGIF" @click.stop>
     <div style="width: 100%; position: absolute; bottom: 10px">
       <input id="gif_query"
              type="text"
@@ -272,7 +277,7 @@
     </div>
   </div>
   <!-- #### Settings #### -->
-  <div class="session_settings b_darkgray shadow" style="overflow: hidden"
+  <div class="session_settings b_gray shadow" style="overflow: hidden"
        v-show="isViewingSessionSettings" @click.stop>
     <div style="position: relative; padding-top: 10px; width: 100%">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
@@ -306,6 +311,8 @@ export default {
       connection: null,
       messages: [],
       currentPage: 0,
+      pageSize: 20,
+      extraSkipCount: 0,
       lazyLoadingStatus: 'idle',
       members: [],
       new_message: '',
@@ -404,6 +411,7 @@ export default {
     },
     showMessage: function (msg) {
       this.messages.unshift(msg)
+      this.extraSkipCount++
       if ((JSON.parse(msg).msg).includes('[s:RegistrationNotification]')) {
         this.getClarifierMetaData()
       }
@@ -467,7 +475,10 @@ export default {
       this.clarifierUniChatroom.messages = []
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      const parameters = '?pageIndex=' + pageIndex + '&pageSize=20'
+      const parameters =
+        '?pageIndex=' + pageIndex +
+        '&pageSize=' + this.pageSize +
+        '&skip=' + this.extraSkipCount
       fetch(
         this.$store.state.serverIP + '/api/m5/getmessages/' + this.getSession() + parameters,
         {
@@ -480,8 +491,12 @@ export default {
         .catch((err) => console.error(err.message))
     },
     processMessagesResponse: function (data, lazyLoad = false) {
-      if (data.messages === undefined || data.messages.length === 0) {
+      if (data.messages === undefined) {
         if (lazyLoad) this.lazyLoadingStatus = 'idle'
+        return
+      }
+      if (data.messages.length === 0) {
+        if (lazyLoad) this.lazyLoadingStatus = 'done'
         return
       }
       let pageIndex = this.currentPage
@@ -534,10 +549,14 @@ export default {
         const gifInput = document.getElementById('gif_query')
         setTimeout(() => gifInput.focus(), 0)
       }
-      if (this.isSelectingGIF) this.hideUserProfile()
+      if (this.isSelectingGIF) {
+        this.hideUserProfile()
+        this.hideSessionSettings()
+      }
     },
     showUserProfile: function (user) {
       this.isSelectingGIF = false
+      this.isViewingSessionSettings = false
       this.isViewingUserProfile = true
       this.viewedUserProfile = user
     },
@@ -711,7 +730,7 @@ export default {
     },
     checkScroll: function () {
       const el = document.getElementById('messages_section')
-      if ((el.scrollHeight - el.clientHeight) - (el.scrollTop * -1) < 10) {
+      if ((el.scrollHeight - el.clientHeight) - (el.scrollTop * -1) < 50) {
         if (this.lazyLoadingStatus === 'idle') {
           this.lazyLoadingStatus = 'start'
           this.lazyLoadMessages()
@@ -767,6 +786,10 @@ export default {
   color: #293139;
 }
 
+.c_lightgray {
+  color: #aeaeb7;
+}
+
 .b_orange {
   background-color: #ff5d37;
 }
@@ -777,8 +800,9 @@ export default {
 
 @media only screen and (min-width: 992px) {
   .user_profile,
-  .giphygrid {
-    transform: translateX(15vw);
+  .giphygrid,
+  .session_settings {
+    transform: translateX(-250px);
   }
 }
 
@@ -830,11 +854,12 @@ export default {
 .session_settings {
   position: fixed;
   z-index: 1001;
-  top: 105px;
-  left: calc(50% - 178px);
+  bottom: 52px;
+  right: 16px;
   color: white;
   width: 400px;
-  height: 77vh;
+  max-width: 95vw;
+  height: 75vh;
   padding: 5px 20px;
   border-radius: 20px;
 }
@@ -1002,7 +1027,7 @@ export default {
 .sb_link_text {
   position: absolute;
   font-weight: bold;
-  padding-left: 20px;
+  padding-left: 23px;
   opacity: 0;
   transition: ease-in-out opacity 0.2s;
 }
