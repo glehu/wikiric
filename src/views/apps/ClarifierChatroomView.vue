@@ -425,17 +425,23 @@ export default {
       if (this.new_message.toLowerCase().startsWith('/gif ')) {
         this.getGIF(this.new_message.substring(4))
         this.new_message = ''
-        this.focusComment()
+        this.focusComment(true)
+        setTimeout(() => this.auto_grow('new_comment'), 0)
         return
       }
       // Handle normal message
       this.connection.send(this.new_message)
       this.new_message = ''
-      this.focusComment()
+      this.focusComment(true)
+      setTimeout(() => this.auto_grow('new_comment'), 0)
     },
-    focusComment: function () {
+    focusComment: function (instantly = false) {
       const input = document.getElementById('new_comment')
-      setTimeout(() => input.focus(), 0)
+      if (instantly) {
+        input.focus()
+      } else {
+        setTimeout(() => input.focus(), 0)
+      }
     },
     addMessagePar: function (text, closeGIFSelection = false) {
       this.connection.send(text)
@@ -644,7 +650,6 @@ export default {
       if (event.code === 'Enter') {
         event.preventDefault()
         this.addMessage()
-        setTimeout(() => this.auto_grow('new_comment'), 0)
       }
     },
     closeModals: function () {
