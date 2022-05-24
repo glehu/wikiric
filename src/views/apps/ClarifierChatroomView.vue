@@ -1,74 +1,107 @@
 <template>
   <div style="min-height: 100vh" class="b_darkergray">
-    <div id="sidebar" class="sidebar b_darkgray"
+    <div id="sidebar" class="sidebar"
          style="height: 100vh; z-index: 1000">
-      <div style="height: 240px; overflow-x: clip; position: relative">
-        <div class="header-margin" style="box-shadow: none"></div>
-        <div style="width: 100%; height: 35px; padding-top: 5px">
-          <span class="sb_link_text sb_session_name" style="color: white">Menu</span>
+      <div class="header-margin" style="box-shadow: none"></div>
+      <div style="height: calc(100vh - 60px)" class="b_darkgray sidebar_bg">
+        <!-- #### Tools #### -->
+        <div style="height: 180px; overflow-x: clip; position: relative">
+          <div style="width: 100%; height: 35px; padding-top: 5px">
+            <span class="sb_link_text c_lightgray">Menu</span>
+          </div>
+          <button class="sb_toggler btn-no-outline" v-on:click="toggleSidebar">
+            <i class="bi bi-list c_lightgray"></i>
+          </button>
+          <ul class="nav_list list-unstyled" style="color: white">
+            <li>
+              <div class="sb_link" v-on:click="this.$router.push('/apps/clarifier')">
+                <div class="c_lightgray orange-hover">
+                  <i class="sb_link_icon bi bi-arrow-return-left"></i>
+                  <span class="sb_link_text">Exit</span>
+                </div>
+                <span class="sidebar_tooltip">Exit</span>
+              </div>
+            </li>
+            <li v-on:click="isViewingSessionSettings = true">
+              <div class="sb_link">
+                <div class="c_lightgray orange-hover">
+                  <i class="sb_link_icon bi bi-tools"></i>
+                  <span class="sb_link_text">Settings</span>
+                </div>
+                <span class="sidebar_tooltip">Settings</span>
+              </div>
+            </li>
+            <li>
+              <div class="sb_link">
+                <div class="c_lightgray orange-hover">
+                  <i class="sb_link_icon bi bi-archive"></i>
+                  <span class="sb_link_text">Files</span>
+                </div>
+                <span class="sidebar_tooltip">Files</span>
+              </div>
+            </li>
+          </ul>
         </div>
-        <button class="sb_toggler btn-no-outline" v-on:click="toggleSidebar">
-          <i class="bi bi-list c_lightgray"></i>
-        </button>
-        <ul class="nav_list list-unstyled" style="color: white">
-          <li>
-            <div class="sb_link" v-on:click="this.$router.push('/apps/clarifier')">
+        <hr class="c_lightgray" style="margin: auto; width: 75%">
+        <!-- #### CHANNELS #### -->
+        <div id="channel_section" class="channel_section b_darkgray"
+             style="height: calc(100% - 60px - 100px); width: 100%; z-index: 4;
+                    color: white; overflow-y: auto; overflow-x: clip; padding-top: 10px; padding-bottom: 20px">
+          <div style="width: 100%; height: 35px; padding-top: 5px">
+            <span class="sb_link_text c_lightgray">
+              Channels&nbsp;-&nbsp;{{ this.$store.state.clarifierSessions.length }}
+            </span>
+          </div>
+          <div v-for="session in this.$store.state.clarifierSessions" :key="session"
+               class="channel_link"
+               style="position: relative; padding-left: 8px; font-weight: bold; font-size: 125%">
+            <a class="fw-bold text-white orange-hover" style="text-decoration: none"
+               :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
               <div class="c_lightgray orange-hover">
-                <i class="sb_link_icon bi bi-arrow-return-left"></i>
-                <span class="sb_link_text">Exit</span>
-              </div>
-              <span class="sidebar_tooltip">Exit</span>
-            </div>
-          </li>
-          <li v-on:click="isViewingSessionSettings = true">
-            <div class="sb_link">
-              <div class="c_lightgray orange-hover">
-                <i class="sb_link_icon bi bi-tools"></i>
-                <span class="sb_link_text">Settings</span>
-              </div>
-              <span class="sidebar_tooltip">Settings</span>
-            </div>
-          </li>
-          <li>
-            <div class="sb_link">
-              <div class="c_lightgray orange-hover">
-                <i class="sb_link_icon bi bi-archive"></i>
-                <span class="sb_link_text">Files</span>
-              </div>
-              <span class="sidebar_tooltip">Files</span>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <hr style="color: #aeaeb7; margin: auto; width: 75%">
-      <!-- #### CHANNELS #### -->
-      <div id="channel_section" class="channel_section b_darkgray"
-           style="height: calc(100% - 60px - 180px); width: 100%; z-index: 4;
-           color: white; overflow-y: auto; overflow-x: clip; padding-top: 10px; padding-bottom: 20px">
-        <div v-for="session in this.$store.state.clarifierSessions" :key="session"
-             class="channel_link"
-             style="position: relative; padding-left: 8px; font-weight: bold; font-size: 125%">
-          <a class="fw-bold text-white orange-hover" style="text-decoration: none"
-             :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
-            <div class="c_lightgray orange-hover">
-              <i v-if="JSON.parse(session).id === clarifierUniChatroom.guid"
-                 class="bi bi-dot"
-                 style="position: absolute; left: -18px; top: -5px; font-size: 200%; color: forestgreen">
-              </i>
-              <i class="bi bi-circle-fill"
-                 style="font-size: 180%; color: transparent"></i>
-              <img class="b_darkergray"
-                   style="width: 40px; height: 40px; position: absolute; left: 6px; top: 8px;
+                <i v-if="JSON.parse(session).id === clarifierUniChatroom.guid"
+                   class="bi bi-dot"
+                   style="position: absolute; left: -18px; top: -5px; font-size: 200%; color: forestgreen">
+                </i>
+                <i class="bi bi-circle-fill"
+                   style="font-size: 180%; color: transparent"></i>
+                <img class="b_darkergray"
+                     style="width: 40px; height: 40px; position: absolute; left: 6px; top: 8px;
                    border-radius: 10px"
-                   v-bind:src="getImg(JSON.parse(session).img)"
-                   :alt="'&nbsp;' + JSON.parse(session).title.substring(0,1)"/>
-              <span class="sb_link_text text-nowrap"
-                    style="padding-left: 10px; position: absolute; bottom: 10px">
+                     v-bind:src="getImg(JSON.parse(session).img)"
+                     :alt="'&nbsp;' + JSON.parse(session).title.substring(0,1)"/>
+                <span class="sb_link_text text-nowrap"
+                      style="padding-left: 10px; position: absolute; bottom: 10px">
                 &nbsp;{{ JSON.parse(session).title }}
               </span>
-            </div>
-          </a>
-          <span class="channel_tooltip">{{ JSON.parse(session).title }}</span>
+              </div>
+            </a>
+            <span class="channel_tooltip">{{ JSON.parse(session).title }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="sidebar2" class="sidebar2">
+      <div class="header-margin" style="box-shadow: none"></div>
+      <div style="height: calc(100vh - 60px); position: relative; padding-left: 23px"
+           class="b_darkergray">
+        <!-- #### CHANNELS #### -->
+        <div style="width: 100%; height: 35px; padding-top: 5px">
+          <span class="fw-bold c_lightgray">Rooms</span>
+        </div>
+        <div style="height: calc(100% - 35px); overflow-y: scroll; overflow-x: clip"
+             class="c_lightgray">
+          <div style="display: flex; align-items: center; padding-left: 20px; width: 90%; border-radius: 10px"
+               class="b_darkgray">
+            <span style="font-size: 150%">#</span>
+            <span style="padding-left: 20px">General</span>
+          </div>
+          <div style="padding: 10px">
+            <button class="text-white btn-no-outline"
+                    title="Invite"
+                    v-on:click="createSubchatroom">
+              <i class="bi bi-plus lead orange-hover c_lightgray" style="font-size: 150%"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -77,11 +110,8 @@
       <div id="chat_section" class="chat_section b_darkergray" style="width: 100%; height: 100%">
         <div class="header-margin" style="box-shadow: none"></div>
         <!-- #### CHAT HEADER #### -->
-        <div style="width: 100%; height: 40px; box-shadow: 0 0 5px 5px black;
-             font-weight: bold; font-size: 125%; color: white; padding-left: 10px;
-             display: flex; padding-bottom: 4px"
-             class="align-items-center b_darkgray">
-          <span>{{ clarifierUniChatroom.t }}</span>
+        <div class="align-items-center b_darkergray chat_header">
+          <span style="margin-left: 10px">{{ clarifierUniChatroom.t }}</span>
           <button class="btn-no-outline member_section_toggler"
                   title="Show Members"
                   v-on:click="toggleMemberSidebar">
@@ -91,8 +121,8 @@
         <!-- #### MESSAGES #### -->
         <div id="messages_section"
              class="messages_section"
-             style="overflow-y: auto; overflow-x: clip; z-index: 2;
-             height: calc(100vh - 70px - 7ch);
+             style="overflow-y: auto; overflow-x: clip;
+             height: calc(100vh - 60px - 50px - 34px);
              padding-top: 10px; padding-bottom: 20px;
              display: flex; flex-direction: column-reverse">
           <div v-for="msg in messages" :key="msg"
@@ -120,7 +150,7 @@
                 <br>
                 <div>
                   <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
-                       style="width: 100px"/>
+                       style="max-width: 100px; width: 100px"/>
                 </div>
               </div>
             </div>
@@ -172,11 +202,11 @@
     </div>
     <!-- #### MEMBERS #### -->
     <div id="member_section" class="member_section b_darkgray"
-         style="color: white; z-index: 4; position: absolute; right: 0;
-           height: 100vh; overflow-y: auto; overflow-x: clip">
+         style="color: white; z-index: 11; position: absolute; right: 0;
+         height: 100vh; overflow-y: auto; overflow-x: clip">
       <div class="header-margin" style="box-shadow: none"></div>
       <div style="width: 100%; height: 35px; padding-top: 5px">
-        <span class="member_count" style="color: white; padding-left: 20px">
+        <span class="fw-bold member_count c_lightgray" style="padding-left: 20px">
           Members&nbsp;-&nbsp;{{ this.members.length }}
         </span>
         <button class="btn-no-outline member_section_toggler"
@@ -197,11 +227,11 @@
             {{ JSON.parse(usr).usr.split('@')[0] }}
           </span>
         </div>
-        <div class="mt-2" style="padding: 10px">
+        <div style="padding-left: 10px">
           <button class="text-white btn-no-outline"
                   title="Invite"
                   v-on:click="invite()">
-            <i class="bi bi-envelope-plus lead" style="font-size: 150%"></i>
+            <i class="bi bi-person-plus lead orange-hover c_lightgray" style="font-size: 150%"></i>
           </button>
           <span class="tooltip-mock-destination" :class="{'show':showInviteCopied}">Copied!</span>
         </div>
@@ -219,7 +249,7 @@
         <h2 class="fw-bold" style="padding-top: 20px"> {{ this.viewedUserProfile.usr.split('@')[0] }}</h2>
       </div>
       <!-- #### MEMBER ROLES #### -->
-      <hr style="color: white">
+      <hr class="c_lightgray">
       <div style="display: flex; flex-wrap: wrap">
         <div v-for="role in this.viewedUserProfile.roles" :key="role"
              class="b_purple"
@@ -251,7 +281,7 @@
                  v-on:keyup.enter="commitUserRole">
         </div>
       </div>
-      <hr style="color: white">
+      <hr class="c_lightgray">
     </div>
   </div>
   <!-- #### GIF SELECTION #### -->
@@ -296,7 +326,7 @@
         <span class="spinner-grow spinner-grow-sm text-info" role="status" aria-hidden="true"></span>
         <span class="jetb ms-2">Uploading...</span>
       </div>
-      <hr style="color: white">
+      <hr class="c_lightgray">
     </div>
   </div>
 </template>
@@ -517,12 +547,18 @@ export default {
         this.lazyLoadingStatus = 'idle'
       }
     },
-    getSession: function () {
-      return this.$route.params.id
+    getSession: function (full = false) {
+      let session
+      if (full === false) {
+        session = this.$route.params.id
+      } else {
+        session = window.location.href
+      }
+      return session
     },
     invite: function () {
       this.showInviteCopied = true
-      navigator.clipboard.writeText(this.getSession())
+      navigator.clipboard.writeText(this.getSession(true))
       setTimeout(() => {
         this.showInviteCopied = false
       }, 1000)
@@ -617,9 +653,11 @@ export default {
     resizeCanvas: function () {
       if (window.innerWidth >= 992) {
         this.showSidebar()
+        this.showSidebar2()
         this.showMemberSidebar()
       } else {
         this.hideSidebar()
+        this.hideSidebar2()
         this.hideMemberSidebar()
       }
     },
@@ -629,6 +667,14 @@ export default {
     },
     hideSidebar: function () {
       const sidebar = document.getElementById('sidebar')
+      if (sidebar.classList.contains('active')) sidebar.classList.remove('active')
+    },
+    showSidebar2: function () {
+      const sidebar = document.getElementById('sidebar2')
+      if (!sidebar.classList.contains('active')) sidebar.classList.add('active')
+    },
+    hideSidebar2: function () {
+      const sidebar = document.getElementById('sidebar2')
       if (sidebar.classList.contains('active')) sidebar.classList.remove('active')
     },
     showMemberSidebar: function () {
@@ -744,6 +790,25 @@ export default {
     },
     lazyLoadMessages: function () {
       this.getClarifierMessages(true)
+    },
+    createSubchatroom: function () {
+      /*
+      const headers = new Headers()
+      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      fetch(
+        this.$store.state.serverIP + '/api/m5/createchatroom?parent=' + this.getSession(),
+        {
+          method: 'post',
+          headers: headers,
+          body: JSON.stringify({
+            title: 'subtest'
+          })
+        }
+      )
+        .then((res) => res.json())
+        .then((data) => (this.$router.push('/apps/clarifier/wss/' + data.guid)))
+        .catch((err) => console.log(err.message))
+       */
     }
   }
 }
@@ -822,12 +887,12 @@ export default {
 .tooltip-mock-destination.show {
   opacity: 1;
   transition: 0.5s;
-  transform: translateY(-60%);
+  transform: translateY(-30%);
 }
 
 .tooltip-mock-destination {
   margin-left: 1ch;
-  color: #ffff;
+  color: #aeaeb7;
   display: inline-block;
   font-size: 16px;
   font-weight: bold;
@@ -912,11 +977,48 @@ export default {
   transition: ease-in-out all 0.2s;
 }
 
+.sidebar2 {
+  width: 0;
+  height: 100vh;
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 50px;
+  overflow-x: clip;
+  transition: ease-in-out all 0.2s;
+}
+
+.sidebar_bg {
+  transition: ease-in-out all 0.2s;
+}
+
 .member_section {
   width: 0;
   overflow-x: clip;
   opacity: 0;
   transition: ease-in-out all 0.2s;
+}
+
+.sidebar.active {
+  width: 250px;
+}
+
+.sidebar2.active {
+  width: 250px;
+  border-right: 1px solid rgba(174, 174, 183, 0.25);
+}
+
+.sidebar.active ~ .sidebar2.active {
+  left: 250px;
+}
+
+.sidebar.active .sidebar_bg {
+  border-radius: 0 50px 0 0;
+}
+
+.member_section.active {
+  width: 250px;
+  opacity: 1;
 }
 
 .member_count,
@@ -927,15 +1029,6 @@ export default {
 
 .member_section.active .member_count,
 .member_section.active .user_badge {
-  opacity: 1;
-}
-
-.sidebar.active {
-  width: 250px;
-}
-
-.member_section.active {
-  width: 250px;
   opacity: 1;
 }
 
@@ -994,8 +1087,8 @@ export default {
   }
 
   .clarifier_chatroom {
-    width: calc(100% - 250px - 250px);
-    left: 250px;
+    width: calc(100% - 750px);
+    left: 500px;
   }
 }
 
@@ -1003,7 +1096,7 @@ export default {
   position: absolute;
   width: 30px;
   right: 12px;
-  top: 60px;
+  top: 0;
   color: white;
   font-size: 150%;
 }
@@ -1058,6 +1151,21 @@ export default {
   text-align: center;
   color: #bbb;
   width: 100%;
+}
+
+.chat_header {
+  width: 100%;
+  height: 50px;
+  box-shadow: 0 0 10px 5px black;
+  font-weight: bold;
+  font-size: 125%;
+  color: white;
+  padding-left: 10px;
+  display: flex;
+  padding-bottom: 4px;
+  z-index: 10;
+  position: relative;
+  border-bottom: 1px solid rgba(174, 174, 183, 0.25)
 }
 
 </style>
