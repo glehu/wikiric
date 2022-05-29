@@ -81,7 +81,7 @@
           <div style="height: 50px; border-bottom: 2px solid rgba(174, 174, 183, 0.25);
                       align-items: center; display: flex">
             <div :id="this.getSession() + '_subc'" class="subchat orange-hover"
-                 v-on:click="connect(this.getSession())">
+                 v-on:click="gotoSubchat(this.getSession())">
               <span style="font-size: 150%">#</span>
               <span style="padding-left: 10px">General</span>
             </div>
@@ -403,7 +403,6 @@ export default {
     },
     connect: function (sessionID = this.getSession(), isSubchat = false) {
       // Connect to the chat
-      this.disconnect()
       this.connection = new WebSocket('wss://wikiric.xyz/clarifier/' + sessionID)
       this.connection.onopen = () => {
         this.connection.send(this.$store.state.token)
@@ -522,9 +521,8 @@ export default {
           if (isSubchat === false) {
             this.chatroom = data
             this.currentSubchat.t = 'General'
-          } else {
-            this.currentSubchat = data
           }
+          this.currentSubchat = data
         })
         .then(() => (this.processMetaDataResponse(isSubchat)))
         .catch((err) => console.error(err.message))
@@ -826,7 +824,7 @@ export default {
       }
     },
     lazyLoadMessages: function () {
-      this.getClarifierMessages(true)
+      this.getClarifierMessages(true, this.currentSubchat.guid)
     },
     createSubchatroom: function () {
       const headers = new Headers()
@@ -846,11 +844,12 @@ export default {
         .then(() => (this.getClarifierMetaData(mainSessionGUID)))
         .catch((err) => console.log(err.message))
     },
-    gotoSubchat: function (subchatGUID) {
+    gotoSubchat: function (subchatGUID, subchatMode = true) {
       if (subchatGUID === undefined || subchatGUID === '') return
+      this.disconnect()
       // Reset session specific stats
       this.extraSkipCount = 0
-      this.connect(subchatGUID, true)
+      this.connect(subchatGUID, subchatMode)
     },
     disconnect: function () {
       this.connection.close()
