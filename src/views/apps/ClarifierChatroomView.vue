@@ -5,7 +5,7 @@
       <div class="header-margin" style="box-shadow: none"></div>
       <div style="height: calc(100vh - 60px)" class="b_darkgray sidebar_bg">
         <!-- #### Tools #### -->
-        <div style="height: 180px; overflow-x: clip; position: relative">
+        <div style="height: 140px; overflow-x: clip; position: relative">
           <div style="width: 100%; height: 35px; padding-top: 5px">
             <span class="sb_link_text c_lightgray">Menu</span>
           </div>
@@ -29,15 +29,6 @@
                   <span class="sb_link_text">Settings</span>
                 </div>
                 <span class="sidebar_tooltip">Settings</span>
-              </div>
-            </li>
-            <li>
-              <div class="sb_link">
-                <div class="c_lightgray orange-hover">
-                  <i class="sb_link_icon bi bi-archive"></i>
-                  <span class="sb_link_text">Files</span>
-                </div>
-                <span class="sidebar_tooltip">Files</span>
               </div>
             </li>
           </ul>
@@ -95,21 +86,22 @@
               <span style="padding-left: 10px">General</span>
             </div>
           </div>
-          <div style="width: 100%; height: 35px; padding-top: 5px">
+          <div style="width: 100%; height: 35px; padding-top: 5px; display: flex; position: relative; align-items: center">
             <span class="fw-bold c_lightgray">Subchats</span>
-          </div>
-          <div v-for="subchat in this.chatroom.subChatrooms" :key="subchat"
-               :id="JSON.parse(subchat).guid + '_subc'" class="subchat orange-hover"
-               v-on:click="gotoSubchat(JSON.parse(subchat).guid)">
-            <span style="font-size: 150%">#</span>
-            <span style="padding-left: 10px">{{ JSON.parse(subchat).t }}</span>
-          </div>
-          <div style="padding: 10px">
             <button class="text-white btn-no-outline"
+                    style="position: absolute; right: 0"
                     title="New Subchat"
                     v-on:click="createSubchatroom">
               <i class="bi bi-plus lead orange-hover c_lightgray" style="font-size: 150%"></i>
             </button>
+          </div>
+          <div v-for="subchat in this.chatroom.subChatrooms" :key="subchat"
+               :id="JSON.parse(subchat).guid + '_subc'"
+               class="subchat orange-hover"
+               style="display: flex"
+               v-on:click="gotoSubchat(JSON.parse(subchat).guid)">
+            <span style="font-size: 150%">#</span>
+            <span style="padding-left: 10px">{{ JSON.parse(subchat).t }}</span>
           </div>
         </div>
       </div>
@@ -125,6 +117,11 @@
             <span style="margin-left: 10px"><i class="bi bi-caret-right"></i></span>
             <span style="margin-left: 10px">{{ currentSubchat.t }}</span>
           </div>
+          <button class="btn-no-outline"
+                  style="position: absolute; color: white; right: 40px;"
+                  title="Show Files">
+            <i class="sb_link_icon bi bi-archive"></i>
+          </button>
           <button class="btn-no-outline member_section_toggler"
                   title="Show Members"
                   v-on:click="toggleMemberSidebar">
@@ -230,13 +227,13 @@
       </div>
       <div style="padding: 5px">
         <div v-for="usr in chatroom.members" :key="usr"
-             style="padding-left: 10px; padding-bottom: 10px; position: relative"
+             style="padding-left: 10px; position: relative; display: flex; align-items: center"
              class="user_badge"
              v-on:click="showUserProfile(JSON.parse(usr))">
           <i class="bi bi-person-circle"
-             style="font-size: 200%; padding-right: 10px">
+             style="font-size: 200%">
           </i>
-          <span style="font-weight: bold; position: absolute; padding-top: 0.7em">
+          <span style="font-weight: bold; margin-left: 10px">
             {{ JSON.parse(usr).usr.split('@')[0] }}
           </span>
         </div>
@@ -406,6 +403,7 @@ export default {
     },
     connect: function (sessionID = this.getSession(), isSubchat = false) {
       // Connect to the chat
+      this.disconnect()
       this.connection = new WebSocket('wss://wikiric.xyz/clarifier/' + sessionID)
       this.connection.onopen = () => {
         this.connection.send(this.$store.state.token)
@@ -509,7 +507,7 @@ export default {
       this.connection.send(text)
       if (closeGIFSelection) this.isViewingGIFSelection = false
     },
-    getClarifierMetaData: function (sessionID, isSubchat = false) {
+    getClarifierMetaData: function (sessionID = this.getSession(), isSubchat = false) {
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       fetch(
@@ -646,7 +644,7 @@ export default {
       const roleInput = document.getElementById('new_role')
       setTimeout(() => roleInput.focus(), 0)
     },
-    commitUserRole: function (sessionID) {
+    commitUserRole: function () {
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const content = JSON.stringify({
@@ -655,7 +653,7 @@ export default {
       })
       this.hideUserProfile()
       fetch(
-        this.$store.state.serverIP + '/api/m5/addrole/' + sessionID,
+        this.$store.state.serverIP + '/api/m5/addrole/' + this.getSession(),
         {
           method: 'post',
           headers: headers,
@@ -780,10 +778,10 @@ export default {
         reader.readAsDataURL(file)
       })
     },
-    setSessionImage: function (image, sessionID) {
+    setSessionImage: function (image) {
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      const url = this.$store.state.serverIP + '/api/m5/setimage/' + sessionID
+      const url = this.$store.state.serverIP + '/api/m5/setimage/' + this.getSession()
       let base64String = ''
       const promise = this.getBase64(image)
       const updateFun = this.getClarifierMetaData
@@ -850,7 +848,6 @@ export default {
     },
     gotoSubchat: function (subchatGUID) {
       if (subchatGUID === undefined || subchatGUID === '') return
-      this.disconnect()
       // Reset session specific stats
       this.extraSkipCount = 0
       this.connect(subchatGUID, true)
@@ -1150,7 +1147,7 @@ export default {
 .member_section_toggler {
   position: absolute;
   color: white;
-  right: 10px
+  right: 10px;
 }
 
 .sb_link {
