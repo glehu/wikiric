@@ -16,7 +16,7 @@
             <li>
               <div class="sb_link" v-on:click="this.$router.push('/apps/clarifier')">
                 <div class="c_lightgray orange-hover">
-                  <i class="sb_link_icon bi bi-arrow-return-left"></i>
+                  <i class="sb_link_icon bi bi-x-square"></i>
                   <span class="sb_link_text">Exit</span>
                 </div>
                 <span class="sidebar_tooltip">Exit</span>
@@ -58,7 +58,7 @@
             <a class="fw-bold text-white orange-hover" style="text-decoration: none"
                :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
               <div class="c_lightgray orange-hover">
-                <i v-if="JSON.parse(session).id === clarifierUniChatroom.guid"
+                <i v-if="JSON.parse(session).id === chatroom.guid"
                    class="bi bi-dot"
                    style="position: absolute; left: -18px; top: -5px; font-size: 200%; color: forestgreen">
                 </i>
@@ -84,20 +84,29 @@
       <div class="header-margin" style="box-shadow: none"></div>
       <div style="height: calc(100vh - 60px); position: relative; padding-left: 23px"
            class="b_darkergray">
-        <!-- #### CHANNELS #### -->
-        <div style="width: 100%; height: 35px; padding-top: 5px">
-          <span class="fw-bold c_lightgray">Rooms</span>
-        </div>
+        <!-- #### SUB CHATROOMS #### -->
         <div style="height: calc(100% - 35px); overflow-y: scroll; overflow-x: clip"
              class="c_lightgray">
-          <div style="display: flex; align-items: center; padding-left: 20px; width: 90%; border-radius: 10px"
-               class="b_darkgray">
+          <div style="height: 50px; border-bottom: 2px solid rgba(174, 174, 183, 0.25);
+                      align-items: center; display: flex">
+            <div :id="this.getSession() + '_subc'" class="subchat orange-hover"
+                 v-on:click="connect(this.getSession())">
+              <span style="font-size: 150%">#</span>
+              <span style="padding-left: 10px">General</span>
+            </div>
+          </div>
+          <div style="width: 100%; height: 35px; padding-top: 5px">
+            <span class="fw-bold c_lightgray">Subchats</span>
+          </div>
+          <div v-for="subchat in this.chatroom.subChatrooms" :key="subchat"
+               :id="JSON.parse(subchat).guid + '_subc'" class="subchat orange-hover"
+               v-on:click="gotoSubchat(JSON.parse(subchat).guid)">
             <span style="font-size: 150%">#</span>
-            <span style="padding-left: 20px">General</span>
+            <span style="padding-left: 10px">{{ JSON.parse(subchat).t }}</span>
           </div>
           <div style="padding: 10px">
             <button class="text-white btn-no-outline"
-                    title="Invite"
+                    title="New Subchat"
                     v-on:click="createSubchatroom">
               <i class="bi bi-plus lead orange-hover c_lightgray" style="font-size: 150%"></i>
             </button>
@@ -111,7 +120,11 @@
         <div class="header-margin" style="box-shadow: none"></div>
         <!-- #### CHAT HEADER #### -->
         <div class="align-items-center b_darkergray chat_header">
-          <span style="margin-left: 10px">{{ clarifierUniChatroom.t }}</span>
+          <span style="margin-left: 10px">{{ chatroom.t }}</span>
+          <div v-if="currentSubchat.t !== undefined">
+            <span style="margin-left: 10px"><i class="bi bi-caret-right"></i></span>
+            <span style="margin-left: 10px">{{ currentSubchat.t }}</span>
+          </div>
           <button class="btn-no-outline member_section_toggler"
                   title="Show Members"
                   v-on:click="toggleMemberSidebar">
@@ -176,7 +189,7 @@
                       resize: none; overflow: hidden;
                       height: 2.5em; min-height: 2.5em;"
                       v-model="new_message"
-                      :placeholder="'Message to ' + clarifierUniChatroom.t"
+                      :placeholder="'Message to ' + chatroom.t"
                       v-on:input="auto_grow('new_comment')"
                       v-on:click="hideAllSidebars">
             </textarea>
@@ -216,7 +229,7 @@
         </button>
       </div>
       <div style="padding: 5px">
-        <div v-for="usr in clarifierUniChatroom.members" :key="usr"
+        <div v-for="usr in chatroom.members" :key="usr"
              style="padding-left: 10px; padding-bottom: 10px; position: relative"
              class="user_badge"
              v-on:click="showUserProfile(JSON.parse(usr))">
@@ -285,7 +298,7 @@
     </div>
   </div>
   <!-- #### GIF SELECTION #### -->
-  <div class="giphygrid b_gray" style="overflow: hidden" v-show="isSelectingGIF" @click.stop>
+  <div class="giphygrid b_gray" style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
     <div style="width: 100%; position: absolute; bottom: 10px">
       <input id="gif_query"
              type="text"
@@ -316,7 +329,7 @@
       <div style="display: flex; width: 100%; margin-bottom: 10px">
         <img class="b_darkergray" style="min-width: 80px; width: 80px; min-height: 80px; height: 80px;
              border-radius: 20px"
-             v-bind:src="clarifierUniChatroom.img" :alt="'&nbsp;'"/>
+             v-bind:src="chatroom.img" :alt="'&nbsp;'"/>
         <div class="drop_zone" id="drop_zone">Upload a picture!</div>
       </div>
       <input type="file" class="file_input" id="files" name="files[]"
@@ -337,8 +350,11 @@ import { Base64 } from 'js-base64'
 export default {
   data () {
     return {
-      clarifierUniChatroom: {},
+      chatroom: {},
+      subchats: [],
+      currentSubchat: {},
       connection: null,
+      // Messages and pagination
       messages: [],
       currentPage: 0,
       pageSize: 20,
@@ -351,7 +367,7 @@ export default {
       gifSelection: [],
       showInviteCopied: false,
       // Conditions
-      isSelectingGIF: false,
+      isViewingGIFSelection: false,
       isViewingUserProfile: false,
       isViewingSessionSettings: false,
       isAddingRole: false,
@@ -366,20 +382,8 @@ export default {
     }
   },
   created () {
-    this.serverLogin()
-    this.connection = new WebSocket('wss://wikiric.xyz/clarifier/' + this.getSession())
-    this.connection.onopen = () => {
-      this.connection.send(this.$store.state.token)
-      // Subscribe to notifications
-      this.subscribeFCM(this.getSession())
-    }
   },
   mounted () {
-    this.connection.onmessage = (event) => {
-      this.showMessage(event.data)
-    }
-    this.getClarifierMetaData()
-    this.getClarifierMessages()
     window.addEventListener('resize', this.resizeCanvas, false)
     document.getElementById('messages_section').addEventListener('scroll', this.checkScroll, false)
     this.resizeCanvas()
@@ -387,12 +391,40 @@ export default {
   },
   methods: {
     initFunction: function () {
+      // Generate new token just in case
+      this.serverLogin()
+      // Connect to the session
+      this.connect()
+      // Add message input field events
       const newCommentInput = document.getElementById('new_comment')
       newCommentInput.addEventListener('keydown', this.handleEnter, false)
       newCommentInput.focus()
+      // Add dropzone events (settings -> image upload)
       const dropZone = document.getElementById('drop_zone')
       dropZone.addEventListener('dragover', this.handleDragOver, false)
       dropZone.addEventListener('drop', this.handleFileSelectDrop, false)
+    },
+    connect: function (sessionID = this.getSession(), isSubchat = false) {
+      // Connect to the chat
+      this.connection = new WebSocket('wss://wikiric.xyz/clarifier/' + sessionID)
+      this.connection.onopen = () => {
+        this.connection.send(this.$store.state.token)
+        // Subscribe to notifications
+        this.subscribeFCM(sessionID)
+      }
+      this.connection.onmessage = (event) => {
+        this.showMessage(event.data)
+      }
+      // Get metadata and messages
+      this.getClarifierMetaData(sessionID, isSubchat)
+      this.getClarifierMessages(false, sessionID)
+      // UI Stuff
+      document.getElementById(this.getSession() + '_subc').classList.remove('active')
+      const previousGUID = this.currentSubchat.guid
+      if (previousGUID != null) {
+        document.getElementById(previousGUID + '_subc').classList.remove('active')
+      }
+      document.getElementById(sessionID + '_subc').classList.toggle('active')
     },
     serverLogin: function () {
       if (this.$store.state.username === undefined || this.$store.state.username === '') return
@@ -475,40 +507,47 @@ export default {
     },
     addMessagePar: function (text, closeGIFSelection = false) {
       this.connection.send(text)
-      if (closeGIFSelection) this.isSelectingGIF = false
+      if (closeGIFSelection) this.isViewingGIFSelection = false
     },
-    getClarifierMetaData: function () {
-      this.clarifierUniChatroom = {}
+    getClarifierMetaData: function (sessionID, isSubchat = false) {
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       fetch(
-        this.$store.state.serverIP + '/api/m5/getchatroom/' + this.getSession(),
+        this.$store.state.serverIP + '/api/m5/getchatroom/' + sessionID,
         {
           method: 'get',
           headers: headers
         }
       )
         .then((res) => res.json())
-        .then((data) => (this.clarifierUniChatroom = data))
-        .then(() => (this.processMetaDataResponse()))
+        .then((data) => {
+          if (isSubchat === false) {
+            this.chatroom = data
+            this.currentSubchat.t = 'General'
+          } else {
+            this.currentSubchat = data
+          }
+        })
+        .then(() => (this.processMetaDataResponse(isSubchat)))
         .catch((err) => console.error(err.message))
     },
-    processMetaDataResponse: function () {
-      this.$store.commit('addClarifierSession', {
-        id: this.clarifierUniChatroom.guid,
-        title: this.clarifierUniChatroom.t,
-        img: this.getImg(this.clarifierUniChatroom.img)
-      })
-      this.members = this.clarifierUniChatroom.members
-      document.title = this.clarifierUniChatroom.t
+    processMetaDataResponse: function (isSubchat = false) {
+      if (isSubchat === false) {
+        this.$store.commit('addClarifierSession', {
+          id: this.chatroom.guid,
+          title: this.chatroom.t,
+          img: this.getImg(this.chatroom.img)
+        })
+      }
+      this.members = this.chatroom.members
+      document.title = this.chatroom.t
     },
-    getClarifierMessages: function (lazyLoad = false) {
+    getClarifierMessages: function (lazyLoad = false, sessionID) {
       let pageIndex = this.currentPage
       if (lazyLoad === true) {
         this.lazyLoadingStatus = 'request'
         pageIndex++
       }
-      this.clarifierUniChatroom.messages = []
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const parameters =
@@ -516,7 +555,7 @@ export default {
         '&pageSize=' + this.pageSize +
         '&skip=' + this.extraSkipCount
       fetch(
-        this.$store.state.serverIP + '/api/m5/getmessages/' + this.getSession() + parameters,
+        this.$store.state.serverIP + '/api/m5/getmessages/' + sessionID + parameters,
         {
           method: 'get',
           headers: headers
@@ -586,18 +625,18 @@ export default {
         .catch((err) => console.error(err.message))
     },
     toggleSelectingGIF: function () {
-      this.isSelectingGIF = !this.isSelectingGIF
-      if (this.isSelectingGIF) {
+      this.isViewingGIFSelection = !this.isViewingGIFSelection
+      if (this.isViewingGIFSelection) {
         const gifInput = document.getElementById('gif_query')
         setTimeout(() => gifInput.focus(), 0)
       }
-      if (this.isSelectingGIF) {
+      if (this.isViewingGIFSelection) {
         this.hideUserProfile()
         this.hideSessionSettings()
       }
     },
     showUserProfile: function (user) {
-      this.isSelectingGIF = false
+      this.isViewingGIFSelection = false
       this.isViewingSessionSettings = false
       this.isViewingUserProfile = true
       this.viewedUserProfile = user
@@ -607,7 +646,7 @@ export default {
       const roleInput = document.getElementById('new_role')
       setTimeout(() => roleInput.focus(), 0)
     },
-    commitUserRole: function () {
+    commitUserRole: function (sessionID) {
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const content = JSON.stringify({
@@ -616,7 +655,7 @@ export default {
       })
       this.hideUserProfile()
       fetch(
-        this.$store.state.serverIP + '/api/m5/addrole/' + this.getSession(),
+        this.$store.state.serverIP + '/api/m5/addrole/' + sessionID,
         {
           method: 'post',
           headers: headers,
@@ -690,7 +729,7 @@ export default {
         this.hideSidebar()
         this.hideMemberSidebar()
       }
-      this.isSelectingGIF = false
+      this.isViewingGIFSelection = false
     },
     handleEnter: function () {
       if (event.code === 'Enter') {
@@ -741,10 +780,10 @@ export default {
         reader.readAsDataURL(file)
       })
     },
-    setSessionImage: function (image) {
+    setSessionImage: function (image, sessionID) {
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      const url = this.$store.state.serverIP + '/api/m5/setimage/' + this.getSession()
+      const url = this.$store.state.serverIP + '/api/m5/setimage/' + sessionID
       let base64String = ''
       const promise = this.getBase64(image)
       const updateFun = this.getClarifierMetaData
@@ -792,11 +831,11 @@ export default {
       this.getClarifierMessages(true)
     },
     createSubchatroom: function () {
-      /*
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      const mainSessionGUID = this.getSession()
       fetch(
-        this.$store.state.serverIP + '/api/m5/createchatroom?parent=' + this.getSession(),
+        this.$store.state.serverIP + '/api/m5/createchatroom?parent=' + mainSessionGUID,
         {
           method: 'post',
           headers: headers,
@@ -806,9 +845,18 @@ export default {
         }
       )
         .then((res) => res.json())
-        .then((data) => (this.$router.push('/apps/clarifier/wss/' + data.guid)))
+        .then(() => (this.getClarifierMetaData(mainSessionGUID)))
         .catch((err) => console.log(err.message))
-       */
+    },
+    gotoSubchat: function (subchatGUID) {
+      if (subchatGUID === undefined || subchatGUID === '') return
+      this.disconnect()
+      // Reset session specific stats
+      this.extraSkipCount = 0
+      this.connect(subchatGUID, true)
+    },
+    disconnect: function () {
+      this.connection.close()
     }
   }
 }
@@ -868,14 +916,6 @@ export default {
   color: #ff5d37;
 }
 
-@media only screen and (min-width: 992px) {
-  .user_profile,
-  .giphygrid,
-  .session_settings {
-    transform: translateX(-250px);
-  }
-}
-
 .user_badge:hover {
   transition: 0.2s ease-in-out;
   border-radius: 1em;
@@ -924,7 +964,7 @@ export default {
 .session_settings {
   position: fixed;
   z-index: 1001;
-  bottom: 52px;
+  bottom: 58px;
   right: 16px;
   color: white;
   width: 400px;
@@ -1005,15 +1045,11 @@ export default {
 
 .sidebar2.active {
   width: 250px;
-  border-right: 1px solid rgba(174, 174, 183, 0.25);
+  border-right: 2px solid rgba(174, 174, 183, 0.25);
 }
 
 .sidebar.active ~ .sidebar2.active {
   left: 250px;
-}
-
-.sidebar.active .sidebar_bg {
-  border-radius: 0 50px 0 0;
 }
 
 .member_section.active {
@@ -1090,6 +1126,16 @@ export default {
     width: calc(100% - 750px);
     left: 500px;
   }
+
+  .sidebar.active .sidebar_bg {
+    border-radius: 0 150px 0 0;
+  }
+
+  .user_profile,
+  .giphygrid,
+  .session_settings {
+    transform: translateX(-250px);
+  }
 }
 
 .sb_toggler {
@@ -1165,7 +1211,30 @@ export default {
   padding-bottom: 4px;
   z-index: 10;
   position: relative;
-  border-bottom: 1px solid rgba(174, 174, 183, 0.25)
+  border-bottom: 2px solid rgba(174, 174, 183, 0.25)
+}
+
+.subchat {
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  width: 90%;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+. subchat:hover {
+  background-color: #ff5d37;
+  color: black;
+  font-weight: bold;
+}
+
+.subchat.active {
+  background-color: #192129;
+}
+
+.subchat.active span {
+  color: white;
 }
 
 </style>
