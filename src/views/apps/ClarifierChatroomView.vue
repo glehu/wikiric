@@ -7,7 +7,7 @@
         <!-- #### Tools #### -->
         <div style="height: 140px; overflow-x: clip; position: relative">
           <div style="width: 100%; height: 35px; padding-top: 5px">
-            <span class="sb_link_text c_lightgray">Menu</span>
+            <span class="sb_link_text c_lightgray nopointer">Menu</span>
           </div>
           <button class="sb_toggler btn-no-outline" v-on:click="toggleSidebar">
             <i class="bi bi-list c_lightgray"></i>
@@ -22,7 +22,7 @@
                 <span class="sidebar_tooltip">Exit</span>
               </div>
             </li>
-            <li v-on:click="isViewingSessionSettings = true">
+            <li>
               <div class="sb_link">
                 <div class="c_lightgray orange-hover">
                   <i class="sb_link_icon bi bi-tools"></i>
@@ -38,8 +38,9 @@
         <div id="channel_section" class="channel_section b_darkgray"
              style="height: calc(100% - 60px - 100px); width: 100%; z-index: 4;
                     color: white; overflow-y: auto; overflow-x: clip; padding-top: 10px; padding-bottom: 20px">
-          <div style="width: 100%; height: 35px; padding-top: 5px">
-            <span class="sb_link_text c_lightgray">
+          <div style="width: 100%; padding-top: 5px"
+               class="sb_fold">
+            <span class="sb_link_text c_lightgray nopointer">
               Channels&nbsp;-&nbsp;{{ this.$store.state.clarifierSessions.length }}
             </span>
           </div>
@@ -81,12 +82,13 @@
           <div style="height: 50px; border-bottom: 2px solid rgba(174, 174, 183, 0.25);
                       align-items: center; display: flex">
             <div :id="this.getSession() + '_subc'" class="subchat orange-hover"
-                 v-on:click="gotoSubchat(this.getSession())">
+                 v-on:click="gotoSubchat(this.getSession(), false)">
               <span style="font-size: 150%">#</span>
               <span style="padding-left: 10px">General</span>
             </div>
           </div>
-          <div style="width: 100%; height: 35px; padding-top: 5px; display: flex; position: relative; align-items: center">
+          <div style="width: 100%; height: 35px; padding-top: 5px;
+                      display: flex; position: relative; align-items: center">
             <span class="fw-bold c_lightgray">Subchats</span>
             <button class="text-white btn-no-outline"
                     style="position: absolute; right: 0"
@@ -111,21 +113,32 @@
       <div id="chat_section" class="chat_section b_darkergray" style="width: 100%; height: 100%">
         <div class="header-margin" style="box-shadow: none"></div>
         <!-- #### CHAT HEADER #### -->
-        <div class="align-items-center b_darkergray chat_header">
-          <span style="margin-left: 10px">{{ chatroom.t }}</span>
-          <div v-if="currentSubchat.t !== undefined">
-            <span style="margin-left: 10px"><i class="bi bi-caret-right"></i></span>
-            <span style="margin-left: 10px">{{ currentSubchat.t }}</span>
+        <div class="align-items-center b_darkergray chat_header" style="width: 100%">
+          <div style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%"
+               class="nopointer">
+            <span style="margin-left: 10px">{{ chatroom.t }}</span>
+            <div v-if="isSubchat === true">
+              <span style="margin-left: 10px"><i class="bi bi-caret-right"></i></span>
+              <span style="margin-left: 10px">{{ currentSubchat.t }}</span>
+            </div>
           </div>
-          <button class="btn-no-outline"
-                  style="position: absolute; color: white; right: 40px;"
-                  title="Show Files">
-            <i class="sb_link_icon bi bi-archive"></i>
+          <button class="btn-no-outline c_lightgray"
+                  style="position: absolute; right: 90px"
+                  title="Show Settings"
+                  v-on:click="isViewingSessionSettings = true">
+            <i class="sb_link_icon bi bi-wrench orange-hover"></i>
           </button>
-          <button class="btn-no-outline member_section_toggler"
+          <button class="btn-no-outline c_lightgray member_section_toggler"
+                  style="position: absolute; right: 50px"
+                  title="Show Subchats"
+                  v-on:click="toggleSidebar2">
+            <i class="sb_link_icon bi bi-chat-square-dots orange-hover"></i>
+          </button>
+          <button class="btn-no-outline c_lightgray member_section_toggler"
+                  style="position: absolute; right: 10px"
                   title="Show Members"
                   v-on:click="toggleMemberSidebar">
-            <i class="bi bi-people-fill"></i>
+            <i class="bi bi-people orange-hover"></i>
           </button>
         </div>
         <!-- #### MESSAGES #### -->
@@ -216,13 +229,14 @@
          height: 100vh; overflow-y: auto; overflow-x: clip">
       <div class="header-margin" style="box-shadow: none"></div>
       <div style="width: 100%; height: 35px; padding-top: 5px">
-        <span class="fw-bold member_count c_lightgray" style="padding-left: 20px">
+        <span class="fw-bold member_count c_lightgray nopointer" style="padding-left: 20px">
           Members&nbsp;-&nbsp;{{ this.members.length }}
         </span>
-        <button class="btn-no-outline member_section_toggler"
+        <button class="btn-no-outline member_section_toggler c_lightgray"
+                style="position: absolute; right: 10px"
                 title="Hide Members"
                 v-on:click="toggleMemberSidebar">
-          <i class="bi bi-eye-slash-fill"></i>
+          <i class="bi bi-eye-slash-fill orange-hover"></i>
         </button>
       </div>
       <div style="padding: 5px">
@@ -349,6 +363,7 @@ export default {
     return {
       chatroom: {},
       subchats: [],
+      isSubchat: false,
       currentSubchat: {},
       connection: null,
       // Messages and pagination
@@ -402,6 +417,8 @@ export default {
       dropZone.addEventListener('drop', this.handleFileSelectDrop, false)
     },
     connect: function (sessionID = this.getSession(), isSubchat = false) {
+      this.resetStats()
+      this.isSubchat = isSubchat
       // Connect to the chat
       this.connection = new WebSocket('wss://wikiric.xyz/clarifier/' + sessionID)
       this.connection.onopen = () => {
@@ -520,7 +537,6 @@ export default {
         .then((data) => {
           if (isSubchat === false) {
             this.chatroom = data
-            this.currentSubchat.t = 'General'
           }
           this.currentSubchat = data
         })
@@ -671,6 +687,11 @@ export default {
     },
     toggleSidebar: function () {
       document.getElementById('sidebar').classList.toggle('active')
+      const memberSidebar = document.getElementById('member_section')
+      if (memberSidebar.classList.contains('active')) memberSidebar.classList.remove('active')
+    },
+    toggleSidebar2: function () {
+      document.getElementById('sidebar2').classList.toggle('active')
       const memberSidebar = document.getElementById('member_section')
       if (memberSidebar.classList.contains('active')) memberSidebar.classList.remove('active')
     },
@@ -847,12 +868,16 @@ export default {
     gotoSubchat: function (subchatGUID, subchatMode = true) {
       if (subchatGUID === undefined || subchatGUID === '') return
       this.disconnect()
-      // Reset session specific stats
-      this.extraSkipCount = 0
       this.connect(subchatGUID, subchatMode)
     },
     disconnect: function () {
       this.connection.close()
+    },
+    resetStats: function () {
+      // Reset session specific stats
+      this.currentPage = 0
+      this.extraSkipCount = 0
+      this.lazyLoadingStatus = 'idle'
     }
   }
 }
@@ -1115,7 +1140,8 @@ export default {
   }
 
   .member_section_toggler {
-    display: none;
+    pointer-events: none;
+    opacity: 0.5;
   }
 
   .clarifier_chatroom {
@@ -1144,9 +1170,6 @@ export default {
 }
 
 .member_section_toggler {
-  position: absolute;
-  color: white;
-  right: 10px;
 }
 
 .sb_link {
@@ -1172,8 +1195,17 @@ export default {
   transition: ease-in-out opacity 0.2s;
 }
 
+.sb_fold {
+  height: 0;
+  transition: ease-in-out height 0.2s;
+}
+
 .sidebar.active .sb_link_text {
   opacity: 1;
+}
+
+.sidebar.active .sb_fold {
+  height: 35px;
 }
 
 .sender_avatar {
@@ -1219,18 +1251,16 @@ export default {
   cursor: pointer;
 }
 
-. subchat:hover {
-  background-color: #ff5d37;
-  color: black;
-  font-weight: bold;
-}
-
 .subchat.active {
   background-color: #192129;
 }
 
 .subchat.active span {
   color: white;
+}
+
+.nopointer {
+  pointer-events: none;
 }
 
 </style>
