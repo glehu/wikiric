@@ -6,9 +6,10 @@ importScripts('https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js')
 const bc = new BroadcastChannel('dlChannel')
 
 self.addEventListener('notificationclick', function (event) {
-  console.log('SW Notification Consumed', event)
-  bc.postMessage(event.notification.data.FCM_MSG.data.dlDest)
-  /* window.location.href = event.notification.data.FCM_MSG.data.dlDest */
+  const data = {}
+  data.destination = event.notification.data.FCM_MSG.data.dlDest
+  data.subchatGUID = event.notification.data.FCM_MSG.data.subchatGUID
+  bc.postMessage(data)
 })
 
 // eslint-disable-next-line no-undef

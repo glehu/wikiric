@@ -166,9 +166,12 @@ export default {
 
     const bc = new BroadcastChannel('dlChannel')
     bc.onmessage = event => {
-      console.log('dlChannel', event)
       this.serverLogin()
-      window.location.href = event.data
+      if (event.data.subchatGUID) {
+        window.location.href = event.data.destination + '?sub=' + event.data.subchatGUID
+      } else {
+        window.location.href = event.data.destination
+      }
     }
 
     // eslint-disable-next-line no-unused-vars

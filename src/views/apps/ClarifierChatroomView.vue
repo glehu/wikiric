@@ -6,13 +6,14 @@
       <div style="height: calc(100vh - 60px)" class="b_darkgray sidebar_bg">
         <!-- #### Tools #### -->
         <div style="height: 140px; overflow-x: clip; position: relative">
-          <div style="width: 100%; height: 35px; padding-top: 5px">
+          <div style="width: 100%; height: 35px; padding-top: 10px">
             <span class="sb_link_text c_lightgray nopointer">Menu</span>
           </div>
           <button class="sb_toggler btn-no-outline" v-on:click="toggleSidebar">
             <i class="bi bi-list c_lightgray"></i>
           </button>
-          <ul class="nav_list list-unstyled" style="color: white">
+          <ul class="nav_list list-unstyled"
+              style="color: white; margin-top: 5px">
             <li>
               <div class="sb_link" v-on:click="this.$router.push('/apps/clarifier')">
                 <div class="c_lightgray orange-hover">
@@ -34,14 +35,14 @@
           </ul>
         </div>
         <hr class="c_lightgray" style="margin: auto; width: 75%">
-        <!-- #### CHANNELS #### -->
+        <!-- #### GROUPS #### -->
         <div id="channel_section" class="channel_section b_darkgray"
              style="height: calc(100% - 60px - 100px); width: 100%; z-index: 4;
                     color: white; overflow-y: auto; overflow-x: clip; padding-top: 10px; padding-bottom: 20px">
           <div style="width: 100%; padding-top: 5px"
                class="sb_fold">
             <span class="sb_link_text c_lightgray nopointer">
-              Channels&nbsp;-&nbsp;{{ this.$store.state.clarifierSessions.length }}
+              Groups&nbsp;-&nbsp;{{ this.$store.state.clarifierSessions.length }}
             </span>
           </div>
           <div v-for="session in this.$store.state.clarifierSessions" :key="session"
@@ -76,7 +77,7 @@
       <div class="header-margin" style="box-shadow: none"></div>
       <div style="height: calc(100vh - 60px); position: relative; padding-left: 23px"
            class="b_darkergray">
-        <!-- #### SUB CHATROOMS #### -->
+        <!-- #### SUBCHATS #### -->
         <div style="height: calc(100% - 35px); overflow-y: scroll; overflow-x: clip"
              class="c_lightgray">
           <div style="height: 50px; border-bottom: 2px solid rgba(174, 174, 183, 0.25);
@@ -93,7 +94,7 @@
             <button class="text-white btn-no-outline"
                     style="position: absolute; right: 0"
                     title="New Subchat"
-                    v-on:click="createSubchatroom">
+                    v-on:click="showNewSubchatWindow">
               <i class="bi bi-plus lead orange-hover c_lightgray" style="font-size: 150%"></i>
             </button>
           </div>
@@ -146,49 +147,64 @@
              class="messages_section"
              style="overflow-y: auto; overflow-x: clip;
              height: calc(100vh - 60px - 50px - 34px);
-             padding-top: 10px; padding-bottom: 20px;
+             padding-bottom: 30px;
              display: flex; flex-direction: column-reverse">
-          <div v-for="msg in messages" :key="msg"
-               style="color: white; padding-left: 15px; padding-right: 25px; padding-bottom: 15px">
-            <!-- Chat Avatar and Date-->
-            <div style="position: relative;">
-              <i v-if="JSON.parse(msg).src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
-              <i v-else class="sender_avatar bi bi-person-circle"></i>
-              <span class="orange-hover" style="font-weight: bold">{{ JSON.parse(msg).src.split('@')[0] }}</span>
-              <span style="color: gray; font-size: 80%; padding-left: 10px">
-                  {{ new Date(JSON.parse(msg).ts).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
-                </span>
-            </div>
-            <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
-            <template v-if="JSON.parse(msg).msg.startsWith('[s:RegistrationNotification]')">
-              <div class="serverMessage"
-                   style="text-wrap: normal; word-wrap: break-word; padding-left: 42px">
-                {{ JSON.parse(msg).msg.substring(28) }}
-              </div>
-            </template>
-            <!-- #### CLIENT GIF MESSAGE #### -->
-            <div v-else-if="JSON.parse(msg).msg.startsWith('[c:GIF]')">
-              <div style="padding-left: 42px">
-                <img :src="JSON.parse(msg).msg.substring(7)" :alt="JSON.parse(msg).msg.substring(7)" loading="lazy">
-                <br>
-                <div>
-                  <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
-                       style="max-width: 100px; width: 100px"/>
-                </div>
-              </div>
-            </div>
-            <!-- #### CLIENT MESSAGE #### -->
-            <div v-else style="width: 100%; position: relative">
-              <span class="clientMessage"
-                    style="text-wrap: normal; word-wrap: break-word; padding-left: 42px">
-                {{ JSON.parse(msg).msg }}
+          <template v-for="msg in messages" :key="JSON.parse(msg).uID">
+            <div class="message">
+              <!-- Chat Avatar and Date-->
+              <div style="position: relative">
+                <i v-if="JSON.parse(msg).src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
+                <i v-else class="sender_avatar bi bi-person-circle"></i>
+                <span class="orange-hover"
+                      style="font-weight: bold">
+                {{ JSON.parse(msg).src.split('@')[0] }}
               </span>
+                <span style="color: gray; font-size: 80%; padding-left: 10px">
+                  {{ new Date(JSON.parse(msg).ts).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+              </span>
+              </div>
+              <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
+              <template v-if="JSON.parse(msg).msg.startsWith('[s:RegistrationNotification]')">
+                <div class="serverMessage">
+                  {{ JSON.parse(msg).msg.substring(28).trim() }}
+                </div>
+              </template>
+              <!-- #### CLIENT GIF MESSAGE #### -->
+              <template v-else-if="JSON.parse(msg).msg.startsWith('[c:GIF]')">
+                <div style="padding-left: 42px">
+                  <img :src="JSON.parse(msg).msg.substring(7)"
+                       :alt="JSON.parse(msg).msg.substring(7)"
+                       loading="lazy"
+                       style="max-width: 300px">
+                  <br>
+                  <div>
+                    <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
+                         style="width: 100px"/>
+                  </div>
+                </div>
+              </template>
+              <!-- #### CLIENT IMAGE (SnippetBase) #### -->
+              <template v-else-if="JSON.parse(msg).msg.startsWith('[c:IMG]')">
+                <div style="padding-left: 42px">
+                  <img :src="JSON.parse(msg).msg.substring(7)"
+                       :alt="JSON.parse(msg).msg.substring(7)"
+                       loading="lazy"
+                       style="max-width: 300px"
+                       v-on:click="openURL(JSON.parse(msg).msg.substring(7))">
+                </div>
+              </template>
+              <!-- #### CLIENT MESSAGE #### -->
+              <div v-else style="width: 100%; position: relative">
+                <span class="clientMessage">
+                  {{ JSON.parse(msg).msg }}
+                </span>
+              </div>
             </div>
-          </div>
+          </template>
         </div>
         <!-- #### USER INPUT FIELD #### -->
         <div class="align-bottom" style="display: inline-flex; width: 100%">
-          <div style="width: 100%; padding-left: 2ch; padding-right: 2ch; position: relative">
+          <div style="width: 100%; position: relative">
             <textarea id="new_comment"
                       class="new_comment b_gray"
                       type="text"
@@ -200,17 +216,9 @@
                       height: 2.5em; min-height: 2.5em;"
                       v-model="new_message"
                       :placeholder="'Message to ' + chatroom.t"
-                      v-on:input="auto_grow('new_comment')"
+                      v-on:input="auto_grow"
                       v-on:click="hideAllSidebars">
             </textarea>
-            <button class="btn-outline-light b_gray"
-                    style="position: absolute; bottom: 0; right: 15px;
-                    width: 40px; height: 2.5em; margin-left: 1ch;
-                    border-color: transparent; border-radius: 1em"
-                    title="Search on GIPHY"
-                    v-on:click="toggleSelectingGIF">
-              <span class="fw-bold">GIF</span>
-            </button>
             <button class="btn-outline-light b_gray"
                     style="position: absolute; bottom: 0; right: 60px;
                     width: 40px; height: 2.5em; margin-left: 1ch;
@@ -219,13 +227,31 @@
                     v-on:click="addMessage">
               <span class="fw-bold"><i class="bi bi-send"></i></span>
             </button>
+            <button class="btn-outline-light b_gray"
+                    style="position: absolute; bottom: 0; right: 15px;
+                    width: 40px; height: 2.5em; margin-left: 1ch;
+                    border-color: transparent; border-radius: 1em"
+                    title="Search on GIPHY"
+                    v-on:click="toggleSelectingGIF">
+              <span class="fw-bold">GIF</span>
+            </button>
+            <button id="send_image_button"
+                    class="btn-outline-light b_gray send_image_button"
+                    style="position: absolute; bottom: 0; right: 105px;
+                    width: 40px; height: 2.5em; margin-left: 1ch;
+                    border-color: transparent; border-radius: 1em"
+                    title="Send Image"
+                    v-on:click="toggleUploadingSnippet">
+              <span class="fw-bold"><i class="bi bi-file-earmark-image"></i></span>
+            </button>
           </div>
         </div>
       </div>
     </div>
     <!-- #### MEMBERS #### -->
-    <div id="member_section" class="member_section b_darkgray"
+    <div id="member_section" class="member_section b_darkergray"
          style="color: white; z-index: 11; position: absolute; right: 0;
+         border-left: 2px solid rgba(174, 174, 183, 0.25);
          height: 100vh; overflow-y: auto; overflow-x: clip">
       <div class="header-margin" style="box-shadow: none"></div>
       <div style="width: 100%; height: 35px; padding-top: 5px">
@@ -267,7 +293,7 @@
        v-show="isViewingUserProfile" @click.stop>
     <div style="position: relative; padding-top: 10px">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
-         v-on:click="hideUserProfile"></i>
+         v-on:click="hideAllWindows()"></i>
       <div style="display: flex">
         <i class="bi bi-person-circle" style="font-size: 300%; margin-right: 10px"></i>
         <h2 class="fw-bold" style="padding-top: 20px"> {{ this.viewedUserProfile.usr.split('@')[0] }}</h2>
@@ -335,13 +361,13 @@
        v-show="isViewingSessionSettings" @click.stop>
     <div style="position: relative; padding-top: 10px; width: 100%">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
-         v-on:click="hideSessionSettings"></i>
+         v-on:click="hideAllWindows()"></i>
       <h2 class="fw-bold">Session Settings</h2>
       <div style="display: flex; width: 100%; margin-bottom: 10px">
         <img class="b_darkergray" style="min-width: 80px; width: 80px; min-height: 80px; height: 80px;
              border-radius: 20px"
              v-bind:src="chatroom.img" :alt="'&nbsp;'"/>
-        <div class="drop_zone" id="drop_zone">Upload a picture!</div>
+        <div class="drop_zone" style="margin-left: 10px" id="drop_zone">Upload a picture!</div>
       </div>
       <input type="file" class="file_input" id="files" name="files[]"
              style="width: 100%"
@@ -353,12 +379,73 @@
       <hr class="c_lightgray">
     </div>
   </div>
+  <!-- #### New Subchat #### -->
+  <div class="new_subchat b_gray shadow" style="overflow: hidden"
+       v-show="isViewingNewSubchat" @click.stop>
+    <div style="position: relative; padding-top: 10px; width: 100%">
+      <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
+         v-on:click="hideAllWindows()"></i>
+      <h2 class="fw-bold">New Subchat</h2>
+      <hr class="c_lightgray">
+      <label for="new_subchat_name" class="fw-bold lead c_lightgray">Name:</label>
+      <input v-model="new_subchat_name"
+             id="new_subchat_name" type="text"
+             class="mt-2 b_darkergray text-white p-2 ps-3"
+             style="width: 100%; border: none; border-radius: 20px">
+      <label class="fw-bold lead mt-4 c_lightgray" style="width: 100%">Create:</label>
+      <button v-on:click="createSubchatroom"
+              id="new_subchat_type_text" class="btn darkbutton mt-2"
+              style="color: white; width: 100%; text-align: left; display: flex; align-items: center; border-radius: 10px">
+        <span style="font-size: 200%">#</span>
+        <span class="ms-2">
+          <span>Text Subchat</span>
+          <br>
+          <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Messages, GIFs and Emojis</span>
+        </span>
+      </button>
+    </div>
+  </div>
+  <!-- #### Image Upload (Snippet) #### -->
+  <div class="session_settings b_gray shadow" style="overflow-x: hidden; overflow-y: scroll"
+       v-show="isUploadingSnippet" @click.stop>
+    <div style="position: relative; padding-top: 10px; width: 100%">
+      <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
+         v-on:click="hideAllWindows()"></i>
+      <h2 class="fw-bold">Upload Image</h2>
+      <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px">
+        <img class="uploadImageSnippet"
+             v-bind:src="uploadImageBase64" :alt="'&nbsp;'"/>
+      </div>
+      <hr class="c_lightgray">
+      <div class="drop_zone" id="snippet_drop_zone" style="margin-bottom: 10px">Upload a picture!</div>
+      <input type="file" class="file_input" id="snippet_files" name="files[]"
+             style="width: 100%"
+             multiple v-on:change="handleUploadImageSelect"/>
+      <div id="confirm_snippet_loading" class="ms-3 mt-3" style="display: none">
+        <span class="spinner-grow spinner-grow-sm text-info" role="status" aria-hidden="true"></span>
+        <span class="jetb ms-2">Uploading...</span>
+      </div>
+      <hr class="c_lightgray">
+      <div style="width: 100%; display: flex; align-items: center; justify-items: center">
+        <button class="btn-outline-light darkbutton text-white"
+                style="width: 90%; height: 2.5em; border-color: transparent; border-radius: 1em; margin: auto"
+                title="Send"
+                v-on:click="addMessage">
+          <span class="fw-bold"><i class="bi bi-send"></i> Submit</span>
+          <span style="margin-left: 10px" class="c_lightgray"> {{ this.uploadImageType }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 import { Base64 } from 'js-base64'
 
 export default {
+  props: {
+    parsed: Object
+  },
   data () {
     return {
       chatroom: {},
@@ -378,12 +465,19 @@ export default {
       new_role: '',
       gifSelection: [],
       showInviteCopied: false,
+      new_subchat_name: '',
+      sendImageButton: null,
+      inputField: null,
+      uploadImageBase64: '',
+      uploadImageType: '',
       // Conditions
       isViewingGIFSelection: false,
       isViewingUserProfile: false,
       isViewingSessionSettings: false,
       isAddingRole: false,
       isEditingRoles: false,
+      isViewingNewSubchat: false,
+      isUploadingSnippet: false,
       //
       lastKeyPressed: '',
       viewedUserProfile: {
@@ -405,8 +499,18 @@ export default {
     initFunction: function () {
       // Generate new token just in case
       this.serverLogin()
-      // Connect to the session
-      this.connect()
+      // Are we connecting to a subchat?
+      const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop)
+      })
+      const subchatGUID = params.sub
+      if (subchatGUID) {
+        this.getClarifierMetaData(this.getSession())
+        this.gotoSubchat(subchatGUID)
+      } else {
+        // Connect to the session
+        this.connect()
+      }
       // Add message input field events
       const newCommentInput = document.getElementById('new_comment')
       newCommentInput.addEventListener('keydown', this.handleEnter, false)
@@ -415,6 +519,11 @@ export default {
       const dropZone = document.getElementById('drop_zone')
       dropZone.addEventListener('dragover', this.handleDragOver, false)
       dropZone.addEventListener('drop', this.handleFileSelectDrop, false)
+      const dropZoneSnippet = document.getElementById('snippet_drop_zone')
+      dropZoneSnippet.addEventListener('dragover', this.handleDragOver, false)
+      dropZoneSnippet.addEventListener('drop', this.handleUploadImageSelectDrop, false)
+      this.sendImageButton = document.getElementById('send_image_button')
+      this.inputField = document.getElementById('new_comment')
     },
     connect: function (sessionID = this.getSession(), isSubchat = false) {
       this.resetStats()
@@ -424,7 +533,7 @@ export default {
       this.connection.onopen = () => {
         this.connection.send(this.$store.state.token)
         // Subscribe to notifications
-        this.subscribeFCM(sessionID)
+        this.subscribeFCM(sessionID, isSubchat)
       }
       this.connection.onmessage = (event) => {
         this.showMessage(event.data)
@@ -432,13 +541,6 @@ export default {
       // Get metadata and messages
       this.getClarifierMetaData(sessionID, isSubchat)
       this.getClarifierMessages(false, sessionID)
-      // UI Stuff
-      document.getElementById(this.getSession() + '_subc').classList.remove('active')
-      const previousGUID = this.currentSubchat.guid
-      if (previousGUID != null) {
-        document.getElementById(previousGUID + '_subc').classList.remove('active')
-      }
-      document.getElementById(sessionID + '_subc').classList.toggle('active')
     },
     serverLogin: function () {
       if (this.$store.state.username === undefined || this.$store.state.username === '') return
@@ -493,14 +595,22 @@ export default {
       }
     },
     addMessage: function () {
+      const isUploadingSnippet = this.isUploadingSnippet === true && this.uploadImageBase64 !== ''
       if (this.new_message.trim() === '') {
         this.new_message = ''
-        return
+        if (isUploadingSnippet !== true) return
       }
       // GIF Lookup?
       if (this.new_message.toLowerCase().startsWith('/gif ')) {
         this.getGIF(this.new_message.substring(4))
         this.new_message = ''
+        this.focusComment(true)
+        setTimeout(() => this.auto_grow('new_comment'), 0)
+        return
+      }
+      // Image Snippet Upload?
+      if (isUploadingSnippet === true) {
+        this.uploadImageSnippet()
         this.focusComment(true)
         setTimeout(() => this.auto_grow('new_comment'), 0)
         return
@@ -520,7 +630,7 @@ export default {
       }
     },
     addMessagePar: function (text, closeGIFSelection = false) {
-      this.connection.send(text)
+      if (text !== '') this.connection.send(text)
       if (closeGIFSelection) this.isViewingGIFSelection = false
     },
     getClarifierMetaData: function (sessionID = this.getSession(), isSubchat = false) {
@@ -538,7 +648,15 @@ export default {
           if (isSubchat === false) {
             this.chatroom = data
           }
+          // UI Stuff
+          document.getElementById(this.getSession() + '_subc').classList.remove('active')
+          const previousGUID = this.currentSubchat.guid
+          if (previousGUID != null) {
+            document.getElementById(previousGUID + '_subc').classList.remove('active')
+          }
+          // Set current subchat
           this.currentSubchat = data
+          document.getElementById(this.currentSubchat.guid + '_subc').classList.toggle('active')
         })
         .then(() => (this.processMetaDataResponse(isSubchat)))
         .catch((err) => console.error(err.message))
@@ -637,21 +755,34 @@ export default {
         .catch((err) => console.error(err.message))
     },
     toggleSelectingGIF: function () {
+      this.hideAllWindows()
       this.isViewingGIFSelection = !this.isViewingGIFSelection
       if (this.isViewingGIFSelection) {
         const gifInput = document.getElementById('gif_query')
         setTimeout(() => gifInput.focus(), 0)
       }
-      if (this.isViewingGIFSelection) {
-        this.hideUserProfile()
-        this.hideSessionSettings()
-      }
+    },
+    toggleUploadingSnippet: function () {
+      this.hideAllWindows()
+      this.isUploadingSnippet = !this.isUploadingSnippet
+    },
+    showNewSubchatWindow: function () {
+      this.hideAllWindows()
+      this.isViewingNewSubchat = true
+      const subchatName = document.getElementById('new_subchat_name')
+      setTimeout(() => subchatName.focus(), 0)
     },
     showUserProfile: function (user) {
-      this.isViewingGIFSelection = false
-      this.isViewingSessionSettings = false
+      this.hideAllWindows()
       this.isViewingUserProfile = true
       this.viewedUserProfile = user
+    },
+    hideAllWindows: function () {
+      this.isViewingUserProfile = false
+      this.isViewingGIFSelection = false
+      this.isUploadingSnippet = false
+      this.hideSessionSettings()
+      this.hideNewSubchatWindow()
     },
     addUserRole: function () {
       this.isAddingRole = true
@@ -685,26 +816,29 @@ export default {
     hideSessionSettings: function () {
       this.isViewingSessionSettings = false
     },
+    hideNewSubchatWindow: function () {
+      this.isViewingNewSubchat = false
+      this.new_subchat_name = ''
+    },
     toggleSidebar: function () {
       document.getElementById('sidebar').classList.toggle('active')
       const memberSidebar = document.getElementById('member_section')
-      if (memberSidebar.classList.contains('active')) memberSidebar.classList.remove('active')
+      memberSidebar.classList.remove('active')
     },
     toggleSidebar2: function () {
       document.getElementById('sidebar2').classList.toggle('active')
       const memberSidebar = document.getElementById('member_section')
-      if (memberSidebar.classList.contains('active')) memberSidebar.classList.remove('active')
+      memberSidebar.classList.remove('active')
     },
     toggleMemberSidebar: function () {
       document.getElementById('member_section').classList.toggle('active')
       const sidebar = document.getElementById('sidebar')
-      if (sidebar.classList.contains('active')) sidebar.classList.remove('active')
+      sidebar.classList.remove('active')
     },
-    auto_grow: function (id) {
-      // if (this.lastKeyPressed === 'Enter') return
-      const elem = document.getElementById(id)
-      elem.style.height = '2.5em'
-      elem.style.height = (elem.scrollHeight) + 'px'
+    auto_grow: function () {
+      this.sendImageButton.classList.toggle('active', (this.new_message !== '')) // Inverted
+      this.inputField.style.height = '2.5em'
+      this.inputField.style.height = (this.inputField.scrollHeight) + 'px'
     },
     resizeCanvas: function () {
       if (window.innerWidth >= 992) {
@@ -744,6 +878,7 @@ export default {
     hideAllSidebars: function () {
       if (window.innerWidth < 992) {
         this.hideSidebar()
+        this.hideSidebar2()
         this.hideMemberSidebar()
       }
       this.isViewingGIFSelection = false
@@ -756,6 +891,7 @@ export default {
     },
     closeModals: function () {
       this.hideUserProfile()
+      this.hideNewSubchatWindow()
     },
     handleFileSelectDrop: function (evt) {
       this.handleFileSelect(evt, true)
@@ -763,9 +899,8 @@ export default {
     handleFileSelect: function (evt, drop = false) {
       evt.stopPropagation()
       evt.preventDefault()
-
+      // Start uploading animation
       this.toggleElement('confirm_settings_loading', 'flex')
-
       let files
       if (drop) {
         files = evt.dataTransfer.files
@@ -773,6 +908,24 @@ export default {
         files = evt.target.files
       }
       this.setSessionImage(files[0])
+    },
+    handleUploadImageSelectDrop: function (evt) {
+      this.handleUploadImageSelect(evt, true)
+    },
+    handleUploadImageSelect: async function (evt, drop = false) {
+      evt.stopPropagation()
+      evt.preventDefault()
+      // Start uploading animation
+      this.toggleElement('confirm_snippet_loading', 'flex')
+      let files
+      if (drop) {
+        files = evt.dataTransfer.files
+      } else {
+        files = evt.target.files
+      }
+      this.uploadImageBase64 = await this.getBase64(files[0])
+      this.uploadImageType = files[0].type
+      this.toggleElement('confirm_snippet_loading', 'flex')
     },
     handleDragOver: function (evt) {
       evt.stopPropagation()
@@ -825,11 +978,11 @@ export default {
         })
     },
     toggleElement: function (id, display = 'block') {
-      const explanation = document.getElementById(id)
-      if (explanation.style.display === display) {
-        explanation.style.display = 'none'
+      const elem = document.getElementById(id)
+      if (elem.style.display === display) {
+        elem.style.display = 'none'
       } else {
-        explanation.style.display = display
+        elem.style.display = display
       }
     },
     toggleSettingsLoading: function () {
@@ -848,6 +1001,10 @@ export default {
       this.getClarifierMessages(true, this.currentSubchat.guid)
     },
     createSubchatroom: function () {
+      if (this.new_subchat_name.trim() === '') {
+        this.new_subchat_name = ''
+        return
+      }
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const mainSessionGUID = this.getSession()
@@ -857,20 +1014,34 @@ export default {
           method: 'post',
           headers: headers,
           body: JSON.stringify({
-            title: 'subtest'
+            title: this.new_subchat_name.trim()
           })
         }
       )
         .then((res) => res.json())
+        .then((data) => (this.gotoSubchat(data.guid)))
         .then(() => (this.getClarifierMetaData(mainSessionGUID)))
-        .catch((err) => console.log(err.message))
+        .then(() => (this.hideNewSubchatWindow()))
+        .catch((err) => console.error(err.message))
     },
     gotoSubchat: function (subchatGUID, subchatMode = true) {
-      if (subchatGUID === undefined || subchatGUID === '') return
+      if (!subchatGUID) return
+      if (subchatMode) {
+        this.$router.replace({
+          path: '/apps/clarifier/wss/' + this.getSession(),
+          query: { sub: subchatGUID }
+        })
+      } else {
+        this.$router.replace({
+          path: '/apps/clarifier/wss/' + this.getSession()
+        })
+      }
       this.disconnect()
       this.connect(subchatGUID, subchatMode)
+      this.hideAllSidebars()
     },
     disconnect: function () {
+      if (this.connection == null) return
       this.connection.close()
     },
     resetStats: function () {
@@ -878,6 +1049,48 @@ export default {
       this.currentPage = 0
       this.extraSkipCount = 0
       this.lazyLoadingStatus = 'idle'
+    },
+    uploadImageSnippet: function () {
+      this.toggleElement('confirm_snippet_loading', 'flex')
+      const headers = new Headers()
+      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      const content = JSON.stringify({
+        type: this.uploadImageType,
+        payload: this.uploadImageBase64
+      })
+      fetch(
+        this.$store.state.serverIP + '/api/m6/create',
+        {
+          method: 'post',
+          headers: headers,
+          body: content
+        }
+      )
+        .then((res) => res.json())
+        .then((data) => (this.processUploadImageSnippetResponse(data)))
+        .catch((err) => console.error(err.message))
+    },
+    processUploadImageSnippetResponse: function (response) {
+      if (response.httpCode !== 201) {
+        this.$notify(
+          {
+            title: 'Image not uploaded',
+            text: 'An Error occured while uploading the image.',
+            type: 'error'
+          })
+        return
+      }
+      this.addMessagePar('[c:IMG]' + this.$store.state.serverIP + '/m6/get/' + response.guid)
+      this.addMessagePar(this.new_message)
+      this.uploadImageBase64 = ''
+      this.uploadImageType = ''
+      this.new_message = ''
+      this.toggleElement('confirm_snippet_loading', 'flex')
+      this.hideAllWindows()
+      this.auto_grow()
+    },
+    openURL: function (url) {
+      window.open(url, '_blank').focus()
     }
   }
 }
@@ -886,11 +1099,11 @@ export default {
 <style scoped>
 
 .b_purple {
-  background-color: #8844dd;
+  background-color: #68349b;
 }
 
 .c_purple {
-  color: #8844dd;
+  color: #68349b;
 }
 
 .b_darkblue {
@@ -982,7 +1195,8 @@ export default {
 
 .user_profile,
 .giphygrid,
-.session_settings {
+.session_settings,
+.new_subchat {
   position: fixed;
   z-index: 1001;
   bottom: 58px;
@@ -1003,7 +1217,15 @@ export default {
 }
 
 .serverMessage {
-  color: #ff5d37
+  text-wrap: normal;
+  word-wrap: break-word;
+  margin-left: 42px;
+  padding: 8px;
+  background-color: #192129;
+  border-radius: 20px;
+  text-align: center;
+  color: #aeaeb7;
+  font-weight: bold;
 }
 
 .header-margin {
@@ -1039,10 +1261,11 @@ export default {
 }
 
 .sidebar2 {
+  opacity: 0;
   width: 0;
   height: 100vh;
   position: fixed;
-  z-index: 1000;
+  z-index: 999;
   top: 0;
   left: 50px;
   overflow-x: clip;
@@ -1067,6 +1290,7 @@ export default {
 .sidebar2.active {
   width: 250px;
   border-right: 2px solid rgba(174, 174, 183, 0.25);
+  opacity: 1;
 }
 
 .sidebar.active ~ .sidebar2.active {
@@ -1155,7 +1379,8 @@ export default {
 
   .user_profile,
   .giphygrid,
-  .session_settings {
+  .session_settings,
+  .new_subchat {
     transform: translateX(-250px);
   }
 }
@@ -1163,8 +1388,8 @@ export default {
 .sb_toggler {
   position: absolute;
   width: 30px;
-  right: 12px;
-  top: 0;
+  right: 11px;
+  top: 4px;
   color: white;
   font-size: 150%;
 }
@@ -1221,10 +1446,14 @@ export default {
   -webkit-border-radius: 5px;
   border-radius: 5px;
   padding: 25px;
-  margin-left: 10px;
   text-align: center;
   color: #bbb;
   width: 100%;
+  cursor: default;
+}
+
+.drop_zone:hover {
+  color: #ff5d37;
 }
 
 .chat_header {
@@ -1261,6 +1490,42 @@ export default {
 
 .nopointer {
   pointer-events: none;
+}
+
+.darkbutton {
+  background-color: #192129;
+}
+
+.darkbutton:hover {
+  background-color: #101010;
+}
+
+.message {
+  color: white;
+  padding-left: 15px;
+  padding-right: 25px;
+  padding-bottom: 10px
+}
+
+.clientMessage {
+  text-wrap: normal;
+  word-wrap: break-word;
+  padding-left: 42px
+}
+
+.send_image_button.active {
+  pointer-events: none;
+  opacity: 0;
+  transition: ease all 0.2s;
+}
+
+.uploadImageSnippet {
+  min-width: 50px;
+  max-width: 90%;
+  min-height: 50px;
+  max-height: 250px;
+  border-radius: 20px;
+  margin: auto;
 }
 
 </style>

@@ -1,9 +1,5 @@
 <template>
-  <div
-    class="b_darkgray"
-    style="min-height: 100vh; overflow-x: clip;
-    /*background-image: radial-gradient(circle, #002348, #00306e, #143b92, #4543b5, #4543b5, #4543b5, #4543b5, #143b92, #00306e, #002348, #021425)*/"
-  >
+  <div class="b_darkgray" style="min-height: 100vh; overflow-x: clip">
     <div id="header_margin"></div>
     <div class="wrapper">
       <!-- Join or Create a new Session -->
@@ -49,27 +45,27 @@
             <div class="card-subtitle text-white b_darkgray" style="border-radius: 1rem">
               <div class="card-body">
                 <div class="mt-md-0">
-                  <h2 class="fw-bold mb-2 text-uppercase text-center">Active Sessions</h2>
+                  <h2 class="fw-bold mb-2 text-uppercase text-center">Groups</h2>
                   <div class="text-center">
-                    Your current Clarifier Sessions. Click on one of them to quickly join it!
+                    Your current Clarifier Groups. Click on one of them to quickly join it!
                   </div>
                   <hr style="color: white; height: 4px">
                   <div v-for="session in this.$store.state.clarifierSessions" :key="session"
                        style="padding-bottom: 2ch; padding-left: 3ch; display: flex">
-                    <button class="btn btn-sm btn-outline-danger"
-                            style="margin-right: 2ch"
+                    <button class="btn btn-sm"
+                            style="margin-right: 10px; color: red"
                             v-on:click="this.removeSession(session)">
                       <i class="bi bi-x-lg"></i>
                     </button>
-                    <div class="orange-hover" style="padding-left: 2ch; position: relative"
+                    <div class="orange-hover"
+                         style="display: flex; align-items: center"
                          v-on:click="joinActive(JSON.parse(session).id)">
                       <img class="b_darkergray"
-                           style="width: 40px; height: 40px; position: absolute; left: 6px; top: -6px;
-                           border-radius: 10px"
+                           style="width: 40px; height: 40px; border-radius: 10px"
                            v-bind:src="getImg(JSON.parse(session).img)"
                            :alt="'&nbsp;' + JSON.parse(session).title.substring(0,1)"/>
                       <span class="sb_link_text text-nowrap"
-                            style="padding-left: 40px; position: absolute; bottom: 10px">
+                            style="margin-left: 10px">
                         &nbsp;{{ JSON.parse(session).title }}
                       </span>
                     </div>

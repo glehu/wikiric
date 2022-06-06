@@ -12,55 +12,42 @@
           <div class="wow">wikiric.xyz</div>
           <div class="wow">wikiric.xyz</div>
         </div>
-        <!--
-        <div class="slider my-4 clearfix"
-             style="vertical-align: center; pointer-events: none;
-             text-shadow: 5px 5px 10px black;
-             font-family: 'Gill Sans MT', sans-serif;">
-          <div class="caption">
-            Welcome
-          </div>
-          <div class="text-box text-white fw-bold">
-            <div class="fw-bold">API&nbsp;Hub</div>
-            <div class="fw-bold">DevOps</div>
-            <div class="fw-bold">Insights</div>
-          </div>
-        </div>
-        -->
       </div>
       <div class="container mb-5" style="padding-top: 20px">
-        <div class="card text-white shadow-box"
-             style="z-index: 2; border: 2px solid #46b59b; pointer-events: none">
-          <h2 class="card-body text-center fw-bold">
-            Tools for you and your team</h2>
-        </div>
         <div class="wrapper mt-4">
           <div v-for="card in this.cards" :key="card"
-               class="card text-white shadow-box"
-               style="z-index: 2; border: 2px solid #46b59b">
-            <p class="card-header text-center fw-bold"
-               style="font-size: 150%; pointer-events: none">
+               class="card text-white shadow-box b_darkergray"
+               style="z-index: 2">
+            <span class="card-header text-center fw-bold lead"
+                  style="pointer-events: none">
               {{ card.title }}
-            </p>
+            </span>
             <button v-if="card.link !== '/wip'" title="Explore"
-                    class="btn btn-lg btn-outline-light m-2"
+                    class="btn btn-lg m-2 darkbutton"
                     v-on:click="this.$router.push(card.link)">
-              <i class="bi bi-app-indicator"/>
+              <i class="bi bi-app-indicator purplehover" style="font-size: 125%"/>
             </button>
-            <p v-else class="card-body fw-bold text-center" style="pointer-events: none">
-              (Work In Progress)
-            </p>
-            <p style="pointer-events: none"
-               class="card-body text-center fw-bold">
-              {{ card.body }}
-            </p>
-            <p class="card-text p-2" style="font-style: italic; pointer-events: none">
-              <span
-                style="border-radius: 75%; padding: 4px; background-color: #017e7f">
+            <div v-else
+                 style="pointer-events: none"
+                 class="btn btn-lg mt-2 mb-3">
+              <span style="font-size: 80%; color: lightgray">
+                Work in Progress
+              </span>
+            </div>
+            <div class="card-footer p-2"
+                 style="font-style: italic; pointer-events: none; width: 100%;
+                 display: inline-block; align-items: center">
+              <span class="b_purple" style="border-radius: 10px; padding: 4px">
                 {{ card.type }}
               </span>
-              {{ card.category }}
-            </p>
+              <span style="margin-left: 10px; font-size: 85%" class="c_lightgray">
+                {{ card.category }}
+              </span>
+            </div>
+            <span class="card-body text-center c_lightgray"
+                  style="pointer-events: none">
+              {{ card.body }}
+            </span>
           </div>
         </div>
       </div>
@@ -82,14 +69,14 @@ export default {
         },
         {
           title: 'Clarifier',
-          body: 'Communicate, share tasks and be there for each other.',
+          body: 'Communication platform for you and your team.',
           type: 'App',
           category: 'Communication',
           link: '/apps/clarifier'
         },
         {
           title: 'Mockingbird',
-          body: 'Tools for REST/SOAP API testing.',
+          body: 'API testing tools and backend simulation.',
           type: 'Service',
           category: 'Networking',
           link: '/dev/api'
@@ -109,110 +96,56 @@ export default {
 
 <style scoped>
 
-.slider {
-  text-align: center;
+.b_purple {
+  background-color: #68349b;
 }
 
-.caption {
-  line-height: 100px;
-  font-size: 10vw;
-  font-weight: bold;
-  color: white;
-  margin-left: -40vw;
+.c_purple {
+  color: #68349b;
 }
 
-.text-box {
-  display: inline-block;
-  position: relative;
-  font-size: 10vw;
-  margin-left: 10vw;
-  top: -6.5vw;
+.b_darkblue {
+  background-color: #041830;
 }
 
-.text-box div {
-  display: inline-block;
-  position: absolute;
-  transform: rotateX(-90deg);
-  opacity: 0;
-  animation-timing-function: ease;
+.c_darkblue {
+  color: #041830;
 }
 
-.text-box div:nth-child(1) {
-  animation: rollDown 15s forwards infinite;
+.b_darkgray {
+  background-color: #192129;
 }
 
-.text-box div:nth-child(2) {
-  animation: rollDown2 15s forwards infinite;
+.c_darkgray {
+  color: #192129;
 }
 
-.text-box div:nth-child(3) {
-  animation: rollDown3 15s forwards infinite;
+.b_darkergray {
+  background-color: #101010;
 }
 
-@keyframes rollDown {
-  0% {
-    top: -200px;
-    transform: rotateX(-90deg);
-  }
-  11% {
-    top: -74px;
-    transform: rotateX(0deg);
-    opacity: 1;
-  }
-  22% {
-    top: -74px;
-    transform: rotateX(0deg);
-    opacity: 1;
-  }
-  33% {
-    top: 50px;
-    transform: rotateX(30deg);
-    opacity: 0;
-  }
+.c_darkergray {
+  color: #101010;
 }
 
-@keyframes rollDown2 {
-  33% {
-    top: -200px;
-    transform: rotateX(-90deg);
-  }
-  44% {
-    top: -74px;
-    transform: rotateX(0deg);
-    opacity: 1;
-  }
-  55% {
-    top: -74px;
-    transform: rotateX(0deg);
-    opacity: 1;
-  }
-  66% {
-    top: 50px;
-    transform: rotateX(30deg);
-    opacity: 0;
-  }
+.b_gray {
+  background-color: #293139;
 }
 
-@keyframes rollDown3 {
-  66% {
-    top: -200px;
-    transform: rotateX(-90deg);
-  }
-  77% {
-    top: -74px;
-    transform: rotateX(0deg);
-    opacity: 1;
-  }
-  88% {
-    top: -74px;
-    transform: rotateX(0deg);
-    opacity: 1;
-  }
-  99% {
-    top: 50px;
-    transform: rotateX(30deg);
-    opacity: 0;
-  }
+.c_gray {
+  color: #293139;
+}
+
+.c_lightgray {
+  color: #aeaeb7;
+}
+
+.b_orange {
+  background-color: #ff5d37;
+}
+
+.c_orange {
+  color: #ff5d37;
 }
 
 @keyframes slide {
@@ -233,7 +166,7 @@ export default {
 .wow {
   font-family: 'JetBrains Mono Bold', sans-serif;
   color: black;
-  text-shadow: 5px 5px 0 rebeccapurple,
+  text-shadow: 5px 5px 0 #68349b,
   10px 10px 0 #052939,
   15px 15px 0 #46b59b,
   20px 20px 0 #017e7f,
@@ -350,14 +283,31 @@ export default {
 /* Small devices (portrait tablets and large phones, 765px and up) */
 @media only screen and (min-width: 765px) {
   .wrapper {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
 .shadow-box {
-  background-color: rgba(0, 0, 0, 0.6);
-  box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.6);
+  box-shadow: -10px 10px 20px 15px rgba(0, 0, 0, 0.8);
   border-radius: 1em
+}
+
+.darkbutton {
+  background-color: #192129;
+}
+
+.darkbutton:hover {
+  background-color: #303c46;
+}
+
+.purplehover {
+  color: #68349b;
+  text-shadow: 0 0 10px #7b40b4;
+}
+
+.darkbutton:hover > .purplehover {
+  color: #46b59b;
+  text-shadow: 0 0 15px #46b59b;
 }
 
 </style>
