@@ -10,7 +10,7 @@
               <div class="card-body text-center">
                 <div class="mt-md-0">
                   <h1 class="fw-bold mb-2 text-uppercase">Clarifier</h1>
-                  <div class="" style="text-align: justify; text-justify: inter-word; width: 100%">
+                  <div style="text-align: justify; text-justify: inter-word; width: 100%">
                     Communicate with your colleagues.
                     <br><br>Enter an invite ID and click Join or type in some description and create your own chatroom!
                   </div>
@@ -46,7 +46,7 @@
               <div class="card-body">
                 <div class="mt-md-0">
                   <h2 class="fw-bold mb-2 text-uppercase text-center">Groups</h2>
-                  <div class="text-center">
+                  <div>
                     Your current Clarifier Groups. Click on one of them to quickly join it!
                   </div>
                   <hr style="color: white; height: 4px">
@@ -235,7 +235,7 @@ export default {
   min-height: 80px
 }
 
-@media only screen and (min-width: 992px) {
+@media only screen and (min-width: 800px) {
   .wrapper {
     grid-template-columns: repeat(2, 1fr);
   }

@@ -149,31 +149,33 @@
              height: calc(100vh - 60px - 50px - 34px);
              padding-bottom: 30px;
              display: flex; flex-direction: column-reverse">
-          <template v-for="msg in messages" :key="JSON.parse(msg).uID">
+          <template v-for="msg in messages" :key="msg.uID">
             <div class="message">
               <!-- Chat Avatar and Date-->
-              <div style="position: relative">
-                <i v-if="JSON.parse(msg).src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
-                <i v-else class="sender_avatar bi bi-person-circle"></i>
-                <span class="orange-hover"
-                      style="font-weight: bold">
-                {{ JSON.parse(msg).src.split('@')[0] }}
-              </span>
-                <span style="color: gray; font-size: 80%; padding-left: 10px">
-                  {{ new Date(JSON.parse(msg).ts).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
-              </span>
-              </div>
+              <template v-if="msg.header === true">
+                <div style="position: relative">
+                  <i v-if="msg.src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
+                  <i v-else class="sender_avatar bi bi-person-circle"></i>
+                  <span class="orange-hover"
+                        style="font-weight: bold">
+                {{ msg.src.split('@')[0] }}
+                </span>
+                  <span style="color: gray; font-size: 80%; padding-left: 10px">
+                    {{ msg.time.toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+                </span>
+                </div>
+              </template>
               <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
-              <template v-if="JSON.parse(msg).msg.startsWith('[s:RegistrationNotification]')">
+              <template v-if="msg.msg.startsWith('[s:RegistrationNotification]')">
                 <div class="serverMessage">
-                  {{ JSON.parse(msg).msg.substring(28).trim() }}
+                  {{ msg.msg.substring(28).trim() }}
                 </div>
               </template>
               <!-- #### CLIENT GIF MESSAGE #### -->
-              <template v-else-if="JSON.parse(msg).msg.startsWith('[c:GIF]')">
+              <template v-else-if="msg.msg.startsWith('[c:GIF]')">
                 <div style="padding-left: 42px">
-                  <img :src="JSON.parse(msg).msg.substring(7)"
-                       :alt="JSON.parse(msg).msg.substring(7)"
+                  <img :src="msg.msg.substring(7)"
+                       :alt="msg.msg.substring(7)"
                        loading="lazy"
                        style="max-width: 300px">
                   <br>
@@ -184,19 +186,19 @@
                 </div>
               </template>
               <!-- #### CLIENT IMAGE (SnippetBase) #### -->
-              <template v-else-if="JSON.parse(msg).msg.startsWith('[c:IMG]')">
+              <template v-else-if="msg.msg.startsWith('[c:IMG]')">
                 <div style="padding-left: 42px">
-                  <img :src="JSON.parse(msg).msg.substring(7)"
-                       :alt="JSON.parse(msg).msg.substring(7)"
+                  <img :src="msg.msg.substring(7)"
+                       :alt="msg.msg.substring(7)"
                        loading="lazy"
                        style="max-width: 300px"
-                       v-on:click="openURL(JSON.parse(msg).msg.substring(7))">
+                       v-on:click="openURL(msg.msg.substring(7))">
                 </div>
               </template>
               <!-- #### CLIENT MESSAGE #### -->
               <div v-else style="width: 100%; position: relative">
                 <span class="clientMessage">
-                  {{ JSON.parse(msg).msg }}
+                  {{ msg.msg }}
                 </span>
               </div>
             </div>
@@ -219,6 +221,15 @@
                       v-on:input="auto_grow"
                       v-on:click="hideAllSidebars">
             </textarea>
+            <button id="send_image_button"
+                    class="btn-outline-light send_image_button"
+                    style="position: absolute; bottom: 0; right: 105px;
+                    width: 40px; height: 2.5em; margin-left: 1ch;
+                    border-color: transparent; border-radius: 1em; background-color: transparent"
+                    title="Send Files"
+                    v-on:click="toggleUploadingSnippet">
+              <span class="fw-bold"><i class="bi bi-plus-circle"></i></span>
+            </button>
             <button class="btn-outline-light b_gray"
                     style="position: absolute; bottom: 0; right: 60px;
                     width: 40px; height: 2.5em; margin-left: 1ch;
@@ -234,15 +245,6 @@
                     title="Search on GIPHY"
                     v-on:click="toggleSelectingGIF">
               <span class="fw-bold">GIF</span>
-            </button>
-            <button id="send_image_button"
-                    class="btn-outline-light b_gray send_image_button"
-                    style="position: absolute; bottom: 0; right: 105px;
-                    width: 40px; height: 2.5em; margin-left: 1ch;
-                    border-color: transparent; border-radius: 1em"
-                    title="Send Image"
-                    v-on:click="toggleUploadingSnippet">
-              <span class="fw-bold"><i class="bi bi-file-earmark-image"></i></span>
             </button>
           </div>
         </div>
@@ -400,27 +402,28 @@
         <span class="ms-2">
           <span>Text Subchat</span>
           <br>
-          <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Messages, GIFs and Emojis</span>
+          <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Messages, GIFs and Files...</span>
         </span>
       </button>
     </div>
   </div>
-  <!-- #### Image Upload (Snippet) #### -->
+  <!-- #### File Upload (SnippetBase) #### -->
   <div class="session_settings b_gray shadow" style="overflow-x: hidden; overflow-y: scroll"
        v-show="isUploadingSnippet" @click.stop>
     <div style="position: relative; padding-top: 10px; width: 100%">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
-         v-on:click="hideAllWindows()"></i>
-      <h2 class="fw-bold">Upload Image</h2>
-      <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px">
-        <img class="uploadImageSnippet"
-             v-bind:src="uploadImageBase64" :alt="'&nbsp;'"/>
+         v-on:click="closeUploadingSnippet()"></i>
+      <h2 class="fw-bold">File Upload</h2>
+      <div v-if="uploadFileType !== ''"
+           style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px">
+        <img class="uploadFileSnippet"
+             v-bind:src="uploadFileBase64" :alt="'&nbsp;'"/>
       </div>
       <hr class="c_lightgray">
-      <div class="drop_zone" id="snippet_drop_zone" style="margin-bottom: 10px">Upload a picture!</div>
+      <div class="drop_zone" id="snippet_drop_zone" style="margin-bottom: 10px">Drop a file here!</div>
       <input type="file" class="file_input" id="snippet_files" name="files[]"
              style="width: 100%"
-             multiple v-on:change="handleUploadImageSelect"/>
+             multiple v-on:change="handleUploadFileSelect"/>
       <div id="confirm_snippet_loading" class="ms-3 mt-3" style="display: none">
         <span class="spinner-grow spinner-grow-sm text-info" role="status" aria-hidden="true"></span>
         <span class="jetb ms-2">Uploading...</span>
@@ -432,7 +435,7 @@
                 title="Send"
                 v-on:click="addMessage">
           <span class="fw-bold"><i class="bi bi-send"></i> Submit</span>
-          <span style="margin-left: 10px" class="c_lightgray"> {{ this.uploadImageType }}</span>
+          <span style="margin-left: 10px" class="c_lightgray"> {{ this.uploadFileType }}</span>
         </button>
       </div>
     </div>
@@ -461,6 +464,7 @@ export default {
       lazyLoadingStatus: 'idle',
       members: [],
       new_message: '',
+      last_message: {},
       gif_query_string: '',
       new_role: '',
       gifSelection: [],
@@ -468,8 +472,8 @@ export default {
       new_subchat_name: '',
       sendImageButton: null,
       inputField: null,
-      uploadImageBase64: '',
-      uploadImageType: '',
+      uploadFileBase64: '',
+      uploadFileType: '',
       // Conditions
       isViewingGIFSelection: false,
       isViewingUserProfile: false,
@@ -588,14 +592,15 @@ export default {
         .catch((err) => console.error(err.message))
     },
     showMessage: function (msg) {
-      this.messages.unshift(msg)
+      const message = JSON.parse(msg)
+      this.messages.unshift(message)
       this.extraSkipCount++
-      if ((JSON.parse(msg).msg).includes('[s:RegistrationNotification]')) {
+      if ((message.msg).includes('[s:RegistrationNotification]')) {
         this.getClarifierMetaData()
       }
     },
     addMessage: function () {
-      const isUploadingSnippet = this.isUploadingSnippet === true && this.uploadImageBase64 !== ''
+      const isUploadingSnippet = this.isUploadingSnippet === true && this.uploadFileBase64 !== ''
       if (this.new_message.trim() === '') {
         this.new_message = ''
         if (isUploadingSnippet !== true) return
@@ -706,15 +711,40 @@ export default {
       }
       let pageIndex = this.currentPage
       if (lazyLoad) pageIndex++
+      // Add messages to stack
       if (pageIndex === 0) {
-        this.messages = data.messages
+        // Initial loading
+        this.messages = []
+        data.messages.reverse().forEach(element => this.messages.unshift(this.processRawMessage(element)))
       } else {
-        data.messages.forEach(element => this.messages.push(element))
+        // Lazy loading
+        const tempArray = []
+        data.messages.reverse().forEach(element => tempArray.unshift(this.processRawMessage(element)))
+        tempArray.forEach(element => this.messages.push(element))
       }
       if (lazyLoad) {
         this.currentPage++
         this.lazyLoadingStatus = 'idle'
       }
+    },
+    processRawMessage: function (msg) {
+      // Deserialize
+      const message = JSON.parse(msg)
+      // Process timestamp
+      message.time = new Date(message.ts)
+      /* Do we have to add a message header?
+      Don't add a header (avatar, name) if the last message came from the same source and similar time
+       */
+      message.header = true
+      if (this.last_message.src === message.src) {
+        // If the sources are identical, check if the time was similar
+        let timeDiff = message.time.getTime() - this.last_message.time.getTime()
+        timeDiff = (Math.abs((timeDiff) / 1000) / 60)
+        // If the message is 5 minutes or older put the message header
+        message.header = timeDiff >= 5
+      }
+      this.last_message = message
+      return message
     },
     getSession: function (full = false) {
       let session
@@ -841,7 +871,7 @@ export default {
       this.inputField.style.height = (this.inputField.scrollHeight) + 'px'
     },
     resizeCanvas: function () {
-      if (window.innerWidth >= 992) {
+      if (window.innerWidth >= 1100) {
         this.showSidebar()
         this.showSidebar2()
         this.showMemberSidebar()
@@ -876,7 +906,7 @@ export default {
       if (memberSidebar.classList.contains('active')) memberSidebar.classList.remove('active')
     },
     hideAllSidebars: function () {
-      if (window.innerWidth < 992) {
+      if (window.innerWidth < 1100) {
         this.hideSidebar()
         this.hideSidebar2()
         this.hideMemberSidebar()
@@ -910,9 +940,9 @@ export default {
       this.setSessionImage(files[0])
     },
     handleUploadImageSelectDrop: function (evt) {
-      this.handleUploadImageSelect(evt, true)
+      this.handleUploadFileSelect(evt, true)
     },
-    handleUploadImageSelect: async function (evt, drop = false) {
+    handleUploadFileSelect: async function (evt, drop = false) {
       evt.stopPropagation()
       evt.preventDefault()
       // Start uploading animation
@@ -923,8 +953,8 @@ export default {
       } else {
         files = evt.target.files
       }
-      this.uploadImageBase64 = await this.getBase64(files[0])
-      this.uploadImageType = files[0].type
+      this.uploadFileBase64 = await this.getBase64(files[0])
+      this.uploadFileType = files[0].type
       this.toggleElement('confirm_snippet_loading', 'flex')
     },
     handleDragOver: function (evt) {
@@ -1055,8 +1085,8 @@ export default {
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const content = JSON.stringify({
-        type: this.uploadImageType,
-        payload: this.uploadImageBase64
+        type: this.uploadFileType,
+        payload: this.uploadFileBase64
       })
       fetch(
         this.$store.state.serverIP + '/api/m6/create',
@@ -1068,22 +1098,27 @@ export default {
       )
         .then((res) => res.json())
         .then((data) => (this.processUploadImageSnippetResponse(data)))
-        .catch((err) => console.error(err.message))
+        .catch((err) => (this.handleUploadImageSnippetError(err.message)))
+    },
+    handleUploadImageSnippetError: function (errorMessage = '') {
+      this.toggleElement('confirm_snippet_loading', 'flex')
+      console.error(errorMessage)
+      this.$notify(
+        {
+          title: 'Image not uploaded',
+          text: 'An Error occurred while uploading the file.',
+          type: 'error'
+        })
     },
     processUploadImageSnippetResponse: function (response) {
       if (response.httpCode !== 201) {
-        this.$notify(
-          {
-            title: 'Image not uploaded',
-            text: 'An Error occured while uploading the image.',
-            type: 'error'
-          })
+        this.handleUploadImageSnippetError()
         return
       }
       this.addMessagePar('[c:IMG]' + this.$store.state.serverIP + '/m6/get/' + response.guid)
       this.addMessagePar(this.new_message)
-      this.uploadImageBase64 = ''
-      this.uploadImageType = ''
+      this.uploadFileBase64 = ''
+      this.uploadFileType = ''
       this.new_message = ''
       this.toggleElement('confirm_snippet_loading', 'flex')
       this.hideAllWindows()
@@ -1091,6 +1126,11 @@ export default {
     },
     openURL: function (url) {
       window.open(url, '_blank').focus()
+    },
+    closeUploadingSnippet: function () {
+      this.hideAllWindows()
+      this.uploadFileBase64 = ''
+      this.uploadFileType = ''
     }
   }
 }
@@ -1329,7 +1369,7 @@ export default {
   pointer-events: none;
 }
 
-@media only screen and (max-width: 991px) {
+@media only screen and (max-width: 1099px) {
   .clarifier_chatroom {
     width: calc(100% - 50px);
     left: 50px;
@@ -1358,7 +1398,7 @@ export default {
   display: none;
 }
 
-@media only screen and (min-width: 992px) {
+@media only screen and (min-width: 1100px) {
   .sb_toggler {
     display: none;
   }
@@ -1374,7 +1414,7 @@ export default {
   }
 
   .sidebar.active .sidebar_bg {
-    border-radius: 0 150px 0 0;
+    border-radius: 0 140px 0 0;
   }
 
   .user_profile,
@@ -1504,7 +1544,12 @@ export default {
   color: white;
   padding-left: 15px;
   padding-right: 25px;
-  padding-bottom: 10px
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+}
+
+.message:hover {
+  background-color: #1c1c1c;
 }
 
 .clientMessage {
@@ -1519,7 +1564,7 @@ export default {
   transition: ease all 0.2s;
 }
 
-.uploadImageSnippet {
+.uploadFileSnippet {
   min-width: 50px;
   max-width: 90%;
   min-height: 50px;
