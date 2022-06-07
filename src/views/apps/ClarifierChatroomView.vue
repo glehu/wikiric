@@ -195,6 +195,16 @@
                        v-on:click="openURL(msg.msg.substring(7))">
                 </div>
               </template>
+              <!-- #### CLIENT AUDIO (SnippetBase) #### -->
+              <template v-else-if="msg.msg.startsWith('[c:AUD]')">
+                <div style="padding-left: 42px">
+                  <audio controls preload="auto"
+                         class="uploadFileSnippet">
+                    <source :src="msg.msg.substring(7)">
+                    Your browser does not support playing audio.
+                  </audio>
+                </div>
+              </template>
               <!-- #### CLIENT MESSAGE #### -->
               <div v-else style="width: 100%; position: relative">
                 <span class="clientMessage">
@@ -414,16 +424,26 @@
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="closeUploadingSnippet()"></i>
       <h2 class="fw-bold">File Upload</h2>
-      <div v-if="uploadFileType !== ''"
-           style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px">
-        <img class="uploadFileSnippet"
-             v-bind:src="uploadFileBase64" :alt="'&nbsp;'"/>
-      </div>
-      <hr class="c_lightgray">
-      <div class="drop_zone" id="snippet_drop_zone" style="margin-bottom: 10px">Drop a file here!</div>
-      <input type="file" class="file_input" id="snippet_files" name="files[]"
-             style="width: 100%"
-             multiple v-on:change="handleUploadFileSelect"/>
+      <template v-if="uploadFileType !== ''">
+        <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px">
+          <img v-if="uploadFileType.includes('image')"
+               class="uploadFileSnippet"
+               v-bind:src="uploadFileBase64" :alt="'&nbsp;'"/>
+          <audio v-else-if="uploadFileType.includes('audio')"
+                 controls preload="auto"
+                 class="uploadFileSnippet">
+            <source :src="uploadFileBase64" :type="uploadFileType">
+            Your browser does not support playing audio.
+          </audio>
+        </div>
+      </template>
+      <template v-if="uploadFileBase64 === ''">
+        <hr class="c_lightgray">
+        <div class="drop_zone" id="snippet_drop_zone" style="margin-bottom: 10px">Drop a file here!</div>
+        <input type="file" class="file_input" id="snippet_files" name="files[]"
+               style="width: 100%"
+               multiple v-on:change="handleUploadFileSelect"/>
+      </template>
       <div id="confirm_snippet_loading" class="ms-3 mt-3" style="display: none">
         <span class="spinner-grow spinner-grow-sm text-info" role="status" aria-hidden="true"></span>
         <span class="jetb ms-2">Uploading...</span>
@@ -592,7 +612,7 @@ export default {
         .catch((err) => console.error(err.message))
     },
     showMessage: function (msg) {
-      const message = JSON.parse(msg)
+      const message = this.processRawMessage(msg)
       this.messages.unshift(message)
       this.extraSkipCount++
       if ((message.msg).includes('[s:RegistrationNotification]')) {
@@ -615,7 +635,7 @@ export default {
       }
       // Image Snippet Upload?
       if (isUploadingSnippet === true) {
-        this.uploadImageSnippet()
+        this.uploadSnippet()
         this.focusComment(true)
         setTimeout(() => this.auto_grow('new_comment'), 0)
         return
@@ -1079,8 +1099,9 @@ export default {
       this.currentPage = 0
       this.extraSkipCount = 0
       this.lazyLoadingStatus = 'idle'
+      this.last_message = {}
     },
-    uploadImageSnippet: function () {
+    uploadSnippet: function () {
       this.toggleElement('confirm_snippet_loading', 'flex')
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
@@ -1097,10 +1118,10 @@ export default {
         }
       )
         .then((res) => res.json())
-        .then((data) => (this.processUploadImageSnippetResponse(data)))
-        .catch((err) => (this.handleUploadImageSnippetError(err.message)))
+        .then((data) => (this.processUploadSnippetResponse(data)))
+        .catch((err) => (this.handleUploadSnippetError(err.message)))
     },
-    handleUploadImageSnippetError: function (errorMessage = '') {
+    handleUploadSnippetError: function (errorMessage = '') {
       this.toggleElement('confirm_snippet_loading', 'flex')
       console.error(errorMessage)
       this.$notify(
@@ -1110,12 +1131,16 @@ export default {
           type: 'error'
         })
     },
-    processUploadImageSnippetResponse: function (response) {
+    processUploadSnippetResponse: function (response) {
       if (response.httpCode !== 201) {
-        this.handleUploadImageSnippetError()
+        this.handleUploadSnippetError()
         return
       }
-      this.addMessagePar('[c:IMG]' + this.$store.state.serverIP + '/m6/get/' + response.guid)
+      let prefix = '[c:IMG]'
+      if (this.uploadFileType.includes('audio')) prefix = '[c:AUD]'
+      // Add the link as a message, so it shows up in the chat
+      this.addMessagePar(prefix + this.$store.state.serverIP + '/m6/get/' + response.guid)
+      // Post the new_message content in case the user has written a comment
       this.addMessagePar(this.new_message)
       this.uploadFileBase64 = ''
       this.uploadFileType = ''
@@ -1542,10 +1567,7 @@ export default {
 
 .message {
   color: white;
-  padding-left: 15px;
-  padding-right: 25px;
-  padding-bottom: 5px;
-  margin-bottom: 5px;
+  padding: 5px 25px 5px 15px;
 }
 
 .message:hover {
@@ -1569,7 +1591,6 @@ export default {
   max-width: 90%;
   min-height: 50px;
   max-height: 250px;
-  border-radius: 20px;
   margin: auto;
 }
 
