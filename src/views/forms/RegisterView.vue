@@ -136,7 +136,6 @@ export default {
         .catch((err) => console.log(err.message))
     },
     processRegistration () {
-      console.log(this.response)
       if (this.response.success) {
         if (this.usageTracker) {
           this.sendUsageData({
@@ -145,7 +144,15 @@ export default {
             action: 'register'
           })
         }
-        this.$router.push('/login?redirect=/account')
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+          get: (searchParams, prop) => searchParams.get(prop)
+        })
+        const redirect = params.redirect
+        if (redirect) {
+          this.$router.push('/login?redirect=' + redirect)
+        } else {
+          this.$router.push('/login?redirect=/account')
+        }
       } else {
         this.user.email = ''
         this.user.password = ''

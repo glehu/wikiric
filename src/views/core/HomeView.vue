@@ -1,7 +1,7 @@
 <template>
   <section id="content"
            style="min-height: 100vh; width: 100vw; overflow: hidden; position: absolute; background-color: #0A0A0F">
-    <div class="container"
+    <div class="container mt-4 mt-md-0"
          style="color: white; width: 100vw; min-height: 100vh; display: flex; align-items: center">
       <div class="wrapper" style="margin-bottom: 20px; margin-top: 50px">
         <div id="header_title">
@@ -24,33 +24,37 @@
           <p style="font-size: 1rem; color: #bebebe; width: 100%; text-align: center">
             <span style="font-weight: bold">This platform grows as you do.</span>
           </p>
+          <div class="d-flex justify-content-center" style="margin-top: 0.5em">
+            <button class="btn btn-lg btn-outline-light muArrow fw-bold"
+                    v-on:click="gotoClarifier()"
+                    style="width: 50%">
+              <i class="sb_link_icon bi bi-app-indicator"></i>
+              Explore
+            </button>
+            <button v-show="!isLoggedIn"
+                    class="btn btn-lg btn-outline-light muArrow fw-bold"
+                    v-on:click="gotoRegister()"
+                    style="width: 50%">
+              <i class="sb_link_icon bi bi-stars"></i>
+              Register
+            </button>
+            <button v-show="isLoggedIn"
+                    class="btn btn-lg btn-outline-light muArrow fw-bold"
+                    v-on:click="gotoAccount()"
+                    style="width: 50%">
+              <i class="sb_link_icon bi bi-person-bounding-box"></i>
+              Account
+            </button>
+          </div>
         </div>
         <div>
           <img src='@/assets/clarifier/clarifier_demo.png' alt=""
-               style="width: 100%; border-radius: 20px">
+               style="width: 100%; border-radius: 10px;
+               background-color: #101010; padding-top: 10px; padding-bottom: 10px">
           <p style="font-weight: lighter; font-size: clamp(1rem, 1.5vw, 1.25rem);
-             color: #bebebe; width: 100%; text-align: center; padding: 20px">
+             color: #bebebe; width: 100%; text-align: center">
             Available as a Progressive Web App for all devices.
           </p>
-        </div>
-        <div class="d-flex justify-content-center" style="margin-top: 0.5em">
-          <button class="btn btn-lg btn-outline-light muArrow fw-bold"
-                  v-on:click="gotoClarifier()"
-                  style="width: 50%">
-            Explore
-          </button>
-          <button v-show="!isLoggedIn"
-                  class="btn btn-lg btn-outline-light muArrow fw-bold"
-                  v-on:click="gotoRegister()"
-                  style="width: 50%">
-            Register
-          </button>
-          <button v-show="isLoggedIn"
-                  class="btn btn-lg btn-outline-light muArrow fw-bold"
-                  v-on:click="gotoAccount()"
-                  style="width: 50%">
-            Account
-          </button>
         </div>
       </div>
     </div>
@@ -169,7 +173,7 @@ export default {
 
 .wrapper {
   display: grid;
-  gap: 0.5em;
+  gap: 50px;
   grid-auto-rows: minmax(100px, auto);
   grid-template-columns: repeat(1, 1fr);
 }

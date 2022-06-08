@@ -49,6 +49,7 @@
                   <i class="bi bi-house"></i> Home</span>
               </router-link>
             </li>
+            <!--
             <li class="nav-item" data-bs-toggle="collapse" data-bs-target="#navmenu">
               <router-link to="/artists" class="nav-link fw-bold">
                 <span style="color: white">
@@ -61,6 +62,7 @@
                   <i class="bi bi-music-note"></i> Songs</span>
               </router-link>
             </li>
+            -->
             <li class="nav-item" data-bs-toggle="collapse" data-bs-target="#navmenu">
               <router-link to="/shop" class="nav-link fw-bold">
                 <span style="color: white">

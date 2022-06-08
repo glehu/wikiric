@@ -129,7 +129,15 @@ export default {
       }
     },
     gotoRegister () {
-      this.$router.push('/register')
+      const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop)
+      })
+      const redirect = params.redirect
+      if (redirect) {
+        this.$router.push('/register?redirect=' + redirect)
+      } else {
+        this.$router.push('/register')
+      }
     },
     async sendUsageData (usageObj) {
       const headers = new Headers()

@@ -2,42 +2,6 @@
   <div class="b_darkgray" style="min-height: 100vh; overflow-x: clip">
     <div id="header_margin"></div>
     <div class="wrapper">
-      <!-- Join or Create a new Session -->
-      <div class="container c-modal">
-        <div class="row d-flex justify-content-center align-items-center">
-          <div style="min-width: 400px; width: 80%">
-            <div class="card-subtitle text-white b_darkgray" style="border-radius: 1rem">
-              <div class="card-body text-center">
-                <div class="mt-md-0">
-                  <h1 class="fw-bold mb-2 text-uppercase">Clarifier</h1>
-                  <div style="text-align: justify; text-justify: inter-word; width: 100%">
-                    Communicate with your colleagues.
-                    <br><br>Enter an invite ID and click Join or type in some description and create your own chatroom!
-                  </div>
-                  <hr style="color: white; height: 4px">
-                  <input id="input_session" v-model="input_string"
-                         placeholder="Invite ID or Description..."
-                         style="width: 100%; font-size: 150%; font-weight: bold; margin-bottom: 1ch; padding-left: 1ch"
-                         v-on:keyup.enter="joinOrCreate()">
-                  <br>
-                  <button id="btn_join_session"
-                          class="btn btn-outline-light"
-                          style="max-height: 6ch; height: 6ch"
-                          v-on:click="join()">
-                    <span class="fw-bold lead">Join</span>
-                  </button>
-                  <button id="btn_create_session"
-                          class="btn btn-outline-light"
-                          style="max-height: 6ch; height: 6ch"
-                          v-on:click="create()">
-                    <span class="fw-bold lead">Create</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       <!-- Active Sessions -->
       <div class="container c-modal">
         <div class="row d-flex justify-content-center align-items-center">
@@ -45,8 +9,11 @@
             <div class="card-subtitle text-white b_darkgray" style="border-radius: 1rem">
               <div class="card-body">
                 <div class="mt-md-0">
-                  <h2 class="fw-bold mb-2 text-uppercase text-center">Groups</h2>
-                  <div>
+                  <h2 class="fw-bold mb-2 text-uppercase text-center"
+                      style="font-family: 'Lato', sans-serif">
+                    Groups
+                  </h2>
+                  <div style="font-family: 'Lato', sans-serif">
                     Your current Clarifier Groups. Click on one of them to quickly join it!
                   </div>
                   <hr style="color: white; height: 4px">
@@ -76,6 +43,47 @@
           </div>
         </div>
       </div>
+      <!-- Join or Create a new Session -->
+      <div class="container c-modal">
+        <div class="row d-flex justify-content-center align-items-center">
+          <div style="min-width: 400px; width: 80%">
+            <div class="card-subtitle text-white b_darkgray" style="border-radius: 1rem">
+              <div class="card-body text-center">
+                <div class="mt-md-0">
+                  <h1 class="fw-bold mb-2 text-uppercase"
+                      style="font-family: 'Lato', sans-serif">
+                    Clarifier
+                  </h1>
+                  <div
+                    style="text-align: justify; text-justify: inter-word; width: 100%;
+                    font-family: 'Lato', sans-serif">
+                    Enter an invite ID and click Join or type in some name and create your own chatroom!
+                  </div>
+                  <hr style="color: white; height: 4px">
+                  <input id="input_session" v-model="input_string"
+                         placeholder="Invite ID or Name..."
+                         style="width: 100%; font-size: 150%; font-weight: bold; margin-bottom: 1ch; padding-left: 1ch;
+                         font-family: 'Lato', sans-serif"
+                         v-on:keyup.enter="joinOrCreate()">
+                  <br>
+                  <button id="btn_join_session"
+                          class="btn btn-outline-light"
+                          style="max-height: 6ch; height: 6ch"
+                          v-on:click="join()">
+                    <span class="fw-bold lead">Join</span>
+                  </button>
+                  <button id="btn_create_session"
+                          class="btn btn-outline-light"
+                          style="max-height: 6ch; height: 6ch"
+                          v-on:click="create()">
+                    <span class="fw-bold lead">Create</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -96,9 +104,11 @@ export default {
   },
   methods: {
     initFunction: function () {
-      const sessionInput = document.getElementById('input_session')
-      sessionInput.focus()
-      sessionInput.addEventListener('input', this.checkInput, false)
+      if (window.innerWidth >= 992) {
+        const sessionInput = document.getElementById('input_session')
+        sessionInput.focus()
+        sessionInput.addEventListener('input', this.checkInput, false)
+      }
     },
     create: function () {
       const headers = new Headers()
