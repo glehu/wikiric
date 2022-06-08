@@ -1,100 +1,119 @@
 <template>
-  <div style="min-height: 100vh; overflow: hidden"
-       :style="{backgroundImage: 'url('+require('@/assets/'+'account/pexels-anni-roenkae-2156881.jpg')+')',
-       backgroundPosition: 'center top', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <section>
-      <div style="height: 60px"></div>
-      <div class="row" style="width: 100%">
-        <div class="bartext justify-content-center align-items-center text-center" style="pointer-events: none">
-          wikiric.xyz
-          <div class="wow">wikiric.xyz</div>
-          <div class="wow">wikiric.xyz</div>
-          <div class="wow">wikiric.xyz</div>
-          <div class="wow">wikiric.xyz</div>
-        </div>
-      </div>
-      <div class="container mb-5" style="padding-top: 20px">
-        <div class="wrapper mt-4">
-          <div v-for="card in this.cards" :key="card"
-               class="card text-white shadow-box b_darkergray"
-               style="z-index: 2">
-            <span class="card-header text-center fw-bold lead"
-                  style="pointer-events: none">
-              {{ card.title }}
-            </span>
-            <button v-if="card.link !== '/wip'" title="Explore"
-                    class="btn btn-lg m-2 darkbutton"
-                    v-on:click="this.$router.push(card.link)">
-              <i class="bi bi-app-indicator purplehover" style="font-size: 125%"/>
-            </button>
-            <div v-else
-                 style="pointer-events: none"
-                 class="btn btn-lg mt-2 mb-3">
-              <span style="font-size: 80%; color: lightgray">
-                Work in Progress
-              </span>
-            </div>
-            <div class="card-footer p-2"
-                 style="font-style: italic; pointer-events: none; width: 100%;
-                 display: inline-block; align-items: center">
-              <span class="b_purple" style="border-radius: 10px; padding: 4px">
-                {{ card.type }}
-              </span>
-              <span style="margin-left: 10px; font-size: 85%" class="c_lightgray">
-                {{ card.category }}
-              </span>
-            </div>
-            <span class="card-body text-center c_lightgray"
-                  style="pointer-events: none">
-              {{ card.body }}
-            </span>
+  <section id="content"
+           style="min-height: 100vh; width: 100vw; overflow: hidden; position: absolute; background-color: #0A0A0F">
+    <div class="container"
+         style="color: white; width: 100vw; min-height: 100vh; display: flex; align-items: center">
+      <div class="wrapper" style="margin-bottom: 20px; margin-top: 50px">
+        <div id="header_title">
+          <div style="background-color: #101010; border-radius: 95% 0 50% 0; font-family: 'Lato', sans-serif"
+               :style="{backgroundImage: 'url('+require('@/assets/'+'account/pexels-anni-roenkae-2156881.jpg')+')',
+                  backgroundPosition: 'center top', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
+            <h2 style="font-style: italic;
+                font-size: clamp(3rem, 4vw, 7rem); margin: 0">
+              Build your
+            </h2>
+            <h1 style="font-weight: bold; font-style: italic;
+                font-size: clamp(4rem, 8vw, 7rem); margin: 0; text-shadow: 5px 5px #101010">
+              Enterprise Network
+            </h1>
           </div>
+          <p style="font-size: 1rem; padding-top: 10px;
+             color: #bebebe; width: 100%; text-align: start">
+            Connect, share files and collaborate in a modern, fast and responsive environment.
+          </p>
+          <p style="font-size: 1rem; color: #bebebe; width: 100%; text-align: center">
+            <span style="font-weight: bold">This platform grows as you do.</span>
+          </p>
+        </div>
+        <div>
+          <img src='@/assets/clarifier/clarifier_demo.png' alt=""
+               style="width: 100%; border-radius: 20px">
+          <p style="font-weight: lighter; font-size: clamp(1rem, 1.5vw, 1.25rem);
+             color: #bebebe; width: 100%; text-align: center; padding: 20px">
+            Available as a Progressive Web App for all devices.
+          </p>
+        </div>
+        <div class="d-flex justify-content-center" style="margin-top: 0.5em">
+          <button class="btn btn-lg btn-outline-light muArrow fw-bold"
+                  v-on:click="gotoClarifier()"
+                  style="width: 50%">
+            Explore
+          </button>
+          <button v-show="!isLoggedIn"
+                  class="btn btn-lg btn-outline-light muArrow fw-bold"
+                  v-on:click="gotoRegister()"
+                  style="width: 50%">
+            Register
+          </button>
+          <button v-show="isLoggedIn"
+                  class="btn btn-lg btn-outline-light muArrow fw-bold"
+                  v-on:click="gotoAccount()"
+                  style="width: 50%">
+            Account
+          </button>
         </div>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
 </template>
 
 <script>
 export default {
   data () {
-    return {
-      cards: [
+    return {}
+  },
+  methods: {
+    scrollTo (content) {
+      document.getElementById(content).scrollIntoView({ behavior: 'smooth' })
+    },
+    gotoRegister () {
+      if (this.usageTracker) {
+        this.sendUsageData({
+          source: 'web',
+          module: 'home',
+          action: 'gotoRegister'
+        })
+      }
+      this.$router.push('/register')
+    },
+    gotoAccount () {
+      this.$router.push('/account')
+    },
+    gotoClarifier () {
+      this.$router.push('/apps/clarifier')
+    },
+    async sendUsageData (usageObj) {
+      const headers = new Headers()
+      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      headers.set(
+        'Content-Type', 'application/json'
+      )
+      fetch(
+        this.$store.state.serverIP + '/api/utr',
         {
-          title: 'Planner',
-          body: 'Kanban-Board style task management.',
-          type: 'App',
-          category: 'Management',
-          link: '/apps/planner/_user'
-        },
-        {
-          title: 'Clarifier',
-          body: 'Communication platform for you and your team.',
-          type: 'App',
-          category: 'Communication',
-          link: '/apps/clarifier'
-        },
-        {
-          title: 'Mockingbird',
-          body: 'API testing tools and backend simulation.',
-          type: 'Service',
-          category: 'Networking',
-          link: '/dev/api'
-        },
-        {
-          title: 'SnippetBase',
-          body: 'Temporary storage for any XML/JSON data.',
-          type: 'Service',
-          category: 'Data Storage',
-          link: '/wip'
+          method: 'post',
+          headers: headers,
+          body: JSON.stringify(usageObj)
         }
-      ]
+      ).then(r => console.log(r))
+    }
+  },
+  computed: {
+    isLoggedIn () {
+      return this.$store.state.authenticated
+    },
+    usageTracker () {
+      return this.$store.state.usageTracking
     }
   }
 }
 </script>
 
 <style scoped>
+
+.header-margin {
+  min-height: 60px;
+}
 
 .b_purple {
   background-color: #68349b;
@@ -148,142 +167,17 @@ export default {
   color: #ff5d37;
 }
 
-@keyframes slide {
-  0% {
-    top: 0;
-  }
-  25% {
-    top: -4rem;
-  }
-  50% {
-    top: -8rem;
-  }
-  75% {
-    top: -12.25rem;
-  }
-}
-
-.wow {
-  font-family: 'JetBrains Mono Bold', sans-serif;
-  color: black;
-  text-shadow: 5px 5px 0 #68349b,
-  10px 10px 0 #052939,
-  15px 15px 0 #46b59b,
-  20px 20px 0 #017e7f,
-  25px 25px 0 #052939;
-}
-
-.bartext {
-  position: relative;
-  margin: auto;
-  left: -2vw;
-  color: transparent;
-  font-size: 12vw;
-  font-weight: bold;
-  overflow: hidden;
-  z-index: 2;
-}
-
-.bartext > div {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-}
-
-.bartext > div:nth-child(1) {
-  mask-image: linear-gradient(black 25%, transparent 25%);
-  animation: bartext1 11s infinite;
-}
-
-.bartext > div:nth-child(2) {
-  mask-image: linear-gradient(transparent 25%, black 25%, black 50%, transparent 50%);
-  animation: bartext2 11s infinite;
-}
-
-.bartext > div:nth-child(3) {
-  mask-image: linear-gradient(transparent 50%, black 50%, black 75%, transparent 75%);
-  animation: bartext3 12s infinite;
-}
-
-.bartext > div:nth-child(4) {
-  mask-image: linear-gradient(transparent 75%, black 75%);
-  animation: bartext4 13s infinite;
-}
-
-@keyframes bartext1 {
-  0% {
-    transform: translateX(0%);
-  }
-  33% {
-    transform: translateX(2%);
-  }
-  66% {
-    transform: translateX(-0.6%);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-@keyframes bartext2 {
-  0% {
-    transform: translateX(0%);
-  }
-  33% {
-    transform: translateX(2.2%);
-  }
-  66% {
-    transform: translateX(-1%);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-@keyframes bartext3 {
-  0% {
-    transform: translateX(0%);
-  }
-  33% {
-    transform: translateX(-1.6%);
-  }
-  66% {
-    transform: translateX(2%);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-@keyframes bartext4 {
-  0% {
-    transform: translateX(0%);
-  }
-  33% {
-    transform: translateX(-0.2%);
-  }
-  66% {
-    transform: translateX(1%);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
 .wrapper {
   display: grid;
   gap: 0.5em;
   grid-auto-rows: minmax(100px, auto);
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(1, 1fr);
 }
 
 /* Small devices (portrait tablets and large phones, 765px and up) */
-@media only screen and (min-width: 765px) {
+@media only screen and (min-width: 992px) {
   .wrapper {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -308,6 +202,20 @@ export default {
 .darkbutton:hover > .purplehover {
   color: #46b59b;
   text-shadow: 0 0 15px #46b59b;
+}
+
+.muArrow, .mdArrow {
+  position: relative;
+  top: 0;
+  transition: top ease 0.5s;
+}
+
+.muArrow:hover {
+  top: -8px;
+}
+
+.mdArrow:hover {
+  top: +8px;
 }
 
 </style>

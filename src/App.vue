@@ -201,6 +201,7 @@ export default {
 
     window.addEventListener('keydown', function (event) {
       if (event.ctrlKey && event.key === 'y') {
+        event.preventDefault()
         const keywordSearch = document.getElementById('keyword-search')
         keywordSearch.focus()
         keywordSearch.select()
