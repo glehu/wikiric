@@ -1,7 +1,7 @@
 <template>
   <section id="content"
            style="min-height: 100vh; max-width: 100vw; width: 100%;
-           overflow: hidden; position: absolute; background-color: #0A0A0F">
+           overflow: hidden; position: absolute; background-color: black">
     <div class="container mt-4 mt-md-0"
          style="color: white; width: 100vw; min-height: 100vh; display: flex; align-items: center">
       <div class="wrapper" style="margin-bottom: 20px; margin-top: 50px">

@@ -60,7 +60,7 @@
                 <img class="b_darkergray"
                      style="width: 40px; height: 40px; position: absolute; left: 6px; top: 8px;
                    border-radius: 10px"
-                     v-bind:src="getImg(JSON.parse(session).img)"
+                     v-bind:src="getImg(JSON.parse(session).img,true)"
                      :alt="'&nbsp;' + JSON.parse(session).title.substring(0,1)"/>
                 <span class="sb_link_text text-nowrap"
                       style="padding-left: 10px; position: absolute; bottom: 10px">
@@ -378,7 +378,7 @@
       <div style="display: flex; width: 100%; margin-bottom: 10px">
         <img class="b_darkergray" style="min-width: 80px; width: 80px; min-height: 80px; height: 80px;
              border-radius: 20px"
-             v-bind:src="chatroom.img" :alt="'&nbsp;'"/>
+             v-bind:src="getImg(chatroom.imgGUID, true)" :alt="'&nbsp;'"/>
         <div class="drop_zone" style="margin-left: 10px" id="drop_zone">Upload a picture!</div>
       </div>
       <input type="file" class="file_input" id="files" name="files[]"
@@ -674,14 +674,16 @@ export default {
             this.chatroom = data
           }
           // UI Stuff
-          document.getElementById(this.getSession() + '_subc').classList.remove('active')
-          const previousGUID = this.currentSubchat.guid
-          if (previousGUID != null) {
-            document.getElementById(previousGUID + '_subc').classList.remove('active')
-          }
-          // Set current subchat
-          this.currentSubchat = data
-          document.getElementById(this.currentSubchat.guid + '_subc').classList.toggle('active')
+          setTimeout(() => {
+            document.getElementById(this.getSession() + '_subc').classList.remove('active')
+            const previousGUID = this.currentSubchat.guid
+            if (previousGUID != null) {
+              document.getElementById(previousGUID + '_subc').classList.remove('active')
+            }
+            // Set current subchat
+            this.currentSubchat = data
+            document.getElementById(this.currentSubchat.guid + '_subc').classList.toggle('active')
+          }, 0)
         })
         .then(() => (this.processMetaDataResponse(isSubchat)))
         .catch((err) => console.error(err.message))
@@ -691,7 +693,7 @@ export default {
         this.$store.commit('addClarifierSession', {
           id: this.chatroom.guid,
           title: this.chatroom.t,
-          img: this.getImg(this.chatroom.img)
+          img: this.getImg(this.chatroom.imgGUID)
         })
       }
       this.members = this.chatroom.members
@@ -982,12 +984,13 @@ export default {
       evt.preventDefault()
       evt.dataTransfer.dropEffect = 'copy'
     },
-    getImg: function (string) {
-      const img = string
-      if (img === '') {
+    getImg: function (imgGUID, get = false) {
+      if (imgGUID === '') {
         return ''
       } else {
-        return img
+        let ret = imgGUID
+        if (get) ret = this.$store.state.serverIP + '/m6/get/' + imgGUID
+        return ret
       }
     },
     getBase64: function (file) {

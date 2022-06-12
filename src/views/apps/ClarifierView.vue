@@ -29,7 +29,7 @@
                          v-on:click="joinActive(JSON.parse(session).id)">
                       <img class="b_darkergray"
                            style="width: 40px; height: 40px; border-radius: 10px"
-                           v-bind:src="getImg(JSON.parse(session).img)"
+                           v-bind:src="getImg(JSON.parse(session).img,true)"
                            :alt="'&nbsp;' + JSON.parse(session).title.substring(0,1)"/>
                       <span class="sb_link_text text-nowrap"
                             style="margin-left: 10px">
@@ -98,17 +98,16 @@ export default {
     }
   },
   mounted () {
-    document.getElementById('btn_join_session').disabled = true
-    document.getElementById('btn_create_session').disabled = true
     setTimeout(() => this.initFunction(), 0)
   },
   methods: {
     initFunction: function () {
-      if (window.innerWidth >= 992) {
-        const sessionInput = document.getElementById('input_session')
-        sessionInput.focus()
-        sessionInput.addEventListener('input', this.checkInput, false)
-      }
+      document.getElementById('btn_join_session').disabled = true
+      document.getElementById('btn_create_session').disabled = true
+      const sessionInput = document.getElementById('input_session')
+      sessionInput.addEventListener('input', this.checkInput, false)
+      sessionInput.addEventListener('compositionupdate', this.checkInput, false)
+      if (window.innerWidth >= 992) sessionInput.focus()
     },
     create: function () {
       const headers = new Headers()
@@ -127,12 +126,13 @@ export default {
         .then((data) => (this.$router.push('/apps/clarifier/wss/' + data.guid)))
         .catch((err) => console.log(err.message))
     },
-    getImg: function (string) {
-      const img = string
-      if (img === '') {
+    getImg: function (imgGUID, get = false) {
+      if (imgGUID === '') {
         return ''
       } else {
-        return img
+        let ret = imgGUID
+        if (get) ret = this.$store.state.serverIP + '/m6/get/' + imgGUID
+        return ret
       }
     },
     join: function () {
