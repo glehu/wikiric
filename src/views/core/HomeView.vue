@@ -1,59 +1,63 @@
 <template>
   <section id="content"
            style="min-height: 100vh; max-width: 100vw; width: 100%;
-           overflow: hidden; position: absolute; background-color: black">
-    <div class="container mt-4 mt-md-0"
-         style="color: white; width: 100vw; min-height: 100vh; display: flex; align-items: center">
-      <div class="wrapper" style="margin-bottom: 20px; margin-top: 50px">
-        <div id="header_title">
-          <div style="background-color: #101010; border-radius: 95% 0 50% 0; font-family: 'Lato', sans-serif"
-               :style="{backgroundImage: 'url('+require('@/assets/'+'account/pexels-anni-roenkae-2156881.jpg')+')',
-                  backgroundPosition: 'center top', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-            <h2 style="font-style: italic;
+           overflow: hidden; position: absolute"
+           :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-emre-can-acer-2449364.jpg')+')',
+                     backgroundPosition: 'top center', backgroundRepeat: 'no-repeat', backgroundSize: 'fit' }">
+    <div class="header-margin"></div>
+    <div style="color: white; width: 100vw; display: flex; padding: 20px 5vw 0 5vw;">
+      <div style="margin-bottom: 20px">
+        <div id="header_title" style="border-left: 4px dotted #101010; padding-left: 20px">
+          <h2 style="font-style: italic; color: black; pointer-events: none;
                 font-size: clamp(3rem, 4vw, 7rem); margin: 0">
-              Build your
-            </h2>
-            <h1 style="font-weight: bold; font-style: italic;
-                font-size: clamp(4rem, 8vw, 7rem); margin: 0; text-shadow: 5px 5px #101010">
+            Build your
+          </h2>
+          <div style="border-radius: 95% 25% 75% 0; font-family: 'Lato', sans-serif">
+            <!--:style="{backgroundImage: 'url('+require('@/assets/'+'account/pexels-anni-roenkae-2156881.jpg')+')',
+               backgroundPosition: 'center top', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }"-->
+            <h1 style="font-weight: bold; font-style: italic; pointer-events: none;
+                font-size: clamp(4rem, 8vw, 7rem); margin: 0; color: black">
               Enterprise Network
             </h1>
           </div>
-          <p style="font-size: 1rem; padding-top: 10px;
-             color: #bebebe; width: 100%; text-align: start">
+          <p style="font-size: 1rem; padding-top: 10px; pointer-events: none;
+             color: black; width: 100%; text-align: center">
             Connect, share files and collaborate in a modern, fast and responsive environment.
           </p>
-          <p style="font-size: 1rem; color: #bebebe; width: 100%; text-align: center">
+          <p style="font-size: 1rem; color: black; width: 100%; text-align: center;
+                    pointer-events: none;">
             <span style="font-weight: bold">This platform grows as you do.</span>
           </p>
-          <div class="d-flex justify-content-center" style="margin-top: 0.5em">
-            <button class="btn btn-lg btn-outline-light muArrow fw-bold"
-                    v-on:click="gotoClarifier()"
-                    style="width: 50%">
-              <i class="sb_link_icon bi bi-app-indicator"></i>
-              Explore
-            </button>
-            <button v-show="!isLoggedIn"
-                    class="btn btn-lg btn-outline-light muArrow fw-bold"
-                    v-on:click="gotoRegister()"
-                    style="width: 50%">
-              <i class="sb_link_icon bi bi-stars"></i>
-              Register
-            </button>
-            <button v-show="isLoggedIn"
-                    class="btn btn-lg btn-outline-light muArrow fw-bold"
-                    v-on:click="gotoAccount()"
-                    style="width: 50%">
-              <i class="sb_link_icon bi bi-person-bounding-box"></i>
-              Account
-            </button>
-          </div>
         </div>
-        <div>
+        <div class="d-flex justify-content-between" style="margin-top: 0.5em">
+          <button class="btn btn-lg btn-dark muArrow fw-bold"
+                  v-on:click="gotoClarifier()"
+                  style="width: 45%; border: 2px solid #101010">
+            <i class="sb_link_icon bi bi-app-indicator"></i>
+            Explore
+          </button>
+          <button v-show="!isLoggedIn"
+                  class="btn btn-lg btn-light muArrow fw-bold"
+                  v-on:click="gotoRegister()"
+                  style="width: 45%; border: 2px solid #101010">
+            <i class="sb_link_icon bi bi-stars"></i>
+            Register
+          </button>
+          <button v-show="isLoggedIn"
+                  class="btn btn-lg btn-light muArrow fw-bold"
+                  v-on:click="gotoAccount()"
+                  style="width: 45%; border: 2px solid #101010">
+            <i class="sb_link_icon bi bi-person-bounding-box"></i>
+            Account
+          </button>
+        </div>
+        <div style="margin-top: 25px">
           <img src='@/assets/clarifier/clarifier_demo.png' alt=""
                style="width: 100%; border-radius: 10px;
                background-color: #101010; padding-top: 10px; padding-bottom: 10px">
           <p style="font-weight: lighter; font-size: clamp(1rem, 1.5vw, 1.25rem);
-             color: #bebebe; width: 100%; text-align: center">
+                    pointer-events: none;
+                    color: #bebebe; width: 100%; text-align: center">
             Available as a Progressive Web App for all devices.
           </p>
         </div>
