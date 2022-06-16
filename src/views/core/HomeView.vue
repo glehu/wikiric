@@ -1,69 +1,144 @@
 <template>
   <section id="content"
-           style="min-height: 100vh; max-width: 100vw; width: 100%;
-           overflow: hidden; position: absolute"
-           :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-emre-can-acer-2449364.jpg')+')',
-                     backgroundPosition: 'top center', backgroundRepeat: 'no-repeat', backgroundSize: 'fit' }">
+           style="min-height: 100vh; max-width: 100vw; width: 100%; overflow: hidden"
+           :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
+                     backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <div class="header-margin"></div>
-    <div style="color: white; width: 100vw; display: flex; padding: 20px 5vw 0 5vw;">
-      <div style="margin-bottom: 20px">
-        <div id="header_title" style="border-left: 4px dotted #101010; padding-left: 20px">
-          <h2 style="font-style: italic; color: black; pointer-events: none;
-                font-size: clamp(3rem, 4vw, 7rem); margin: 0">
+    <div style="color: white; width: 100vw; display: flex; padding: 20px 5vw 20px 5vw;
+                border-bottom: 4px dotted #192129;">
+      <div style="width: 100%">
+        <div id="header_title"
+             style="border-left: 4px dotted #aeaeb7; padding: 20px; color: #aeaeb7; background-color: rgba(16,16,16,0.5);
+                    border-radius: 0 50px 50px 0">
+          <h2
+            style="font-family: 'Lato', sans-serif; pointer-events: none; font-size: clamp(3rem, 4vw, 5rem); margin: 0"
+            class="text-center">
             Build your
           </h2>
-          <div style="border-radius: 95% 25% 75% 0; font-family: 'Lato', sans-serif">
-            <!--:style="{backgroundImage: 'url('+require('@/assets/'+'account/pexels-anni-roenkae-2156881.jpg')+')',
-               backgroundPosition: 'center top', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }"-->
-            <h1 style="font-weight: bold; font-style: italic; pointer-events: none;
-                font-size: clamp(4rem, 8vw, 7rem); margin: 0; color: black">
-              Enterprise Network
-            </h1>
-          </div>
-          <p style="font-size: 1rem; padding-top: 10px; pointer-events: none;
-             color: black; width: 100%; text-align: center">
+          <h1 style="font-family: 'Lato', sans-serif; font-weight: bold; font-style: italic; pointer-events: none; color: #aeaeb7;
+                     font-size: clamp(4rem, 8vw, 7rem); margin: 0"
+              class="text-center">
+            Enterprise Network
+          </h1>
+          <p class="demotext c_lightgray">
             Connect, share files and collaborate in a modern, fast and responsive environment.
-          </p>
-          <p style="font-size: 1rem; color: black; width: 100%; text-align: center;
-                    pointer-events: none;">
-            <span style="font-weight: bold">This platform grows as you do.</span>
+            <br>Available as a Progressive Web App for all devices.
           </p>
         </div>
-        <div class="d-flex justify-content-between" style="margin-top: 0.5em">
+        <div class="d-flex justify-content-center" style="margin-top: 40px; margin-bottom: 40px">
           <button class="btn btn-lg btn-dark muArrow fw-bold"
                   v-on:click="gotoClarifier()"
-                  style="width: 45%; border: 2px solid #101010">
-            <i class="sb_link_icon bi bi-app-indicator"></i>
+                  style="border-radius: 30px 0 30px 0; width: 200px; height: 50px">
+            <i class="sb_link_icon bi bi-app-indicator lead"></i>
             Explore
           </button>
-          <button v-show="!isLoggedIn"
-                  class="btn btn-lg btn-light muArrow fw-bold"
-                  v-on:click="gotoRegister()"
-                  style="width: 45%; border: 2px solid #101010">
-            <i class="sb_link_icon bi bi-stars"></i>
-            Register
-          </button>
-          <button v-show="isLoggedIn"
-                  class="btn btn-lg btn-light muArrow fw-bold"
-                  v-on:click="gotoAccount()"
-                  style="width: 45%; border: 2px solid #101010">
-            <i class="sb_link_icon bi bi-person-bounding-box"></i>
-            Account
-          </button>
         </div>
-        <div style="margin-top: 25px">
-          <img src='@/assets/clarifier/clarifier_demo.png' alt=""
-               style="width: 100%; border-radius: 10px;
-               background-color: #101010; padding-top: 10px; padding-bottom: 10px">
-          <p style="font-weight: lighter; font-size: clamp(1rem, 1.5vw, 1.25rem);
-                    pointer-events: none;
-                    color: #bebebe; width: 100%; text-align: center">
-            Available as a Progressive Web App for all devices.
-          </p>
-        </div>
+        <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
+          <div style="width: 100%; display: flex; justify-content: center">
+            <img src='@/assets/clarifier/clarifier_demo.png' alt=""
+                 style="width: 100%; border-radius: 10px; background-color: #101010">
+          </div>
+          <div style="width: 100%; display: flex; align-items: center; justify-content: center">
+            <p class="demotext c_lightgray">
+              Connect and collaborate in a modern, fast and responsive environment.
+              <br>
+              <br>
+              <i class="bi bi-download lead p-1"></i>
+              <span class="lead">
+                Available as a Progressive Web App for all devices.
+              </span>
+            </p>
+          </div>
+        </div><!-- Demo Wrapper End -->
       </div>
     </div>
   </section>
+  <div style="color: white; width: 100vw; display: flex; padding: 20px 5vw 20px 5vw;
+              border-bottom: 4px dotted #192129;"
+       class="b_darkergray">
+    <div class="wrapper"><!-- Demo Wrapper -->
+      <div style="width: 100%; display: flex; align-items: center; justify-content: center">
+        <p class="demotext c_lightgray">
+          Create as many Subchats as you need. For any purpose imaginable.
+          <br>With just a few clicks you can easily set up your Group to fit your needs.
+          <br>
+          <br>
+          <i class="bi bi-boxes lead p-1"></i>
+          <span class="lead">
+            Keeping things organized, efficiently.
+          </span>
+        </p>
+      </div>
+      <div style="width: 100%; display: flex; justify-content: center">
+        <img src='@/assets/clarifier/clarifier_subchat_demo.png' alt=""
+             style="width: 80%; border-radius: 10px; background-color: #101010">
+      </div>
+    </div><!-- Demo Wrapper End -->
+  </div>
+  <div style="color: white; width: 100vw; display: flex; padding: 20px 5vw 20px 5vw;
+              border-bottom: 4px dotted #192129;"
+       class="b_darkergray">
+    <div class="wrapper"><!-- Demo Wrapper -->
+      <div style="width: 100%; display: flex; justify-content: center">
+        <img src='@/assets/clarifier/clarifier_member_demo.png' alt=""
+             style="width: 80%; border-radius: 10px; background-color: #101010">
+      </div>
+      <div style="width: 100%; display: flex; align-items: center; justify-content: center">
+        <p class="demotext c_lightgray">
+          Manage your Group's members and add role to categorize them!
+          <br>Invite new people by clicking on the envelope button
+          and sending them the invite link.
+          <br>
+          <br>
+          <i class="bi bi-people lead p-1"></i>
+          <span class="lead">
+            Gather your friends or (business) partners.
+          </span>
+        </p>
+      </div>
+    </div><!-- Demo Wrapper End -->
+  </div>
+  <div style="color: white; width: 100vw; display: flex; padding: 20px 5vw 20px 5vw;
+              border-bottom: 4px dotted #192129;"
+       class="b_darkergray">
+    <div class="wrapper"><!-- Demo Wrapper -->
+      <div style="width: 100%; display: flex; align-items: center; justify-content: center">
+        <p class="demotext c_lightgray">
+          Don't worry, you can send your memes here, too. We got you covered.
+          <br>
+          <br>
+          <i class="bi bi-file-arrow-up lead p-1"></i>
+          <span class="lead">
+            Share images and audio files drag'n'drop style.
+          </span>
+        </p>
+      </div>
+      <div style="width: 100%; display: flex; justify-content: center">
+        <img src='@/assets/clarifier/clarifier_file_demo.png' alt=""
+             style="width: 80%; border-radius: 10px; background-color: #101010">
+      </div>
+    </div><!-- Demo Wrapper End -->
+  </div>
+  <div style="color: white; width: 100vw; display: flex; padding: 20px 5vw 20px 5vw"
+       class="b_darkergray">
+    <div class="wrapper"><!-- Demo Wrapper -->
+      <div style="width: 100%; display: flex; justify-content: center">
+        <img src='@/assets/clarifier/clarifier_gif_demo.png' alt=""
+             style="width: 80%; border-radius: 10px; background-color: #101010">
+      </div>
+      <div style="width: 100%; display: flex; align-items: center; justify-content: center">
+        <p class="demotext c_lightgray">
+          GIFs. GIFs for everybody.
+          <br>
+          <br>
+          <i class="bi bi-camera-video lead p-1"></i>
+          <span class="lead">
+            Reaction GIFs and way more, powered by GIPHY.
+          </span>
+        </p>
+      </div>
+    </div><!-- Demo Wrapper End -->
+  </div>
 </template>
 
 <script>
@@ -74,19 +149,6 @@ export default {
   methods: {
     scrollTo (content) {
       document.getElementById(content).scrollIntoView({ behavior: 'smooth' })
-    },
-    gotoRegister () {
-      if (this.usageTracker) {
-        this.sendUsageData({
-          source: 'web',
-          module: 'home',
-          action: 'gotoRegister'
-        })
-      }
-      this.$router.push('/register')
-    },
-    gotoAccount () {
-      this.$router.push('/account')
     },
     gotoClarifier () {
       this.$router.push('/apps/clarifier')
@@ -225,6 +287,14 @@ export default {
 
 .mdArrow:hover {
   top: +8px;
+}
+
+.demotext {
+  font-size: 1rem;
+  padding-top: 10px;
+  pointer-events: none;
+  width: 100%;
+  text-align: center
 }
 
 </style>
