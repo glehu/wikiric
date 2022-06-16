@@ -21,8 +21,8 @@
             Enterprise Network
           </h1>
           <p class="demotext c_lightgray">
-            Connect, share files and collaborate in a modern, fast and responsive environment.
-            <br>Available as a Progressive Web App for all devices.
+            Bringing ideas and people close.
+            <br>Communicate and share files on a platform that grows as you do.
           </p>
         </div>
         <div class="d-flex justify-content-center" style="margin-top: 40px; margin-bottom: 40px">

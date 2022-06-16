@@ -34,17 +34,19 @@
             </li>
           </ul>
         </div>
-        <hr class="c_lightgray" style="margin: auto; width: 75%">
         <!-- #### GROUPS #### -->
+        <div style="width: 100%; position: relative; z-index: 3"
+             class="sb_fold b_darkgray">
+          <hr class="c_lightgray"
+              style="margin: auto; width: 75%; margin-bottom: 10px">
+          <span class="sb_link_text c_lightgray nopointer">
+            Groups&nbsp;-&nbsp;{{ this.$store.state.clarifierSessions.length }}
+          </span>
+        </div>
         <div id="channel_section" class="channel_section b_darkgray"
              style="height: calc(100% - 60px - 100px); width: 100%; z-index: 4;
-                    color: white; overflow-y: auto; overflow-x: clip; padding-top: 10px; padding-bottom: 20px">
-          <div style="width: 100%; padding-top: 5px"
-               class="sb_fold">
-            <span class="sb_link_text c_lightgray nopointer">
-              Groups&nbsp;-&nbsp;{{ this.$store.state.clarifierSessions.length }}
-            </span>
-          </div>
+                    color: white; overflow-y: auto; overflow-x: clip;
+                    padding-bottom: 20px; margin-top: 10px">
           <div v-for="session in this.$store.state.clarifierSessions" :key="session"
                class="channel_link"
                style="position: relative; padding-left: 8px; font-weight: bold; font-size: 125%">
@@ -1455,8 +1457,8 @@ export default {
 
 .sb_toggler {
   position: absolute;
-  width: 30px;
-  right: 11px;
+  width: 100%;
+  right: 0;
   top: 4px;
   color: white;
   font-size: 150%;
@@ -1475,8 +1477,7 @@ export default {
 }
 
 .sb_link_icon {
-  width: 30px;
-  max-width: 30px;
+  width: 50px;
   padding-left: 5px;
 }
 

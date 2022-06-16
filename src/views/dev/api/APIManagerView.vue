@@ -194,10 +194,6 @@ export default {
       }
     }
   },
-  created () {
-    this.getTime()
-    setInterval(this.getTime, 1000)
-  },
   mounted () {
     this.checkServerIPField()
     this.checkServerTokenField()
@@ -208,6 +204,8 @@ export default {
       mode: 'xml'
     })
     this.loadConfig()
+    this.getTime()
+    setInterval(this.getTime, 1000)
   },
   methods: {
     setCodeMode: function () {

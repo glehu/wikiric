@@ -1,41 +1,70 @@
 <template>
-  <div class="b_darkgray" style="min-height: 100vh; overflow-x: clip">
+  <div class="b_darkergray" style="min-height: 100vh; overflow-x: clip">
     <div id="header_margin"></div>
     <div class="wrapper">
       <!-- Active Sessions -->
       <div class="container c-modal">
         <div class="row d-flex justify-content-center align-items-center">
           <div style="min-width: 400px; width: 80%">
-            <div class="card-subtitle text-white b_darkgray" style="border-radius: 1rem">
-              <div class="card-body">
-                <div class="mt-md-0">
-                  <h2 class="fw-bold mb-2 text-uppercase text-center"
+            <div class="card-subtitle text-white" style="border-radius: 1rem">
+              <div class="card-body mt-md-0 c_lightgray">
+                <div style="pointer-events: none; margin-bottom: 50px">
+                  <div style="display: flex; justify-content: space-around;
+                              align-items: center;">
+                    <h2 style="font-family: 'Lato', sans-serif">
+                      {{ time }}
+                    </h2>
+                    <h3 v-if="hour >= 5"
+                        style="font-family: 'Lato', sans-serif">
+                      <i class="bi bi-sunrise-fill p-1"></i>
+                      Good Morning
+                    </h3>
+                    <h3 v-else-if="hour >= 10"
+                        style="font-family: 'Lato', sans-serif">
+                      <i class="bi bi-sun-fill p-1"></i>
+                      Good Day
+                    </h3>
+                    <h3 v-else-if="hour >= 17"
+                        style="font-family: 'Lato', sans-serif">
+                      <i class="bi bi-sunset p-1"></i>
+                      Good Evening
+                    </h3>
+                    <h3 v-else-if="hour >= 22 || hour < 5"
+                        style="font-family: 'Lato', sans-serif">
+                      <i class="bi bi-moon p-1"></i>
+                      Good Night
+                    </h3>
+                  </div>
+                  <hr style="height: 2px; color: white">
+                  <h1 class="fw-bold mb-2 text-uppercase text-center"
                       style="font-family: 'Lato', sans-serif">
                     Groups
-                  </h2>
-                  <div style="font-family: 'Lato', sans-serif">
-                    Your current Clarifier Groups. Click on one of them to quickly join it!
-                  </div>
-                  <hr style="color: white; height: 4px">
-                  <div v-for="session in this.$store.state.clarifierSessions" :key="session"
-                       style="padding-bottom: 2ch; padding-left: 3ch; display: flex">
-                    <button class="btn btn-sm"
-                            style="margin-right: 10px; color: red"
-                            v-on:click="this.removeSession(session)">
-                      <i class="bi bi-x-lg"></i>
-                    </button>
-                    <div class="orange-hover"
-                         style="display: flex; align-items: center"
-                         v-on:click="joinActive(JSON.parse(session).id)">
-                      <img class="b_darkergray"
-                           style="width: 40px; height: 40px; border-radius: 10px"
-                           v-bind:src="getImg(JSON.parse(session).img,true)"
-                           :alt="'&nbsp;' + JSON.parse(session).title.substring(0,1)"/>
-                      <span class="sb_link_text text-nowrap"
-                            style="margin-left: 10px">
-                        &nbsp;{{ JSON.parse(session).title }}
-                      </span>
-                    </div>
+                  </h1>
+                  <p style="width: 100%; text-align: center">
+                    Your current Clarifier Groups. Click on one of them to quickly enter!
+                  </p>
+                </div>
+                <div v-for="session in this.$store.state.clarifierSessions" :key="session"
+                     style="padding-bottom: 15px; display: flex">
+                  <button class="btn"
+                          style="margin-right: 10px; color: red; opacity: 0.8"
+                          v-on:click="this.removeSession(session)">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                  <div class="b_darkgray c_lightgray orange-hover"
+                       style="display: flex; align-items: center;
+                              justify-items: center;
+                              width: 100%; border-radius: 15px; padding: 5px"
+                       v-on:click="joinActive(JSON.parse(session).id)">
+                    <img class="b_darkergray"
+                         style="width: 40px; height: 40px; border-radius: 10px"
+                         v-bind:src="getImg(JSON.parse(session).img,true)"
+                         :alt="'&nbsp;' + JSON.parse(session).title.substring(0,1)"/>
+                    <h5 class="sb_link_text text-nowrap"
+                        style="margin: 0 0 0 10px;font-weight: bold;
+                               font-family: 'Lato', sans-serif">
+                      &nbsp;{{ JSON.parse(session).title }}
+                    </h5>
                   </div>
                 </div>
               </div>
@@ -44,21 +73,21 @@
         </div>
       </div>
       <!-- Join or Create a new Session -->
-      <div class="container c-modal">
+      <div class="container c-modal mb-4">
         <div class="row d-flex justify-content-center align-items-center">
           <div style="min-width: 400px; width: 80%">
-            <div class="card-subtitle text-white b_darkgray" style="border-radius: 1rem">
+            <div class="card-subtitle text-white"
+                 style="border: 2px dashed #aeaeb7; padding: 20px;
+                        border-radius: 1rem">
               <div class="card-body text-center">
-                <div class="mt-md-0">
+                <div class="mt-md-0 c_lightgray">
                   <h1 class="fw-bold mb-2 text-uppercase"
                       style="font-family: 'Lato', sans-serif">
                     Clarifier
                   </h1>
-                  <div
-                    style="text-align: justify; text-justify: inter-word; width: 100%;
-                    font-family: 'Lato', sans-serif">
+                  <p style="text-align: justify; text-justify: inter-word; width: 100%">
                     Enter an invite ID and click Join or type in some name and create your own chatroom!
-                  </div>
+                  </p>
                   <hr style="color: white; height: 4px">
                   <input id="input_session" v-model="input_string"
                          placeholder="Invite ID or Name..."
@@ -94,7 +123,9 @@ export default {
   data () {
     return {
       input_string: '',
-      join_type: ''
+      join_type: '',
+      time: '',
+      hour: 0
     }
   },
   mounted () {
@@ -108,6 +139,8 @@ export default {
       sessionInput.addEventListener('input', this.checkInput, false)
       sessionInput.addEventListener('compositionupdate', this.checkInput, false)
       if (window.innerWidth >= 992) sessionInput.focus()
+      this.getTime()
+      setInterval(this.getTime, 1000)
     },
     create: function () {
       const headers = new Headers()
@@ -179,6 +212,15 @@ export default {
       } else {
         this.create()
       }
+    },
+    getTime: function () {
+      const today = new Date()
+      const hours = today.getHours()
+      this.time = hours.toString().padStart(2, '0') +
+        ':' + today.getMinutes().toString().padStart(2, '0') +
+        ':' + today.getSeconds().toString().padStart(2, '0')
+      this.hour = hours
+      console.log(this.hour)
     }
   }
 }
@@ -187,11 +229,11 @@ export default {
 <style scoped>
 
 .b_purple {
-  background-color: #8844dd;
+  background-color: #68349b;
 }
 
 .c_purple {
-  color: #8844dd;
+  color: #68349b;
 }
 
 .b_darkblue {
@@ -224,6 +266,10 @@ export default {
 
 .c_gray {
   color: #293139;
+}
+
+.c_lightgray {
+  color: #aeaeb7;
 }
 
 .b_orange {
