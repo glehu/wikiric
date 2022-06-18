@@ -1,23 +1,22 @@
-<template>
-  <section id="content"
-           style="min-height: 100vh; max-width: 100vw; width: 100%; overflow: hidden"
-           :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
-                     backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
+<template style="max-width: 100vw; width: 100vw; overflow: hidden">
+  <div style="width: 100%"
+       :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
+                 backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <div class="header-margin"></div>
-    <div style="color: white; width: 100vw; display: flex; padding: 20px 5vw 20px 5vw;
+    <div style="color: white; width: 100%; display: flex; padding: 40px 5vw 20px 5vw;
                 border-bottom: 4px dotted #192129;">
       <div style="width: 100%">
         <div id="header_title"
              style="border-left: 4px dotted #aeaeb7; padding: 20px; color: #aeaeb7; background-color: rgba(16,16,16,0.5);
                     border-radius: 0 50px 50px 0">
           <h2
-            style="font-family: 'Lato', sans-serif; pointer-events: none; font-size: clamp(3rem, 4vw, 5rem); margin: 0"
+            style="pointer-events: none; font-size: clamp(3rem, 4vw, 5rem); margin: 0"
             class="text-center">
             Build your
           </h2>
-          <h1 style="font-family: 'Lato', sans-serif; font-weight: bold; font-style: italic; pointer-events: none; color: #aeaeb7;
+          <h1 style="font-weight: bold; font-style: italic; pointer-events: none;
                      font-size: clamp(4rem, 8vw, 7rem); margin: 0"
-              class="text-center">
+              class="text-center c_lightgray">
             Enterprise Network
           </h1>
           <p class="demotext c_lightgray">
@@ -29,7 +28,7 @@
           <button class="btn btn-lg btn-dark muArrow fw-bold"
                   v-on:click="gotoClarifier()"
                   style="border-radius: 30px 0 30px 0; width: 200px; height: 50px">
-            <i class="sb_link_icon bi bi-app-indicator lead"></i>
+            <i class="sb_link_icon bi bi-app-indicator lead" style="padding-right: 10px"></i>
             Explore
           </button>
         </div>
@@ -52,11 +51,12 @@
         </div><!-- Demo Wrapper End -->
       </div>
     </div>
-  </section>
-  <div style="color: white; width: 100vw; display: flex; padding: 20px 5vw 20px 5vw;
+  </div>
+  <div style="color: white; width: 100%;
+              display: flex; padding: 20px 5vw 20px 5vw;
               border-bottom: 4px dotted #192129;"
        class="b_darkergray">
-    <div class="wrapper"><!-- Demo Wrapper -->
+    <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
       <div style="width: 100%; display: flex; align-items: center; justify-content: center">
         <p class="demotext c_lightgray">
           Create as many Subchats as you need. For any purpose imaginable.
@@ -75,10 +75,11 @@
       </div>
     </div><!-- Demo Wrapper End -->
   </div>
-  <div style="color: white; width: 100vw; display: flex; padding: 20px 5vw 20px 5vw;
+  <div style="color: white; width: 100%;
+              display: flex; padding: 20px 5vw 20px 5vw;
               border-bottom: 4px dotted #192129;"
        class="b_darkergray">
-    <div class="wrapper"><!-- Demo Wrapper -->
+    <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
       <div style="width: 100%; display: flex; justify-content: center">
         <img src='@/assets/clarifier/clarifier_member_demo.png' alt=""
              style="width: 80%; border-radius: 10px; background-color: #101010">
@@ -86,8 +87,8 @@
       <div style="width: 100%; display: flex; align-items: center; justify-content: center">
         <p class="demotext c_lightgray">
           Manage your Group's members and add role to categorize them!
-          <br>Invite new people by clicking on the envelope button
-          and sending them the invite link.
+          <br>Invite new people by clicking on the invite button
+          and sending them the link.
           <br>
           <br>
           <i class="bi bi-people lead p-1"></i>
@@ -98,10 +99,11 @@
       </div>
     </div><!-- Demo Wrapper End -->
   </div>
-  <div style="color: white; width: 100vw; display: flex; padding: 20px 5vw 20px 5vw;
+  <div style="color: white; width: 100%;
+              display: flex; padding: 20px 5vw 20px 5vw;
               border-bottom: 4px dotted #192129;"
        class="b_darkergray">
-    <div class="wrapper"><!-- Demo Wrapper -->
+    <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
       <div style="width: 100%; display: flex; align-items: center; justify-content: center">
         <p class="demotext c_lightgray">
           Don't worry, you can send your memes here, too. We got you covered.
@@ -115,16 +117,17 @@
       </div>
       <div style="width: 100%; display: flex; justify-content: center">
         <img src='@/assets/clarifier/clarifier_file_demo.png' alt=""
-             style="width: 80%; border-radius: 10px; background-color: #101010">
+             style="width: 75%; border-radius: 10px; background-color: #101010">
       </div>
     </div><!-- Demo Wrapper End -->
   </div>
-  <div style="color: white; width: 100vw; display: flex; padding: 20px 5vw 20px 5vw"
+  <div style="color: white; width: 100%;
+              display: flex; padding: 20px 5vw 20px 5vw"
        class="b_darkergray">
-    <div class="wrapper"><!-- Demo Wrapper -->
+    <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
       <div style="width: 100%; display: flex; justify-content: center">
         <img src='@/assets/clarifier/clarifier_gif_demo.png' alt=""
-             style="width: 80%; border-radius: 10px; background-color: #101010">
+             style="width: 75%; border-radius: 10px; background-color: #101010">
       </div>
       <div style="width: 100%; display: flex; align-items: center; justify-content: center">
         <p class="demotext c_lightgray">
@@ -211,11 +214,11 @@ export default {
 }
 
 .b_darkergray {
-  background-color: #101010;
+  background-color: #131313;
 }
 
 .c_darkergray {
-  color: #101010;
+  color: #131313;
 }
 
 .b_gray {

@@ -1,17 +1,18 @@
 <template>
   <div
-    style="min-height: 100vh; min-width: 100vw; max-width: 100vw; background-color: black; overflow-x: hidden"
-    :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-adrien-olichon-2387819.jpg')+')', backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
+    style="min-height: 100vh; min-width: 100vw; max-width: 100vw; overflow-x: hidden"
+    :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-adrien-olichon-2387819.jpg')+')',
+              backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <div style="min-height: 10vh"></div>
     <form class="login" @submit.prevent="login">
       <section>
         <div class="container py-5 h-100">
           <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-              <div class="card text-white" style="border-radius: 1rem; background: black">
+              <div class="card text-white" style="border-radius: 1rem; background: #131313">
                 <div class="card-body p-5 text-center">
                   <div class="mt-md-0 pb-5">
-                    <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
+                    <h2 class="fw-bold mb-2 text-uppercase" style="font-family: 'Lato', sans-serif">Login</h2>
                     <div class="form-outline form-white mb-4">
                       <input
                         required

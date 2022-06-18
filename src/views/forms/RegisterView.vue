@@ -2,7 +2,7 @@
   <div style="min-height: 10vh"></div>
   <div class="d-md-flex align-items-center">
     <div class="mt-2 text-white" style="padding-left: 10vw">
-      <h1 class="fw-bold">:> Register</h1>
+      <h2 class="fw-bold" style="font-family: 'Lato', sans-serif">Welcome</h2>
       <div class="d-flex">
         <div class="mb-2" style="text-align: justify; text-justify: inter-word; width: 200px">
           Only a few steps 'till success. Before you lie many possibilities and experiments.
@@ -40,10 +40,10 @@
       <section>
         <div id="registration" class="container h-100 p-4">
           <div class="justify-content-center align-items-center h-100">
-            <div class="card text-white" style="border-radius: 1rem; background: black">
+            <div class="card text-white" style="border-radius: 1rem; background: #131313">
               <div class="card-body p-5 text-center">
                 <div class="mt-md-0 pb-5">
-                  <h2 class="fw-bold mb-2 text-uppercase">Register</h2>
+                  <h1 class="fw-bold mb-3" style="font-family: 'Lato', sans-serif">Register</h1>
                   <div class="form-outline form-white mb-4">
                     <input
                       required

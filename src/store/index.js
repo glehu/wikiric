@@ -108,20 +108,20 @@ export default createStore({
     },
     addClarifierSession (state, session) {
       for (let i = 0; i < state.clarifierSessions.length; i++) {
-        if (JSON.parse(state.clarifierSessions[i]).id === session.id) {
+        if (state.clarifierSessions[i].id === session.id) {
           state.clarifierSessions.splice(i, 1)
           break
         }
       }
-      state.clarifierSessions.unshift(JSON.stringify({
+      state.clarifierSessions.unshift({
         id: session.id,
         title: session.title,
         img: session.img
-      }))
+      })
     },
     removeClarifierSession (state, session) {
       state.clarifierSessions = state.clarifierSessions.filter(function (ele) {
-        return JSON.parse(ele).id !== JSON.parse(session).id
+        return ele.id !== session.id
       })
     },
     setFCMToken (state, newFCMToken) {

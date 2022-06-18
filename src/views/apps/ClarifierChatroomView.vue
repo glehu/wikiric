@@ -3,7 +3,8 @@
     <div id="sidebar" class="sidebar"
          style="height: 100vh; z-index: 1000">
       <div class="header-margin" style="box-shadow: none"></div>
-      <div style="height: calc(100vh - 60px)" class="b_darkgray sidebar_bg">
+      <div style="height: calc(100vh - 60px)"
+           class="b_darkgray sidebar_bg">
         <!-- #### Tools #### -->
         <div style="height: 140px; overflow-x: clip; position: relative">
           <div style="width: 100%; height: 35px; padding-top: 10px">
@@ -38,7 +39,7 @@
         <div style="width: 100%; position: relative; z-index: 3"
              class="sb_fold b_darkgray">
           <hr class="c_lightgray"
-              style="margin: auto; width: 75%; margin-bottom: 10px">
+              style="width: 75%; margin: auto auto 10px;">
           <span class="sb_link_text c_lightgray nopointer">
             Groups&nbsp;-&nbsp;{{ this.$store.state.clarifierSessions.length }}
           </span>
@@ -49,28 +50,31 @@
                     padding-bottom: 20px; margin-top: 10px">
           <div v-for="session in this.$store.state.clarifierSessions" :key="session"
                class="channel_link"
-               style="position: relative; padding-left: 8px; font-weight: bold; font-size: 125%">
+               style="position: relative; font-weight: bold; font-size: 125%">
             <a class="fw-bold text-white orange-hover" style="text-decoration: none"
-               :href="'/apps/clarifier/wss/' + JSON.parse(session).id">
-              <div class="c_lightgray orange-hover">
-                <i v-if="JSON.parse(session).id === chatroom.guid"
-                   class="bi bi-dot"
-                   style="position: absolute; left: -18px; top: -5px; font-size: 200%; color: forestgreen">
-                </i>
-                <i class="bi bi-circle-fill"
-                   style="font-size: 180%; color: transparent"></i>
-                <img class="b_darkergray"
-                     style="width: 40px; height: 40px; position: absolute; left: 6px; top: 8px;
-                   border-radius: 10px"
-                     v-bind:src="getImg(JSON.parse(session).img,true)"
-                     :alt="'&nbsp;' + JSON.parse(session).title.substring(0,1)"/>
+               :href="'/apps/clarifier/wss/' + session.id">
+              <div class="c_lightgray orange-hover"
+                   style="height: 50px; display: flex; align-items: center;">
+                <div style="width: 50px; height: 100%; position: relative;
+                            display: flex; align-items: center; justify-content: center;">
+                  <div v-if="session.id === chatroom.guid"
+                       style="position: absolute; height: 20px; width: 4px; left: 0;
+                            border-radius: 20px;
+                            background-color: forestgreen; z-index: 5">
+                  </div>
+                  <img class="b_darkergray"
+                       style="border-radius: 10px; margin-left: 1px;
+                              width: 40px; height: 40px; z-index: 6"
+                       v-bind:src="getImg(session.img,true)"
+                       :alt="'&nbsp;&nbsp;' + session.title.substring(0,1)"/>
+                </div>
                 <span class="sb_link_text text-nowrap"
-                      style="padding-left: 10px; position: absolute; bottom: 10px">
-                &nbsp;{{ JSON.parse(session).title }}
-              </span>
+                      style="position: absolute; left: 36px;">
+                  {{ session.title }}
+                </span>
               </div>
             </a>
-            <span class="channel_tooltip">{{ JSON.parse(session).title }}</span>
+            <span class="channel_tooltip">{{ session.title }}</span>
           </div>
         </div>
       </div>
@@ -111,12 +115,13 @@
         </div>
       </div>
     </div>
-    <div class="clarifier_chatroom" style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip"
+    <div class="clarifier_chatroom"
+         style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip"
          v-on:click="closeModals">
       <div id="chat_section" class="chat_section b_darkergray" style="width: 100%; height: 100%">
         <div class="header-margin" style="box-shadow: none"></div>
         <!-- #### CHAT HEADER #### -->
-        <div class="align-items-center b_darkergray chat_header" style="width: 100%">
+        <div class="b_darkergray chat_header">
           <div style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%"
                class="nopointer">
             <span style="margin-left: 10px">{{ chatroom.t }}</span>
@@ -128,20 +133,21 @@
           <button class="btn-no-outline c_lightgray"
                   style="position: absolute; right: 90px"
                   title="Show Settings"
-                  v-on:click="isViewingSessionSettings = true">
-            <i class="sb_link_icon bi bi-wrench orange-hover"></i>
+                  v-on:click="toggleSessionSettings">
+            <i class="sb_link_icon bi bi-wrench orange-hover" style="height: 25px; width: 25px"></i>
           </button>
           <button class="btn-no-outline c_lightgray member_section_toggler"
                   style="position: absolute; right: 50px"
                   title="Show Subchats"
                   v-on:click="toggleSidebar2">
-            <i class="sb_link_icon bi bi-chat-square-dots orange-hover"></i>
+            <i class="sb_link_icon bi bi-chat-square-dots orange-hover"
+               style="height: 25px; width: 25px"></i>
           </button>
           <button class="btn-no-outline c_lightgray member_section_toggler"
                   style="position: absolute; right: 10px"
                   title="Show Members"
                   v-on:click="toggleMemberSidebar">
-            <i class="bi bi-people orange-hover"></i>
+            <i class="bi bi-people orange-hover" style="height: 25px; width: 25px"></i>
           </button>
         </div>
         <!-- #### MESSAGES #### -->
@@ -160,58 +166,82 @@
                   <i v-else class="sender_avatar bi bi-person-circle"></i>
                   <span class="orange-hover"
                         style="font-weight: bold">
-                {{ msg.src.split('@')[0] }}
-                </span>
-                  <span style="color: gray; font-size: 80%; padding-left: 10px">
+                    {{ msg.src.split('@')[0] }}
+                  </span>
+                  <span style="color: gray; font-size: 80%; padding-left: 10px;
+                               pointer-events: none">
                     {{ msg.time.toLocaleString('de-DE').replace(' ', '&nbsp;') }}
-                </span>
+                  </span>
                 </div>
               </template>
-              <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
-              <template v-if="msg.msg.startsWith('[s:RegistrationNotification]')">
-                <div class="serverMessage">
-                  {{ msg.msg.substring(28).trim() }}
+              <div class="message_body" style="width: 100%; display: flex; position: relative">
+                <div style="min-width: 42px; max-width: 42px">
+                  <template v-if="msg.header === false">
+                    <div class="msg_time" style="pointer-events: none">
+                      {{ msg.time.toLocaleTimeString('de-DE').substring(0, 5).replace(' ', '&nbsp;') }}
+                    </div>
+                  </template>
                 </div>
-              </template>
-              <!-- #### CLIENT GIF MESSAGE #### -->
-              <template v-else-if="msg.msg.startsWith('[c:GIF]')">
-                <div style="padding-left: 42px">
-                  <img :src="msg.msg.substring(7)"
-                       :alt="msg.msg.substring(7)"
-                       loading="lazy"
-                       style="max-width: 300px">
-                  <br>
-                  <div>
-                    <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
-                         style="width: 100px"/>
+                <!-- #### MESSAGE OPTIONS #### -->
+                <div v-if="!msg.src.startsWith('_server')"
+                     class="msg_options b_darkgray">
+                  <button title="Reply" class="btn btn-sm c_lightgray orange-hover">
+                    <i class="bi bi-reply lead"></i>
+                  </button>
+                  <button title="Edit" class="btn btn-sm c_lightgray orange-hover">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button title="Remove" class="btn btn-sm c_lightgray orange-hover">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+                <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
+                <template v-if="msg.msg.startsWith('[s:RegistrationNotification]')">
+                  <div class="serverMessage">
+                    {{ msg.msg.substring(28).trim() }}
                   </div>
-                </div>
-              </template>
-              <!-- #### CLIENT IMAGE (SnippetBase) #### -->
-              <template v-else-if="msg.msg.startsWith('[c:IMG]')">
-                <div style="padding-left: 42px">
-                  <img :src="msg.msg.substring(7)"
-                       :alt="msg.msg.substring(7)"
-                       loading="lazy"
-                       style="max-width: 300px"
-                       v-on:click="openURL(msg.msg.substring(7))">
-                </div>
-              </template>
-              <!-- #### CLIENT AUDIO (SnippetBase) #### -->
-              <template v-else-if="msg.msg.startsWith('[c:AUD]')">
-                <div style="padding-left: 42px">
-                  <audio controls preload="auto"
-                         class="uploadFileSnippet">
-                    <source :src="msg.msg.substring(7)">
-                    Your browser does not support playing audio.
-                  </audio>
-                </div>
-              </template>
-              <!-- #### CLIENT MESSAGE #### -->
-              <div v-else style="width: 100%; position: relative">
-                <span class="clientMessage">
-                  {{ msg.msg }}
-                </span>
+                </template>
+                <!-- #### CLIENT GIF MESSAGE #### -->
+                <template v-else-if="msg.msg.startsWith('[c:GIF]')">
+                  <div>
+                    <img :src="msg.msg.substring(7)"
+                         :alt="msg.msg.substring(7)"
+                         loading="lazy"
+                         style="max-width: 300px">
+                    <br>
+                    <div>
+                      <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png"
+                           alt="Powered By GIPHY"
+                           style="width: 100px"/>
+                    </div>
+                  </div>
+                </template>
+                <!-- #### CLIENT IMAGE (SnippetBase) #### -->
+                <template v-else-if="msg.msg.startsWith('[c:IMG]')">
+                  <div>
+                    <img :src="msg.msg.substring(7)"
+                         :alt="msg.msg.substring(7)"
+                         loading="lazy"
+                         style="max-width: 300px; cursor: zoom-in"
+                         v-on:click="openURL(msg.msg.substring(7))">
+                  </div>
+                </template>
+                <!-- #### CLIENT AUDIO (SnippetBase) #### -->
+                <template v-else-if="msg.msg.startsWith('[c:AUD]')">
+                  <div>
+                    <audio controls preload="auto"
+                           class="uploadFileSnippet">
+                      <source :src="msg.msg.substring(7)">
+                      Your browser does not support playing audio.
+                    </audio>
+                  </div>
+                </template>
+                <!-- #### CLIENT MESSAGE #### -->
+                <template v-else>
+                  <p class="clientMessage">
+                    {{ msg.msg }}
+                  </p>
+                </template>
               </div>
             </div>
           </template>
@@ -222,38 +252,26 @@
             <textarea id="new_comment"
                       class="new_comment b_gray"
                       type="text"
-                      style="position: absolute; bottom: 0; left: 10px;
-                      width: calc(100% - 115px);
-                      padding-top: 0.30em; padding-bottom: 0.4em; padding-left: 1ch;
-                      color: white; border-color: transparent; border-radius: 1em;
-                      resize: none; overflow: hidden;
-                      height: 2.5em; min-height: 2.5em;"
                       v-model="new_message"
                       :placeholder="'Message to ' + chatroom.t"
                       v-on:input="auto_grow"
                       v-on:click="hideAllSidebars">
             </textarea>
             <button id="send_image_button"
-                    class="btn-outline-light send_image_button"
-                    style="position: absolute; bottom: 0; right: 105px;
-                    width: 40px; height: 2.5em; margin-left: 1ch;
-                    border-color: transparent; border-radius: 1em; background-color: transparent"
+                    class="btn-outline-light message_button send_image_button"
+                    style="position: absolute; bottom: 0; right: 105px; background-color: transparent"
                     title="Send Files"
                     v-on:click="toggleUploadingSnippet">
               <span class="fw-bold"><i class="bi bi-plus-circle"></i></span>
             </button>
-            <button class="btn-outline-light b_gray"
-                    style="position: absolute; bottom: 0; right: 60px;
-                    width: 40px; height: 2.5em; margin-left: 1ch;
-                    border-color: transparent; border-radius: 1em"
+            <button class="btn-outline-light message_button b_gray"
+                    style="position: absolute; bottom: 0; right: 60px"
                     title="Send"
                     v-on:click="addMessage">
               <span class="fw-bold"><i class="bi bi-send"></i></span>
             </button>
-            <button class="btn-outline-light b_gray"
-                    style="position: absolute; bottom: 0; right: 15px;
-                    width: 40px; height: 2.5em; margin-left: 1ch;
-                    border-color: transparent; border-radius: 1em"
+            <button class="btn-outline-light message_button b_gray"
+                    style="position: absolute; bottom: 0; right: 15px"
                     title="Search on GIPHY"
                     v-on:click="toggleSelectingGIF">
               <span class="fw-bold">GIF</span>
@@ -263,13 +281,13 @@
       </div>
     </div>
     <!-- #### MEMBERS #### -->
-    <div id="member_section" class="member_section b_darkergray"
-         style="color: white; z-index: 11; position: absolute; right: 0;
-         border-left: 2px solid rgba(174, 174, 183, 0.25);
-         height: 100vh; overflow-y: auto; overflow-x: clip">
+    <div id="member_section" class="member_section b_darkergray">
       <div class="header-margin" style="box-shadow: none"></div>
-      <div style="width: 100%; height: 35px; padding-top: 5px">
-        <span class="fw-bold member_count c_lightgray nopointer" style="padding-left: 20px">
+      <div style="width: 100%; height: 50px;
+                  border-bottom: 2px solid rgba(174, 174, 183, 0.25);
+                  display: flex; align-items: center">
+        <span class="fw-bold member_count c_lightgray nopointer"
+              style="padding-left: 20px">
           Members&nbsp;-&nbsp;{{ this.members.length }}
         </span>
         <button class="btn-no-outline member_section_toggler c_lightgray"
@@ -291,7 +309,7 @@
             {{ JSON.parse(usr).usr.split('@')[0] }}
           </span>
         </div>
-        <div style="padding-left: 10px">
+        <div style="padding-left: 10px; display: flex">
           <button class="text-white btn-no-outline"
                   title="Invite"
                   v-on:click="invite()">
@@ -310,7 +328,9 @@
          v-on:click="hideAllWindows()"></i>
       <div style="display: flex">
         <i class="bi bi-person-circle" style="font-size: 300%; margin-right: 10px"></i>
-        <h2 class="fw-bold" style="padding-top: 20px"> {{ this.viewedUserProfile.usr.split('@')[0] }}</h2>
+        <h2 class="fw-bold" style="padding-top: 20px">
+          {{ this.viewedUserProfile.usr.split('@')[0] }}
+        </h2>
       </div>
       <!-- #### MEMBER ROLES #### -->
       <hr class="c_lightgray">
@@ -318,7 +338,8 @@
         <div v-for="role in this.viewedUserProfile.roles" :key="role"
              class="b_purple"
              style="border-radius: 5px; padding: 0 4px 4px 4px; margin-right: 1ch; margin-bottom: 1ch">
-          <i v-show="isEditingRoles" class="bi bi-x-circle-fill orange-hover" style="margin-right: 4px"></i>
+          <i v-show="isEditingRoles" class="bi bi-x-circle-fill orange-hover"
+             style="margin-right: 4px"></i>
           <span>{{ JSON.parse(role).name.replace(' ', '&nbsp;') }}</span>
         </div>
         <span style="border-radius: 2rem; margin-right: 1em" class="orange-hover"
@@ -328,8 +349,6 @@
       </div>
       <!-- #### ROLE ADDER #### -->
       <div class="user_role b_darkergray align-items-center"
-           style="overflow: hidden; border: 2px solid black; border-radius: 20px;
-                  padding-top: 2ch; padding-bottom: 2ch;"
            v-show="isAddingRole" @click.stop>
         <div style="position: relative">
           <i class="bi bi-x-lg lead" style="cursor: pointer; position: absolute; right: 0" title="Close"
@@ -361,7 +380,8 @@
       <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
            style="width: 125px; padding-left: 10px"/>
     </div>
-    <div style="height: 85%; width: 100%; overflow-x: clip; overflow-y: scroll; margin-top: 2ch" class="b_darkergray">
+    <div style="height: 85%; width: 100%; overflow-x: clip; overflow-y: scroll; margin-top: 2ch"
+         class="b_darkergray">
       <div v-for="gif in gifSelection" :key="gif"
            style="padding-top: 10px; padding-left: 10px; display: inline-flex"
            v-on:click="this.addMessagePar('[c:GIF]' + gif.images.fixed_height.url, true)">
@@ -405,11 +425,13 @@
       <input v-model="new_subchat_name"
              id="new_subchat_name" type="text"
              class="mt-2 b_darkergray text-white p-2 ps-3"
-             style="width: 100%; border: none; border-radius: 20px">
+             style="width: 100%; border: none; border-radius: 20px"
+             v-on:keyup.enter="createSubchatroom">
       <label class="fw-bold lead mt-4 c_lightgray" style="width: 100%">Create:</label>
       <button v-on:click="createSubchatroom"
               id="new_subchat_type_text" class="btn darkbutton mt-2"
-              style="color: white; width: 100%; text-align: left; display: flex; align-items: center; border-radius: 10px">
+              style="color: white; width: 100%; text-align: left; display: flex;
+                     align-items: center; border-radius: 10px">
         <span style="font-size: 200%">#</span>
         <span class="ms-2">
           <span>Text Subchat</span>
@@ -426,6 +448,7 @@
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="closeUploadingSnippet()"></i>
       <h2 class="fw-bold">File Upload</h2>
+      <hr class="c_lightgray">
       <template v-if="uploadFileType !== ''">
         <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px">
           <img v-if="uploadFileType.includes('image')"
@@ -440,7 +463,6 @@
         </div>
       </template>
       <template v-if="uploadFileBase64 === ''">
-        <hr class="c_lightgray">
         <div class="drop_zone" id="snippet_drop_zone" style="margin-bottom: 10px">Drop a file here!</div>
         <input type="file" class="file_input" id="snippet_files" name="files[]"
                style="width: 100%"
@@ -450,16 +472,19 @@
         <span class="spinner-grow spinner-grow-sm text-info" role="status" aria-hidden="true"></span>
         <span class="jetb ms-2">Uploading...</span>
       </div>
-      <hr class="c_lightgray">
-      <div style="width: 100%; display: flex; align-items: center; justify-items: center">
-        <button class="btn-outline-light darkbutton text-white"
-                style="width: 90%; height: 2.5em; border-color: transparent; border-radius: 1em; margin: auto"
-                title="Send"
-                v-on:click="addMessage">
-          <span class="fw-bold"><i class="bi bi-send"></i> Submit</span>
-          <span style="margin-left: 10px" class="c_lightgray"> {{ this.uploadFileType }}</span>
-        </button>
-      </div>
+      <template v-if="uploadFileBase64 !== ''">
+        <hr class="c_lightgray">
+        <div style="width: 100%; display: flex; align-items: center; justify-items: center">
+          <button class="btn-outline-light darkbutton text-white"
+                  style="width: 90%; height: 2.5em; border-color: transparent;
+                         border-radius: 1em; margin: auto"
+                  title="Send"
+                  v-on:click="addMessage">
+            <span class="fw-bold"><i class="bi bi-send"></i> Submit</span>
+            <span style="margin-left: 10px" class="c_lightgray"> {{ this.uploadFileType }}</span>
+          </button>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -764,8 +789,8 @@ export default {
         // If the sources are identical, check if the time was similar
         let timeDiff = message.time.getTime() - this.last_message.time.getTime()
         timeDiff = (Math.abs((timeDiff) / 1000) / 60)
-        // If the message is 5 minutes or older put the message header
-        message.header = timeDiff >= 5
+        // If the message is 3 minutes or older put the message header
+        message.header = timeDiff >= 3
       }
       this.last_message = message
       return message
@@ -809,16 +834,23 @@ export default {
         .catch((err) => console.error(err.message))
     },
     toggleSelectingGIF: function () {
+      const wasShowing = this.isViewingGIFSelection
       this.hideAllWindows()
-      this.isViewingGIFSelection = !this.isViewingGIFSelection
+      this.isViewingGIFSelection = !wasShowing
       if (this.isViewingGIFSelection) {
         const gifInput = document.getElementById('gif_query')
         setTimeout(() => gifInput.focus(), 0)
       }
     },
     toggleUploadingSnippet: function () {
+      const wasShowing = this.isUploadingSnippet
       this.hideAllWindows()
-      this.isUploadingSnippet = !this.isUploadingSnippet
+      this.isUploadingSnippet = !wasShowing
+    },
+    toggleSessionSettings: function () {
+      const wasShowing = this.isViewingSessionSettings
+      this.hideAllWindows()
+      this.isViewingSessionSettings = !wasShowing
     },
     showNewSubchatWindow: function () {
       this.hideAllWindows()
@@ -875,19 +907,21 @@ export default {
       this.new_subchat_name = ''
     },
     toggleSidebar: function () {
-      document.getElementById('sidebar').classList.toggle('active')
-      const memberSidebar = document.getElementById('member_section')
-      memberSidebar.classList.remove('active')
+      this.handleSidebarToggle(document.getElementById('sidebar'))
     },
     toggleSidebar2: function () {
-      document.getElementById('sidebar2').classList.toggle('active')
-      const memberSidebar = document.getElementById('member_section')
-      memberSidebar.classList.remove('active')
+      this.handleSidebarToggle(document.getElementById('sidebar2'))
     },
     toggleMemberSidebar: function () {
-      document.getElementById('member_section').classList.toggle('active')
-      const sidebar = document.getElementById('sidebar')
-      sidebar.classList.remove('active')
+      this.handleSidebarToggle(document.getElementById('member_section'))
+    },
+    handleSidebarToggle: function (element) {
+      if (element.classList.contains('active')) {
+        element.classList.remove('active')
+      } else {
+        this.hideAllSidebars(true)
+        element.classList.add('active')
+      }
     },
     auto_grow: function () {
       this.sendImageButton.classList.toggle('active', (this.new_message !== '')) // Inverted
@@ -929,8 +963,8 @@ export default {
       const memberSidebar = document.getElementById('member_section')
       if (memberSidebar.classList.contains('active')) memberSidebar.classList.remove('active')
     },
-    hideAllSidebars: function () {
-      if (window.innerWidth < 1100) {
+    hideAllSidebars: function (force = false) {
+      if (window.innerWidth < 1100 || force === true) {
         this.hideSidebar()
         this.hideSidebar2()
         this.hideMemberSidebar()
@@ -1193,11 +1227,11 @@ export default {
 }
 
 .b_darkergray {
-  background-color: #101010;
+  background-color: #131313;
 }
 
 .c_darkergray {
-  color: #101010;
+  color: #131313;
 }
 
 .b_gray {
@@ -1231,7 +1265,7 @@ export default {
 .tooltip-mock-destination.show {
   opacity: 1;
   transition: 0.5s;
-  transform: translateY(-30%);
+  transform: translateY(0);
 }
 
 .tooltip-mock-destination {
@@ -1242,7 +1276,7 @@ export default {
   font-weight: bold;
   width: auto;
   opacity: 0;
-  transform: translateY(0);
+  transform: translateY(10px);
 }
 
 .btn-no-outline {
@@ -1284,18 +1318,21 @@ export default {
   color: white;
   width: 250px;
   padding: 5px 20px;
+  overflow: hidden;
+  border: 2px solid black;
+  border-radius: 20px;
 }
 
 .serverMessage {
   text-wrap: normal;
   word-wrap: break-word;
-  margin-left: 42px;
   padding: 8px;
   background-color: #192129;
   border-radius: 20px;
   text-align: center;
   color: #aeaeb7;
   font-weight: bold;
+  width: 100%;
 }
 
 .header-margin {
@@ -1303,6 +1340,23 @@ export default {
   box-shadow: 0 0 5px 5px black;
   z-index: 3;
   position: relative;
+}
+
+.new_comment {
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  width: calc(100% - 115px);
+  padding-top: 0.30em;
+  padding-bottom: 0.4em;
+  padding-left: 1ch;
+  color: white;
+  border-color: transparent;
+  border-radius: 1em;
+  resize: none;
+  overflow: hidden;
+  height: 2.5em;
+  min-height: 2.5em;
 }
 
 .new_comment:focus {
@@ -1349,6 +1403,13 @@ export default {
 .member_section {
   width: 0;
   overflow-x: clip;
+  overflow-y: auto;
+  color: white;
+  z-index: 1000;
+  position: absolute;
+  right: 0;
+  border-left: 2px solid rgba(174, 174, 183, 0.25);
+  height: 100vh;
   opacity: 0;
   transition: ease-in-out all 0.2s;
 }
@@ -1385,7 +1446,7 @@ export default {
 
 .sidebar_tooltip {
   position: fixed;
-  left: 58px;
+  left: 54px;
   transform: translateY(-36px);
   opacity: 0;
   pointer-events: none;
@@ -1393,7 +1454,7 @@ export default {
 
 .channel_tooltip {
   position: fixed;
-  left: 58px;
+  left: 54px;
   transform: translateY(-47px);
   opacity: 0;
   pointer-events: none;
@@ -1415,8 +1476,7 @@ export default {
     opacity: 1;
     background-color: #192129;
     padding: 5px 10px 5px 10px;
-    border-radius: 20px;
-    transition: ease-in-out opacity 0.2s;
+    border-radius: 10px;
   }
 }
 
@@ -1426,6 +1486,10 @@ export default {
 
 .sidebar.active .channel_tooltip {
   display: none;
+}
+
+.sidebar_bg {
+  border-radius: 0 20px 0 0;
 }
 
 @media only screen and (min-width: 1100px) {
@@ -1534,10 +1598,10 @@ export default {
   color: white;
   padding-left: 10px;
   display: flex;
-  padding-bottom: 4px;
   z-index: 10;
   position: relative;
-  border-bottom: 2px solid rgba(174, 174, 183, 0.25)
+  border-bottom: 2px solid rgba(174, 174, 183, 0.25);
+  align-items: center;
 }
 
 .subchat {
@@ -1578,10 +1642,42 @@ export default {
   background-color: #1c1c1c;
 }
 
+.msg_options {
+  width: 120px;
+  height: 30px;
+  position: absolute;
+  right: 0;
+  transform: translateY(-30px);
+  z-index: 100;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-items: center;
+  justify-content: space-around;
+  opacity: 0;
+}
+
+.msg_time {
+  opacity: 0;
+  color: gray;
+  font-size: 80%;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center
+}
+
+.message:hover .msg_time,
+.message:hover .msg_options {
+  opacity: 1;
+}
+
 .clientMessage {
   text-wrap: normal;
   word-wrap: break-word;
-  padding-left: 42px
+  position: relative;
+  width: calc(100% - 42px);
+  margin: 0;
 }
 
 .send_image_button.active {
@@ -1596,6 +1692,14 @@ export default {
   min-height: 50px;
   max-height: 250px;
   margin: auto;
+}
+
+.message_button {
+  width: 40px;
+  height: 2.5em;
+  margin-left: 1ch;
+  border-color: transparent;
+  border-radius: 1em
 }
 
 </style>

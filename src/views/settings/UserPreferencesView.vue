@@ -1,5 +1,5 @@
 <template>
-  <div class="preferences" style="min-height: 100vh; background-color: #0A0A0F">
+  <div class="preferences" style="min-height: 100vh; background-color: #131313">
     <div style="min-height: 60px"></div>
     <div class="container mt-5" style="width: 100vw; justify-items: center; display: grid; text-align: center">
       <h1 class="fw-bold text-white"

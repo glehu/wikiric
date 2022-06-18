@@ -14,17 +14,17 @@
                     <h2 style="font-family: 'Lato', sans-serif">
                       {{ time }}
                     </h2>
-                    <h3 v-if="hour >= 5"
+                    <h3 v-if="hour >= 5 && hour < 10"
                         style="font-family: 'Lato', sans-serif">
                       <i class="bi bi-sunrise-fill p-1"></i>
                       Good Morning
                     </h3>
-                    <h3 v-else-if="hour >= 10"
+                    <h3 v-else-if="hour >= 10 && hour < 17"
                         style="font-family: 'Lato', sans-serif">
                       <i class="bi bi-sun-fill p-1"></i>
                       Good Day
                     </h3>
-                    <h3 v-else-if="hour >= 17"
+                    <h3 v-else-if="hour >= 17 && hour < 22"
                         style="font-family: 'Lato', sans-serif">
                       <i class="bi bi-sunset p-1"></i>
                       Good Evening
@@ -47,7 +47,7 @@
                 <div v-for="session in this.$store.state.clarifierSessions" :key="session"
                      style="padding-bottom: 15px; display: flex">
                   <button class="btn"
-                          style="margin-right: 10px; color: red; opacity: 0.8"
+                          style="color: red; opacity: 0.8"
                           v-on:click="this.removeSession(session)">
                     <i class="bi bi-x-lg"></i>
                   </button>
@@ -55,15 +55,15 @@
                        style="display: flex; align-items: center;
                               justify-items: center;
                               width: 100%; border-radius: 15px; padding: 5px"
-                       v-on:click="joinActive(JSON.parse(session).id)">
+                       v-on:click="joinActive(session.id)">
                     <img class="b_darkergray"
                          style="width: 40px; height: 40px; border-radius: 10px"
-                         v-bind:src="getImg(JSON.parse(session).img,true)"
-                         :alt="'&nbsp;' + JSON.parse(session).title.substring(0,1)"/>
+                         v-bind:src="getImg(session.img,true)"
+                         :alt="'&nbsp;&nbsp;' + session.title.substring(0,1)"/>
                     <h5 class="sb_link_text text-nowrap"
                         style="margin: 0 0 0 10px;font-weight: bold;
                                font-family: 'Lato', sans-serif">
-                      &nbsp;{{ JSON.parse(session).title }}
+                      &nbsp;{{ session.title }}
                     </h5>
                   </div>
                 </div>
@@ -77,15 +77,15 @@
         <div class="row d-flex justify-content-center align-items-center">
           <div style="min-width: 400px; width: 80%">
             <div class="card-subtitle text-white"
-                 style="border: 2px dashed #aeaeb7; padding: 20px;
+                 style="border: 2px dashed rgba(174,174,183,0.5); padding: 20px;
                         border-radius: 1rem">
               <div class="card-body text-center">
                 <div class="mt-md-0 c_lightgray">
                   <h1 class="fw-bold mb-2 text-uppercase"
-                      style="font-family: 'Lato', sans-serif">
+                      style="font-family: 'Lato', sans-serif; pointer-events: none">
                     Clarifier
                   </h1>
-                  <p style="text-align: justify; text-justify: inter-word; width: 100%">
+                  <p style="text-align: justify; text-justify: inter-word; width: 100%; pointer-events: none">
                     Enter an invite ID and click Join or type in some name and create your own chatroom!
                   </p>
                   <hr style="color: white; height: 4px">
@@ -220,7 +220,6 @@ export default {
         ':' + today.getMinutes().toString().padStart(2, '0') +
         ':' + today.getSeconds().toString().padStart(2, '0')
       this.hour = hours
-      console.log(this.hour)
     }
   }
 }
@@ -253,11 +252,11 @@ export default {
 }
 
 .b_darkergray {
-  background-color: #101010;
+  background-color: #131313;
 }
 
 .c_darkergray {
-  color: #101010;
+  color: #131313;
 }
 
 .b_gray {
