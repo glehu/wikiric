@@ -86,7 +86,7 @@
       </div>
       <div style="width: 100%; display: flex; align-items: center; justify-content: center">
         <p class="demotext c_lightgray">
-          Manage your Group's members and add role to categorize them!
+          Manage your Group's members and add roles to categorize them!
           <br>Invite new people by clicking on the invite button
           and sending them the link.
           <br>

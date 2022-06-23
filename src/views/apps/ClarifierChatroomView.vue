@@ -24,7 +24,7 @@
                 <span class="sidebar_tooltip">Exit</span>
               </div>
             </li>
-            <li>
+            <li style="opacity: 0.5;">
               <div class="sb_link">
                 <div class="c_lightgray orange-hover">
                   <i class="sb_link_icon bi bi-tools"></i>
@@ -154,14 +154,16 @@
         <div id="messages_section"
              class="messages_section"
              style="overflow-y: auto; overflow-x: clip;
-             height: calc(100vh - 60px - 50px - 34px);
-             padding-bottom: 30px;
+             height: calc(100vh - 60px - 50px - 80px);
              display: flex; flex-direction: column-reverse">
-          <template v-for="msg in messages" :key="msg.uID">
-            <div class="message">
+          <template v-for="msg in messages" :key="msg.gUID">
+            <div class="message" :id="msg.gUID">
               <!-- Chat Avatar and Date-->
               <template v-if="msg.header === true">
-                <div style="position: relative">
+                <div style="position: relative;
+                            display: flex;
+                            height: 30px;
+                            align-items: center">
                   <i v-if="msg.src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
                   <i v-else class="sender_avatar bi bi-person-circle"></i>
                   <span class="orange-hover"
@@ -183,15 +185,17 @@
                   </template>
                 </div>
                 <!-- #### MESSAGE OPTIONS #### -->
-                <div v-if="!msg.src.startsWith('_server')"
+                <div v-if="msg.editable === true"
                      class="msg_options b_darkgray">
                   <button title="Reply" class="btn btn-sm c_lightgray orange-hover">
                     <i class="bi bi-reply lead"></i>
                   </button>
-                  <button title="Edit" class="btn btn-sm c_lightgray orange-hover">
+                  <button title="Edit" class="btn btn-sm c_lightgray orange-hover"
+                          v-on:click="editMessage(msg)">
                     <i class="bi bi-pencil"></i>
                   </button>
-                  <button title="Remove" class="btn btn-sm c_lightgray orange-hover">
+                  <button title="Remove" class="btn btn-sm c_lightgray orange-hover"
+                          v-on:click="editMessage(msg, true)">
                     <i class="bi bi-trash"></i>
                   </button>
                 </div>
@@ -247,36 +251,70 @@
           </template>
         </div>
         <!-- #### USER INPUT FIELD #### -->
-        <div class="align-bottom" style="display: inline-flex; width: 100%">
-          <div style="width: 100%; position: relative">
-            <textarea id="new_comment"
-                      class="new_comment b_gray"
-                      type="text"
-                      v-model="new_message"
-                      :placeholder="'Message to ' + chatroom.t"
-                      v-on:input="auto_grow"
-                      v-on:click="hideAllSidebars">
-            </textarea>
-            <button id="send_image_button"
-                    class="btn-outline-light message_button send_image_button"
-                    style="position: absolute; bottom: 0; right: 105px; background-color: transparent"
-                    title="Send Files"
-                    v-on:click="toggleUploadingSnippet">
-              <span class="fw-bold"><i class="bi bi-plus-circle"></i></span>
-            </button>
-            <button class="btn-outline-light message_button b_gray"
-                    style="position: absolute; bottom: 0; right: 60px"
-                    title="Send"
-                    v-on:click="addMessage">
-              <span class="fw-bold"><i class="bi bi-send"></i></span>
-            </button>
-            <button class="btn-outline-light message_button b_gray"
-                    style="position: absolute; bottom: 0; right: 15px"
-                    title="Search on GIPHY"
-                    v-on:click="toggleSelectingGIF">
-              <span class="fw-bold">GIF</span>
-            </button>
-          </div>
+        <div style="display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+                    height: 80px;
+                    position: absolute;
+                    bottom: 0">
+          <button class="btn btn-no-fx c_lightgray text-center scroll_to_bottom"
+                  id="scroll_to_bottom"
+                  v-on:click="scrollToBottom">
+            <i class="bi bi-arrow-down"></i>
+            Click to jump to the newest messages
+            <i class="bi bi-arrow-down"></i>
+          </button>
+          <span v-if="isEditingMessage"
+                style="bottom: 0; opacity: 1"
+                class="c_lightgray text-center scroll_to_bottom">
+            <span class="c_orange"
+                  style="cursor: pointer"
+                  v-on:click="this.addMessage()">
+              Enter
+            </span>
+            <span style="pointer-events: none">
+              to save,
+            </span>
+            <span class="c_orange"
+                  style="cursor: pointer"
+                  v-on:click="this.resetEditing()">
+              Esc
+            </span>
+            <span style="pointer-events: none">
+              to cancel.
+            </span>
+          </span>
+          <textarea id="new_comment"
+                    class="new_comment b_gray"
+                    type="text"
+                    v-model="new_message"
+                    :placeholder="'Message to ' + chatroom.t"
+                    v-on:keydown="auto_grow"
+                    v-on:click="hideAllSidebars">
+          </textarea>
+          <button id="send_image_button"
+                  class="btn-outline-light message_button send_image_button"
+                  style="position: absolute; right: 100px; background-color: transparent"
+                  title="Send Files"
+                  v-on:click="toggleUploadingSnippet">
+            <span class="fw-bold"><i class="bi bi-plus-circle"></i></span>
+          </button>
+          <button class="btn-outline-light message_button b_gray"
+                  style="position: absolute; right: 55px"
+                  :title="getAddMessageTitle()"
+                  v-on:click="addMessage">
+              <span class="fw-bold">
+                <i v-if="isEditingMessage === false" class="bi bi-send"></i>
+                <i v-else class="bi bi-pencil-fill"></i>
+              </span>
+          </button>
+          <button class="btn-outline-light message_button b_gray"
+                  style="position: absolute; right: 10px"
+                  title="Search on GIPHY"
+                  v-on:click="toggleSelectingGIF">
+            <span class="fw-bold">GIF</span>
+          </button>
         </div>
       </div>
     </div>
@@ -288,7 +326,7 @@
                   display: flex; align-items: center">
         <span class="fw-bold member_count c_lightgray nopointer"
               style="padding-left: 20px">
-          Members&nbsp;-&nbsp;{{ this.members.length }}
+          Members&nbsp;-&nbsp;{{ getMemberCount() }}
         </span>
         <button class="btn-no-outline member_section_toggler c_lightgray"
                 style="position: absolute; right: 10px"
@@ -503,6 +541,7 @@ export default {
       isSubchat: false,
       currentSubchat: {},
       connection: null,
+      websocketState: 'CLOSED',
       // Messages and pagination
       messages: [],
       currentPage: 0,
@@ -519,8 +558,10 @@ export default {
       new_subchat_name: '',
       sendImageButton: null,
       inputField: null,
+      message_section: null,
       uploadFileBase64: '',
       uploadFileType: '',
+      messageEditing: {},
       // Conditions
       isViewingGIFSelection: false,
       isViewingUserProfile: false,
@@ -529,6 +570,7 @@ export default {
       isEditingRoles: false,
       isViewingNewSubchat: false,
       isUploadingSnippet: false,
+      isEditingMessage: false,
       //
       lastKeyPressed: '',
       viewedUserProfile: {
@@ -541,13 +583,15 @@ export default {
   created () {
   },
   mounted () {
-    window.addEventListener('resize', this.resizeCanvas, false)
-    document.getElementById('messages_section').addEventListener('scroll', this.checkScroll, false)
-    this.resizeCanvas()
     setTimeout(() => this.initFunction(), 0)
   },
   methods: {
     initFunction: function () {
+      window.addEventListener('resize', this.resizeCanvas, false)
+      // Set message section with its scroll event
+      this.message_section = document.getElementById('messages_section')
+      this.message_section.addEventListener('scroll', this.checkScroll, false)
+      this.resizeCanvas()
       // Generate new token just in case
       this.serverLogin()
       // Are we connecting to a subchat?
@@ -561,6 +605,7 @@ export default {
       } else {
         // Connect to the session
         this.connect()
+        document.getElementById(this.getSession() + '_subc').classList.toggle('active')
       }
       // Add message input field events
       const newCommentInput = document.getElementById('new_comment')
@@ -573,6 +618,7 @@ export default {
       const dropZoneSnippet = document.getElementById('snippet_drop_zone')
       dropZoneSnippet.addEventListener('dragover', this.handleDragOver, false)
       dropZoneSnippet.addEventListener('drop', this.handleUploadImageSelectDrop, false)
+
       this.sendImageButton = document.getElementById('send_image_button')
       this.inputField = document.getElementById('new_comment')
     },
@@ -581,11 +627,18 @@ export default {
       this.isSubchat = isSubchat
       // Connect to the chat
       this.connection = new WebSocket('wss://wikiric.xyz/clarifier/' + sessionID)
+      // Websocket OPEN
       this.connection.onopen = () => {
+        this.websocketState = 'OPEN'
         this.connection.send(this.$store.state.token)
         // Subscribe to notifications
         this.subscribeFCM(sessionID, isSubchat)
       }
+      // Websocket CLOSE
+      this.connection.onclose = () => {
+        this.websocketState = 'CLOSED'
+      }
+      // Websocket incoming frames
       this.connection.onmessage = (event) => {
         this.showMessage(event.data)
       }
@@ -640,6 +693,21 @@ export default {
     },
     showMessage: function (msg) {
       const message = this.processRawMessage(msg)
+      if ((message.msg).includes('[s:EditNotification]')) {
+        const response = JSON.parse(message.msg.substring(20))
+        if (response.uniMessageGUID == null) return
+        const index = this.messages.findIndex(msg => msg.gUID === response.uniMessageGUID)
+        if (response.newContent !== '') {
+          // Edit message
+          this.messages[index].msg = response.newContent
+        } else {
+          // Delete message
+          this.messages.splice(index, 1)
+        }
+        // Reset the edit background
+        this.resetEditing()
+        return
+      }
       this.messages.unshift(message)
       this.extraSkipCount++
       if ((message.msg).includes('[s:RegistrationNotification]')) {
@@ -647,6 +715,20 @@ export default {
       }
     },
     addMessage: function () {
+      if (this.isEditingMessage === true) {
+        const payload = JSON.stringify({
+          uniMessageGUID: this.messageEditing.gUID,
+          newContent: this.new_message
+        })
+        this.addMessagePar('[c:EDIT<JSON]' + payload)
+        this.focusComment(true)
+        setTimeout(() => {
+          this.auto_grow('new_comment')
+          this.resetEditing()
+        }, 0)
+        return
+      }
+      this.scrollToBottom()
       const isUploadingSnippet = this.isUploadingSnippet === true && this.uploadFileBase64 !== ''
       if (this.new_message.trim() === '') {
         this.new_message = ''
@@ -685,7 +767,7 @@ export default {
       if (text !== '') this.connection.send(text)
       if (closeGIFSelection) this.isViewingGIFSelection = false
     },
-    getClarifierMetaData: function (sessionID = this.getSession(), isSubchat = false) {
+    getClarifierMetaData: function (sessionID = this.getSession(), isSubchat = false, novisual = false) {
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       fetch(
@@ -702,15 +784,21 @@ export default {
           }
           // UI Stuff
           setTimeout(() => {
-            document.getElementById(this.getSession() + '_subc').classList.remove('active')
             const previousGUID = this.currentSubchat.guid
             if (previousGUID != null) {
-              document.getElementById(previousGUID + '_subc').classList.remove('active')
+              if (novisual === false) {
+                document.getElementById(previousGUID + '_subc').classList.remove('active')
+              }
             }
             // Set current subchat
-            this.currentSubchat = data
-            document.getElementById(this.currentSubchat.guid + '_subc').classList.toggle('active')
-          }, 0)
+            if (isSubchat === true) {
+              this.currentSubchat = data
+              if (novisual === false) {
+                document.getElementById(this.getSession() + '_subc').classList.remove('active')
+                document.getElementById(this.currentSubchat.guid + '_subc').classList.toggle('active')
+              }
+            }
+          }, 50)
         })
         .then(() => (this.processMetaDataResponse(isSubchat)))
         .catch((err) => console.error(err.message))
@@ -727,6 +815,9 @@ export default {
       document.title = this.chatroom.t
     },
     getClarifierMessages: function (lazyLoad = false, sessionID) {
+      if (sessionID == null) {
+        sessionID = this.getSession()
+      }
       let pageIndex = this.currentPage
       if (lazyLoad === true) {
         this.lazyLoadingStatus = 'request'
@@ -781,6 +872,7 @@ export default {
       const message = JSON.parse(msg)
       // Process timestamp
       message.time = new Date(message.ts)
+      if (message.msg.includes('[s:EditNotification]') === true && message.src === '_server') return message
       /* Do we have to add a message header?
       Don't add a header (avatar, name) if the last message came from the same source and similar time
        */
@@ -792,6 +884,10 @@ export default {
         // If the message is 3 minutes or older put the message header
         message.header = timeDiff >= 3
       }
+      /* Are we allowed to edit this message?
+      Only allow the user to edit his own messages, not the ones of others
+       */
+      message.editable = (message.src === this.$store.state.username)
       this.last_message = message
       return message
     },
@@ -891,7 +987,7 @@ export default {
           body: content
         }
       )
-        .then(() => this.getClarifierMetaData())
+        .then(() => this.getClarifierMetaData(this.getSession(), false, true))
         .catch((err) => console.error(err.message))
     },
     hideUserProfile: function () {
@@ -972,9 +1068,35 @@ export default {
       this.isViewingGIFSelection = false
     },
     handleEnter: function () {
-      if (event.code === 'Enter') {
+      if (event.key === 'Enter') {
         event.preventDefault()
         this.addMessage()
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        this.editOwnLastMessage()
+      } else if (event.key === 'Escape') {
+        this.resetEditing()
+      }
+    },
+    resetEditing: function () {
+      if (this.isEditingMessage === true) {
+        const msg = document.getElementById(this.messageEditing.gUID)
+        if (msg != null) msg.style.backgroundColor = ''
+        this.isEditingMessage = false
+        this.messageEditing = {}
+        this.new_message = ''
+        setTimeout(() => {
+          this.auto_grow('new_comment')
+          this.focusComment(true)
+        }, 0)
+      }
+    },
+    editOwnLastMessage: function () {
+      for (let i = 0; i < this.messages.length; i++) {
+        if (this.messages[i].editable === true) {
+          this.editMessage(this.messages[i])
+          return
+        }
       }
     },
     closeModals: function () {
@@ -1021,7 +1143,7 @@ export default {
       evt.dataTransfer.dropEffect = 'copy'
     },
     getImg: function (imgGUID, get = false) {
-      if (imgGUID === '') {
+      if (imgGUID == null) {
         return ''
       } else {
         let ret = imgGUID
@@ -1078,8 +1200,18 @@ export default {
       this.toggleElement('confirm_settings_loading', 'flex')
     },
     checkScroll: function () {
-      const el = document.getElementById('messages_section')
-      if ((el.scrollHeight - el.clientHeight) - (el.scrollTop * -1) < 50) {
+      const distanceToBottom = (this.message_section.scrollTop * -1)
+      const distanceToTop = this.message_section.scrollHeight -
+        this.message_section.clientHeight -
+        distanceToBottom
+      // If we're scrolling up, show that we're seeing older messages
+      if (distanceToBottom > 0) {
+        document.getElementById('scroll_to_bottom').style.opacity = '1'
+      } else {
+        document.getElementById('scroll_to_bottom').style.opacity = '0'
+      }
+      // If we're 100px from the top, start loading new messages
+      if (distanceToTop < 100) {
         if (this.lazyLoadingStatus === 'idle') {
           this.lazyLoadingStatus = 'start'
           this.lazyLoadMessages()
@@ -1124,6 +1256,7 @@ export default {
         this.$router.replace({
           path: '/apps/clarifier/wss/' + this.getSession()
         })
+        document.getElementById(this.getSession() + '_subc').classList.toggle('active')
       }
       this.disconnect()
       this.connect(subchatGUID, subchatMode)
@@ -1195,6 +1328,42 @@ export default {
       this.hideAllWindows()
       this.uploadFileBase64 = ''
       this.uploadFileType = ''
+    },
+    editMessage: function (msg, remove = false) {
+      if (remove === true) {
+        const payload = JSON.stringify({
+          uniMessageGUID: msg.gUID,
+          newContent: ''
+        })
+        this.addMessagePar('[c:EDIT<JSON]' + payload)
+      } else {
+        this.isEditingMessage = true
+        this.messageEditing = msg
+        this.new_message = msg.msg
+        this.focusComment(true)
+        setTimeout(() => {
+          this.auto_grow('new_comment')
+          document.getElementById(msg.gUID).style.backgroundColor = '#192129'
+        }, 0)
+      }
+    },
+    getMemberCount: function () {
+      if (this.members != null) {
+        return this.members.length
+      } else {
+        return 0
+      }
+    },
+    getAddMessageTitle: function () {
+      if (this.isEditingMessage === true) {
+        return 'Edit Message'
+      } else {
+        return 'Send Message'
+      }
+    },
+    scrollToBottom: function () {
+      this.message_section.scrollTop = 0
+      this.focusComment(true)
     }
   }
 }
@@ -1303,11 +1472,11 @@ export default {
 .new_subchat {
   position: fixed;
   z-index: 1001;
-  bottom: 58px;
+  bottom: 80px;
   right: 16px;
   color: white;
+  max-width: calc(100vw - 32px);
   width: 400px;
-  max-width: 95vw;
   height: 75vh;
   padding: 5px 20px;
   border-radius: 20px;
@@ -1344,9 +1513,8 @@ export default {
 
 .new_comment {
   position: absolute;
-  bottom: 0;
   left: 10px;
-  width: calc(100% - 115px);
+  width: calc(100% - 110px);
   padding-top: 0.30em;
   padding-bottom: 0.4em;
   padding-left: 1ch;
@@ -1361,6 +1529,14 @@ export default {
 
 .new_comment:focus {
   outline: none;
+}
+
+.new_comment_info {
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  color: white;
+  overflow: hidden;
 }
 
 .clarifier_chatroom {
@@ -1700,6 +1876,25 @@ export default {
   margin-left: 1ch;
   border-color: transparent;
   border-radius: 1em
+}
+
+.btn-no-fx,
+.btn-no-fx:focus {
+  outline: none !important;
+  border: none;
+}
+
+.scroll_to_bottom {
+  position: absolute;
+  bottom: 60px;
+  height: 20px;
+  width: calc(100% - 20px);
+  border-radius: 20px;
+  padding: 0;
+  font-size: 75%;
+  font-weight: bold;
+  opacity: 0;
+  transition: 0.3s opacity
 }
 
 </style>
