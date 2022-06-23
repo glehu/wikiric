@@ -26,7 +26,8 @@ export default createStore({
     shop: {},
     cart: [],
     // --- Clarifier ---
-    clarifierSessions: []
+    clarifierSessions: [],
+    clarifierTimestamps: []
   },
   mutations: {
     logIn (state, user) {
@@ -122,6 +123,30 @@ export default createStore({
     removeClarifierSession (state, session) {
       state.clarifierSessions = state.clarifierSessions.filter(function (ele) {
         return ele.id !== session.id
+      })
+    },
+    addClarifierTimestampNew (state, session) {
+      for (let i = 0; i < state.clarifierTimestamps.length; i++) {
+        if (state.clarifierTimestamps[i].id === session.id) {
+          state.clarifierTimestamps[i].tsNew = session.ts
+          return
+        }
+      }
+      state.clarifierTimestamps.unshift({
+        id: session.id,
+        tsNew: session.ts
+      })
+    },
+    addClarifierTimestampRead (state, session) {
+      for (let i = 0; i < state.clarifierTimestamps.length; i++) {
+        if (state.clarifierTimestamps[i].id === session.id) {
+          state.clarifierTimestamps[i].tsRead = session.ts
+          return
+        }
+      }
+      state.clarifierTimestamps.unshift({
+        id: session.id,
+        tsRead: session.ts
       })
     },
     setFCMToken (state, newFCMToken) {

@@ -90,6 +90,8 @@
                       align-items: center; display: flex">
             <div :id="this.getSession() + '_subc'" class="subchat orange-hover"
                  v-on:click="gotoSubchat(this.getSession(), false)">
+              <i v-show="hasUnread(this.getSession())" :id="this.getSession() + '_notify'"
+                 class="bi bi-chat-quote-fill" style="position: absolute; left: 20px"></i>
               <span style="font-size: 150%">#</span>
               <span style="padding-left: 10px">General</span>
             </div>
@@ -109,6 +111,8 @@
                class="subchat orange-hover"
                style="display: flex"
                v-on:click="gotoSubchat(JSON.parse(subchat).guid)">
+            <i v-show="hasUnread(JSON.parse(subchat).guid)" :id="JSON.parse(subchat).guid + '_notify'"
+               class="bi bi-chat-quote-fill" style="position: absolute; left: 20px"></i>
             <span style="font-size: 150%">#</span>
             <span style="padding-left: 10px">{{ JSON.parse(subchat).t }}</span>
           </div>
@@ -588,8 +592,11 @@ export default {
   methods: {
     initFunction: function () {
       window.addEventListener('resize', this.resizeCanvas, false)
-      // Set message section with its scroll event
+      // Save elements to gain performance boost by avoiding too many lookups
+      this.sendImageButton = document.getElementById('send_image_button')
+      this.inputField = document.getElementById('new_comment')
       this.message_section = document.getElementById('messages_section')
+      // Set message section with its scroll event
       this.message_section.addEventListener('scroll', this.checkScroll, false)
       this.resizeCanvas()
       // Generate new token just in case
@@ -618,9 +625,41 @@ export default {
       const dropZoneSnippet = document.getElementById('snippet_drop_zone')
       dropZoneSnippet.addEventListener('dragover', this.handleDragOver, false)
       dropZoneSnippet.addEventListener('drop', this.handleUploadImageSelectDrop, false)
-
-      this.sendImageButton = document.getElementById('send_image_button')
-      this.inputField = document.getElementById('new_comment')
+      // Broadcast channel to listen to firebase cloud messaging notifications
+      const bc = new BroadcastChannel('dlChannel')
+      bc.onmessage = event => {
+        if (event.data.data.subchatGUID != null) {
+          const destId = event.data.data.subchatGUID
+          if (!this.$route.fullPath.includes(destId)) {
+            this.$store.commit('addClarifierTimestampNew', {
+              id: event.data.data.subchatGUID,
+              ts: new Date().getTime()
+            })
+            const notify = document.getElementById(destId + '_notify')
+            if (notify != null) {
+              setTimeout(() => {
+                notify.style.opacity = '1'
+                notify.style.display = 'block'
+              }, 0)
+            }
+          }
+        } else {
+          const destId = event.data.data.dlDest.substring(20)
+          if (this.$route.fullPath.includes('sub=')) {
+            this.$store.commit('addClarifierTimestampNew', {
+              id: destId,
+              ts: new Date().getTime()
+            })
+            const notify = document.getElementById(destId + '_notify')
+            if (notify != null) {
+              setTimeout(() => {
+                notify.style.opacity = '1'
+                notify.style.display = 'block'
+              }, 0)
+            }
+          }
+        }
+      }
     },
     connect: function (sessionID = this.getSession(), isSubchat = false) {
       this.resetStats()
@@ -810,6 +849,29 @@ export default {
           title: this.chatroom.t,
           img: this.getImg(this.chatroom.imgGUID)
         })
+        this.$store.commit('addClarifierTimestampRead', {
+          id: this.chatroom.guid,
+          ts: new Date().getTime()
+        })
+        setTimeout(() => {
+          const notify = document.getElementById(this.chatroom.guid + '_notify')
+          if (notify != null) {
+            notify.style.opacity = '0'
+            notify.style.display = 'none'
+          }
+        }, 1000)
+      } else {
+        this.$store.commit('addClarifierTimestampRead', {
+          id: this.currentSubchat.guid,
+          ts: new Date().getTime()
+        })
+        setTimeout(() => {
+          const notify = document.getElementById(this.currentSubchat.guid + '_notify')
+          if (notify != null) {
+            notify.style.opacity = '0'
+            notify.style.display = 'none'
+          }
+        }, 1000)
       }
       this.members = this.chatroom.members
       document.title = this.chatroom.t
@@ -1364,6 +1426,18 @@ export default {
     scrollToBottom: function () {
       this.message_section.scrollTop = 0
       this.focusComment(true)
+    },
+    hasUnread: function (guid) {
+      if (guid == null) return false
+      for (let i = 0; i < this.$store.state.clarifierTimestamps.length; i++) {
+        if (this.$store.state.clarifierTimestamps[i].id === guid) {
+          let lastMessageTS = this.$store.state.clarifierTimestamps[i].tsNew
+          if (lastMessageTS == null) lastMessageTS = 0
+          let lastReadTS = this.$store.state.clarifierTimestamps[i].tsRead
+          if (lastReadTS == null) lastReadTS = 0
+          return lastReadTS < lastMessageTS
+        }
+      }
     }
   }
 }

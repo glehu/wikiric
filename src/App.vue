@@ -66,8 +66,10 @@
                 class="nav-item" data-bs-toggle="collapse" data-bs-target="#navmenu">
               <router-link to="/account" class="nav-link">
                 <span style="color: white">
-                  <i class="bi bi-person-bounding-box" style="margin-right: 5px"></i>{{ this.$store.state.username.split('@')[0] }}
-                  (<i class="bi bi-stack small" style="margin-right: 5px"></i>{{ this.$store.state.cart.length }})
+                  <i class="bi bi-person-bounding-box"
+                     style="margin-right: 5px"></i>{{ this.$store.state.username.split('@')[0] }}
+                  (<i class="bi bi-stack small" style="margin-right: 5px"></i>
+                  {{ this.$store.state.cart.length }})
                 </span>
               </router-link>
             </li>
@@ -152,6 +154,7 @@ export default {
 
     firebase.initializeApp(firebaseConfig)
 
+    // Broadcast channel to listen to firebase cloud messaging notifications
     const bc = new BroadcastChannel('dlChannel')
     bc.onmessage = event => {
       this.serverLogin()
@@ -185,6 +188,8 @@ export default {
             type: 'info'
           })
       }
+      // Forward the notification to the clarifier
+      bc.postMessage(payload)
     })
 
     window.addEventListener('keydown', function (event) {
