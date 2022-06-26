@@ -10,6 +10,38 @@
           Hey, {{ this.$store.state.username.split('@')[0] }}.<br><br>
         </h2>
         <div class="wrapper">
+          <div id="apps">
+            <div class="card text-white pb-3 shadow-box">
+              <h3 class="p-1">Apps</h3>
+              <section
+                class="container">
+                <div class="d-md-flex justify-content-between text-white mt-3"
+                     style="border-radius: 1rem;">
+                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
+                          v-on:click="gotoPlanner">
+                    <i class="bi bi-wrench-adjustable-circle p-1"></i><span class="fw-bold"> Planner</span>
+                  </button>
+                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">Kanban Board</h3>
+                </div>
+                <div class="d-md-flex justify-content-between text-white mt-3"
+                     style="border-radius: 1rem;">
+                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
+                          v-on:click="gotoClarifier">
+                    <i class="bi bi-chat-dots p-1"></i><span class="fw-bold"> Clarifier</span>
+                  </button>
+                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">Communication</h3>
+                </div>
+                <div class="d-md-flex justify-content-between text-white mt-3"
+                     style="border-radius: 1rem;">
+                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
+                          v-on:click="gotoAPI">
+                    <i class="bi bi-hurricane"/><span class="fw-bold"> Mockingbird</span>
+                  </button>
+                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">SOAP/REST API Testing</h3>
+                </div>
+              </section>
+            </div>
+          </div>
           <div id="account">
             <div class="card text-white pb-3 shadow-box">
               <h3 class="p-1">What's next?</h3>
@@ -75,44 +107,6 @@
               </section>
             </div>
           </div>
-          <div id="apps">
-            <div class="card text-white pb-3 shadow-box">
-              <h3 class="p-1">Apps</h3>
-              <section
-                class="container">
-                <div class="d-md-flex justify-content-between text-white mt-3"
-                     style="border-radius: 1rem;">
-                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
-                          v-on:click="gotoPlanner">
-                    <i class="bi bi-wrench-adjustable-circle p-1"></i><span class="fw-bold"> Planner</span>
-                  </button>
-                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">Kanban Board</h3>
-                </div>
-                <div class="d-md-flex justify-content-between text-white mt-3"
-                     style="border-radius: 1rem;">
-                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
-                          v-on:click="gotoClarifier">
-                    <i class="bi bi-chat-dots p-1"></i><span class="fw-bold"> Clarifier</span>
-                  </button>
-                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">Communication</h3>
-                </div>
-              </section>
-            </div>
-            <div class="card text-white my-3 shadow-box">
-              <h3 class="p-1">Services</h3>
-              <section
-                class="container">
-                <div class="d-md-flex justify-content-between text-white mt-3"
-                     style="border-radius: 1rem;">
-                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
-                          v-on:click="gotoAPI">
-                    <i class="bi bi-hurricane"/><span class="fw-bold"> Mockingbird</span>
-                  </button>
-                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">SOAP/REST API Testing</h3>
-                </div>
-              </section>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -154,7 +148,7 @@ export default {
         const headers = new Headers()
         headers.set(
           'Authorization',
-          'Basic ' + Base64.encode(this.$store.state.username + ':' + this.$store.state.password)
+          'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
         )
         fetch(
           this.$store.state.serverIP + '/logout',
@@ -165,10 +159,7 @@ export default {
         )
         this.$store.commit('logOut')
         this.$store.commit('clearCart')
-        console.log('User logged in: ' + this.$store.state.authenticated)
         this.$router.push('/login?redirect=/account')
-      } else {
-        console.log('User not logged in.')
       }
     },
     gotoPreferences () {

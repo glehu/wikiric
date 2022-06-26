@@ -214,11 +214,11 @@ export default {
       this.$store.commit('setServerIP', 'https://wikiric.xyz')
     },
     serverLogin: function () {
-      if (this.$store.state.username === undefined || this.$store.state.username === '') return
+      if (this.$store.state.email === undefined || this.$store.state.email === '') return
       const headers = new Headers()
       headers.set(
         'Authorization',
-        'Basic ' + Base64.encode(this.$store.state.username + ':' + this.$store.state.password)
+        'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
       )
       fetch(
         this.$store.state.serverIP + '/login',

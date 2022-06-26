@@ -137,7 +137,7 @@ export default {
       document.getElementById('btn_create_session').disabled = true
       const sessionInput = document.getElementById('input_session')
       sessionInput.addEventListener('input', this.checkInput, false)
-      sessionInput.addEventListener('compositionupdate', this.checkInput, false)
+      sessionInput.addEventListener('keyup', this.checkInput, false)
       if (window.innerWidth >= 992) sessionInput.focus()
       this.getTime()
       setInterval(this.getTime, 1000)

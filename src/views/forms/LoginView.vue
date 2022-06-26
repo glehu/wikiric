@@ -53,6 +53,7 @@ export default {
     return {
       user: {
         token: '',
+        username: '',
         email: '',
         password: ''
       },
@@ -115,8 +116,8 @@ export default {
     processLogin () {
       if (this.loginResponse.httpCode === 200) {
         this.user.token = this.loginResponse.token
+        this.user.username = this.loginResponse.username
         this.$store.commit('logIn', this.user)
-        console.log('User logged in: ' + this.$store.state.authenticated)
         if (this.usageTracker) {
           this.sendUsageData({
             source: 'webshop',

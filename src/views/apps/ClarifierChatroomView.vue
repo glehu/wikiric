@@ -172,7 +172,7 @@
                   <i v-else class="sender_avatar bi bi-person-circle"></i>
                   <span class="orange-hover"
                         style="font-weight: bold">
-                    {{ msg.src.split('@')[0] }}
+                    {{ msg.src }}
                   </span>
                   <span style="color: gray; font-size: 80%; padding-left: 10px;
                                pointer-events: none">
@@ -256,12 +256,12 @@
         </div>
         <!-- #### USER INPUT FIELD #### -->
         <div style="display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
                     width: 100%;
-                    height: 80px;
+                    min-height: 80px;
                     position: absolute;
-                    bottom: 0">
+                    bottom: 0;
+                    padding-bottom: 20px;
+                    flex-direction: column-reverse">
           <button class="btn btn-no-fx c_lightgray text-center scroll_to_bottom"
                   id="scroll_to_bottom"
                   v-on:click="scrollToBottom">
@@ -269,9 +269,9 @@
             Click to jump to the newest messages
             <i class="bi bi-arrow-down"></i>
           </button>
-          <span v-if="isEditingMessage"
-                style="bottom: 0; opacity: 1"
-                class="c_lightgray text-center scroll_to_bottom">
+          <div v-if="isEditingMessage"
+               style="bottom: 0; left: 10px; opacity: 1"
+               class="c_lightgray text-center scroll_to_bottom">
             <span class="c_orange"
                   style="cursor: pointer"
                   v-on:click="this.addMessage()">
@@ -288,13 +288,13 @@
             <span style="pointer-events: none">
               to cancel.
             </span>
-          </span>
+          </div>
           <textarea id="new_comment"
                     class="new_comment b_gray"
                     type="text"
                     v-model="new_message"
                     :placeholder="'Message to ' + chatroom.t"
-                    v-on:keydown="auto_grow"
+                    v-on:keyup="auto_grow"
                     v-on:click="hideAllSidebars">
           </textarea>
           <button id="send_image_button"
@@ -348,7 +348,7 @@
              style="font-size: 200%">
           </i>
           <span style="font-weight: bold; margin-left: 10px">
-            {{ JSON.parse(usr).usr.split('@')[0] }}
+            {{ JSON.parse(usr).usr }}
           </span>
         </div>
         <div style="padding-left: 10px; display: flex">
@@ -371,7 +371,7 @@
       <div style="display: flex">
         <i class="bi bi-person-circle" style="font-size: 300%; margin-right: 10px"></i>
         <h2 class="fw-bold" style="padding-top: 20px">
-          {{ this.viewedUserProfile.usr.split('@')[0] }}
+          {{ this.viewedUserProfile.usr }}
         </h2>
       </div>
       <!-- #### MEMBER ROLES #### -->
@@ -686,11 +686,11 @@ export default {
       this.getClarifierMessages(false, sessionID)
     },
     serverLogin: function () {
-      if (this.$store.state.username === undefined || this.$store.state.username === '') return
+      if (this.$store.state.email === undefined || this.$store.state.email === '') return
       const headers = new Headers()
       headers.set(
         'Authorization',
-        'Basic ' + Base64.encode(this.$store.state.username + ':' + this.$store.state.password)
+        'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
       )
       fetch(
         this.$store.state.serverIP + '/login',
@@ -818,24 +818,21 @@ export default {
       )
         .then((res) => res.json())
         .then((data) => {
+          const previousGUID = this.currentSubchat.guid
           if (isSubchat === false) {
             this.chatroom = data
+          } else {
+            this.currentSubchat = data
           }
           // UI Stuff
           setTimeout(() => {
-            const previousGUID = this.currentSubchat.guid
-            if (previousGUID != null) {
-              if (novisual === false) {
-                document.getElementById(previousGUID + '_subc').classList.remove('active')
-              }
+            if (previousGUID != null && novisual === false) {
+              document.getElementById(previousGUID + '_subc').classList.remove('active')
             }
             // Set current subchat
-            if (isSubchat === true) {
-              this.currentSubchat = data
-              if (novisual === false) {
-                document.getElementById(this.getSession() + '_subc').classList.remove('active')
-                document.getElementById(this.currentSubchat.guid + '_subc').classList.toggle('active')
-              }
+            if (isSubchat === true && novisual === false) {
+              document.getElementById(this.getSession() + '_subc').classList.remove('active')
+              document.getElementById(this.currentSubchat.guid + '_subc').classList.toggle('active')
             }
           }, 50)
         })
@@ -844,16 +841,16 @@ export default {
     },
     processMetaDataResponse: function (isSubchat = false) {
       if (isSubchat === false) {
-        this.$store.commit('addClarifierSession', {
-          id: this.chatroom.guid,
-          title: this.chatroom.t,
-          img: this.getImg(this.chatroom.imgGUID)
-        })
-        this.$store.commit('addClarifierTimestampRead', {
-          id: this.chatroom.guid,
-          ts: new Date().getTime()
-        })
         setTimeout(() => {
+          this.$store.commit('addClarifierSession', {
+            id: this.chatroom.guid,
+            title: this.chatroom.t,
+            img: this.getImg(this.chatroom.imgGUID)
+          })
+          this.$store.commit('addClarifierTimestampRead', {
+            id: this.chatroom.guid,
+            ts: new Date().getTime()
+          })
           const notify = document.getElementById(this.chatroom.guid + '_notify')
           if (notify != null) {
             notify.style.opacity = '0'
@@ -861,11 +858,11 @@ export default {
           }
         }, 1000)
       } else {
-        this.$store.commit('addClarifierTimestampRead', {
-          id: this.currentSubchat.guid,
-          ts: new Date().getTime()
-        })
         setTimeout(() => {
+          this.$store.commit('addClarifierTimestampRead', {
+            id: this.currentSubchat.guid,
+            ts: new Date().getTime()
+          })
           const notify = document.getElementById(this.currentSubchat.guid + '_notify')
           if (notify != null) {
             notify.style.opacity = '0'
@@ -1134,6 +1131,7 @@ export default {
         event.preventDefault()
         this.addMessage()
       } else if (event.key === 'ArrowUp') {
+        if (this.new_message !== '') return
         event.preventDefault()
         this.editOwnLastMessage()
       } else if (event.key === 'Escape') {
@@ -1429,15 +1427,13 @@ export default {
     },
     hasUnread: function (guid) {
       if (guid == null) return false
-      for (let i = 0; i < this.$store.state.clarifierTimestamps.length; i++) {
-        if (this.$store.state.clarifierTimestamps[i].id === guid) {
-          let lastMessageTS = this.$store.state.clarifierTimestamps[i].tsNew
-          if (lastMessageTS == null) lastMessageTS = 0
-          let lastReadTS = this.$store.state.clarifierTimestamps[i].tsRead
-          if (lastReadTS == null) lastReadTS = 0
-          return lastReadTS < lastMessageTS
-        }
-      }
+      const timestamp = this.$store.getters.getTimestamp(guid)
+      if (timestamp == null) return false
+      let lastMessageTS = timestamp.tsNew
+      if (lastMessageTS == null) lastMessageTS = 0
+      let lastReadTS = timestamp.tsRead
+      if (lastReadTS == null) lastReadTS = 0
+      return lastReadTS < lastMessageTS
     }
   }
 }

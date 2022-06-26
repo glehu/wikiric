@@ -7,23 +7,9 @@
         <div class="mb-2" style="text-align: justify; text-justify: inter-word; width: 200px">
           Only a few steps 'till success. Before you lie many possibilities and experiments.
           It is up to you to discover them and figure out what's next. But it is our mission,
-          to assist you and make you a part of this project. Together we will create a new way
-          of of handling things in the music/art industry.
-          <br><br>A collective made for artists... by artists.
-          <br><br>Together we can reach our goals whilst allowing others to do so, too.
-          Every contribution is welcome and will push our limits further.
+          to assist you and make you a part of this project.
         </div>
         <div class="text-center" style="width: 200px">
-          <button title="Soundcloud"
-                  class="btn bi-cloud-fill p-3 pt-0 btn-lg muArrow" style="color: white;"
-                  v-on:click="redirectSoundcloud"/>
-          <br>
-          <button title="Discord"
-                  class="btn bi-discord p-3 btn-lg muArrow" style="color: white;" v-on:click="redirectDiscord"/>
-          <br>
-          <button title="Instagram"
-                  class="btn bi-instagram p-3 btn-lg muArrow" style="color: white;" v-on:click="redirectInstagram"/>
-          <br>
           <button title="GitHub"
                   class="btn bi-github p-3 btn-lg muArrow" style="color: white;" v-on:click="redirectGitHub"/>
           <br>
@@ -68,6 +54,15 @@
                       placeholder="Confirm Password"
                     />
                   </div>
+                  <div class="form-outline form-white mb-4">
+                    <p>How should we call you?</p>
+                    <input
+                      required
+                      v-model="user.username"
+                      type="text"
+                      placeholder="Username"
+                    />
+                  </div>
                   <button class="btn btn-outline-light btn-lg px-5" type="submit">Register</button>
                 </div>
               </div>
@@ -87,6 +82,7 @@ export default {
     return {
       user: {
         email: '',
+        username: '',
         password: '',
         passwordRpt: ''
       },
@@ -113,10 +109,6 @@ export default {
     serverRegister () {
       const headers = new Headers()
       headers.set(
-        'Authorization',
-        'Basic ' + Base64.encode('admin:admin').toString('base64')
-      )
-      headers.set(
         'Content-Type', 'application/json'
       )
       fetch(
@@ -125,7 +117,8 @@ export default {
           method: 'post',
           headers: headers,
           body: JSON.stringify({
-            username: this.user.email,
+            email: this.user.email,
+            username: this.user.username,
             password: this.user.password
           })
         }
@@ -155,18 +148,10 @@ export default {
         }
       } else {
         this.user.email = ''
+        this.user.username = ''
         this.user.password = ''
         alert(this.response.message)
       }
-    },
-    redirectDiscord () {
-      window.open('https://discord.gg/pr2vwr8')
-    },
-    redirectInstagram () {
-      window.open('https://www.instagram.com/0r0chiclan/')
-    },
-    redirectSoundcloud () {
-      window.open('https://soundcloud.com/orochiclan')
     },
     redirectGitHub () {
       window.open('https://github.com/glehu')
@@ -176,7 +161,8 @@ export default {
     },
     async sendUsageData (usageObj) {
       const headers = new Headers()
-      headers.set('Authorization', 'Basic ' + Base64.encode(this.$store.state.username + ':' + this.$store.state.password).toString('base64'))
+      headers.set('Authorization', 'Basic ' +
+        Base64.encode(this.$store.state.username + ':' + this.$store.state.password).toString('base64'))
       headers.set('Content-Type', 'application/json')
       fetch(
         this.$store.state.serverIP + '/api/utr',

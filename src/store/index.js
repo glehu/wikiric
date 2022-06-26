@@ -19,6 +19,7 @@ export default createStore({
     // --- Authentication ---
     authenticated: false,
     token: '',
+    email: '',
     username: '',
     password: '',
     fcmToken: '',
@@ -33,7 +34,8 @@ export default createStore({
     logIn (state, user) {
       state.authenticated = true
       state.token = user.token
-      state.username = user.email
+      state.email = user.email
+      state.username = user.username
       state.password = user.password
     },
     logOut (state) {
@@ -126,6 +128,7 @@ export default createStore({
       })
     },
     addClarifierTimestampNew (state, session) {
+      if (session.id == null) return
       for (let i = 0; i < state.clarifierTimestamps.length; i++) {
         if (state.clarifierTimestamps[i].id === session.id) {
           state.clarifierTimestamps[i].tsNew = session.ts
@@ -138,6 +141,7 @@ export default createStore({
       })
     },
     addClarifierTimestampRead (state, session) {
+      if (session.id == null) return
       for (let i = 0; i < state.clarifierTimestamps.length; i++) {
         if (state.clarifierTimestamps[i].id === session.id) {
           state.clarifierTimestamps[i].tsRead = session.ts
@@ -154,5 +158,10 @@ export default createStore({
     }
   },
   actions: {},
-  modules: {}
+  modules: {},
+  getters: {
+    getTimestamp: (state) => (guid) => {
+      return state.clarifierTimestamps.find(timestamp => timestamp.id === guid)
+    }
+  }
 })

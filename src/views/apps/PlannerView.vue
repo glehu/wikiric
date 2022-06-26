@@ -602,7 +602,6 @@ export default {
         }
       }
       this.cells = cells
-      console.log('SAVE', this.getCells)
       // Send data to server
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
