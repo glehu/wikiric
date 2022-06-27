@@ -660,6 +660,22 @@ export default {
           }
         }
       }
+      document.onpaste = (event) => {
+        const items = (event.clipboardData ?? event.originalEvent.clipboardData)
+          .items
+        for (const item of items) {
+          if (item.kind === 'file') {
+            const blob = item.getAsFile()
+            const reader = new FileReader()
+            reader.onload = (event) => {
+              this.isUploadingSnippet = true
+              this.uploadFileType = blob.type
+              this.uploadFileBase64 = event.target.result
+            }
+            reader.readAsDataURL(blob)
+          }
+        }
+      }
     },
     connect: function (sessionID = this.getSession(), isSubchat = false) {
       this.resetStats()
@@ -1364,6 +1380,7 @@ export default {
         })
     },
     processUploadSnippetResponse: function (response) {
+      response = JSON.parse(response)
       if (response.httpCode !== 201) {
         this.handleUploadSnippetError()
         return
