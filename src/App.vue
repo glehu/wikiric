@@ -4,7 +4,7 @@
          style="background-color: #131313">
       <div class="container">
         <a class="navbar-brand" href="/"
-           style="font-family: 'Lato', sans-serif">
+           style="font-family: 'Lato', sans-serif; font-weight: bold">
           wikiric.xyz
         </a>
         <input class="keyword-search"
@@ -19,11 +19,9 @@
           <option value="About"/>
           <option value="Account"/>
           <option value="API Manager"/>
-          <option value="Artists"/>
           <option value="Cart"/>
           <option value="Chat"/>
           <option value="Clarifier"/>
-          <option value="Discover"/>
           <option value="Home"/>
           <option value="Invoices"/>
           <option value="Mockingbird"/>
@@ -31,7 +29,6 @@
           <option value="Preferences"/>
           <option value="Settings"/>
           <option value="Shop"/>
-          <option value="Songs"/>
         </datalist>
         <button
           class="navbar-toggler"
@@ -78,7 +75,8 @@
               <router-link to="/login?redirect=/account" class="nav-link">
                 <span style="color: white">
                   <i class="bi bi-person-bounding-box" style="margin-right: 5px"></i>Login
-                  (<i class="bi bi-stack small" style="margin-right: 5px"></i>{{ this.$store.state.cart.length }})
+                  (<i class="bi bi-stack small" style="margin-right: 5px"></i>
+                  {{ this.$store.state.cart.length }})
                 </span>
               </router-link>
             </li>
@@ -214,7 +212,7 @@ export default {
       this.$store.commit('setServerIP', 'https://wikiric.xyz')
     },
     serverLogin: function () {
-      if (this.$store.state.email === undefined || this.$store.state.email === '') return
+      if (this.$store.state.email === '') return
       const headers = new Headers()
       headers.set(
         'Authorization',
@@ -248,15 +246,6 @@ export default {
       switch (term) {
         case 'home':
           this.$router.push('/')
-          break
-        case 'discover':
-          this.$router.push('/discover')
-          break
-        case 'artists':
-          this.$router.push('/artists')
-          break
-        case 'songs':
-          this.$router.push('/songs')
           break
         case 'shop':
           this.$router.push('/shop')

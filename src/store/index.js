@@ -41,6 +41,7 @@ export default createStore({
     logOut (state) {
       state.authenticated = false
       state.token = ''
+      state.email = ''
       state.username = ''
       state.password = ''
     },

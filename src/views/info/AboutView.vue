@@ -1,21 +1,20 @@
 <template>
   <div class="about">
-    <div style="min-height: 10ch"></div>
+    <div style="min-height: 60px"></div>
     <div class="container text-white wrapper">
       <div class="text-wrapper mb-5"
            style="text-align: justify; text-justify: inter-word;
            margin: auto">
-        <span class="p-2">
+        <div class="p-2">
           <!-- Who -->
           <span class="h2 fw-bold" style="pointer-events: none">
             <i class="bi bi-fingerprint"/> What/Who is wikiric.xyz?
           </span>
-          <br>This website is part of a project being ran by
-           <a style="color: white" :href="'https://github.com/glehu'">Wiki&nbsp;Ric&nbsp;G</a>
-          (or Wiki in short). It currently consists of this website including
-          all its apps and
+          <br>This website is part of a project being worked on by
+          <a style="color: white" :href="'https://github.com/glehu'">Luca Goldhausen</a>
+          It currently consists of this website including all its apps and services and
           <a :href="'https://github.com/glehu/CWO_ERP'" style="color: white">CWO_DB</a>,
-          the back-end database and API hub handling everything being worked on the website.
+          the back-end, database and API hub handling everything being shown on this website.
           <!-- Why -->
           <br><br><span class="h2 fw-bold" style="pointer-events: none">
             <i class="bi bi-fingerprint"/> What is the purpose of this?
@@ -25,10 +24,10 @@
           best to reach my goals.
           <br>People need to have fun to be able to learn new things efficiently.
           Creativity blooms in an artistic environment. Let's work on the future.
-        </span>
+        </div>
         <p class="text-end pt-2" style="font-style: italic">
           Designed with <i class="bi bi-heart-fill" style="color: red"></i> by
-          <a style="color: white" :href="'https://github.com/glehu'">Wiki</a>
+          <a style="color: white" :href="'https://github.com/glehu'">Luca</a>
         </p>
         <p class="text-center pt-4" style="font-style: italic">
           Background images from
@@ -39,10 +38,13 @@
         <p class="h1 fw-bold pb-3">More Info:</p>
         <button title="V i s i o n"
                 class="btn btn-outline-light"
-                style="font-size: 250%; width: 250px"
+                style="font-size: 250%; width: 250px; margin-bottom: 40px"
                 v-on:click="gotoVision">
           V i s i o n
         </button>
+        <p>Luca&nbsp;Goldhausen</p>
+        <p>86179 Augsburg</p>
+        <p>luca.goldhausen@gmail.com</p>
       </div>
     </div>
   </div>

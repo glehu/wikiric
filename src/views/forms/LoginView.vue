@@ -12,7 +12,10 @@
               <div class="card text-white" style="border-radius: 1rem; background: #131313">
                 <div class="card-body p-5 text-center">
                   <div class="mt-md-0 pb-5">
-                    <h2 class="fw-bold mb-2 text-uppercase" style="font-family: 'Lato', sans-serif">Login</h2>
+                    <h2 class="fw-bold mb-2 text-uppercase"
+                        style="font-family: 'Lato', sans-serif; pointer-events: none">
+                      Login
+                    </h2>
                     <div class="form-outline form-white mb-4">
                       <input
                         required
@@ -29,10 +32,10 @@
                         placeholder="Password"
                       />
                     </div>
-                    <p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#">Forgot password?</a></p>
+                    <!--<p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#">Forgot password?</a></p>-->
                     <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
-                    <p class="mt-5">Don't have an account?
-                      <button v-on:click="gotoRegister()" class="btn text-white muArrow">Sign Up</button>
+                    <p class="mt-5"><span style="pointer-events: none">Don't have an account?</span>
+                      <button v-on:click="gotoRegister()" class="btn btn-lg text-white muArrow">Sign Up</button>
                     </p>
                   </div>
                 </div>

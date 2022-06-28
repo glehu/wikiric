@@ -2,9 +2,12 @@
   <div style="min-height: 10vh"></div>
   <div class="d-md-flex align-items-center">
     <div class="mt-2 text-white" style="padding-left: 10vw">
-      <h2 class="fw-bold" style="font-family: 'Lato', sans-serif">Welcome</h2>
+      <h2 class="fw-bold" style="font-family: 'Lato', sans-serif; pointer-events: none">
+        Welcome
+      </h2>
       <div class="d-flex">
-        <div class="mb-2" style="text-align: justify; text-justify: inter-word; width: 200px">
+        <div class="mb-2"
+             style="text-align: justify; text-justify: inter-word; width: 200px; pointer-events: none">
           Only a few steps 'till success. Before you lie many possibilities and experiments.
           It is up to you to discover them and figure out what's next. But it is our mission,
           to assist you and make you a part of this project.
@@ -29,7 +32,9 @@
             <div class="card text-white" style="border-radius: 1rem; background: #131313">
               <div class="card-body p-5 text-center">
                 <div class="mt-md-0 pb-5">
-                  <h1 class="fw-bold mb-3" style="font-family: 'Lato', sans-serif">Register</h1>
+                  <h1 class="fw-bold mb-3" style="font-family: 'Lato', sans-serif; pointer-events: none">
+                    Register
+                  </h1>
                   <div class="form-outline form-white mb-4">
                     <input
                       required
@@ -55,7 +60,7 @@
                     />
                   </div>
                   <div class="form-outline form-white mb-4">
-                    <p>How should we call you?</p>
+                    <p style="pointer-events: none">How should we call you?</p>
                     <input
                       required
                       v-model="user.username"
@@ -150,6 +155,7 @@ export default {
         this.user.email = ''
         this.user.username = ''
         this.user.password = ''
+        this.user.passwordRpt = ''
         alert(this.response.message)
       }
     },

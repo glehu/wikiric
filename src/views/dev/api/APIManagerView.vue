@@ -1,7 +1,6 @@
 <template>
   <div
-    style="min-height: 100vh; background-color: black; overflow-x: clip"
-    :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-cottonbro-9668535.jpg')+')', backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
+    style="min-height: 100vh; background-color: #131313; overflow-x: clip">
     <div style="min-height: 10vh"></div>
     <div class="container">
       <div id="title" class="shadow-box" style="width: 100%; border: 2px solid white; border-radius: 1em">
@@ -274,7 +273,7 @@ export default {
       const headers = new Headers()
       headers.set(
         'Authorization',
-        'Basic ' + Base64.encode(this.$store.state.username + ':' + this.$store.state.password)
+        'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
       )
       fetch(
         this.$store.state.serverIP + '/login',
@@ -388,6 +387,7 @@ export default {
         .catch((err) => this.handleSubmitError(err))
     },
     setConfig: function (data) {
+      if (data.config == null) return
       this.mockConfig = data.config
       this.cm.setValue(data.config.return_message)
     }
@@ -407,14 +407,11 @@ export default {
 <style scoped>
 
 .shadow-box {
-  background-color: rgba(0, 0, 0, 0.6);
-  box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.6);
   border-radius: 1em
 }
 
 .jetb, .btn {
   color: white;
-  font-family: 'JetBrains Mono Bold', sans-serif;
 }
 
 .big-on-small {
