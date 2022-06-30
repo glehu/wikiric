@@ -4,6 +4,7 @@ importScripts('https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js')
 importScripts('https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js')
 
 const bc = new BroadcastChannel('dlChannel')
+const bcNotify = new BroadcastChannel('dlChannelNotify')
 
 self.addEventListener('notificationclick', function (event) {
   const data = {}
@@ -25,3 +26,9 @@ firebase.initializeApp({
 
 // eslint-disable-next-line no-undef,no-unused-vars
 const messaging = firebase.messaging()
+
+messaging.onBackgroundMessage((payload) => {
+  console.log('[firebase-messaging-sw.js] Received background message ', payload)
+  // Forward the notification to the clarifier
+  bcNotify.postMessage(payload)
+})

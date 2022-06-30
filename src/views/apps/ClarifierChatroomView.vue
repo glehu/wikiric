@@ -214,7 +214,6 @@
                   <div>
                     <img :src="msg.msg.substring(7)"
                          :alt="msg.msg.substring(7)"
-                         loading="lazy"
                          style="max-width: 300px">
                     <br>
                     <div>
@@ -229,7 +228,6 @@
                   <div>
                     <img :src="msg.msg.substring(7)"
                          :alt="msg.msg.substring(7)"
-                         loading="lazy"
                          style="max-width: 300px; cursor: zoom-in"
                          v-on:click="openURL(msg.msg.substring(7))">
                   </div>
@@ -532,6 +530,7 @@
 </template>
 
 <script>
+
 import { Base64 } from 'js-base64'
 
 export default {
@@ -590,7 +589,7 @@ export default {
     setTimeout(() => this.initFunction(), 0)
   },
   methods: {
-    initFunction: function () {
+    initFunction: async function () {
       window.addEventListener('resize', this.resizeCanvas, false)
       // Save elements to gain performance boost by avoiding too many lookups
       this.sendImageButton = document.getElementById('send_image_button')
@@ -600,19 +599,18 @@ export default {
       this.message_section.addEventListener('scroll', this.checkScroll, false)
       this.resizeCanvas()
       // Generate new token just in case
-      this.serverLogin()
+      await this.serverLogin()
       // Are we connecting to a subchat?
       const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop)
       })
       const subchatGUID = params.sub
       if (subchatGUID) {
-        this.getClarifierMetaData(this.getSession())
-        this.gotoSubchat(subchatGUID)
+        await this.getClarifierMetaData(this.getSession(), false, true)
+        await this.gotoSubchat(subchatGUID)
       } else {
         // Connect to the session
-        this.connect()
-        document.getElementById(this.getSession() + '_subc').classList.toggle('active')
+        await this.connect()
       }
       // Add message input field events
       const newCommentInput = document.getElementById('new_comment')
@@ -628,37 +626,11 @@ export default {
       // Broadcast channel to listen to firebase cloud messaging notifications
       const bc = new BroadcastChannel('dlChannel')
       bc.onmessage = event => {
-        if (event.data.data.subchatGUID != null) {
-          const destId = event.data.data.subchatGUID
-          if (!this.$route.fullPath.includes(destId)) {
-            this.$store.commit('addClarifierTimestampNew', {
-              id: event.data.data.subchatGUID,
-              ts: new Date().getTime()
-            })
-            const notify = document.getElementById(destId + '_notify')
-            if (notify != null) {
-              setTimeout(() => {
-                notify.style.opacity = '1'
-                notify.style.display = 'block'
-              }, 0)
-            }
-          }
-        } else {
-          const destId = event.data.data.dlDest.substring(20)
-          if (this.$route.fullPath.includes('sub=')) {
-            this.$store.commit('addClarifierTimestampNew', {
-              id: destId,
-              ts: new Date().getTime()
-            })
-            const notify = document.getElementById(destId + '_notify')
-            if (notify != null) {
-              setTimeout(() => {
-                notify.style.opacity = '1'
-                notify.style.display = 'block'
-              }, 0)
-            }
-          }
-        }
+        this.handleFirebaseEvent(event)
+      }
+      const bcNotify = new BroadcastChannel('dlChannelNotify')
+      bcNotify.onmessage = event => {
+        this.handleFirebaseEvent(event)
       }
       document.onpaste = (event) => {
         const items = (event.clipboardData ?? event.originalEvent.clipboardData)
@@ -677,53 +649,92 @@ export default {
         }
       }
     },
-    connect: function (sessionID = this.getSession(), isSubchat = false) {
-      this.resetStats()
-      this.isSubchat = isSubchat
-      // Connect to the chat
-      this.connection = new WebSocket('wss://wikiric.xyz/clarifier/' + sessionID)
-      // Websocket OPEN
-      this.connection.onopen = () => {
-        this.websocketState = 'OPEN'
-        this.connection.send(this.$store.state.token)
-        // Subscribe to notifications
-        this.subscribeFCM(sessionID, isSubchat)
+    handleFirebaseEvent: function (event) {
+      if (event.data.data.subchatGUID != null) {
+        const destId = event.data.data.subchatGUID
+        if (!this.$route.fullPath.includes(destId)) {
+          this.$store.commit('addClarifierTimestampNew', {
+            id: event.data.data.subchatGUID,
+            ts: new Date().getTime()
+          })
+          const notify = document.getElementById(destId + '_notify')
+          if (notify != null) {
+            setTimeout(() => {
+              notify.style.opacity = '1'
+              notify.style.display = 'block'
+            }, 0)
+          }
+        }
+      } else {
+        const destId = event.data.data.dlDest.substring(20)
+        if (this.$route.fullPath.includes('sub=')) {
+          this.$store.commit('addClarifierTimestampNew', {
+            id: destId,
+            ts: new Date().getTime()
+          })
+          const notify = document.getElementById(destId + '_notify')
+          if (notify != null) {
+            setTimeout(() => {
+              notify.style.opacity = '1'
+              notify.style.display = 'block'
+            }, 0)
+          }
+        }
       }
-      // Websocket CLOSE
-      this.connection.onclose = () => {
-        this.websocketState = 'CLOSED'
-      }
-      // Websocket incoming frames
-      this.connection.onmessage = (event) => {
-        this.showMessage(event.data)
-      }
-      // Get metadata and messages
-      this.getClarifierMetaData(sessionID, isSubchat)
-      this.getClarifierMessages(false, sessionID)
+    },
+    connect: async function (sessionID = this.getSession(), isSubchat = false) {
+      return new Promise((resolve) => {
+        this.resetStats()
+        this.isSubchat = isSubchat
+        // Connect to the chat
+        this.connection = new WebSocket('wss://wikiric.xyz/clarifier/' + sessionID)
+        // Websocket OPEN
+        this.connection.onopen = () => {
+          this.websocketState = 'OPEN'
+          this.connection.send(this.$store.state.token)
+          // Subscribe to notifications
+          this.subscribeFCM(sessionID, isSubchat)
+        }
+        // Websocket CLOSE
+        this.connection.onclose = () => {
+          this.websocketState = 'CLOSED'
+        }
+        // Websocket incoming frames
+        this.connection.onmessage = (event) => {
+          this.showMessage(event.data)
+        }
+        // Get metadata and messages
+        this.getClarifierMetaData(sessionID, isSubchat)
+          .then(() => this.getClarifierMessages(false, sessionID))
+          .then(resolve)
+      })
     },
     serverLogin: function () {
-      if (this.$store.state.email === undefined || this.$store.state.email === '') return
-      const headers = new Headers()
-      headers.set(
-        'Authorization',
-        'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
-      )
-      fetch(
-        this.$store.state.serverIP + '/login',
-        {
-          method: 'get',
-          headers: headers
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => (this.loginResponse = JSON.parse(data.contentJson)))
-        .then(this.processLogin)
-        .catch((err) => this.$notify(
+      return new Promise((resolve) => {
+        if (this.$store.state.email === undefined || this.$store.state.email === '') return
+        const headers = new Headers()
+        headers.set(
+          'Authorization',
+          'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
+        )
+        fetch(
+          this.$store.state.serverIP + '/login',
           {
-            title: 'Unable to Login',
-            text: err.message,
-            type: 'error'
-          }))
+            method: 'get',
+            headers: headers
+          }
+        )
+          .then((res) => res.json())
+          .then((data) => (this.loginResponse = JSON.parse(data.contentJson)))
+          .then(this.processLogin)
+          .then(resolve)
+          .catch((err) => this.$notify(
+            {
+              title: 'Unable to Login',
+              text: err.message,
+              type: 'error'
+            }))
+      })
     },
     processLogin: function () {
       if (this.loginResponse.httpCode === 200) {
@@ -823,68 +834,75 @@ export default {
       if (closeGIFSelection) this.isViewingGIFSelection = false
     },
     getClarifierMetaData: function (sessionID = this.getSession(), isSubchat = false, novisual = false) {
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      fetch(
-        this.$store.state.serverIP + '/api/m5/getchatroom/' + sessionID,
-        {
-          method: 'get',
-          headers: headers
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          const previousGUID = this.currentSubchat.guid
-          if (isSubchat === false) {
-            this.chatroom = data
-          } else {
-            this.currentSubchat = data
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m5/getchatroom/' + sessionID,
+          {
+            method: 'get',
+            headers: headers
           }
-          // UI Stuff
-          setTimeout(() => {
-            if (previousGUID != null && novisual === false) {
-              document.getElementById(previousGUID + '_subc').classList.remove('active')
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            // Remove active flag
+            if (novisual === false) {
+              if (this.chatroom.guid != null) {
+                document.getElementById(this.chatroom.guid + '_subc')
+                  .classList.remove('active')
+              }
+              if (this.currentSubchat.guid != null) {
+                document.getElementById(this.currentSubchat.guid + '_subc')
+                  .classList.remove('active')
+              }
             }
-            // Set current subchat
-            if (isSubchat === true && novisual === false) {
-              document.getElementById(this.getSession() + '_subc').classList.remove('active')
-              document.getElementById(this.currentSubchat.guid + '_subc').classList.toggle('active')
+            // Set new chatroom or subchat + active flag
+            if (isSubchat === false) {
+              this.chatroom = data
+              if (novisual === false) {
+                document.getElementById(this.chatroom.guid + '_subc')
+                  .classList.toggle('active')
+              }
+            } else {
+              this.currentSubchat = data
+              if (novisual === false) {
+                document.getElementById(this.currentSubchat.guid + '_subc')
+                  .classList.toggle('active')
+              }
             }
-          }, 50)
-        })
-        .then(() => (this.processMetaDataResponse(isSubchat)))
-        .catch((err) => console.error(err.message))
+          })
+          .then(() => (this.processMetaDataResponse(isSubchat)))
+          .then(resolve)
+          .catch((err) => console.error(err.message))
+      })
     },
-    processMetaDataResponse: function (isSubchat = false) {
+    processMetaDataResponse: async function (isSubchat = false) {
       if (isSubchat === false) {
-        setTimeout(() => {
-          this.$store.commit('addClarifierSession', {
-            id: this.chatroom.guid,
-            title: this.chatroom.t,
-            img: this.getImg(this.chatroom.imgGUID)
-          })
-          this.$store.commit('addClarifierTimestampRead', {
-            id: this.chatroom.guid,
-            ts: new Date().getTime()
-          })
-          const notify = document.getElementById(this.chatroom.guid + '_notify')
-          if (notify != null) {
-            notify.style.opacity = '0'
-            notify.style.display = 'none'
-          }
-        }, 1000)
+        this.$store.commit('addClarifierSession', {
+          id: this.chatroom.guid,
+          title: this.chatroom.t,
+          img: this.getImg(this.chatroom.imgGUID)
+        })
+        this.$store.commit('addClarifierTimestampRead', {
+          id: this.chatroom.guid,
+          ts: new Date().getTime()
+        })
+        const notify = document.getElementById(this.chatroom.guid + '_notify')
+        if (notify != null) {
+          notify.style.opacity = '0'
+          notify.style.display = 'none'
+        }
       } else {
-        setTimeout(() => {
-          this.$store.commit('addClarifierTimestampRead', {
-            id: this.currentSubchat.guid,
-            ts: new Date().getTime()
-          })
-          const notify = document.getElementById(this.currentSubchat.guid + '_notify')
-          if (notify != null) {
-            notify.style.opacity = '0'
-            notify.style.display = 'none'
-          }
-        }, 1000)
+        this.$store.commit('addClarifierTimestampRead', {
+          id: this.currentSubchat.guid,
+          ts: new Date().getTime()
+        })
+        const notify = document.getElementById(this.currentSubchat.guid + '_notify')
+        if (notify != null) {
+          notify.style.opacity = '0'
+          notify.style.display = 'none'
+        }
       }
       this.members = this.chatroom.members
       document.title = this.chatroom.t
@@ -1219,7 +1237,7 @@ export default {
       evt.dataTransfer.dropEffect = 'copy'
     },
     getImg: function (imgGUID, get = false) {
-      if (imgGUID == null) {
+      if (imgGUID == null || imgGUID === '') {
         return ''
       } else {
         let ret = imgGUID
@@ -1321,21 +1339,20 @@ export default {
         .then(() => (this.hideNewSubchatWindow()))
         .catch((err) => console.error(err.message))
     },
-    gotoSubchat: function (subchatGUID, subchatMode = true) {
+    gotoSubchat: async function (subchatGUID, subchatMode = true) {
       if (!subchatGUID) return
       if (subchatMode) {
-        this.$router.replace({
+        await this.$router.replace({
           path: '/apps/clarifier/wss/' + this.getSession(),
           query: { sub: subchatGUID }
         })
       } else {
-        this.$router.replace({
+        await this.$router.replace({
           path: '/apps/clarifier/wss/' + this.getSession()
         })
-        document.getElementById(this.getSession() + '_subc').classList.toggle('active')
       }
       this.disconnect()
-      this.connect(subchatGUID, subchatMode)
+      await this.connect(subchatGUID, subchatMode)
       this.hideAllSidebars()
     },
     disconnect: function () {
@@ -1451,6 +1468,38 @@ export default {
       let lastReadTS = timestamp.tsRead
       if (lastReadTS == null) lastReadTS = 0
       return lastReadTS < lastMessageTS
+    },
+    generateKeyPair: async function () {
+      const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop)
+      })
+      let chatGUID = params.sub
+      if (chatGUID) {
+        // Subchat
+      } else {
+        // General Chat
+        chatGUID = this.getSession()
+      }
+      // Check if we already have a PrivKey for this chat GUID
+      const tPrivKey = this.$store.getters.getClarifierPrivKey(chatGUID)
+      if (tPrivKey != null) return false
+      // Generate key pair
+      const keyPair = await window.crypto.subtle.generateKey(
+        {
+          name: 'RSA-OAEP',
+          modulusLength: 4096,
+          publicExponent: new Uint8Array([1, 0, 1]),
+          hash: 'SHA-256'
+        },
+        true,
+        ['encrypt', 'decrypt']
+      )
+      const payload = {
+        id: chatGUID,
+        privKey: keyPair.privateKey,
+        pubKey: keyPair.publicKey
+      }
+      this.$store.state.setClarifierKeyPair(payload)
     }
   }
 }

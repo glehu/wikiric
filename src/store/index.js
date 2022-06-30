@@ -28,7 +28,8 @@ export default createStore({
     cart: [],
     // --- Clarifier ---
     clarifierSessions: [],
-    clarifierTimestamps: []
+    clarifierTimestamps: [],
+    clarifierKeys: []
   },
   mutations: {
     logIn (state, user) {
@@ -156,6 +157,15 @@ export default createStore({
     },
     setFCMToken (state, newFCMToken) {
       state.fcmToken = newFCMToken
+    },
+    setClarifierKeyPair (state, payload) {
+      for (let i = 0; i < state.clarifierKeys.length; i++) {
+        if (state.clarifierKeys[i].id === payload.id) {
+          state.clarifierKeys.splice(i, 1)
+          break
+        }
+      }
+      state.clarifierKeys.unshift(payload)
     }
   },
   actions: {},
@@ -163,6 +173,9 @@ export default createStore({
   getters: {
     getTimestamp: (state) => (guid) => {
       return state.clarifierTimestamps.find(timestamp => timestamp.id === guid)
+    },
+    getClarifierPrivKey: (state) => (guid) => {
+      return state.clarifierKeys.find(entry => entry.id === guid)
     }
   }
 })
