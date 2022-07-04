@@ -708,7 +708,7 @@ export default {
     connect: async function (sessionID = this.getSession(), isSubchat = false) {
       this.toggleElement('loading', 'flex')
       // Generate Key Pair
-      await this.generateKeyPair(this.getChatGUID())
+      await this.generateRSAKeyPair(this.getChatGUID())
       return new Promise((resolve) => {
         this.resetStats()
         this.isSubchat = isSubchat
@@ -846,7 +846,7 @@ export default {
       const messageContent = this.new_message.substring(0, 300)
 
       // Generate AES key to encrypt the message
-      const aesKey = await this.generateAesCbcKey()
+      const aesKey = await this.generateAESKey()
       const iv = this.generateIvAES()
       const cipher = await this.encryptMessageAES(messageContent, aesKey, iv)
       const encrypted = this.arrayBufferToBase64(cipher)
@@ -858,7 +858,7 @@ export default {
       const keyArray = []
       for (const user of this.members) {
         if (user.pem != null && user.pem !== '') {
-          const pubKey = await this.importRsaKey(user.pem)
+          const pubKey = await this.importRSAPubKey(user.pem)
           const cipher2 = await this.encryptMessageRSA(JSON.stringify(aesPayload), pubKey)
           const encrypted2 = this.arrayBufferToBase64(cipher2)
           keyArray.unshift({
@@ -1576,7 +1576,7 @@ export default {
       if (lastReadTS == null) lastReadTS = 0
       return lastReadTS < lastMessageTS
     },
-    generateKeyPair: async function (uniChatroomGUID) {
+    generateRSAKeyPair: async function (uniChatroomGUID) {
       if (uniChatroomGUID == null || uniChatroomGUID === '') return
       // Check if we already have a PrivKey for this chat GUID
       const clarifierKeyPair = this.$store.getters.getClarifierKeyPair(this.getChatGUID())
@@ -1594,12 +1594,12 @@ export default {
       )
       this.$store.commit('setClarifierKeyPair', {
         id: this.getChatGUID(),
-        priv: await this.exportPrivateKey(keyPair.privateKey)
+        priv: await this.exportRSAPrivKey(keyPair.privateKey)
       })
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const content = JSON.stringify({
-        pubKeyPEM: await this.exportRsaKey(keyPair.publicKey)
+        pubKeyPEM: await this.exportRSAPubKey(keyPair.publicKey)
       })
       return new Promise((resolve) => {
         fetch(
@@ -1614,10 +1614,10 @@ export default {
           .catch((err) => console.error(err.message))
       })
     },
-    ab2str: function (buf) {
+    arrayBufferToString: function (buf) {
       return String.fromCharCode.apply(null, new Uint8Array(buf))
     },
-    str2ab: function (str) {
+    stringToArrayBuffer: function (str) {
       const buf = new ArrayBuffer(str.length)
       const bufView = new Uint8Array(buf)
       for (let i = 0, strLen = str.length; i < strLen; i++) {
@@ -1632,21 +1632,21 @@ export default {
       )
       return new Uint8Array(exported)
     },
-    exportPrivateKey: async function (key) {
+    exportRSAPrivKey: async function (key) {
       const exported = await window.crypto.subtle.exportKey(
         'pkcs8',
         key
       )
-      const exportedAsString = this.ab2str(exported)
+      const exportedAsString = this.arrayBufferToString(exported)
       const exportedAsBase64 = window.btoa(exportedAsString)
       return '-----BEGIN PRIVATE KEY-----\n' + exportedAsBase64 + '-----END PRIVATE KEY-----'
     },
-    exportRsaKey: async function (key) {
+    exportRSAPubKey: async function (key) {
       const exported = await window.crypto.subtle.exportKey(
         'spki',
         key
       )
-      const exportedAsString = this.ab2str(exported)
+      const exportedAsString = this.arrayBufferToString(exported)
       const exportedAsBase64 = window.btoa(exportedAsString)
       return '-----BEGIN PUBLIC KEY-----\n' + exportedAsBase64 + '\n-----END PUBLIC KEY-----'
     },
@@ -1659,7 +1659,7 @@ export default {
         ['encrypt', 'decrypt']
       )
     },
-    importPrivateKey: function (pem) {
+    importRSAPrivKey: function (pem) {
       // fetch the part of the PEM string between header and footer
       const pemHeader = '-----BEGIN PRIVATE KEY-----'
       const pemFooter = '-----END PRIVATE KEY-----'
@@ -1667,7 +1667,7 @@ export default {
       // base64 decode the string to get the binary data
       const binaryDerString = window.atob(pemContents)
       // convert from a binary string to an ArrayBuffer
-      const binaryDer = this.str2ab(binaryDerString)
+      const binaryDer = this.stringToArrayBuffer(binaryDerString)
       return window.crypto.subtle.importKey(
         'pkcs8',
         binaryDer,
@@ -1679,12 +1679,12 @@ export default {
         ['decrypt']
       )
     },
-    importRsaKey: async function (pem) {
+    importRSAPubKey: async function (pem) {
       const pemHeader = '-----BEGIN PUBLIC KEY-----'
       const pemFooter = '-----END PUBLIC KEY-----'
       const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length)
       const binaryDerString = window.atob(pemContents)
-      const binaryDer = this.str2ab(binaryDerString)
+      const binaryDer = this.stringToArrayBuffer(binaryDerString)
       return await window.crypto.subtle.importKey(
         'spki',
         binaryDer,
@@ -1696,7 +1696,7 @@ export default {
         ['encrypt']
       )
     },
-    generateAesCbcKey: async function () {
+    generateAESKey: async function () {
       return await window.crypto.subtle.generateKey(
         {
           name: 'AES-CBC',
@@ -1706,11 +1706,11 @@ export default {
         ['encrypt', 'decrypt']
       )
     },
-    getMessageEncoding: function (content) {
+    encodeStringUInt: function (content) {
       return new TextEncoder().encode(content)
     },
     encryptMessageRSA: async function (content, pubKey) {
-      const encoded = this.getMessageEncoding(content)
+      const encoded = this.encodeStringUInt(content)
       return await window.crypto.subtle.encrypt(
         {
           name: 'RSA-OAEP'
@@ -1721,7 +1721,7 @@ export default {
     },
     decryptMessageRSA: async function (content) {
       const keyPair = this.$store.getters.getClarifierKeyPair(this.getChatGUID())
-      const privKey = await this.importPrivateKey(keyPair.priv)
+      const privKey = await this.importRSAPrivKey(keyPair.priv)
       const decrypted = await window.crypto.subtle.decrypt(
         {
           name: 'RSA-OAEP'
@@ -1732,7 +1732,7 @@ export default {
       return new TextDecoder().decode(decrypted)
     },
     encryptMessageAES: async function (content, key, iv) {
-      const encoded = this.getMessageEncoding(content)
+      const encoded = this.encodeStringUInt(content)
       return await window.crypto.subtle.encrypt(
         {
           name: 'AES-CBC',
