@@ -160,6 +160,14 @@
              style="overflow-y: auto; overflow-x: clip;
              height: calc(100vh - 60px - 50px - 80px);
              display: flex; flex-direction: column-reverse">
+          <div id="init_loading" style="display: none">
+            <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
+            <span class="ms-2 fw-bold c_lightgray">Initializing...</span>
+          </div>
+          <div id="loading" style="display: none">
+            <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
+            <span class="ms-2 fw-bold c_lightgray">Connecting...</span>
+          </div>
           <template v-for="msg in messages" :key="msg.gUID">
             <div class="message" :id="msg.gUID">
               <!-- Chat Avatar and Date-->
@@ -177,6 +185,7 @@
                   <span style="color: gray; font-size: 80%; padding-left: 10px;
                                pointer-events: none">
                     {{ msg.time.toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+                    <i v-if="msg.isEncrypted === true" class="bi bi-shield-lock ms-1"></i>
                   </span>
                 </div>
               </template>
@@ -291,6 +300,7 @@
                     class="new_comment b_gray"
                     type="text"
                     v-model="new_message"
+                    maxlength="300"
                     :placeholder="'Message to ' + chatroom.t"
                     v-on:keyup="auto_grow"
                     v-on:click="hideAllSidebars">
@@ -341,12 +351,12 @@
         <div v-for="usr in chatroom.members" :key="usr"
              style="padding-left: 10px; position: relative; display: flex; align-items: center"
              class="user_badge"
-             v-on:click="showUserProfile(JSON.parse(usr))">
+             v-on:click="showUserProfile(usr)">
           <i class="bi bi-person-circle"
              style="font-size: 200%">
           </i>
           <span style="font-weight: bold; margin-left: 10px">
-            {{ JSON.parse(usr).usr }}
+            {{ usr.usr }}
           </span>
         </div>
         <div style="padding-left: 10px; display: flex">
@@ -366,11 +376,19 @@
     <div style="position: relative; padding-top: 10px">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideAllWindows()"></i>
-      <div style="display: flex">
-        <i class="bi bi-person-circle" style="font-size: 300%; margin-right: 10px"></i>
-        <h2 class="fw-bold" style="padding-top: 20px">
-          {{ this.viewedUserProfile.usr }}
-        </h2>
+      <div style="display: flex; align-items: center">
+        <i class="bi bi-person-circle" style="font-size: 300%; margin-right: 15px"></i>
+        <div style="display: block">
+          <h2 class="fw-bold">
+            {{ this.viewedUserProfile.usr }}
+          </h2>
+          <div style="display: flex">
+            <i title="End-to-End Encryption ID" class="bi bi-shield-lock" style="margin-right: 1ch"></i>
+            <p class="c_lightgray" style="pointer-events: none; font-size: 75%">
+              {{ this.viewedUserProfile.id }}
+            </p>
+          </div>
+        </div>
       </div>
       <!-- #### MEMBER ROLES #### -->
       <hr class="c_lightgray">
@@ -542,6 +560,7 @@ export default {
       chatroom: {},
       subchats: [],
       isSubchat: false,
+      userId: null,
       currentSubchat: {},
       connection: null,
       websocketState: 'CLOSED',
@@ -590,14 +609,14 @@ export default {
   },
   methods: {
     initFunction: async function () {
+      this.toggleElement('init_loading', 'flex')
       window.addEventListener('resize', this.resizeCanvas, false)
+      this.resizeCanvas()
       // Save elements to gain performance boost by avoiding too many lookups
       this.sendImageButton = document.getElementById('send_image_button')
       this.inputField = document.getElementById('new_comment')
       this.message_section = document.getElementById('messages_section')
-      // Set message section with its scroll event
-      this.message_section.addEventListener('scroll', this.checkScroll, false)
-      this.resizeCanvas()
+      // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
       // Generate new token just in case
       await this.serverLogin()
       // Are we connecting to a subchat?
@@ -605,6 +624,7 @@ export default {
         get: (searchParams, prop) => searchParams.get(prop)
       })
       const subchatGUID = params.sub
+      this.toggleElement('init_loading', 'flex')
       if (subchatGUID) {
         await this.getClarifierMetaData(this.getSession(), false, true)
         await this.gotoSubchat(subchatGUID)
@@ -612,10 +632,12 @@ export default {
         // Connect to the session
         await this.connect()
       }
+      // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
+      // Set message section with its scroll event
+      this.message_section.addEventListener('scroll', this.checkScroll, false)
       // Add message input field events
-      const newCommentInput = document.getElementById('new_comment')
-      newCommentInput.addEventListener('keydown', this.handleEnter, false)
-      newCommentInput.focus()
+      this.inputField.addEventListener('keydown', this.handleEnter, false)
+      this.inputField.focus()
       // Add dropzone events (settings -> image upload)
       const dropZone = document.getElementById('drop_zone')
       dropZone.addEventListener('dragover', this.handleDragOver, false)
@@ -623,7 +645,7 @@ export default {
       const dropZoneSnippet = document.getElementById('snippet_drop_zone')
       dropZoneSnippet.addEventListener('dragover', this.handleDragOver, false)
       dropZoneSnippet.addEventListener('drop', this.handleUploadImageSelectDrop, false)
-      // Broadcast channel to listen to firebase cloud messaging notifications
+      // Broadcast channels to listen to firebase cloud messaging notifications
       const bc = new BroadcastChannel('dlChannel')
       bc.onmessage = event => {
         this.handleFirebaseEvent(event)
@@ -632,6 +654,7 @@ export default {
       bcNotify.onmessage = event => {
         this.handleFirebaseEvent(event)
       }
+      // Add event for clipboard pasting
       document.onpaste = (event) => {
         const items = (event.clipboardData ?? event.originalEvent.clipboardData)
           .items
@@ -683,6 +706,9 @@ export default {
       }
     },
     connect: async function (sessionID = this.getSession(), isSubchat = false) {
+      this.toggleElement('loading', 'flex')
+      // Generate Key Pair
+      await this.generateKeyPair(this.getChatGUID())
       return new Promise((resolve) => {
         this.resetStats()
         this.isSubchat = isSubchat
@@ -706,6 +732,7 @@ export default {
         // Get metadata and messages
         this.getClarifierMetaData(sessionID, isSubchat)
           .then(() => this.getClarifierMessages(false, sessionID))
+          .then(() => this.toggleElement('loading', 'flex'))
           .then(resolve)
       })
     },
@@ -757,8 +784,8 @@ export default {
       )
         .catch((err) => console.error(err.message))
     },
-    showMessage: function (msg) {
-      const message = this.processRawMessage(msg)
+    showMessage: async function (msg) {
+      const message = await this.processRawMessage(msg)
       if ((message.msg).includes('[s:EditNotification]')) {
         const response = JSON.parse(message.msg.substring(20))
         if (response.uniMessageGUID == null) return
@@ -780,7 +807,7 @@ export default {
         this.getClarifierMetaData()
       }
     },
-    addMessage: function () {
+    addMessage: async function () {
       if (this.isEditingMessage === true) {
         const payload = JSON.stringify({
           uniMessageGUID: this.messageEditing.gUID,
@@ -816,17 +843,44 @@ export default {
         return
       }
       // Handle normal message
-      this.connection.send(this.new_message)
+      const messageContent = this.new_message.substring(0, 300)
+
+      // Generate AES key to encrypt the message
+      const aesKey = await this.generateAesCbcKey()
+      const iv = this.generateIvAES()
+      const cipher = await this.encryptMessageAES(messageContent, aesKey, iv)
+      const encrypted = this.arrayBufferToBase64(cipher)
+      // Encrypt AES key + iv for each participant with RSA encryption
+      const aesPayload = {
+        key: this.arrayBufferToBase64(await this.exportAESKey(aesKey)),
+        iv: this.arrayBufferToBase64(iv)
+      }
+      const keyArray = []
+      for (const user of this.members) {
+        if (user.pem != null && user.pem !== '') {
+          const pubKey = await this.importRsaKey(user.pem)
+          const cipher2 = await this.encryptMessageRSA(JSON.stringify(aesPayload), pubKey)
+          const encrypted2 = this.arrayBufferToBase64(cipher2)
+          keyArray.unshift({
+            id: user.id,
+            key: encrypted2
+          })
+        }
+      }
+      const encryptedMessage = JSON.stringify({
+        keys: keyArray,
+        message: encrypted
+      })
+      this.connection.send('[c:MSG<ENCR]' + encryptedMessage)
       this.new_message = ''
       this.focusComment(true)
       setTimeout(() => this.auto_grow('new_comment'), 0)
     },
     focusComment: function (instantly = false) {
-      const input = document.getElementById('new_comment')
       if (instantly) {
-        input.focus()
+        this.inputField.focus()
       } else {
-        setTimeout(() => input.focus(), 0)
+        setTimeout(() => this.inputField.focus(), 0)
       }
     },
     addMessagePar: function (text, closeGIFSelection = false) {
@@ -893,6 +947,7 @@ export default {
           notify.style.opacity = '0'
           notify.style.display = 'none'
         }
+        if (this.isSubchat === false) this.members = this.chatroom.members
       } else {
         this.$store.commit('addClarifierTimestampRead', {
           id: this.currentSubchat.guid,
@@ -903,8 +958,15 @@ export default {
           notify.style.opacity = '0'
           notify.style.display = 'none'
         }
+        if (this.isSubchat === true) this.members = this.currentSubchat.members
       }
-      this.members = this.chatroom.members
+      // Parse JSON serialized users for performance and determine current user's ID
+      for (let i = 0; i < this.members.length; i++) {
+        this.members[i] = JSON.parse(this.members[i])
+        if (this.members[i].usr === this.$store.state.username) {
+          this.userId = this.members[i].id
+        }
+      }
       document.title = this.chatroom.t
     },
     getClarifierMessages: function (lazyLoad = false, sessionID) {
@@ -933,7 +995,7 @@ export default {
         .then((data) => (this.processMessagesResponse(data, lazyLoad)))
         .catch((err) => console.error(err.message))
     },
-    processMessagesResponse: function (data, lazyLoad = false) {
+    processMessagesResponse: async function (data, lazyLoad = false) {
       if (data.messages === undefined) {
         if (lazyLoad) this.lazyLoadingStatus = 'idle'
         return
@@ -948,11 +1010,15 @@ export default {
       if (pageIndex === 0) {
         // Initial loading
         this.messages = []
-        data.messages.reverse().forEach(element => this.messages.unshift(this.processRawMessage(element)))
+        for (const element of data.messages.reverse()) {
+          this.messages.unshift(await this.processRawMessage(element))
+        }
       } else {
         // Lazy loading
         const tempArray = []
-        data.messages.reverse().forEach(element => tempArray.unshift(this.processRawMessage(element)))
+        for (const element of data.messages.reverse()) {
+          tempArray.unshift(await this.processRawMessage(element))
+        }
         tempArray.forEach(element => this.messages.push(element))
       }
       if (lazyLoad) {
@@ -960,7 +1026,7 @@ export default {
         this.lazyLoadingStatus = 'idle'
       }
     },
-    processRawMessage: function (msg) {
+    processRawMessage: async function (msg) {
       // Deserialize
       const message = JSON.parse(msg)
       // Process timestamp
@@ -981,8 +1047,31 @@ export default {
       Only allow the user to edit his own messages, not the ones of others
        */
       message.editable = (message.src === this.$store.state.username)
+      // Is the message encrypted?
+      const encryptionPrefix = '[c:MSG<ENCR]'
+      if (message.msg.startsWith(encryptionPrefix)) {
+        const encryptedMessageObj = JSON.parse(message.msg.substring(encryptionPrefix.length))
+        for (let i = 0; i < encryptedMessageObj.keys.length; i++) {
+          const keyPair = encryptedMessageObj.keys[i]
+          if (keyPair.id === this.userId) {
+            // Decrypt the AES key
+            const decipherRSA = this.base64ToArrayBuffer(keyPair.key)
+            const decryptedRSA = await this.decryptMessageRSA(decipherRSA)
+            const aesPayload = JSON.parse(decryptedRSA)
+            const decipherAES = this.base64ToArrayBuffer(encryptedMessageObj.message)
+            const aesKey = await this.importSecretKey(await this.base64ToArrayBuffer(aesPayload.key))
+            message.msg = await this.decryptMessageAES(
+              decipherAES,
+              aesKey,
+              this.base64ToArrayBuffer(aesPayload.iv))
+            message.isEncrypted = true
+          }
+        }
+      }
       this.last_message = message
-      return message
+      return new Promise((resolve) => {
+        resolve(message)
+      })
     },
     getSession: function (full = false) {
       let session
@@ -1315,28 +1404,31 @@ export default {
     lazyLoadMessages: function () {
       this.getClarifierMessages(true, this.currentSubchat.guid)
     },
-    createSubchatroom: function () {
+    createSubchatroom: async function () {
       if (this.new_subchat_name.trim() === '') {
         this.new_subchat_name = ''
         return
       }
+      const content = JSON.stringify({
+        title: this.new_subchat_name.trim()
+      })
+      this.hideNewSubchatWindow()
       const headers = new Headers()
       headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const mainSessionGUID = this.getSession()
+      let response
       fetch(
         this.$store.state.serverIP + '/api/m5/createchatroom?parent=' + mainSessionGUID,
         {
           method: 'post',
           headers: headers,
-          body: JSON.stringify({
-            title: this.new_subchat_name.trim()
-          })
+          body: content
         }
       )
         .then((res) => res.json())
-        .then((data) => (this.gotoSubchat(data.guid)))
-        .then(() => (this.getClarifierMetaData(mainSessionGUID)))
-        .then(() => (this.hideNewSubchatWindow()))
+        .then((data) => (response = data))
+        .then(() => this.getClarifierMetaData(mainSessionGUID, false, true))
+        .then(() => this.gotoSubchat(response.guid))
         .catch((err) => console.error(err.message))
     },
     gotoSubchat: async function (subchatGUID, subchatMode = true) {
@@ -1352,8 +1444,10 @@ export default {
         })
       }
       this.disconnect()
-      await this.connect(subchatGUID, subchatMode)
+      this.messages = []
       this.hideAllSidebars()
+      await this.connect(subchatGUID, subchatMode)
+      this.inputField.focus()
     },
     disconnect: function () {
       if (this.connection == null) return
@@ -1395,6 +1489,19 @@ export default {
           text: 'An Error occurred while uploading the file.',
           type: 'error'
         })
+    },
+    getChatGUID: function () {
+      const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop)
+      })
+      let chatGUID = params.sub
+      if (chatGUID) {
+        // Subchat
+      } else {
+        // General Chat
+        chatGUID = this.getSession()
+      }
+      return chatGUID
     },
     processUploadSnippetResponse: function (response) {
       response = JSON.parse(response)
@@ -1469,37 +1576,203 @@ export default {
       if (lastReadTS == null) lastReadTS = 0
       return lastReadTS < lastMessageTS
     },
-    generateKeyPair: async function () {
-      const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop)
-      })
-      let chatGUID = params.sub
-      if (chatGUID) {
-        // Subchat
-      } else {
-        // General Chat
-        chatGUID = this.getSession()
-      }
+    generateKeyPair: async function (uniChatroomGUID) {
+      if (uniChatroomGUID == null || uniChatroomGUID === '') return
       // Check if we already have a PrivKey for this chat GUID
-      const tPrivKey = this.$store.getters.getClarifierPrivKey(chatGUID)
-      if (tPrivKey != null) return false
+      const clarifierKeyPair = this.$store.getters.getClarifierKeyPair(this.getChatGUID())
+      if (clarifierKeyPair != null) return false
       // Generate key pair
       const keyPair = await window.crypto.subtle.generateKey(
         {
           name: 'RSA-OAEP',
-          modulusLength: 4096,
+          modulusLength: 2048,
           publicExponent: new Uint8Array([1, 0, 1]),
-          hash: 'SHA-256'
+          hash: 'SHA-384'
         },
         true,
         ['encrypt', 'decrypt']
       )
-      const payload = {
-        id: chatGUID,
-        privKey: keyPair.privateKey,
-        pubKey: keyPair.publicKey
+      this.$store.commit('setClarifierKeyPair', {
+        id: this.getChatGUID(),
+        priv: await this.exportPrivateKey(keyPair.privateKey)
+      })
+      const headers = new Headers()
+      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      const content = JSON.stringify({
+        pubKeyPEM: await this.exportRsaKey(keyPair.publicKey)
+      })
+      return new Promise((resolve) => {
+        fetch(
+          this.$store.state.serverIP + '/api/m5/pubkey/' + uniChatroomGUID,
+          {
+            method: 'post',
+            headers: headers,
+            body: content
+          }
+        )
+          .then(resolve)
+          .catch((err) => console.error(err.message))
+      })
+    },
+    ab2str: function (buf) {
+      return String.fromCharCode.apply(null, new Uint8Array(buf))
+    },
+    str2ab: function (str) {
+      const buf = new ArrayBuffer(str.length)
+      const bufView = new Uint8Array(buf)
+      for (let i = 0, strLen = str.length; i < strLen; i++) {
+        bufView[i] = str.charCodeAt(i)
       }
-      this.$store.state.setClarifierKeyPair(payload)
+      return buf
+    },
+    exportAESKey: async function (key) {
+      const exported = await window.crypto.subtle.exportKey(
+        'raw',
+        key
+      )
+      return new Uint8Array(exported)
+    },
+    exportPrivateKey: async function (key) {
+      const exported = await window.crypto.subtle.exportKey(
+        'pkcs8',
+        key
+      )
+      const exportedAsString = this.ab2str(exported)
+      const exportedAsBase64 = window.btoa(exportedAsString)
+      return '-----BEGIN PRIVATE KEY-----\n' + exportedAsBase64 + '-----END PRIVATE KEY-----'
+    },
+    exportRsaKey: async function (key) {
+      const exported = await window.crypto.subtle.exportKey(
+        'spki',
+        key
+      )
+      const exportedAsString = this.ab2str(exported)
+      const exportedAsBase64 = window.btoa(exportedAsString)
+      return '-----BEGIN PUBLIC KEY-----\n' + exportedAsBase64 + '\n-----END PUBLIC KEY-----'
+    },
+    importSecretKey: function (rawKey) {
+      return window.crypto.subtle.importKey(
+        'raw',
+        rawKey,
+        'AES-CBC',
+        true,
+        ['encrypt', 'decrypt']
+      )
+    },
+    importPrivateKey: function (pem) {
+      // fetch the part of the PEM string between header and footer
+      const pemHeader = '-----BEGIN PRIVATE KEY-----'
+      const pemFooter = '-----END PRIVATE KEY-----'
+      const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length)
+      // base64 decode the string to get the binary data
+      const binaryDerString = window.atob(pemContents)
+      // convert from a binary string to an ArrayBuffer
+      const binaryDer = this.str2ab(binaryDerString)
+      return window.crypto.subtle.importKey(
+        'pkcs8',
+        binaryDer,
+        {
+          name: 'RSA-OAEP',
+          hash: 'SHA-384'
+        },
+        true,
+        ['decrypt']
+      )
+    },
+    importRsaKey: async function (pem) {
+      const pemHeader = '-----BEGIN PUBLIC KEY-----'
+      const pemFooter = '-----END PUBLIC KEY-----'
+      const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length)
+      const binaryDerString = window.atob(pemContents)
+      const binaryDer = this.str2ab(binaryDerString)
+      return await window.crypto.subtle.importKey(
+        'spki',
+        binaryDer,
+        {
+          name: 'RSA-OAEP',
+          hash: 'SHA-384'
+        },
+        true,
+        ['encrypt']
+      )
+    },
+    generateAesCbcKey: async function () {
+      return await window.crypto.subtle.generateKey(
+        {
+          name: 'AES-CBC',
+          length: 256
+        },
+        true,
+        ['encrypt', 'decrypt']
+      )
+    },
+    getMessageEncoding: function (content) {
+      return new TextEncoder().encode(content)
+    },
+    encryptMessageRSA: async function (content, pubKey) {
+      const encoded = this.getMessageEncoding(content)
+      return await window.crypto.subtle.encrypt(
+        {
+          name: 'RSA-OAEP'
+        },
+        pubKey,
+        encoded
+      )
+    },
+    decryptMessageRSA: async function (content) {
+      const keyPair = this.$store.getters.getClarifierKeyPair(this.getChatGUID())
+      const privKey = await this.importPrivateKey(keyPair.priv)
+      const decrypted = await window.crypto.subtle.decrypt(
+        {
+          name: 'RSA-OAEP'
+        },
+        privKey,
+        content
+      )
+      return new TextDecoder().decode(decrypted)
+    },
+    encryptMessageAES: async function (content, key, iv) {
+      const encoded = this.getMessageEncoding(content)
+      return await window.crypto.subtle.encrypt(
+        {
+          name: 'AES-CBC',
+          iv: iv
+        },
+        key,
+        encoded
+      )
+    },
+    decryptMessageAES: async function (content, key, iv) {
+      const decrypted = await window.crypto.subtle.decrypt(
+        {
+          name: 'AES-CBC',
+          iv: iv
+        },
+        key,
+        content
+      )
+      return new TextDecoder().decode(decrypted)
+    },
+    generateIvAES: function () {
+      return window.crypto.getRandomValues(new Uint8Array(16))
+    },
+    arrayBufferToBase64: function (buffer) {
+      let binary = ''
+      const bytes = new Uint8Array(buffer)
+      const len = bytes.byteLength
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i])
+      }
+      return window.btoa(binary)
+    },
+    base64ToArrayBuffer: function (base64) {
+      const binaryString = window.atob(base64)
+      const len = binaryString.length
+      const bytes = new Uint8Array(len)
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i)
+      }
+      return bytes.buffer
     }
   }
 }
@@ -1524,7 +1797,7 @@ export default {
 }
 
 .b_darkgray {
-  background-color: #192129;
+  background-color: #212b36;
 }
 
 .c_darkgray {
@@ -1926,7 +2199,7 @@ export default {
 }
 
 .subchat.active {
-  background-color: #192129;
+  background-color: #212b36;
 }
 
 .subchat.active span {
@@ -2031,6 +2304,15 @@ export default {
   font-weight: bold;
   opacity: 0;
   transition: 0.3s opacity
+}
+
+#init_loading,
+#loading {
+  min-width: 100%;
+  min-height: 100%;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999
 }
 
 </style>

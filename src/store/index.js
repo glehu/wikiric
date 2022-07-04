@@ -174,7 +174,7 @@ export default createStore({
     getTimestamp: (state) => (guid) => {
       return state.clarifierTimestamps.find(timestamp => timestamp.id === guid)
     },
-    getClarifierPrivKey: (state) => (guid) => {
+    getClarifierKeyPair: (state) => (guid) => {
       return state.clarifierKeys.find(entry => entry.id === guid)
     }
   }
