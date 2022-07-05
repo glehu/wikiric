@@ -58,7 +58,7 @@
                 <div style="width: 50px; height: 100%; position: relative;
                             display: flex; align-items: center; justify-content: center;">
                   <div v-if="session.id === chatroom.guid"
-                       style="position: absolute; height: 20px; width: 4px; left: 0;
+                       style="position: absolute; height: 20px; width: 5px; left: 0;
                             border-radius: 20px;
                             background-color: forestgreen; z-index: 5">
                   </div>
@@ -182,11 +182,17 @@
                         style="font-weight: bold">
                     {{ msg.src }}
                   </span>
-                  <span style="color: gray; font-size: 80%; padding-left: 10px;
-                               pointer-events: none">
-                    {{ msg.time.toLocaleString('de-DE').replace(' ', '&nbsp;') }}
-                    <i v-if="msg.isEncrypted === true" class="bi bi-shield-lock ms-1"></i>
-                  </span>
+                  <div style="color: gray; font-size: 80%; padding-left: 10px">
+                    <span style="pointer-events: none">
+                      {{ msg.time.toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+                    </span>
+                    <template v-if="msg.isEncrypted === true">
+                      <i v-if="msg.decryptionFailed === false" class="bi bi-shield-lock ms-1"
+                         title="Decrypted Message"></i>
+                      <i v-else class="bi bi-exclamation-triangle-fill ms-1"
+                         title="Decryption Error Occurred"></i>
+                    </template>
+                  </div>
                 </div>
               </template>
               <div class="message_body" style="width: 100%; display: flex; position: relative">
@@ -213,17 +219,20 @@
                   </button>
                 </div>
                 <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
-                <template v-if="msg.msg.startsWith('[s:RegistrationNotification]')">
+                <template v-if="msg.mType === 'RegistrationNotification'">
                   <div class="serverMessage">
-                    {{ msg.msg.substring(28).trim() }}
+                    {{ msg.msg.trim() }}
+                  </div>
+                </template>
+                <template v-else-if="msg.mType === 'CryptError'">
+                  <div class="serverMessage">
+                    {{ msg.msg.trim() }}
                   </div>
                 </template>
                 <!-- #### CLIENT GIF MESSAGE #### -->
-                <template v-else-if="msg.msg.startsWith('[c:GIF]')">
+                <template v-else-if="msg.mType === 'GIF'">
                   <div>
-                    <img :src="msg.msg.substring(7)"
-                         :alt="msg.msg.substring(7)"
-                         style="max-width: 300px">
+                    <img :src="msg.msg" :alt="msg.msg" style="max-width: 300px">
                     <br>
                     <div>
                       <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png"
@@ -377,15 +386,17 @@
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideAllWindows()"></i>
       <div style="display: flex; align-items: center">
-        <i class="bi bi-person-circle" style="font-size: 300%; margin-right: 15px"></i>
+        <i class="bi bi-person-circle" style="font-size: 400%; margin-right: 15px"></i>
         <div style="display: block">
-          <h2 class="fw-bold">
+          <h1 class="fw-bold">
             {{ this.viewedUserProfile.usr }}
-          </h2>
-          <div style="display: flex">
-            <i title="End-to-End Encryption ID" class="bi bi-shield-lock" style="margin-right: 1ch"></i>
-            <p class="c_lightgray" style="pointer-events: none; font-size: 75%">
+          </h1>
+          <div title="End-to-End Encryption ID" style="display: flex; align-items: center">
+            <i class="bi bi-shield-lock-fill" style="margin-right: 1ch"></i>
+            <p class="c_lightgray" style="cursor: default; font-size: 75%; margin: 0">
               {{ this.viewedUserProfile.id }}
+              <br>
+              <span style="font-size: 75%">RSA-OAEP</span>
             </p>
           </div>
         </div>
@@ -442,7 +453,7 @@
          class="b_darkergray">
       <div v-for="gif in gifSelection" :key="gif"
            style="padding-top: 10px; padding-left: 10px; display: inline-flex"
-           v-on:click="this.addMessagePar('[c:GIF]' + gif.images.fixed_height.url, true)">
+           v-on:click="this.sendSelectedGIF(gif.images.fixed_height.url)">
         <img :src="gif.images.fixed_height.url" alt="Loading" class="selectableGIF"
              style="width: 155px; height: 155px">
       </div>
@@ -465,7 +476,7 @@
              style="width: 100%"
              multiple v-on:change="handleFileSelect"/>
       <div id="confirm_settings_loading" class="ms-3 mt-3" style="display: none">
-        <span class="spinner-grow spinner-grow-sm text-info" role="status" aria-hidden="true"></span>
+        <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
         <span class="jetb ms-2">Uploading...</span>
       </div>
       <hr class="c_lightgray">
@@ -527,7 +538,7 @@
                multiple v-on:change="handleUploadFileSelect"/>
       </template>
       <div id="confirm_snippet_loading" class="ms-3 mt-3" style="display: none">
-        <span class="spinner-grow spinner-grow-sm text-info" role="status" aria-hidden="true"></span>
+        <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
         <span class="jetb ms-2">Uploading...</span>
       </div>
       <template v-if="uploadFileBase64 !== ''">
@@ -786,13 +797,19 @@ export default {
     },
     showMessage: async function (msg) {
       const message = await this.processRawMessage(msg)
-      if ((message.msg).includes('[s:EditNotification]')) {
-        const response = JSON.parse(message.msg.substring(20))
+      if (message.mType === 'EditNotification') {
+        const response = JSON.parse(message.msg)
         if (response.uniMessageGUID == null) return
         const index = this.messages.findIndex(msg => msg.gUID === response.uniMessageGUID)
         if (response.newContent !== '') {
           // Edit message
-          this.messages[index].msg = response.newContent
+          try {
+            this.messages[index].msg = await this.decryptPayload(
+              JSON.parse(response.newContent.substring(12))
+            )
+          } catch (e) {
+            console.log(e.message)
+          }
         } else {
           // Delete message
           this.messages.splice(index, 1)
@@ -803,15 +820,22 @@ export default {
       }
       this.messages.unshift(message)
       this.extraSkipCount++
-      if ((message.msg).includes('[s:RegistrationNotification]')) {
+      if (message.mType === 'RegistrationNotification') {
         this.getClarifierMetaData()
       }
     },
     addMessage: async function () {
       if (this.isEditingMessage === true) {
+        let editPayloadMessage
+        if (this.new_message !== '') {
+          editPayloadMessage = '[c:MSG<ENCR]' +
+            await this.encryptPayload(this.new_message)
+        } else {
+          editPayloadMessage = ''
+        }
         const payload = JSON.stringify({
           uniMessageGUID: this.messageEditing.gUID,
-          newContent: this.new_message
+          newContent: editPayloadMessage
         })
         this.addMessagePar('[c:EDIT<JSON]' + payload)
         this.focusComment(true)
@@ -844,12 +868,17 @@ export default {
       }
       // Handle normal message
       const messageContent = this.new_message.substring(0, 300)
-
-      // Generate AES key to encrypt the message
+      const encryptedMessage = await this.encryptPayload(messageContent)
+      this.connection.send('[c:MSG<ENCR]' + encryptedMessage)
+      this.new_message = ''
+      this.focusComment(true)
+      setTimeout(() => this.auto_grow('new_comment'), 0)
+    },
+    encryptPayload: async function (messageContent) {
       const aesKey = await this.generateAESKey()
       const iv = this.generateIvAES()
       const cipher = await this.encryptMessageAES(messageContent, aesKey, iv)
-      const encrypted = this.arrayBufferToBase64(cipher)
+      const encryptedMessage = this.arrayBufferToBase64(cipher)
       // Encrypt AES key + iv for each participant with RSA encryption
       const aesPayload = {
         key: this.arrayBufferToBase64(await this.exportAESKey(aesKey)),
@@ -867,14 +896,35 @@ export default {
           })
         }
       }
-      const encryptedMessage = JSON.stringify({
-        keys: keyArray,
-        message: encrypted
+      return new Promise((resolve) => {
+        const encryptedMessageObj = JSON.stringify({
+          keys: keyArray,
+          message: encryptedMessage
+        })
+        resolve(encryptedMessageObj)
       })
-      this.connection.send('[c:MSG<ENCR]' + encryptedMessage)
-      this.new_message = ''
-      this.focusComment(true)
-      setTimeout(() => this.auto_grow('new_comment'), 0)
+    },
+    decryptPayload: async function (encryptedMessageObj) {
+      let decryptedMessage
+      for (let i = 0; i < encryptedMessageObj.keys.length; i++) {
+        const keyPair = encryptedMessageObj.keys[i]
+        if (keyPair.id === this.userId) {
+          // Step 1: Decrypt the RSA encrypted AES key
+          const decipherRSA = this.base64ToArrayBuffer(keyPair.key)
+          const decryptedRSA = await this.decryptMessageRSA(decipherRSA)
+          const aesPayload = JSON.parse(decryptedRSA)
+          const decipherAES = this.base64ToArrayBuffer(encryptedMessageObj.message)
+          const aesKey = await this.importSecretKey(await this.base64ToArrayBuffer(aesPayload.key))
+          // Step 2: Decrypt the AES encrypted message
+          decryptedMessage = await this.decryptMessageAES(
+            decipherAES,
+            aesKey,
+            this.base64ToArrayBuffer(aesPayload.iv))
+        }
+      }
+      return new Promise((resolve) => {
+        resolve(decryptedMessage)
+      })
     },
     focusComment: function (instantly = false) {
       if (instantly) {
@@ -1031,7 +1081,18 @@ export default {
       const message = JSON.parse(msg)
       // Process timestamp
       message.time = new Date(message.ts)
-      if (message.msg.includes('[s:EditNotification]') === true && message.src === '_server') return message
+      if (message.msg.includes('[s:EditNotification]') === true && message.src === '_server') {
+        message.mType = 'EditNotification'
+        message.msg = message.msg.substring(20)
+      }
+      if (message.msg.includes('[s:RegistrationNotification]') === true && message.src === '_server') {
+        message.mType = 'RegistrationNotification'
+        message.msg = message.msg.substring(28)
+      }
+      if (message.msg.includes('[c:GIF]') === true) {
+        message.mType = 'GIF'
+        message.msg = message.msg.substring(7)
+      }
       /* Do we have to add a message header?
       Don't add a header (avatar, name) if the last message came from the same source and similar time
        */
@@ -1050,22 +1111,16 @@ export default {
       // Is the message encrypted?
       const encryptionPrefix = '[c:MSG<ENCR]'
       if (message.msg.startsWith(encryptionPrefix)) {
-        const encryptedMessageObj = JSON.parse(message.msg.substring(encryptionPrefix.length))
-        for (let i = 0; i < encryptedMessageObj.keys.length; i++) {
-          const keyPair = encryptedMessageObj.keys[i]
-          if (keyPair.id === this.userId) {
-            // Decrypt the AES key
-            const decipherRSA = this.base64ToArrayBuffer(keyPair.key)
-            const decryptedRSA = await this.decryptMessageRSA(decipherRSA)
-            const aesPayload = JSON.parse(decryptedRSA)
-            const decipherAES = this.base64ToArrayBuffer(encryptedMessageObj.message)
-            const aesKey = await this.importSecretKey(await this.base64ToArrayBuffer(aesPayload.key))
-            message.msg = await this.decryptMessageAES(
-              decipherAES,
-              aesKey,
-              this.base64ToArrayBuffer(aesPayload.iv))
-            message.isEncrypted = true
-          }
+        message.isEncrypted = true
+        try {
+          message.msg = await this.decryptPayload(
+            JSON.parse(message.msg.substring(12))
+          )
+          message.decryptionFailed = false
+        } catch (e) {
+          message.msg = 'The message could not be decrypted.'
+          message.mType = 'CryptError'
+          message.decryptionFailed = true
         }
       }
       this.last_message = message
@@ -1097,8 +1152,17 @@ export default {
         }
       )
         .then((res) => res.json())
-        .then((data) => (this.addMessagePar('[c:GIF]' + data.data.images.fixed_height.url)))
+        .then(async (data) => (
+          this.addMessagePar('[c:GIF][c:MSG<ENCR]' +
+            await this.encryptPayload(data.data.images.fixed_height.url)
+          ))
+        )
         .catch((err) => console.error(err.message))
+    },
+    sendSelectedGIF: async function (url) {
+      this.addMessagePar('[c:GIF][c:MSG<ENCR]' +
+        await this.encryptPayload(url), true
+      )
     },
     getGIFSelection: function (text) {
       fetch(
@@ -1485,7 +1549,7 @@ export default {
       console.error(errorMessage)
       this.$notify(
         {
-          title: 'Image not uploaded',
+          title: 'File Not Uploaded',
           text: 'An Error occurred while uploading the file.',
           type: 'error'
         })
