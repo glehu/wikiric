@@ -309,7 +309,7 @@
                     class="new_comment b_gray"
                     type="text"
                     v-model="new_message"
-                    maxlength="300"
+                    maxlength="1000"
                     :placeholder="'Message to ' + chatroom.t"
                     v-on:keyup="auto_grow"
                     v-on:click="hideAllSidebars">
@@ -867,7 +867,7 @@ export default {
         return
       }
       // Handle normal message
-      const messageContent = this.new_message.substring(0, 300)
+      const messageContent = this.new_message.substring(0, 1000)
       const encryptedMessage = await this.encryptPayload(messageContent)
       this.connection.send('[c:MSG<ENCR]' + encryptedMessage)
       this.new_message = ''
