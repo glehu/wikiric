@@ -29,7 +29,8 @@ export default createStore({
     // --- Clarifier ---
     clarifierSessions: [],
     clarifierTimestamps: [],
-    clarifierKeys: []
+    clarifierKeys: [],
+    e2eEncryptionSeen: false
   },
   mutations: {
     logIn (state, user) {
@@ -166,6 +167,9 @@ export default createStore({
         }
       }
       state.clarifierKeys.unshift(payload)
+    },
+    setE2EncryptionSeen (state, seen) {
+      state.e2eEncryptionSeen = seen
     }
   },
   actions: {},
@@ -176,6 +180,9 @@ export default createStore({
     },
     getClarifierKeyPair: (state) => (guid) => {
       return state.clarifierKeys.find(entry => entry.id === guid)
+    },
+    hasSeenE2ENotification: (state) => () => {
+      return state.e2eEncryptionSeen
     }
   }
 })

@@ -556,15 +556,74 @@
       </template>
     </div>
   </div>
+  <modal
+    v-show="isModalVisible"
+    @close="closeModal">
+    <template v-slot:header>
+      <span style="font-weight: bold">
+        <i class="bi bi-shield-lock-fill"
+           style="margin-right: 10px; font-size: 200%"></i>
+        RSA-OAEP End-to-End Encryption
+      </span>
+    </template>
+
+    <template v-slot:body>
+      <div style="display: flex; width: 100%;
+                  justify-content: center;">
+        <h2>Your messages are safe here.</h2>
+      </div>
+      <div style="display: flex; width: 100%;
+                  justify-content: space-around;
+                  font-size: 300%">
+        <i class="bi bi-chat-text"></i>
+        -
+        <i class="bi bi-lock"></i>
+        -
+        <i class="bi bi-wifi"></i>
+      </div>
+      <div style="display: flex; width: 100%;
+                  justify-content: space-around; font-size: 80%;
+                  margin-top: 20px">
+        <p style="max-width: 45%">
+          Every Message and GIF sent is End-to-End encrypted,
+          before even leaving your device.</p>
+        <p style="max-width: 45%">
+          All data is being transmitted over a secure websocket
+          connection to the server.</p>
+      </div>
+      <div style="width: 100%; padding: 10px; text-align: left">
+        Encryption Tye: RSA-OAEP
+        <br>Key Size: 2048
+        <br>Hash-Algorithm: SHA-384
+      </div>
+      <div style="width: 100%; padding: 10px; text-align: right">
+        Encryption Tye: AES-CBC
+        <br>Key Size: 256
+      </div>
+      <div style="width: 100%; padding: 10px; text-align: center;
+                  font-size: 80%">
+        Every Message gets AES-CBC encoded, before the AES keys
+        get RSA-OAEP encrypted for each recipient.
+      </div>
+    </template>
+
+    <template v-slot:footer>
+      Happy Chatting!
+    </template>
+  </modal>
 </template>
 
 <script>
 
 import { Base64 } from 'js-base64'
+import modal from '../../components/Modal.vue'
 
 export default {
   props: {
     parsed: Object
+  },
+  components: {
+    modal
   },
   data () {
     return {
@@ -596,6 +655,7 @@ export default {
       uploadFileType: '',
       messageEditing: {},
       // Conditions
+      isModalVisible: false,
       isViewingGIFSelection: false,
       isViewingUserProfile: false,
       isViewingSessionSettings: false,
@@ -619,7 +679,15 @@ export default {
     setTimeout(() => this.initFunction(), 0)
   },
   methods: {
+    showModal () {
+      this.isModalVisible = true
+    },
+    closeModal () {
+      this.isModalVisible = false
+      this.$store.commit('setE2EncryptionSeen', true)
+    },
     initFunction: async function () {
+      this.isModalVisible = !this.$store.getters.hasSeenE2ENotification()
       this.toggleElement('init_loading', 'flex')
       window.addEventListener('resize', this.resizeCanvas, false)
       this.resizeCanvas()
