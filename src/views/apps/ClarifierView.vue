@@ -44,27 +44,31 @@
                     Your current Clarifier Groups. Click on one of them to quickly enter!
                   </p>
                 </div>
-                <div v-for="session in this.$store.state.clarifierSessions" :key="session"
+                <div v-for="group in this.$store.state.clarifierSessions" :key="group"
                      style="padding-bottom: 15px; display: flex">
                   <button class="btn"
+                          title="Remove Group"
                           style="color: red; opacity: 0.8"
-                          v-on:click="this.removeSession(session)">
+                          v-on:click="this.removeGroup(group)">
                     <i class="bi bi-x-lg"></i>
                   </button>
                   <div class="b_darkgray c_lightgray orange-hover"
                        style="display: flex; align-items: center;
                               justify-items: center;
                               width: 100%; border-radius: 15px; padding: 5px"
-                       v-on:click="joinActive(session.id)">
+                       v-on:click="joinActive(group.id)">
                     <img class="b_darkergray"
                          style="width: 40px; height: 40px; border-radius: 10px"
-                         v-bind:src="getImg(session.img,true)"
-                         :alt="'&nbsp;&nbsp;' + session.title.substring(0,1)"/>
+                         v-bind:src="getImg(group.img,true)"
+                         :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
                     <h5 class="sb_link_text text-nowrap"
                         style="margin: 0 0 0 10px;font-weight: bold;
                                font-family: 'Lato', sans-serif">
-                      &nbsp;{{ session.title }}
+                      &nbsp;{{ group.title }}
                     </h5>
+                    <i class="bi bi-shield-lock text-white"
+                       title="End-to-End Encrypted Group"
+                       style="margin-left: auto; margin-right: 4px"></i>
                   </div>
                 </div>
               </div>
@@ -81,9 +85,9 @@
                         border-radius: 1rem">
               <div class="card-body text-center">
                 <div class="mt-md-0 c_lightgray">
-                  <h1 class="fw-bold mb-2 text-uppercase"
+                  <h1 class="fw-bold mb-2"
                       style="font-family: 'Lato', sans-serif; pointer-events: none">
-                    Clarifier
+                    Add or Join
                   </h1>
                   <p style="text-align: justify; text-justify: inter-word; width: 100%; pointer-events: none">
                     Enter an invite ID and click Join or type in some name and create your own chatroom!
@@ -174,7 +178,7 @@ export default {
     joinActive: function (id) {
       this.$router.push('/apps/clarifier/wss/' + id)
     },
-    removeSession: function (session) {
+    removeGroup: function (session) {
       this.$store.commit('removeClarifierSession', session)
     },
     checkInput: function () {
@@ -298,7 +302,7 @@ export default {
 
 .orange-hover:hover {
   color: #ff5d37;
-  cursor: grab;
+  cursor: pointer;
 }
 
 #btn_join_session,

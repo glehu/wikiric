@@ -22,7 +22,6 @@ export default {
           id="modalTitle"
         >
           <slot name="header">
-            This is the default tile!
           </slot>
           <button
             type="button"
@@ -40,13 +39,11 @@ export default {
           id="modalDescription"
         >
           <slot name="body">
-            This is the default body!
           </slot>
         </section>
 
         <footer class="modal-footer">
           <slot name="footer">
-            This is the default footer!
           </slot>
           <button
             type="button"

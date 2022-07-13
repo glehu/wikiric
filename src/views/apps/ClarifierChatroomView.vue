@@ -48,16 +48,16 @@
              style="height: calc(100% - 60px - 100px); width: 100%; z-index: 4;
                     color: white; overflow-y: auto; overflow-x: clip;
                     padding-bottom: 20px; margin-top: 10px">
-          <div v-for="session in this.$store.state.clarifierSessions" :key="session"
+          <div v-for="group in this.$store.state.clarifierSessions" :key="group"
                class="channel_link"
                style="position: relative; font-weight: bold; font-size: 125%">
             <a class="fw-bold text-white orange-hover" style="text-decoration: none"
-               :href="'/apps/clarifier/wss/' + session.id">
+               :href="'/apps/clarifier/wss/' + group.id">
               <div class="c_lightgray orange-hover"
                    style="height: 50px; display: flex; align-items: center;">
                 <div style="width: 50px; height: 100%; position: relative;
                             display: flex; align-items: center; justify-content: center;">
-                  <div v-if="session.id === chatroom.guid"
+                  <div v-if="group.id === chatroom.guid"
                        style="position: absolute; height: 20px; width: 5px; left: 0;
                             border-radius: 20px;
                             background-color: forestgreen; z-index: 5">
@@ -65,16 +65,16 @@
                   <img class="b_darkergray"
                        style="border-radius: 10px; margin-left: 1px;
                               width: 40px; height: 40px; z-index: 6"
-                       v-bind:src="getImg(session.img,true)"
-                       :alt="'&nbsp;&nbsp;' + session.title.substring(0,1)"/>
+                       v-bind:src="getImg(group.img,true)"
+                       :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
                 </div>
                 <span class="sb_link_text text-nowrap"
                       style="position: absolute; left: 36px;">
-                  {{ session.title }}
+                  {{ group.title }}
                 </span>
               </div>
             </a>
-            <span class="channel_tooltip">{{ session.title }}</span>
+            <span class="channel_tooltip">{{ group.title }}</span>
           </div>
         </div>
       </div>
@@ -242,20 +242,20 @@
                   </div>
                 </template>
                 <!-- #### CLIENT IMAGE (SnippetBase) #### -->
-                <template v-else-if="msg.msg.startsWith('[c:IMG]')">
+                <template v-else-if="msg.mType === 'Image'">
                   <div>
-                    <img :src="msg.msg.substring(7)"
-                         :alt="msg.msg.substring(7)"
+                    <img :src="msg.msg"
+                         :alt="msg.msg"
                          style="max-width: 300px; cursor: zoom-in"
-                         v-on:click="openURL(msg.msg.substring(7))">
+                         v-on:click="openURL(msg.msg)">
                   </div>
                 </template>
                 <!-- #### CLIENT AUDIO (SnippetBase) #### -->
-                <template v-else-if="msg.msg.startsWith('[c:AUD]')">
+                <template v-else-if="msg.mType === 'Audio'">
                   <div>
                     <audio controls preload="auto"
                            class="uploadFileSnippet">
-                      <source :src="msg.msg.substring(7)">
+                      <source :src="msg.msg">
                       Your browser does not support playing audio.
                     </audio>
                   </div>
@@ -455,7 +455,7 @@
            style="padding-top: 10px; padding-left: 10px; display: inline-flex"
            v-on:click="this.sendSelectedGIF(gif.images.fixed_height.url)">
         <img :src="gif.images.fixed_height.url" alt="Loading" class="selectableGIF"
-             style="width: 155px; height: 155px">
+             style="width: 150px; max-height: 150px">
       </div>
     </div>
   </div>
@@ -566,7 +566,6 @@
         RSA-OAEP End-to-End Encryption
       </span>
     </template>
-
     <template v-slot:body>
       <div style="display: flex; width: 100%;
                   justify-content: center;">
@@ -606,7 +605,6 @@
         get RSA-OAEP encrypted for each recipient.
       </div>
     </template>
-
     <template v-slot:footer>
       Happy Chatting!
     </template>
@@ -1161,6 +1159,14 @@ export default {
         message.mType = 'GIF'
         message.msg = message.msg.substring(7)
       }
+      if (message.msg.includes('[c:IMG]') === true) {
+        message.mType = 'Image'
+        message.msg = message.msg.substring(7)
+      }
+      if (message.msg.includes('[c:AUD]') === true) {
+        message.mType = 'Audio'
+        message.msg = message.msg.substring(7)
+      }
       /* Do we have to add a message header?
       Don't add a header (avatar, name) if the last message came from the same source and similar time
        */
@@ -1383,6 +1389,7 @@ export default {
     },
     handleEnter: function () {
       if (event.key === 'Enter') {
+        if (event.shiftKey) return
         event.preventDefault()
         this.addMessage()
       } else if (event.key === 'ArrowUp') {
@@ -2390,6 +2397,7 @@ export default {
 }
 
 .clientMessage {
+  white-space: pre-wrap;
   text-wrap: normal;
   word-wrap: break-word;
   position: relative;

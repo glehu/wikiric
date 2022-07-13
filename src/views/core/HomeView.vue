@@ -57,6 +57,31 @@
               border-bottom: 4px dotted #192129;"
        class="b_darkergray">
     <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
+      <div style="width: 100%; display: flex; justify-content: center">
+        <img src='@/assets/clarifier/clarifier_e2e_demo.png' alt=""
+             style="width: 80%; border-radius: 10px; background-color: #101010">
+      </div>
+      <div style="width: 100%; display: flex; align-items: center; justify-content: center">
+        <p class="demotext c_lightgray">
+          You don't trust anonymous strangers? Good.
+          <br>Each Message is End-to-End encrypted for your privacy.
+          <br>
+          <br>Look for the shield icon (<i class="bi bi-shield-lock"></i>) to make sure nobody can sniff around
+          <br>
+          <br>
+          <i class="bi bi-people lead p-1"></i>
+          <span class="lead">
+            Gather your friends or (business) partners.
+          </span>
+        </p>
+      </div>
+    </div><!-- Demo Wrapper End -->
+  </div>
+  <div style="color: white; width: 100%;
+              display: flex; padding: 20px 5vw 20px 5vw;
+              border-bottom: 4px dotted #192129;"
+       class="b_darkergray">
+    <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
       <div style="width: 100%; display: flex; align-items: center; justify-content: center">
         <p class="demotext c_lightgray">
           Create as many Subchats as you need. For any purpose imaginable.
