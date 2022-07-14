@@ -383,7 +383,7 @@
         </button>
       </div>
       <div style="padding: 5px">
-        <div v-for="usr in this.members" :key="usr"
+        <div v-for="usr in this.mainMembers" :key="usr"
              style="padding-left: 10px; position: relative; display: flex; align-items: center"
              class="user_badge"
              v-on:click="showUserProfile(usr)">
@@ -414,15 +414,13 @@
       <div style="display: flex; align-items: center">
         <i class="bi bi-person-circle" style="font-size: 400%; margin-right: 15px"></i>
         <div style="display: block">
-          <h1 class="fw-bold">
+          <h2 class="fw-bold">
             {{ this.viewedUserProfile.usr }}
-          </h1>
+          </h2>
           <div title="End-to-End Encryption ID" style="display: flex; align-items: center">
             <i class="bi bi-shield-lock-fill" style="margin-right: 1ch"></i>
             <p class="c_lightgray" style="cursor: default; font-size: 75%; margin: 0">
-              {{ this.viewedUserProfile.id }}
-              <br>
-              <span style="font-size: 75%">RSA-OAEP</span>
+              RSA-OAEP
             </p>
           </div>
         </div>
@@ -665,6 +663,7 @@ export default {
       pageSize: 20,
       extraSkipCount: 0,
       lazyLoadingStatus: 'idle',
+      mainMembers: [],
       members: [],
       new_message: '',
       last_message: {},
@@ -1095,6 +1094,11 @@ export default {
         }
         if (this.isSubchat === false) {
           this.members = this.chatroom.members
+          // Parse JSON serialized users for performance
+          for (let i = 0; i < this.chatroom.members.length; i++) {
+            this.mainMembers[i] = JSON.parse(this.chatroom.members[i])
+            this.mainMembers[i].taggable = true
+          }
         }
       } else {
         this.$store.commit('addClarifierTimestampRead', {
@@ -1106,6 +1110,7 @@ export default {
           notify.style.opacity = '0'
           notify.style.display = 'none'
         }
+        this.members = this.currentSubchat.members
       }
       // Parse JSON serialized users for performance and determine current user's ID
       for (let i = 0; i < this.members.length; i++) {
@@ -1836,8 +1841,8 @@ export default {
       }
     },
     getMemberCount: function () {
-      if (this.members != null) {
-        return this.members.length
+      if (this.mainMembers != null) {
+        return this.mainMembers.length
       } else {
         return 0
       }
