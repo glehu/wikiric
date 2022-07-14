@@ -59,7 +59,7 @@
                             display: flex; align-items: center; justify-content: center;">
                   <div v-if="group.id === chatroom.guid"
                        style="position: absolute; height: 20px; width: 5px; left: 0;
-                            border-radius: 20px;
+                            border-radius: 5px;
                             background-color: forestgreen; z-index: 5">
                   </div>
                   <img class="b_darkergray"
@@ -192,6 +192,9 @@
                       <i v-else class="bi bi-exclamation-triangle-fill ms-1"
                          title="Decryption Error Occurred"></i>
                     </template>
+                    <template v-if="msg.tagActive === true">
+                      <i class="bi bi-at ms-1 c_orange" title="You got tagged!"></i>
+                    </template>
                   </div>
                 </div>
               </template>
@@ -203,6 +206,12 @@
                     </div>
                   </template>
                 </div>
+                <template v-if="msg.tagActive === true">
+                  <div style="position: absolute; height: 100%; width: 5px; left: -15px;
+                       border-radius: 5px; z-index: 5; box-shadow: 0 0 15px 0 #ff5d37"
+                       class="b_orange">
+                  </div>
+                </template>
                 <!-- #### MESSAGE OPTIONS #### -->
                 <div v-if="msg.editable === true"
                      class="msg_options b_darkgray">
@@ -305,6 +314,23 @@
               to cancel.
             </span>
           </div>
+          <div v-if="isTaggingUser"
+               class="user_tagger b_gray c_lightgray"
+               style="padding: 10px; position: relative; z-index: 100">
+            <h6 style="pointer-events: none">Tag a member:</h6>
+            <div v-for="(usr, index) in this.members" :key="usr"
+                 class="gray-hover"
+                 :class="{'active_gray': index === this.tagIndex}"
+                 style="position: relative; display: flex; align-items: center"
+                 v-on:click="tagUserProfile(usr)">
+              <template v-if="usr.taggable === true">
+                <i class="bi bi-at"
+                   style="font-size: 200%">
+                </i>
+                <span style="font-weight: bold; margin-left: 5px"> {{ usr.usr }} </span>
+              </template>
+            </div>
+          </div>
           <textarea id="new_comment"
                     class="new_comment b_gray"
                     type="text"
@@ -357,7 +383,7 @@
         </button>
       </div>
       <div style="padding: 5px">
-        <div v-for="usr in chatroom.members" :key="usr"
+        <div v-for="usr in this.members" :key="usr"
              style="padding-left: 10px; position: relative; display: flex; align-items: center"
              class="user_badge"
              v-on:click="showUserProfile(usr)">
@@ -632,6 +658,7 @@ export default {
       currentSubchat: {},
       connection: null,
       websocketState: 'CLOSED',
+      tagIndex: 0,
       // Messages and pagination
       messages: [],
       currentPage: 0,
@@ -662,6 +689,7 @@ export default {
       isViewingNewSubchat: false,
       isUploadingSnippet: false,
       isEditingMessage: false,
+      isTaggingUser: false,
       //
       lastKeyPressed: '',
       viewedUserProfile: {
@@ -714,6 +742,7 @@ export default {
       this.message_section.addEventListener('scroll', this.checkScroll, false)
       // Add message input field events
       this.inputField.addEventListener('keydown', this.handleEnter, false)
+      this.inputField.addEventListener('input', this.handleCommentInput, false)
       this.inputField.focus()
       // Add dropzone events (settings -> image upload)
       const dropZone = document.getElementById('drop_zone')
@@ -906,7 +935,7 @@ export default {
         this.addMessagePar('[c:EDIT<JSON]' + payload)
         this.focusComment(true)
         setTimeout(() => {
-          this.auto_grow('new_comment')
+          this.auto_grow()
           this.resetEditing()
         }, 0)
         return
@@ -922,14 +951,14 @@ export default {
         this.getGIF(this.new_message.substring(4))
         this.new_message = ''
         this.focusComment(true)
-        setTimeout(() => this.auto_grow('new_comment'), 0)
+        setTimeout(() => this.auto_grow(), 0)
         return
       }
       // Image Snippet Upload?
       if (isUploadingSnippet === true) {
         this.uploadSnippet()
         this.focusComment(true)
-        setTimeout(() => this.auto_grow('new_comment'), 0)
+        setTimeout(() => this.auto_grow(), 0)
         return
       }
       // Handle normal message
@@ -938,7 +967,8 @@ export default {
       this.connection.send('[c:MSG<ENCR]' + encryptedMessage)
       this.new_message = ''
       this.focusComment(true)
-      setTimeout(() => this.auto_grow('new_comment'), 0)
+      setTimeout(() => this.auto_grow(), 0)
+      this.isTaggingUser = false
     },
     encryptPayload: async function (messageContent) {
       const aesKey = await this.generateAESKey()
@@ -1063,7 +1093,9 @@ export default {
           notify.style.opacity = '0'
           notify.style.display = 'none'
         }
-        if (this.isSubchat === false) this.members = this.chatroom.members
+        if (this.isSubchat === false) {
+          this.members = this.chatroom.members
+        }
       } else {
         this.$store.commit('addClarifierTimestampRead', {
           id: this.currentSubchat.guid,
@@ -1074,11 +1106,11 @@ export default {
           notify.style.opacity = '0'
           notify.style.display = 'none'
         }
-        if (this.isSubchat === true) this.members = this.currentSubchat.members
       }
       // Parse JSON serialized users for performance and determine current user's ID
       for (let i = 0; i < this.members.length; i++) {
         this.members[i] = JSON.parse(this.members[i])
+        this.members[i].taggable = true
         if (this.members[i].usr === this.$store.state.username) {
           this.userId = this.members[i].id
         }
@@ -1197,6 +1229,7 @@ export default {
           message.decryptionFailed = true
         }
       }
+      message.tagActive = message.msg.includes('@' + this.$store.state.username) === true
       this.last_message = message
       return new Promise((resolve) => {
         resolve(message)
@@ -1279,10 +1312,30 @@ export default {
       this.isViewingUserProfile = true
       this.viewedUserProfile = user
     },
+    tagUserProfile: function (user) {
+      this.isTaggingUser = false
+      if (user == null || user.usr == null) {
+        return
+      }
+      for (let i = this.new_message.length - 1; i >= 0; i--) {
+        if (this.new_message.substring(i, i + 1) === '@') {
+          let j = i + 1
+          for (j; j < this.new_message.length; j++) {
+            if (this.new_message.substring(j, j + 1) === ' ') {
+              break
+            }
+          }
+          this.new_message = this.new_message.substring(0, i + 1) + user.usr + ' ' + this.new_message.substring(j)
+        }
+      }
+      this.focusComment(true)
+    },
     hideAllWindows: function () {
       this.isViewingUserProfile = false
       this.isViewingGIFSelection = false
       this.isUploadingSnippet = false
+      this.isTaggingUser = false
+      this.hideUserProfile()
       this.hideSessionSettings()
       this.hideNewSubchatWindow()
     },
@@ -1389,29 +1442,124 @@ export default {
     },
     handleEnter: function () {
       if (event.key === 'Enter') {
-        if (event.shiftKey) return
-        event.preventDefault()
-        this.addMessage()
+        if (this.isTaggingUser === true) {
+          event.preventDefault()
+          this.tagUserProfile(this.members[this.tagIndex])
+        } else {
+          if (event.shiftKey) return
+          event.preventDefault()
+          this.addMessage()
+        }
       } else if (event.key === 'ArrowUp') {
-        if (this.new_message !== '') return
-        event.preventDefault()
-        this.editOwnLastMessage()
+        if (this.new_message !== '') {
+          if (this.isTaggingUser === true) {
+            event.preventDefault()
+            if (this.tagIndex > 0) {
+              for (let ii = this.tagIndex - 1; ii >= 0; ii--) {
+                if (this.members[ii].taggable === true) {
+                  this.tagIndex--
+                  if (this.members[this.tagIndex].taggable !== true) {
+                    for (let i = this.tagIndex; i > 0; i--) {
+                      if (this.members[this.tagIndex].taggable !== true) {
+                        this.tagIndex--
+                      } else {
+                        break
+                      }
+                    }
+                  }
+                  break
+                }
+              }
+            } else {
+              this.tagIndex = 0
+            }
+          }
+        } else {
+          // Empty message => Edit last message
+          event.preventDefault()
+          this.editOwnLastMessage()
+        }
+      } else if (event.key === 'ArrowDown') {
+        if (this.isTaggingUser === true) {
+          event.preventDefault()
+          if (this.tagIndex < this.members.length - 1) {
+            for (let ii = this.tagIndex + 1; ii <= this.members.length - 1; ii++) {
+              if (this.members[ii].taggable === true) {
+                this.tagIndex++
+                if (this.members[this.tagIndex].taggable !== true) {
+                  for (let i = this.tagIndex; i < this.members.length - 1; i++) {
+                    if (this.members[this.tagIndex].taggable !== true) {
+                      this.tagIndex++
+                    } else {
+                      break
+                    }
+                  }
+                }
+                break
+              }
+            }
+          } else {
+            this.tagIndex = this.members.length - 1
+          }
+        }
       } else if (event.key === 'Escape') {
-        this.resetEditing()
+        if (this.isEditingMessage === true) {
+          this.resetEditing()
+        } else {
+          this.hideAllWindows()
+        }
+      }
+    },
+    handleCommentInput: function () {
+      // Check for @ to prompt user for tagging a person
+      if (this.new_message.substring(this.new_message.length - 1) === '@') {
+        this.isTaggingUser = true
+        this.tagIndex = 0
+      } else {
+        // Hide the tagging window if there is no @ present
+        if (this.isTaggingUser === true && !this.new_message.includes('@')) {
+          this.isTaggingUser = false
+        }
+      }
+      if (this.isTaggingUser === true) {
+        for (let i = this.new_message.length - 1; i >= 0; i--) {
+          if (this.new_message.substring(i, i + 1) === '@') {
+            let string = ''
+            for (let j = i + 1; j < this.new_message.length; j++) {
+              if (this.new_message.substring(j, j + 1) === ' ') {
+                this.isTaggingUser = false
+                return
+              }
+              string += this.new_message.substring(j, j + 1).toUpperCase()
+            }
+            for (let k = 0; k < this.members.length; k++) {
+              this.members[k].taggable = string === '' ||
+                this.members[k].usr.toUpperCase().includes(string)
+            }
+            for (let k = 0; k < this.members.length; k++) {
+              if (this.members[k].taggable === true) {
+                this.tagIndex = k
+                break
+              }
+            }
+            break
+          }
+        }
       }
     },
     resetEditing: function () {
-      if (this.isEditingMessage === true) {
-        const msg = document.getElementById(this.messageEditing.gUID)
-        if (msg != null) msg.style.backgroundColor = ''
-        this.isEditingMessage = false
-        this.messageEditing = {}
-        this.new_message = ''
-        setTimeout(() => {
-          this.auto_grow('new_comment')
-          this.focusComment(true)
-        }, 0)
+      if (this.isEditingMessage !== true) {
+        return
       }
+      const msg = document.getElementById(this.messageEditing.gUID)
+      if (msg != null) msg.style.backgroundColor = ''
+      this.isEditingMessage = false
+      this.messageEditing = {}
+      this.new_message = ''
+      setTimeout(() => {
+        this.auto_grow()
+        this.focusComment(true)
+      }, 0)
     },
     editOwnLastMessage: function () {
       for (let i = 0; i < this.messages.length; i++) {
@@ -1682,7 +1830,7 @@ export default {
         this.new_message = msg.msg
         this.focusComment(true)
         setTimeout(() => {
-          this.auto_grow('new_comment')
+          this.auto_grow()
           document.getElementById(msg.gUID).style.backgroundColor = '#192129'
         }, 0)
       }
@@ -2008,6 +2156,13 @@ export default {
 .orange-hover:hover {
   color: #ff5d37;
   cursor: pointer;
+}
+
+.gray-hover:hover,
+.active_gray {
+  background-color: #37424d;
+  cursor: pointer;
+  border-radius: 10px;
 }
 
 .selectableGIF:hover {
@@ -2443,6 +2598,17 @@ export default {
   font-size: 75%;
   font-weight: bold;
   opacity: 0;
+  transition: 0.3s opacity
+}
+
+.user_tagger {
+  position: absolute;
+  bottom: 60px;
+  left: 10px;
+  width: calc(100% - 20px);
+  border-radius: 20px;
+  padding: 0;
+  font-weight: bold;
   transition: 0.3s opacity
 }
 
