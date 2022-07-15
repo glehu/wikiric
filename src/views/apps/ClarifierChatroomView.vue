@@ -365,18 +365,14 @@
                class="imgflip_selector b_gray c_lightgray"
                style="padding: 10px; position: relative; z-index: 100; overflow: hidden">
             <input id="imgflip_topText"
-                   style="width: 100%; height: 60px; position: absolute; top: 0; left: 0;
-                          text-transform: uppercase; font-size: 300%; color: white;
-                          background: rgba(0,0,0,0.5); border: none"
-                   class="text-center fw-bold"
+                   style="top: 10px;"
+                   class="text-center fw-bold imgflip_text"
                    placeholder="Top Text">
             <img :src="this.imgflip_template.url" alt="Loading" class="selectableGIF"
-                 style="height: 50vh; width: 75%; margin-left: 15%">
+                 style="width: 300px; height: 300px">
             <input id="imgflip_bottomText"
-                   style="width: 100%; height: 60px; position: absolute; bottom: 0; left: 0;
-                          text-transform: uppercase; font-size: 300%; color: white;
-                          background: rgba(0,0,0,0.5); border: none"
-                   class="text-center fw-bold"
+                   style="bottom: 10px;"
+                   class="text-center fw-bold imgflip_text"
                    placeholder="Bottom Text"
                    v-on:keyup.enter="submitImgflipMeme">
           </div>
@@ -2888,6 +2884,18 @@ export default {
   align-items: center;
   justify-content: center;
   z-index: 9999
+}
+
+.imgflip_text {
+  width: calc(100% - 330px);
+  height: 60px;
+  position: absolute;
+  left: 320px;
+  text-transform: uppercase;
+  font-size: 200%;
+  color: white;
+  background: transparent;
+  border: none
 }
 
 </style>
