@@ -371,13 +371,14 @@
                    class="text-center fw-bold"
                    placeholder="Top Text">
             <img :src="this.imgflip_template.url" alt="Loading" class="selectableGIF"
-                 style="height: 100%; margin-left: 25%">
+                 style="height: 50vh; width: 75%; margin-left: 15%">
             <input id="imgflip_bottomText"
                    style="width: 100%; height: 60px; position: absolute; bottom: 0; left: 0;
                           text-transform: uppercase; font-size: 300%; color: white;
                           background: rgba(0,0,0,0.5); border: none"
                    class="text-center fw-bold"
-                   placeholder="Bottom Text">
+                   placeholder="Bottom Text"
+                   v-on:keyup.enter="submitImgflipMeme">
           </div>
           <textarea id="new_comment"
                     class="new_comment b_gray"
@@ -881,8 +882,6 @@ export default {
         // Websocket CLOSE
         this.connection.onclose = async () => {
           this.websocketState = 'CLOSED'
-          console.log('websocket closed... attempting reconnect...')
-          await this.initFunction()
         }
         // Websocket incoming frames
         this.connection.onmessage = (event) => {
@@ -1398,14 +1397,14 @@ export default {
     },
     submitImgflipMeme: function () {
       const url = 'https://api.imgflip.com/caption_image'
-      const textOne = document.getElementById('imgflip_topText').value
-      const textTwo = document.getElementById('imgflip_bottomText').value
+      const textOne = document.getElementById('imgflip_topText')
+      const textTwo = document.getElementById('imgflip_bottomText')
       const details = {
         template_id: this.imgflip_template.id,
         username: this.$store.state.imgFlipUsername,
         password: this.$store.state.imgFlipPassword,
-        text0: textOne,
-        text1: textTwo
+        text0: textOne.value,
+        text1: textTwo.value
       }
       let formBody = []
       for (const property in details) {
@@ -1431,6 +1430,8 @@ export default {
         .then(() => {
           this.isFillingImgflipTemplate = false
           this.imgflip_template = {}
+          textOne.value = ''
+          textTwo.value = ''
         })
         .catch((err) => console.error(err.message))
     },
