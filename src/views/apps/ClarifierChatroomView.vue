@@ -637,7 +637,7 @@
     </template>
     <template v-slot:body>
       <div style="display: flex; width: 100%;
-                  justify-content: center;">
+                  text-align: center;">
         <h2>Your messages are safe here.</h2>
       </div>
       <div style="display: flex; width: 100%;
@@ -660,13 +660,15 @@
           connection to the server.</p>
       </div>
       <div style="width: 100%; padding: 10px; text-align: left">
-        Encryption Tye: RSA-OAEP
-        <br>Key Size: 2048
-        <br>Hash-Algorithm: SHA-384
+        Message Encryption
+        <br>Encryption Tye: AES-CBC
+        <br>Key Size: 256
       </div>
       <div style="width: 100%; padding: 10px; text-align: right">
-        Encryption Tye: AES-CBC
-        <br>Key Size: 256
+        AES Key Encryption
+        <br>Encryption Tye: RSA-OAEP
+        <br>Key Size: 2048
+        <br>Hash-Algorithm: SHA-384
       </div>
       <div style="width: 100%; padding: 10px; text-align: center;
                   font-size: 80%">
