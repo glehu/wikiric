@@ -66,12 +66,12 @@
           You don't trust anonymous strangers? Good.
           <br>Each Message is End-to-End encrypted for your privacy.
           <br>
-          <br>Look for the shield icon (<i class="bi bi-shield-lock"></i>) to make sure nobody can sniff around
+          <br>Look for the shield icon (<i class="bi bi-shield-lock"></i>) to make sure nobody can sniff around.
           <br>
           <br>
-          <i class="bi bi-people lead p-1"></i>
+          <i class="bi bi-box lead p-1"></i>
           <span class="lead">
-            Gather your friends or (business) partners.
+            Contain and protect.
           </span>
         </p>
       </div>
