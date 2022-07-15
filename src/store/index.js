@@ -30,7 +30,10 @@ export default createStore({
     clarifierSessions: [],
     clarifierTimestamps: [],
     clarifierKeys: [],
-    e2eEncryptionSeen: false
+    e2eEncryptionSeen: false,
+    // ImgFlip
+    imgFlipUsername: '',
+    imgFlipPassword: ''
   },
   mutations: {
     logIn (state, user) {
@@ -170,6 +173,10 @@ export default createStore({
     },
     setE2EncryptionSeen (state, seen) {
       state.e2eEncryptionSeen = seen
+    },
+    setImgFlipAccount (state, imgFlipAccount) {
+      state.imgFlipUsername = imgFlipAccount.username
+      state.imgFlipPassword = imgFlipAccount.password
     }
   },
   actions: {},

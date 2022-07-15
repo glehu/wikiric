@@ -106,6 +106,12 @@ const routes = [
     name: 'WVision',
     component: () => import('../views/info/VisionView')
   },
+  {
+    path: '/thirdparty',
+    name: 'WThird Party Accounts',
+    component: () => import('../views/settings/ThirdPartyAccounts.vue'),
+    meta: { requiresAuth: true }
+  },
   // 404 NOT FOUND ERROR PAGE --- MUST BE AT THE VERY BOTTOM ---
   {
     path: '/:pathMatch(.*)*',

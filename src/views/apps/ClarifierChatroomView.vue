@@ -195,6 +195,12 @@
                     <template v-if="msg.tagActive === true">
                       <i class="bi bi-at ms-1 c_orange" title="You got tagged!"></i>
                     </template>
+                    <template v-if="msg.apiResponse === true">
+                      <i class="bi bi-gear ms-1 c_orange" title="API Response"></i>
+                      <span style="pointer-events: none" class="ms-1">
+                        {{ msg.mType }}
+                      </span>
+                    </template>
                   </div>
                 </div>
               </template>
@@ -270,6 +276,12 @@
                   </div>
                 </template>
                 <!-- #### CLIENT MESSAGE #### -->
+                <template v-else-if="msg.mType === 'Joke'">
+                  <p class="clientMessage">
+                    {{ msg.msg }}
+                  </p>
+                </template>
+                <!-- #### CLIENT MESSAGE #### -->
                 <template v-else>
                   <p class="clientMessage">
                     {{ msg.msg }}
@@ -331,6 +343,42 @@
               </template>
             </div>
           </div>
+          <div v-if="isSelectingImgflipTemplate"
+               class="imgflip_selector b_gray c_lightgray"
+               style="padding: 10px; position: relative; z-index: 100">
+            <h6 style="pointer-events: none">Select an Imgflip meme template:</h6>
+            <template v-for="(template, index) in this.imgflipSelection" :key="template">
+              <div v-if="template.selectable !== false"
+                   class="gray-hover mb-3"
+                   :class="{'active_gray': index === this.tagIndex}"
+                   style="position: relative; display: flex; align-items: center"
+                   v-on:click="selectImgflipTemplate(template)">
+                <img :src="template.url" alt="Loading" class="selectableGIF"
+                     style="width: 100px; max-height: 100px">
+                <p style="margin-left: 10px; font-size: 75%">
+                  {{ template.name }}
+                </p>
+              </div>
+            </template>
+          </div>
+          <div v-if="isFillingImgflipTemplate"
+               class="imgflip_selector b_gray c_lightgray"
+               style="padding: 10px; position: relative; z-index: 100; overflow: hidden">
+            <input id="imgflip_topText"
+                   style="width: 100%; height: 60px; position: absolute; top: 0; left: 0;
+                          text-transform: uppercase; font-size: 300%; color: white;
+                          background: rgba(0,0,0,0.5); border: none"
+                   class="text-center fw-bold"
+                   placeholder="Top Text">
+            <img :src="this.imgflip_template.url" alt="Loading" class="selectableGIF"
+                 style="height: 100%; margin-left: 25%">
+            <input id="imgflip_bottomText"
+                   style="width: 100%; height: 60px; position: absolute; bottom: 0; left: 0;
+                          text-transform: uppercase; font-size: 300%; color: white;
+                          background: rgba(0,0,0,0.5); border: none"
+                   class="text-center fw-bold"
+                   placeholder="Bottom Text">
+          </div>
           <textarea id="new_comment"
                     class="new_comment b_gray"
                     type="text"
@@ -351,7 +399,7 @@
                   style="position: absolute; right: 55px"
                   :title="getAddMessageTitle()"
                   v-on:click="addMessage">
-              <span class="fw-bold">
+<span class="fw-bold">
                 <i v-if="isEditingMessage === false" class="bi bi-send"></i>
                 <i v-else class="bi bi-pencil-fill"></i>
               </span>
@@ -670,6 +718,7 @@ export default {
       gif_query_string: '',
       new_role: '',
       gifSelection: [],
+      imgflipSelection: [],
       showInviteCopied: false,
       new_subchat_name: '',
       sendImageButton: null,
@@ -678,6 +727,7 @@ export default {
       uploadFileBase64: '',
       uploadFileType: '',
       messageEditing: {},
+      imgflip_template: {},
       // Conditions
       isModalVisible: false,
       isViewingGIFSelection: false,
@@ -689,6 +739,8 @@ export default {
       isUploadingSnippet: false,
       isEditingMessage: false,
       isTaggingUser: false,
+      isSelectingImgflipTemplate: false,
+      isFillingImgflipTemplate: false,
       //
       lastKeyPressed: '',
       viewedUserProfile: {
@@ -827,8 +879,10 @@ export default {
           this.subscribeFCM(sessionID, isSubchat)
         }
         // Websocket CLOSE
-        this.connection.onclose = () => {
+        this.connection.onclose = async () => {
           this.websocketState = 'CLOSED'
+          console.log('websocket closed... attempting reconnect...')
+          await this.initFunction()
         }
         // Websocket incoming frames
         this.connection.onmessage = (event) => {
@@ -948,6 +1002,14 @@ export default {
       // GIF Lookup?
       if (this.new_message.toLowerCase().startsWith('/gif ')) {
         this.getGIF(this.new_message.substring(4))
+        this.new_message = ''
+        this.focusComment(true)
+        setTimeout(() => this.auto_grow(), 0)
+        return
+      }
+      // Joke Lookup?
+      if (this.new_message.toLowerCase().startsWith('/joke')) {
+        this.getRandomJoke(this.new_message.substring(5))
         this.new_message = ''
         this.focusComment(true)
         setTimeout(() => this.auto_grow(), 0)
@@ -1182,6 +1244,7 @@ export default {
     processRawMessage: async function (msg) {
       // Deserialize
       const message = JSON.parse(msg)
+      message.apiResponse = false
       // Process timestamp
       message.time = new Date(message.ts)
       if (message.msg.includes('[s:EditNotification]') === true && message.src === '_server') {
@@ -1196,6 +1259,11 @@ export default {
         message.mType = 'GIF'
         message.msg = message.msg.substring(7)
       }
+      if (message.msg.includes('[c:JOKE]') === true) {
+        message.mType = 'Joke'
+        message.apiResponse = true
+        message.msg = message.msg.substring(8)
+      }
       if (message.msg.includes('[c:IMG]') === true) {
         message.mType = 'Image'
         message.msg = message.msg.substring(7)
@@ -1208,12 +1276,14 @@ export default {
       Don't add a header (avatar, name) if the last message came from the same source and similar time
        */
       message.header = true
-      if (this.last_message.src === message.src) {
-        // If the sources are identical, check if the time was similar
-        let timeDiff = message.time.getTime() - this.last_message.time.getTime()
-        timeDiff = (Math.abs((timeDiff) / 1000) / 60)
-        // If the message is 3 minutes or older put the message header
-        message.header = timeDiff >= 3
+      if (message.apiResponse !== true) {
+        if (this.last_message.src === message.src) {
+          // If the sources are identical, check if the time was similar
+          let timeDiff = message.time.getTime() - this.last_message.time.getTime()
+          timeDiff = (Math.abs((timeDiff) / 1000) / 60)
+          // If the message is 3 minutes or older put the message header
+          message.header = timeDiff >= 3
+        }
       }
       /* Are we allowed to edit this message?
       Only allow the user to edit his own messages, not the ones of others
@@ -1271,6 +1341,34 @@ export default {
         )
         .catch((err) => console.error(err.message))
     },
+    getRandomJoke: function (text) {
+      let url = 'https://api.humorapi.com/jokes/random?api-key=d47f7eca7f694765adc6389f6ce17ba9'
+      if (text != null && text !== '') {
+        url += '&include-tags=' + text.trim()
+      }
+      fetch(
+        url,
+        {
+          method: 'get'
+        }
+      )
+        .then((res) => res.json())
+        .then(async (data) => {
+          if (data.joke != null) {
+            this.addMessagePar('[c:JOKE][c:MSG<ENCR]' +
+              await this.encryptPayload(data.joke)
+            )
+          } else {
+            this.$notify(
+              {
+                title: 'No Joke :(',
+                text: 'There was no response... maybe the quota is used up?',
+                type: 'error'
+              })
+          }
+        })
+        .catch((err) => console.error(err.message))
+    },
     sendSelectedGIF: async function (url) {
       this.addMessagePar('[c:GIF][c:MSG<ENCR]' +
         await this.encryptPayload(url), true
@@ -1286,6 +1384,61 @@ export default {
         .then((res) => res.json())
         .then((data) => (this.gifSelection = data.data))
         .catch((err) => console.error(err.message))
+    },
+    getImgFlipSelection: function () {
+      fetch(
+        'https://api.imgflip.com/get_memes',
+        {
+          method: 'get'
+        }
+      )
+        .then((res) => res.json())
+        .then((data) => (this.imgflipSelection = data.data.memes))
+        .catch((err) => console.error(err.message))
+    },
+    submitImgflipMeme: function () {
+      const url = 'https://api.imgflip.com/caption_image'
+      const textOne = document.getElementById('imgflip_topText').value
+      const textTwo = document.getElementById('imgflip_bottomText').value
+      const details = {
+        template_id: this.imgflip_template.id,
+        username: this.$store.state.imgFlipUsername,
+        password: this.$store.state.imgFlipPassword,
+        text0: textOne,
+        text1: textTwo
+      }
+      let formBody = []
+      for (const property in details) {
+        const encodedKey = encodeURIComponent(property)
+        const encodedValue = encodeURIComponent(details[property])
+        formBody.push(encodedKey + '=' + encodedValue)
+      }
+      formBody = formBody.join('&')
+      let response
+      fetch(
+        url,
+        {
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: formBody
+        }
+      )
+        .then((res) => res.json())
+        .then((data) => (response = data))
+        .then(() => this.handleImgflipSubmissionResponse(response))
+        .then(() => {
+          this.isFillingImgflipTemplate = false
+          this.imgflip_template = {}
+        })
+        .catch((err) => console.error(err.message))
+    },
+    handleImgflipSubmissionResponse: async function (response) {
+      if (response.success !== true) {
+        return
+      }
+      this.addMessagePar('[c:IMG][c:MSG<ENCR]' + await this.encryptPayload(response.data.url))
     },
     toggleSelectingGIF: function () {
       const wasShowing = this.isViewingGIFSelection
@@ -1335,11 +1488,37 @@ export default {
       }
       this.focusComment(true)
     },
+    selectImgflipTemplate: function (template) {
+      this.isSelectingImgflipTemplate = false
+      if (template == null || template.id == null) {
+        return
+      }
+      for (let i = this.new_message.length - 1; i >= 0; i--) {
+        if (this.new_message.substring(i, i + 5) === '/flip') {
+          let j = i + 6
+          for (j; j < this.new_message.length; j++) {
+            if (this.new_message.substring(j, j + 1) === ' ') {
+              break
+            }
+          }
+          this.imgflip_template = template
+          this.new_message = ''
+          this.isFillingImgflipTemplate = true
+          setTimeout(() => {
+            document.getElementById('imgflip_topText').focus()
+          }, 50)
+        }
+      }
+      this.focusComment(true)
+    },
     hideAllWindows: function () {
       this.isViewingUserProfile = false
       this.isViewingGIFSelection = false
       this.isUploadingSnippet = false
       this.isTaggingUser = false
+      this.isSelectingImgflipTemplate = false
+      this.isFillingImgflipTemplate = false
+      this.imgflip_template = {}
       this.hideUserProfile()
       this.hideSessionSettings()
       this.hideNewSubchatWindow()
@@ -1450,6 +1629,12 @@ export default {
         if (this.isTaggingUser === true) {
           event.preventDefault()
           this.tagUserProfile(this.members[this.tagIndex])
+        } else if (this.isSelectingImgflipTemplate === true) {
+          event.preventDefault()
+          this.selectImgflipTemplate(this.imgflipSelection[this.tagIndex])
+        } else if (this.isFillingImgflipTemplate === true) {
+          event.preventDefault()
+          this.submitImgflipMeme()
         } else {
           if (event.shiftKey) return
           event.preventDefault()
@@ -1466,6 +1651,27 @@ export default {
                   if (this.members[this.tagIndex].taggable !== true) {
                     for (let i = this.tagIndex; i > 0; i--) {
                       if (this.members[this.tagIndex].taggable !== true) {
+                        this.tagIndex--
+                      } else {
+                        break
+                      }
+                    }
+                  }
+                  break
+                }
+              }
+            } else {
+              this.tagIndex = 0
+            }
+          } else if (this.isSelectingImgflipTemplate === true) {
+            event.preventDefault()
+            if (this.tagIndex > 0) {
+              for (let ii = this.tagIndex - 1; ii >= 0; ii--) {
+                if (this.imgflipSelection[ii].selectable !== false) {
+                  this.tagIndex--
+                  if (this.imgflipSelection[this.tagIndex].selectable === false) {
+                    for (let i = this.tagIndex; i > 0; i--) {
+                      if (this.imgflipSelection[this.tagIndex].selectable === false) {
                         this.tagIndex--
                       } else {
                         break
@@ -1506,6 +1712,27 @@ export default {
           } else {
             this.tagIndex = this.members.length - 1
           }
+        } else if (this.isSelectingImgflipTemplate === true) {
+          event.preventDefault()
+          if (this.tagIndex < this.imgflipSelection.length - 1) {
+            for (let ii = this.tagIndex + 1; ii <= this.imgflipSelection.length - 1; ii++) {
+              if (this.imgflipSelection[ii].selectable !== false) {
+                this.tagIndex++
+                if (this.imgflipSelection[this.tagIndex].selectable === false) {
+                  for (let i = this.tagIndex; i < this.imgflipSelection.length - 1; i++) {
+                    if (this.imgflipSelection[this.tagIndex].selectable === false) {
+                      this.tagIndex++
+                    } else {
+                      break
+                    }
+                  }
+                }
+                break
+              }
+            }
+          } else {
+            this.tagIndex = this.imgflipSelection.length - 1
+          }
         }
       } else if (event.key === 'Escape') {
         if (this.isEditingMessage === true) {
@@ -1543,6 +1770,38 @@ export default {
             }
             for (let k = 0; k < this.members.length; k++) {
               if (this.members[k].taggable === true) {
+                this.tagIndex = k
+                break
+              }
+            }
+            break
+          }
+        }
+      }
+      // Check for /flip to prompt user for selecting a meme template
+      if (this.new_message.substring(this.new_message.length - 5) === '/flip') {
+        this.isSelectingImgflipTemplate = true
+        this.tagIndex = 0
+        this.getImgFlipSelection()
+      } else {
+        // Hide the tagging window if there is no @ present
+        if (this.isSelectingImgflipTemplate === true && !this.new_message.includes('/flip')) {
+          this.isSelectingImgflipTemplate = false
+        }
+      }
+      if (this.isSelectingImgflipTemplate === true) {
+        for (let i = this.new_message.length - 1; i >= 0; i--) {
+          if (this.new_message.substring(i, i + 6) === '/flip ') {
+            let string = ''
+            for (let j = i + 6; j < this.new_message.length; j++) {
+              string += this.new_message.substring(j, j + 1).toUpperCase()
+            }
+            for (let k = 0; k < this.imgflipSelection.length; k++) {
+              this.imgflipSelection[k].selectable = string === '' ||
+                this.imgflipSelection[k].name.toUpperCase().includes(string)
+            }
+            for (let k = 0; k < this.imgflipSelection.length; k++) {
+              if (this.imgflipSelection[k].selectable === true) {
                 this.tagIndex = k
                 break
               }
@@ -2606,7 +2865,8 @@ export default {
   transition: 0.3s opacity
 }
 
-.user_tagger {
+.user_tagger,
+.imgflip_selector {
   position: absolute;
   bottom: 60px;
   left: 10px;
@@ -2614,7 +2874,10 @@ export default {
   border-radius: 20px;
   padding: 0;
   font-weight: bold;
-  transition: 0.3s opacity
+  transition: 0.3s opacity;
+  max-height: 50vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 #init_loading,

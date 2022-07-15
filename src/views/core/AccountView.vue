@@ -99,6 +99,17 @@
                 <div class="d-md-flex justify-content-between text-white mt-3"
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
+                          v-on:click="gotoThirdPartyAccounts">
+                    <i class="bi bi-people p-1"></i><span class="fw-bold"> Accounts</span>
+                  </button>
+                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">3rd Party Accounts</h3>
+                </div>
+              </section>
+              <section
+                class="container">
+                <div class="d-md-flex justify-content-between text-white mt-3"
+                     style="border-radius: 1rem;">
+                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="logout">
                     <i class="bi bi-door-open p-1"></i><span class="fw-bold"> Logout</span>
                   </button>
@@ -176,6 +187,9 @@ export default {
     },
     gotoClarifier () {
       this.$router.push('/apps/clarifier')
+    },
+    gotoThirdPartyAccounts () {
+      this.$router.push('/thirdparty')
     }
   }
 }
