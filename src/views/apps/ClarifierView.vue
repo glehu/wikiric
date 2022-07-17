@@ -155,7 +155,8 @@ export default {
           method: 'post',
           headers: headers,
           body: JSON.stringify({
-            title: this.input_string
+            title: this.input_string,
+            type: 'text'
           })
         }
       )

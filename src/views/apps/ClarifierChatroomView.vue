@@ -92,7 +92,7 @@
                  v-on:click="gotoSubchat(this.getSession(), false)">
               <i v-show="hasUnread(this.getSession())" :id="this.getSession() + '_notify'"
                  class="bi bi-chat-quote-fill" style="position: absolute; left: 20px"></i>
-              <span style="font-size: 150%">#</span>
+              <span style="font-size: 150%"><i class="bi bi-hash"></i></span>
               <span style="padding-left: 10px">General</span>
             </div>
           </div>
@@ -107,14 +107,16 @@
             </button>
           </div>
           <div v-for="subchat in this.chatroom.subChatrooms" :key="subchat"
-               :id="JSON.parse(subchat).guid + '_subc'"
+               :id="subchat.guid + '_subc'"
                class="subchat orange-hover"
                style="display: flex"
-               v-on:click="gotoSubchat(JSON.parse(subchat).guid)">
-            <i v-show="hasUnread(JSON.parse(subchat).guid)" :id="JSON.parse(subchat).guid + '_notify'"
+               v-on:click="gotoSubchat(subchat.guid)">
+            <i v-show="hasUnread(subchat.guid)" :id="subchat.guid + '_notify'"
                class="bi bi-chat-quote-fill" style="position: absolute; left: 20px"></i>
-            <span style="font-size: 150%">#</span>
-            <span style="padding-left: 10px">{{ JSON.parse(subchat).t }}</span>
+            <span v-if="subchat.type === 'screenshare'"
+                  style="font-size: 150%"><i class="bi bi-window-fullscreen"></i></span>
+            <span v-else style="font-size: 150%"><i class="bi bi-hash"></i></span>
+            <span style="padding-left: 10px">{{ subchat.t }}</span>
           </div>
         </div>
       </div>
@@ -123,7 +125,17 @@
          style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip"
          v-on:click="closeModals">
       <div id="chat_section" class="chat_section b_darkergray" style="width: 100%; height: 100%">
-        <div class="header-margin" style="box-shadow: none"></div>
+        <div class="header-margin" style="box-shadow: none">
+          <div v-if="isStreamingVideo"
+               style="width: 100%; min-height: 60px;
+                      display: flex;
+                      align-items: center">
+            <h2 style="color: white; margin: 0 0 0 20px"
+                class="fw-bold">
+              {{ streamDuration }}
+            </h2>
+          </div>
+        </div>
         <!-- #### CHAT HEADER #### -->
         <div class="b_darkergray chat_header">
           <div style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%"
@@ -131,6 +143,13 @@
             <span style="margin-left: 10px">{{ chatroom.t }}</span>
             <div v-if="isSubchat === true">
               <span style="margin-left: 10px"><i class="bi bi-caret-right"></i></span>
+              <span v-if="currentSubchat.type === 'screenshare'"
+                    style="margin-left: 10px">
+                <i class="bi bi-window-fullscreen"></i>
+              </span>
+              <span v-else style="margin-left: 10px">
+                <i class="bi bi-hash"></i>
+              </span>
               <span style="margin-left: 10px">{{ currentSubchat.t }}</span>
             </div>
           </div>
@@ -154,12 +173,66 @@
             <i class="bi bi-people orange-hover" style="height: 25px; width: 25px"></i>
           </button>
         </div>
+        <div v-if="this.isSubchat === true && this.currentSubchat.type === 'screenshare'"
+             style="width: calc(100% - 300px);
+                    height: calc(100vh - 60px - 50px - 80px);
+                    position: absolute; left: 300px;
+                    border-bottom: 2px solid rgba(174, 174, 183, 0.25);
+                    padding: 10px 10px 10px 0;
+                    display: flex"
+             class="c_lightgray">
+          <div style="position: relative; top: 10px; left: 0;
+                      width: calc(100% - 10px);
+                      aspect-ratio: 16 / 9"
+               class="b_darkergray">
+            <div v-if="!isStreamingVideo"
+                 class="d-flex"
+                 style="pointer-events: none;
+                        position: absolute;
+                        width: 100%; height: 100%;
+                        align-items: center; justify-content: center">
+              <i class="bi bi-camera-video-off lead"></i>
+              <p style="margin: 0 0 0 10px;
+                        padding-left: 10px;
+                        border-left: 2px solid rgba(174, 174, 183, 0.25);">
+                OFFLINE
+                <br>
+                <span style="font-size: 75%">
+                  Start sharing or
+                  <br>wait for somebody to start the stream.
+                </span>
+              </p>
+            </div>
+            <video id="screenshare_video" autoplay
+                   style="width: 100%; height: 100%"></video>
+          </div>
+          <div>
+            <button v-on:click="startScreenshare"
+                    class="btn btn-sm gray-hover
+                           c_lightgray"
+                    style="position: relative;
+                           margin-left: 20px; margin-top: 10px;
+                           border: 2px solid rgba(174, 174, 183, 0.25);
+                           border-radius: 10px;">
+              Share Screen
+            </button>
+            <button v-on:click="stopScreenshare"
+                    class="btn btn-sm gray-hover
+                           c_lightgray"
+                    style="position: relative;
+                           margin-left: 20px; margin-top: 10px;
+                           border: 2px solid rgba(174, 174, 183, 0.25);
+                           border-radius: 10px;">
+              Stop
+            </button>
+          </div>
+        </div>
         <!-- #### MESSAGES #### -->
         <div id="messages_section"
              class="messages_section"
              style="overflow-y: auto; overflow-x: clip;
-             height: calc(100vh - 60px - 50px - 80px);
-             display: flex; flex-direction: column-reverse">
+                    height: calc(100vh - 60px - 50px - 80px);
+                    display: flex; flex-direction: column-reverse">
           <div id="init_loading" style="display: none">
             <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
             <span class="ms-2 fw-bold c_lightgray">Initializing...</span>
@@ -396,7 +469,7 @@
                   style="position: absolute; right: 55px"
                   :title="getAddMessageTitle()"
                   v-on:click="addMessage">
-<span class="fw-bold">
+              <span class="fw-bold">
                 <i v-if="isEditingMessage === false" class="bi bi-send"></i>
                 <i v-else class="bi bi-pencil-fill"></i>
               </span>
@@ -462,7 +535,8 @@
           <h2 class="fw-bold">
             {{ this.viewedUserProfile.usr }}
           </h2>
-          <div title="End-to-End Encryption ID" style="display: flex; align-items: center">
+          <div title="This member's messages are being End-to-End encrypted"
+               style="display: flex; align-items: center">
             <i class="bi bi-shield-lock-fill" style="margin-right: 1ch"></i>
             <p class="c_lightgray" style="cursor: default; font-size: 75%; margin: 0">
               RSA-OAEP
@@ -563,18 +637,28 @@
       <input v-model="new_subchat_name"
              id="new_subchat_name" type="text"
              class="mt-2 b_darkergray text-white p-2 ps-3"
-             style="width: 100%; border: none; border-radius: 20px"
-             v-on:keyup.enter="createSubchatroom">
+             style="width: 100%; border: none; border-radius: 20px">
       <label class="fw-bold lead mt-4 c_lightgray" style="width: 100%">Create:</label>
-      <button v-on:click="createSubchatroom"
+      <button v-on:click="createSubchatroom('text')"
               id="new_subchat_type_text" class="btn darkbutton mt-2"
               style="color: white; width: 100%; text-align: left; display: flex;
                      align-items: center; border-radius: 10px">
-        <span style="font-size: 200%">#</span>
-        <span class="ms-2">
+        <span style="font-size: 200%"><i class="bi bi-hash"></i></span>
+        <span class="ms-3">
           <span>Text Subchat</span>
           <br>
           <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Messages, GIFs and Files...</span>
+        </span>
+      </button>
+      <button v-on:click="createSubchatroom('screenshare')"
+              id="new_subchat_type_screenshare" class="btn darkbutton mt-2"
+              style="color: white; width: 100%; text-align: left; display: flex;
+                     align-items: center; border-radius: 10px">
+        <span style="font-size: 200%"><i class="bi bi-window-fullscreen"></i></span>
+        <span class="ms-3">
+          <span>Screenshare Subchat</span>
+          <br>
+          <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Share your screen for others</span>
         </span>
       </button>
     </div>
@@ -704,6 +788,8 @@ export default {
       connection: null,
       websocketState: 'CLOSED',
       tagIndex: 0,
+      streamStartTime: '',
+      streamDuration: '',
       // Messages and pagination
       messages: [],
       currentPage: 0,
@@ -740,6 +826,7 @@ export default {
       isTaggingUser: false,
       isSelectingImgflipTemplate: false,
       isFillingImgflipTemplate: false,
+      isStreamingVideo: false,
       //
       lastKeyPressed: '',
       viewedUserProfile: {
@@ -953,7 +1040,7 @@ export default {
               JSON.parse(response.newContent.substring(12))
             )
           } catch (e) {
-            console.log(e.message)
+            console.error(e.message)
           }
         } else {
           // Delete message
@@ -1137,6 +1224,7 @@ export default {
     },
     processMetaDataResponse: async function (isSubchat = false) {
       if (isSubchat === false) {
+        this.currentSubchat.type = 'text'
         this.$store.commit('addClarifierSession', {
           id: this.chatroom.guid,
           title: this.chatroom.t,
@@ -1158,6 +1246,12 @@ export default {
             this.mainMembers[i] = JSON.parse(this.chatroom.members[i])
             this.mainMembers[i].taggable = true
           }
+          if (this.chatroom.subChatrooms != null) {
+            // Parse JSON serialized subchats for performance
+            for (let i = 0; i < this.chatroom.subChatrooms.length; i++) {
+              this.chatroom.subChatrooms[i] = JSON.parse(this.chatroom.subChatrooms[i])
+            }
+          }
         }
       } else {
         this.$store.commit('addClarifierTimestampRead', {
@@ -1170,6 +1264,14 @@ export default {
           notify.style.display = 'none'
         }
         this.members = this.currentSubchat.members
+      }
+      const messagesSection = document.getElementById('messages_section')
+      if (this.currentSubchat.type === 'screenshare') {
+        messagesSection.style.width = '300px'
+        messagesSection.style.borderRight = '2px solid rgba(174, 174, 183, 0.25)'
+      } else {
+        messagesSection.style.width = 'initial'
+        messagesSection.style.borderRight = 'initial'
       }
       // Parse JSON serialized users for performance and determine current user's ID
       for (let i = 0; i < this.members.length; i++) {
@@ -1954,13 +2056,14 @@ export default {
     lazyLoadMessages: function () {
       this.getClarifierMessages(true, this.currentSubchat.guid)
     },
-    createSubchatroom: async function () {
+    createSubchatroom: async function (subchatType) {
       if (this.new_subchat_name.trim() === '') {
         this.new_subchat_name = ''
         return
       }
       const content = JSON.stringify({
-        title: this.new_subchat_name.trim()
+        title: this.new_subchat_name.trim(),
+        type: subchatType
       })
       this.hideNewSubchatWindow()
       const headers = new Headers()
@@ -2323,6 +2426,68 @@ export default {
         bytes[i] = binaryString.charCodeAt(i)
       }
       return bytes.buffer
+    },
+    startScreenshare: async function () {
+      const videoElem = document.getElementById('screenshare_video')
+      const constraints = {
+        video: {
+          cursor: 'always'
+        },
+        audio: false
+      }
+      try {
+        // Ask for screen sharing permission + prompt user to select screen
+        videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(constraints)
+        this.isStreamingVideo = true
+        // Go into distraction free cinema mode
+        const chat = document.getElementById('chat_section')
+        chat.style.position = 'fixed'
+        chat.style.top = '0'
+        chat.style.left = '0'
+        chat.style.zIndex = '9999'
+        // Start the count-up timer
+        this.streamStartTime = Math.floor(Date.now() / 1000)
+        this.startTimeCounter()
+      } catch (err) {
+        console.error('Error: ' + err)
+      }
+    },
+    startTimeCounter: function () {
+      const now = Math.floor(Date.now() / 1000)
+      const diff = now - this.streamStartTime
+      let m = Math.floor(diff / 60)
+      let s = Math.floor(diff % 60)
+      m = this.padTime(m)
+      s = this.padTime(s)
+      this.streamDuration = m + ':' + s
+      if (this.isStreamingVideo) {
+        setTimeout(this.startTimeCounter, 1000)
+      }
+    },
+    padTime: function (i) {
+      if (i < 10) {
+        i = '0' + i
+      }
+      return i
+    },
+    stopScreenshare: function () {
+      const videoElem = document.getElementById('screenshare_video')
+      if (videoElem.srcObject != null) {
+        // Stop all media streams
+        // (this could be video and audio for example, or multiple audio tracks etc.)
+        const tracks = videoElem.srcObject.getTracks()
+        tracks.forEach(track => track.stop())
+        videoElem.srcObject = null
+        this.isStreamingVideo = false
+        this.streamStartTime = ''
+        this.streamDuration = ''
+        // Revert styling changes
+        const chat = document.getElementById('chat_section')
+        chat.style.position = 'initial'
+        chat.style.top = 'initial'
+        chat.style.left = 'initial'
+        chat.style.zIndex = 'initial'
+      }
     }
   }
 }
