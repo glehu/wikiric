@@ -190,7 +190,8 @@
                  style="pointer-events: none;
                         position: absolute;
                         width: 100%; height: 100%;
-                        align-items: center; justify-content: center">
+                        align-items: center; justify-content: center;
+                        background-color: rgba(19,19,19,0.75)">
               <i class="bi bi-camera-video-off lead"></i>
               <p style="margin: 0 0 0 10px;
                         padding-left: 10px;
@@ -768,8 +769,8 @@
 
 <script>
 
-import { Base64 } from 'js-base64'
 import modal from '../../components/Modal.vue'
+import { Base64 } from 'js-base64'
 
 export default {
   props: {
@@ -788,6 +789,7 @@ export default {
       connection: null,
       websocketState: 'CLOSED',
       tagIndex: 0,
+      mediaRecorder: {},
       streamStartTime: '',
       streamDuration: '',
       // Messages and pagination
@@ -1029,6 +1031,7 @@ export default {
     },
     showMessage: async function (msg) {
       const message = await this.processRawMessage(msg)
+      if (message.mType == null) return
       if (message.mType === 'EditNotification') {
         const response = JSON.parse(message.msg)
         if (response.uniMessageGUID == null) return
@@ -1341,6 +1344,19 @@ export default {
       }
     },
     processRawMessage: async function (msg) {
+      if (msg.substr(0, 6) === '[c:SC]') {
+        if (!this.isStreamingVideo) {
+          this.isStreamingVideo = true
+          this.enterCinemaMode()
+        }
+        if (this.isStreamingVideo) {
+          const videoElem = document.getElementById('screenshare_video')
+          videoElem.src = URL.createObjectURL(this.b64toScreenshareBlob(msg.substr(6)))
+        }
+        return new Promise((resolve) => {
+          resolve('')
+        })
+      }
       // Deserialize
       const message = JSON.parse(msg)
       message.apiResponse = false
@@ -2428,7 +2444,6 @@ export default {
       return bytes.buffer
     },
     startScreenshare: async function () {
-      const videoElem = document.getElementById('screenshare_video')
       const constraints = {
         video: {
           cursor: 'always'
@@ -2437,20 +2452,64 @@ export default {
       }
       try {
         // Ask for screen sharing permission + prompt user to select screen
-        videoElem.srcObject = await navigator.mediaDevices.getDisplayMedia(constraints)
+        const stream = await navigator.mediaDevices.getDisplayMedia(constraints)
         this.isStreamingVideo = true
         // Go into distraction free cinema mode
-        const chat = document.getElementById('chat_section')
-        chat.style.position = 'fixed'
-        chat.style.top = '0'
-        chat.style.left = '0'
-        chat.style.zIndex = '9999'
+        this.enterCinemaMode()
         // Start the count-up timer
         this.streamStartTime = Math.floor(Date.now() / 1000)
         this.startTimeCounter()
+        // Start recording
+        this.mediaRecorder = new MediaRecorder(stream)
+        this.recordScreenshare()
       } catch (err) {
         console.error('Error: ' + err)
       }
+    },
+    recordScreenshare: function () {
+      this.mediaRecorder.start()
+      setTimeout(this.streamScreenshare, 1000)
+    },
+    streamScreenshare: function () {
+      const videoElem = document.getElementById('screenshare_video')
+      if (videoElem == null) {
+        return
+      }
+      const chunks = []
+      const addMessage = this.addMessagePar
+      const convertBlobToBase64 = async (blob) => {
+        return await blobToBase64(blob)
+      }
+      const blobToBase64 = blob => new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(blob)
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = error => reject(error)
+      })
+      const recordScreenshare = this.recordScreenshare
+      this.mediaRecorder.stop()
+      this.mediaRecorder.ondataavailable = async function (e) {
+        recordScreenshare()
+        chunks.push(e.data)
+        const payload = await convertBlobToBase64(e.data)
+        addMessage('[c:SC]' + payload)
+      }
+    },
+    b64toScreenshareBlob: function (dataURI) {
+      const byteString = atob(dataURI.split(',')[1])
+      const ab = new ArrayBuffer(byteString.length)
+      const ia = new Uint8Array(ab)
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i)
+      }
+      return new Blob([ab], { type: 'video/webm; codecs=vp8' })
+    },
+    enterCinemaMode: function () {
+      const chat = document.getElementById('chat_section')
+      chat.style.position = 'fixed'
+      chat.style.top = '0'
+      chat.style.left = '0'
+      chat.style.zIndex = '9999'
     },
     startTimeCounter: function () {
       const now = Math.floor(Date.now() / 1000)
@@ -2471,23 +2530,21 @@ export default {
       return i
     },
     stopScreenshare: function () {
-      const videoElem = document.getElementById('screenshare_video')
-      if (videoElem.srcObject != null) {
-        // Stop all media streams
-        // (this could be video and audio for example, or multiple audio tracks etc.)
-        const tracks = videoElem.srcObject.getTracks()
-        tracks.forEach(track => track.stop())
-        videoElem.srcObject = null
-        this.isStreamingVideo = false
-        this.streamStartTime = ''
-        this.streamDuration = ''
-        // Revert styling changes
-        const chat = document.getElementById('chat_section')
-        chat.style.position = 'initial'
-        chat.style.top = 'initial'
-        chat.style.left = 'initial'
-        chat.style.zIndex = 'initial'
+      if (this.mediaRecorder.state === 'recording') {
+        this.mediaRecorder.stop()
       }
+      this.isStreamingVideo = false
+      this.streamStartTime = ''
+      this.streamDuration = ''
+      // Revert styling changes
+      this.exitCinemaMode()
+    },
+    exitCinemaMode: function () {
+      const chat = document.getElementById('chat_section')
+      chat.style.position = 'initial'
+      chat.style.top = 'initial'
+      chat.style.left = 'initial'
+      chat.style.zIndex = 'initial'
     }
   }
 }
