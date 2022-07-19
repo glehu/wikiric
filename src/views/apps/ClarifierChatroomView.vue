@@ -204,10 +204,10 @@
                 </span>
               </p>
             </div>
-            <video id="screenshare_video" autoplay
+            <video id="screenshare_video" muted autoplay playsinline
                    style="width: 100%; height: 100%"></video>
           </div>
-          <div>
+          <div style="position: absolute; top: 10px; right: 10px">
             <button v-on:click="startScreenshare"
                     class="btn btn-sm gray-hover
                            c_lightgray"
@@ -217,6 +217,7 @@
                            border-radius: 10px;">
               Share Screen
             </button>
+            <br>
             <button v-on:click="stopScreenshare"
                     class="btn btn-sm gray-hover
                            c_lightgray"
@@ -787,6 +788,8 @@ export default {
       userId: null,
       currentSubchat: {},
       connection: null,
+      peerType: 'idle',
+      peerConnections: [],
       websocketState: 'CLOSED',
       tagIndex: 0,
       mediaRecorder: {},
@@ -916,6 +919,41 @@ export default {
           }
         }
       }
+      // WebRTC stuff
+      const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+      this.peerConnection = new RTCPeerConnection(configuration)
+      this.peerConnection.addEventListener('connectionstatechange', event => {
+        if (this.peerConnection.connectionState === 'connected') {
+          console.log('WebRTC Connection Established')
+        } else {
+          console.log('connection change:', this.peerConnection.connectionState)
+        }
+      })
+      const addMessage = this.addMessagePar
+      this.peerConnection.addEventListener('icecandidate', event => {
+        if (event.candidate) {
+          const payload = {
+            id: this.userId,
+            candidate: event.candidate
+          }
+          addMessage('[c:SC]' + '[C]' + JSON.stringify(payload))
+        }
+      })
+      this.peerConnection.addEventListener('track', async (event) => {
+        if (this.peerType !== 'caller') {
+          const approval = confirm('Incoming Screen Share. Join the session?')
+          if (approval) {
+            console.log('stream', event.streams)
+            this.isStreamingVideo = true
+            this.streamStartTime = Math.floor(Date.now() / 1000)
+            this.startTimeCounter()
+            this.enterCinemaMode()
+            const remoteStream = event.streams[0]
+            const videoElem = document.getElementById('screenshare_video')
+            videoElem.srcObject = remoteStream
+          }
+        }
+      })
     },
     handleFirebaseEvent: function (event) {
       if (event.data.data.subchatGUID != null) {
@@ -1345,13 +1383,32 @@ export default {
     },
     processRawMessage: async function (msg) {
       if (msg.substr(0, 6) === '[c:SC]') {
-        if (!this.isStreamingVideo) {
-          this.isStreamingVideo = true
-          this.enterCinemaMode()
-        }
-        if (this.isStreamingVideo) {
-          const videoElem = document.getElementById('screenshare_video')
-          videoElem.src = URL.createObjectURL(this.b64toScreenshareBlob(msg.substr(6)))
+        const tmp = msg.substr(6)
+        if (tmp.substring(0, 3) === '[A]') {
+          const rtcOfferArray = JSON.parse(tmp.substring(3))
+          for (let i = 0; i < rtcOfferArray.length; i++) {
+            if (rtcOfferArray[i].id === this.userId) {
+              await this.acceptWebRTCOffer(rtcOfferArray[i].offer)
+            }
+          }
+        } else if (tmp.substring(0, 3) === '[B]') {
+          if (this.peerType === 'caller') {
+            const rtcAnswer = JSON.parse(tmp.substring(3))
+            try {
+              await this.peerConnection.setRemoteDescription(new RTCSessionDescription(rtcAnswer))
+            } catch (e) {
+              console.error(e.message)
+            }
+          }
+        } else if (tmp.substring(0, 3) === '[C]') {
+          const rtcCandidatePayload = JSON.parse(tmp.substring(3))
+          if (rtcCandidatePayload.id !== this.userId) {
+            try {
+              await this.peerConnection.addIceCandidate(rtcCandidatePayload.candidate)
+            } catch (e) {
+              console.error('Error adding received ice candidate', e)
+            }
+          }
         }
         return new Promise((resolve) => {
           resolve('')
@@ -1359,6 +1416,7 @@ export default {
       }
       // Deserialize
       const message = JSON.parse(msg)
+      message.mType = 'Text'
       message.apiResponse = false
       // Process timestamp
       message.time = new Date(message.ts)
@@ -2444,6 +2502,15 @@ export default {
       return bytes.buffer
     },
     startScreenshare: async function () {
+      if (this.isStreamingVideo) {
+        this.$notify(
+          {
+            title: 'Not Available',
+            text: 'There is already a stream going on.',
+            type: 'error'
+          })
+        return
+      }
       const constraints = {
         video: {
           cursor: 'always'
@@ -2453,56 +2520,23 @@ export default {
       try {
         // Ask for screen sharing permission + prompt user to select screen
         const stream = await navigator.mediaDevices.getDisplayMedia(constraints)
+        const videoElem = document.getElementById('screenshare_video')
+        videoElem.srcObject = stream
         this.isStreamingVideo = true
+        this.peerType = 'caller'
+        // WebRTC stuff
+        stream.getTracks().forEach(track => {
+          this.peerConnection.addTrack(track, stream)
+        })
+        setTimeout(await this.createWebRTCOffer, 1000)
         // Go into distraction free cinema mode
         this.enterCinemaMode()
         // Start the count-up timer
         this.streamStartTime = Math.floor(Date.now() / 1000)
         this.startTimeCounter()
-        // Start recording
-        this.mediaRecorder = new MediaRecorder(stream)
-        this.recordScreenshare()
       } catch (err) {
         console.error('Error: ' + err)
       }
-    },
-    recordScreenshare: function () {
-      this.mediaRecorder.start()
-      setTimeout(this.streamScreenshare, 1000)
-    },
-    streamScreenshare: function () {
-      const videoElem = document.getElementById('screenshare_video')
-      if (videoElem == null) {
-        return
-      }
-      const chunks = []
-      const addMessage = this.addMessagePar
-      const convertBlobToBase64 = async (blob) => {
-        return await blobToBase64(blob)
-      }
-      const blobToBase64 = blob => new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.readAsDataURL(blob)
-        reader.onload = () => resolve(reader.result)
-        reader.onerror = error => reject(error)
-      })
-      const recordScreenshare = this.recordScreenshare
-      this.mediaRecorder.stop()
-      this.mediaRecorder.ondataavailable = async function (e) {
-        recordScreenshare()
-        chunks.push(e.data)
-        const payload = await convertBlobToBase64(e.data)
-        addMessage('[c:SC]' + payload)
-      }
-    },
-    b64toScreenshareBlob: function (dataURI) {
-      const byteString = atob(dataURI.split(',')[1])
-      const ab = new ArrayBuffer(byteString.length)
-      const ia = new Uint8Array(ab)
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i)
-      }
-      return new Blob([ab], { type: 'video/webm; codecs=vp8' })
     },
     enterCinemaMode: function () {
       const chat = document.getElementById('chat_section')
@@ -2538,6 +2572,29 @@ export default {
       this.streamDuration = ''
       // Revert styling changes
       this.exitCinemaMode()
+    },
+    createWebRTCOffer: async function () {
+      const offerArray = []
+      for (const user of this.members) {
+        const offer = await this.peerConnection.createOffer()
+        await this.peerConnection.setLocalDescription(offer)
+        offerArray.unshift({
+          id: user.id,
+          offer: offer
+        })
+      }
+      this.addMessagePar('[c:SC]' + '[A]' + JSON.stringify(offerArray))
+    },
+    acceptWebRTCOffer: async function (offer) {
+      if (this.peerType === 'caller') {
+        return
+      } else {
+        this.peerType = 'callee'
+      }
+      await this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
+      const answer = await this.peerConnection.createAnswer()
+      await this.peerConnection.setLocalDescription(answer)
+      this.addMessagePar('[c:SC]' + '[B]' + JSON.stringify(answer))
     },
     exitCinemaMode: function () {
       const chat = document.getElementById('chat_section')
