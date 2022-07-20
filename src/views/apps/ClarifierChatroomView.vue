@@ -208,24 +208,29 @@
                    style="width: 100%; height: 100%"></video>
           </div>
           <div style="position: absolute; top: 10px; right: 10px">
-            <button v-on:click="startScreenshare"
+            <template v-for="user in this.members" :key="user">
+              <template v-if="user.id !== userId && !isStreamingVideo">
+                <button v-on:click="startScreenshare(user.id)"
+                        class="btn btn-sm gray-hover
+                           c_lightgray"
+                        style="position: relative;
+                           margin-left: 20px; margin-top: 10px;
+                           border: 2px solid rgba(174, 174, 183, 0.25);
+                           border-radius: 10px;">
+                  Call {{ user.usr }}
+                </button>
+                <br>
+              </template>
+            </template>
+            <button v-if="isStreamingVideo"
+                    v-on:click="stopScreenshare"
                     class="btn btn-sm gray-hover
                            c_lightgray"
                     style="position: relative;
                            margin-left: 20px; margin-top: 10px;
                            border: 2px solid rgba(174, 174, 183, 0.25);
                            border-radius: 10px;">
-              Share Screen
-            </button>
-            <br>
-            <button v-on:click="stopScreenshare"
-                    class="btn btn-sm gray-hover
-                           c_lightgray"
-                    style="position: relative;
-                           margin-left: 20px; margin-top: 10px;
-                           border: 2px solid rgba(174, 174, 183, 0.25);
-                           border-radius: 10px;">
-              Stop
+              Hang Up
             </button>
           </div>
         </div>
@@ -2501,7 +2506,7 @@ export default {
       }
       return bytes.buffer
     },
-    startScreenshare: async function () {
+    startScreenshare: async function (userId) {
       if (this.isStreamingVideo) {
         this.$notify(
           {
@@ -2528,7 +2533,7 @@ export default {
         stream.getTracks().forEach(track => {
           this.peerConnection.addTrack(track, stream)
         })
-        setTimeout(await this.createWebRTCOffer, 1000)
+        setTimeout(await this.createWebRTCOffer(userId), 1000)
         // Go into distraction free cinema mode
         this.enterCinemaMode()
         // Start the count-up timer
@@ -2573,15 +2578,17 @@ export default {
       // Revert styling changes
       this.exitCinemaMode()
     },
-    createWebRTCOffer: async function () {
+    createWebRTCOffer: async function (userId) {
       const offerArray = []
       for (const user of this.members) {
-        const offer = await this.peerConnection.createOffer()
-        await this.peerConnection.setLocalDescription(offer)
-        offerArray.unshift({
-          id: user.id,
-          offer: offer
-        })
+        if (user.id === userId) {
+          const offer = await this.peerConnection.createOffer()
+          await this.peerConnection.setLocalDescription(offer)
+          offerArray.unshift({
+            id: user.id,
+            offer: offer
+          })
+        }
       }
       this.addMessagePar('[c:SC]' + '[A]' + JSON.stringify(offerArray))
     },
