@@ -301,6 +301,10 @@
                 <!-- #### MESSAGE OPTIONS #### -->
                 <div v-if="msg.editable === true"
                      class="msg_options b_darkgray">
+                  <button title="Upvote" class="btn btn-sm c_lightgray orange-hover"
+                          v-on:click="upvoteMessage(msg)">
+                    <i class="bi bi-hand-thumbs-up lead"></i>
+                  </button>
                   <button title="Reply" class="btn btn-sm c_lightgray orange-hover">
                     <i class="bi bi-reply lead"></i>
                   </button>
@@ -326,7 +330,7 @@
                 </template>
                 <!-- #### CLIENT GIF MESSAGE #### -->
                 <template v-else-if="msg.mType === 'GIF'">
-                  <div>
+                  <div class="clientMessage">
                     <img :src="msg.msg" :alt="msg.msg" style="max-width: 300px">
                     <br>
                     <div>
@@ -338,7 +342,7 @@
                 </template>
                 <!-- #### CLIENT IMAGE (SnippetBase) #### -->
                 <template v-else-if="msg.mType === 'Image'">
-                  <div>
+                  <div class="clientMessage">
                     <img :src="msg.msg"
                          :alt="msg.msg"
                          style="max-width: 300px; cursor: zoom-in"
@@ -347,7 +351,7 @@
                 </template>
                 <!-- #### CLIENT AUDIO (SnippetBase) #### -->
                 <template v-else-if="msg.mType === 'Audio'">
-                  <div>
+                  <div class="clientMessage">
                     <audio controls preload="auto"
                            class="uploadFileSnippet">
                       <source :src="msg.msg">
@@ -366,6 +370,9 @@
                   <p class="clientMessage">
                     {{ msg.msg }}
                   </p>
+                </template>
+                <template v-if="msg.reacts.length > 0">
+                  <i class="bi bi-hand-thumbs-up"></i> {{ msg.reacts.length }}
                 </template>
               </div>
             </div>
@@ -794,7 +801,7 @@ export default {
       currentSubchat: {},
       connection: null,
       peerType: 'idle',
-      peerConnections: [],
+      peerConnection: null,
       websocketState: 'CLOSED',
       tagIndex: 0,
       mediaRecorder: {},
@@ -852,9 +859,6 @@ export default {
     setTimeout(() => this.initFunction(), 0)
   },
   methods: {
-    showModal () {
-      this.isModalVisible = true
-    },
     closeModal () {
       this.isModalVisible = false
       this.$store.commit('setE2EncryptionSeen', true)
@@ -1094,6 +1098,21 @@ export default {
         }
         // Reset the edit background
         this.resetEditing()
+        return
+      }
+      if (message.mType === 'UpvoteNotification') {
+        const response = JSON.parse(message.msg)
+        if (response.uniMessageGUID == null) return
+        const index = this.messages.findIndex(msg => msg.gUID === response.uniMessageGUID)
+        // Edit message
+        try {
+          this.messages[index].reacts.push(JSON.stringify({
+            src: response.username,
+            t: '='
+          }))
+        } catch (e) {
+          console.error(e.message)
+        }
         return
       }
       this.messages.unshift(message)
@@ -1428,27 +1447,34 @@ export default {
       if (message.msg.includes('[s:EditNotification]') === true && message.src === '_server') {
         message.mType = 'EditNotification'
         message.msg = message.msg.substring(20)
-      }
-      if (message.msg.includes('[s:RegistrationNotification]') === true && message.src === '_server') {
+      } else if (message.msg.includes('[s:UpvoteNotification]') === true && message.src === '_server') {
+        message.mType = 'UpvoteNotification'
+        message.msg = message.msg.substring(22)
+      } else if (message.msg.includes('[s:RegistrationNotification]') === true && message.src === '_server') {
         message.mType = 'RegistrationNotification'
         message.msg = message.msg.substring(28)
-      }
-      if (message.msg.includes('[c:GIF]') === true) {
+      } else if (message.msg.includes('[c:GIF]') === true) {
         message.mType = 'GIF'
+        message.apiResponse = true
         message.msg = message.msg.substring(7)
-      }
-      if (message.msg.includes('[c:JOKE]') === true) {
+      } else if (message.msg.includes('[c:JOKE]') === true) {
         message.mType = 'Joke'
         message.apiResponse = true
         message.msg = message.msg.substring(8)
-      }
-      if (message.msg.includes('[c:IMG]') === true) {
+      } else if (message.msg.includes('[c:IMG]') === true) {
         message.mType = 'Image'
         message.msg = message.msg.substring(7)
-      }
-      if (message.msg.includes('[c:AUD]') === true) {
+      } else if (message.msg.includes('[c:AUD]') === true) {
         message.mType = 'Audio'
         message.msg = message.msg.substring(7)
+      }
+      // Reactions
+      if (message.reacts != null) {
+        for (let i = 0; i < message.reacts.length; i++) {
+          message.reacts[i] = JSON.parse(message.reacts[i])
+        }
+      } else {
+        message.reacts = []
       }
       /* Do we have to add a message header?
       Don't add a header (avatar, name) if the last message came from the same source and similar time
@@ -2262,6 +2288,13 @@ export default {
       this.uploadFileBase64 = ''
       this.uploadFileType = ''
     },
+    upvoteMessage: function (msg) {
+      const payload = JSON.stringify({
+        uniMessageGUID: msg.gUID,
+        username: this.$store.state.username
+      })
+      this.addMessagePar('[c:UPVOTE<JSON]' + payload)
+    },
     editMessage: function (msg, remove = false) {
       if (remove === true) {
         const payload = JSON.stringify({
@@ -2520,7 +2553,7 @@ export default {
         video: {
           cursor: 'always'
         },
-        audio: false
+        audio: true
       }
       try {
         // Ask for screen sharing permission + prompt user to select screen
@@ -3071,7 +3104,6 @@ export default {
 }
 
 .msg_options {
-  width: 120px;
   height: 30px;
   position: absolute;
   right: 0;
