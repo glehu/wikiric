@@ -299,23 +299,32 @@
                   </div>
                 </template>
                 <!-- #### MESSAGE OPTIONS #### -->
-                <div v-if="msg.editable === true"
-                     class="msg_options b_darkgray">
-                  <button title="Upvote" class="btn btn-sm c_lightgray orange-hover"
-                          v-on:click="upvoteMessage(msg)">
-                    <i class="bi bi-hand-thumbs-up lead"></i>
-                  </button>
-                  <button title="Reply" class="btn btn-sm c_lightgray orange-hover">
-                    <i class="bi bi-reply lead"></i>
-                  </button>
-                  <button title="Edit" class="btn btn-sm c_lightgray orange-hover"
-                          v-on:click="editMessage(msg)">
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button title="Remove" class="btn btn-sm c_lightgray orange-hover"
-                          v-on:click="editMessage(msg, true)">
-                    <i class="bi bi-trash"></i>
-                  </button>
+                <div class="msg_options">
+                  <div class="b_darkgray" style="border-radius: 8px">
+                    <button title="Reply" class="btn btn-sm c_lightgray orange-hover">
+                      <i class="bi bi-reply-fill"></i>
+                    </button>
+                    <template v-if="msg.editable === true">
+                      <button title="Edit" class="btn btn-sm c_lightgray orange-hover"
+                              v-on:click="editMessage(msg)">
+                        <i class="bi bi-pencil-fill"></i>
+                      </button>
+                      <button title="Remove" class="btn btn-sm c_lightgray orange-hover"
+                              v-on:click="editMessage(msg, true)">
+                        <i class="bi bi-trash-fill"></i>
+                      </button>
+                    </template>
+                  </div>
+                  <div class="b_darkgray" style="border-radius: 8px; margin-left: 10px">
+                    <button title="Upvote" class="btn btn-sm c_lightgray orange-hover"
+                            v-on:click="reactToMessage(msg, '+')">
+                      <i class="bi bi-hand-thumbs-up"></i>
+                    </button>
+                    <button title="Downvote" class="btn btn-sm c_lightgray orange-hover"
+                            v-on:click="reactToMessage(msg, '-')">
+                      <i class="bi bi-hand-thumbs-down"></i>
+                    </button>
+                  </div>
                 </div>
                 <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
                 <template v-if="msg.mType === 'RegistrationNotification'">
@@ -371,8 +380,20 @@
                     {{ msg.msg }}
                   </p>
                 </template>
-                <template v-if="msg.reacts.length > 0">
-                  <i class="bi bi-hand-thumbs-up"></i> {{ msg.reacts.length }}
+              </div>
+              <div v-if="msg.reacts.length > 0"
+                   style="display: flex; margin: 10px 0 0 42px">
+                <template v-for="reaction in msg.reacts" :key="reaction.src">
+                  <div style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
+                       class="b_darkgray c_lightgray gray-hover"
+                       :title="reaction.src.toString()"
+                       v-on:click="reactToMessage(msg, reaction.t)">
+                    <i v-if="reaction.t === '+'"
+                       class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
+                    <i v-else-if="reaction.t === '-'"
+                       class="bi bi-hand-thumbs-down" style="margin-right: 2px"></i>
+                    {{ reaction.src.length }}
+                  </div>
                 </template>
               </div>
             </div>
@@ -1100,16 +1121,22 @@ export default {
         this.resetEditing()
         return
       }
-      if (message.mType === 'UpvoteNotification') {
+      if (message.mType === 'ReactNotification') {
         const response = JSON.parse(message.msg)
         if (response.uniMessageGUID == null) return
         const index = this.messages.findIndex(msg => msg.gUID === response.uniMessageGUID)
         // Edit message
         try {
-          this.messages[index].reacts.push(JSON.stringify({
-            src: response.username,
-            t: '='
-          }))
+          for (let i = 0; i < this.messages[index].reacts.length; i++) {
+            if (this.messages[index].reacts[i].t === response.type) {
+              this.messages[index].reacts[i].src.unshift(response.username)
+              return
+            }
+          }
+          this.messages[index].reacts.push({
+            src: [response.username],
+            t: response.type
+          })
         } catch (e) {
           console.error(e.message)
         }
@@ -1447,9 +1474,9 @@ export default {
       if (message.msg.includes('[s:EditNotification]') === true && message.src === '_server') {
         message.mType = 'EditNotification'
         message.msg = message.msg.substring(20)
-      } else if (message.msg.includes('[s:UpvoteNotification]') === true && message.src === '_server') {
-        message.mType = 'UpvoteNotification'
-        message.msg = message.msg.substring(22)
+      } else if (message.msg.includes('[s:ReactNotification]') === true && message.src === '_server') {
+        message.mType = 'ReactNotification'
+        message.msg = message.msg.substring(21)
       } else if (message.msg.includes('[s:RegistrationNotification]') === true && message.src === '_server') {
         message.mType = 'RegistrationNotification'
         message.msg = message.msg.substring(28)
@@ -2288,12 +2315,12 @@ export default {
       this.uploadFileBase64 = ''
       this.uploadFileType = ''
     },
-    upvoteMessage: function (msg) {
+    reactToMessage: function (msg, t) {
       const payload = JSON.stringify({
         uniMessageGUID: msg.gUID,
-        username: this.$store.state.username
+        type: t
       })
-      this.addMessagePar('[c:UPVOTE<JSON]' + payload)
+      this.addMessagePar('[c:REACT<JSON]' + payload)
     },
     editMessage: function (msg, remove = false) {
       if (remove === true) {
@@ -3109,7 +3136,6 @@ export default {
   right: 0;
   transform: translateY(-30px);
   z-index: 100;
-  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-items: center;
