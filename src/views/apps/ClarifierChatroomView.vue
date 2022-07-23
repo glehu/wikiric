@@ -383,18 +383,18 @@
               </div>
               <div v-if="msg.reacts.length > 0"
                    style="display: flex; margin: 10px 0 0 42px">
-                <template v-for="reaction in msg.reacts" :key="reaction.src">
-                  <div style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                       class="b_darkgray c_lightgray gray-hover"
-                       :title="reaction.src.toString()"
-                       v-on:click="reactToMessage(msg, reaction.t)">
-                    <i v-if="reaction.t === '+'"
-                       class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
-                    <i v-else-if="reaction.t === '-'"
-                       class="bi bi-hand-thumbs-down" style="margin-right: 2px"></i>
-                    {{ reaction.src.length }}
-                  </div>
-                </template>
+                <div v-for="reaction in msg.reacts" :key="reaction.src"
+                     style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
+                     class="b_darkgray c_lightgray gray-hover"
+                     :title="reaction.src.toString() + ' reacted to this message.'"
+                     v-on:click="reactToMessage(msg, reaction.t)"
+                     :id="'react_' + msg.gUID + '_' + reaction.t">
+                  <i v-if="reaction.t === '+'"
+                     class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
+                  <i v-else-if="reaction.t === '-'"
+                     class="bi bi-hand-thumbs-down" style="margin-right: 2px"></i>
+                  {{ reaction.src.length }}
+                </div>
               </div>
             </div>
           </template>
@@ -1129,14 +1129,23 @@ export default {
         try {
           for (let i = 0; i < this.messages[index].reacts.length; i++) {
             if (this.messages[index].reacts[i].t === response.type) {
-              this.messages[index].reacts[i].src.unshift(response.username)
+              this.messages[index].reacts[i].src.push(response.from)
+              setTimeout(() => {
+                document.getElementById('react_' + response.uniMessageGUID + '_' + response.type).title =
+                  this.messages[index].reacts[i].src.toString() + ' reacted to this message.'
+              }, 1000)
               return
             }
           }
           this.messages[index].reacts.push({
-            src: [response.username],
+            src: [response.from],
             t: response.type
           })
+          setTimeout(() => {
+            console.log('react_' + response.uniMessageGUID + '_' + response.type)
+            document.getElementById('react_' + response.uniMessageGUID + '_' + response.type).title =
+              response.from + ' reacted to this message.'
+          }, 1000)
         } catch (e) {
           console.error(e.message)
         }
