@@ -53,9 +53,9 @@
       <div class="text-wrapper"
            style="text-align: justify; text-justify: inter-word; margin: auto">
         <p style="color: white">
-          <a :href="'https://github.com/glehu/CWO_ERP'" style="color: white">CWOdB</a>,
+          <a :href="'https://github.com/glehu/CWO_ERP'" style="color: white">CWO_DB</a>,
           a custom self-written Open-Source database to fit our needs.
-          Both this website and any other projects will be driven with CWOdB,
+          Both this website and any other projects will be driven with CWO_DB,
           powered by <a :href="'https://kotlinlang.org/'" style="color: white">Kotlin</a>.
         </p>
         <ul>

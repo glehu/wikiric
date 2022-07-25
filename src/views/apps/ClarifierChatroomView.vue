@@ -258,6 +258,12 @@
                             align-items: center">
                   <i v-if="msg.src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
                   <i v-else class="sender_avatar bi bi-person-circle"></i>
+                  <template v-if="msg.iurl !== ''">
+                    <img :src="getImg(msg.iurl, true)" alt="?"
+                         class="b_darkergray"
+                         style="width: 35px; height: 35px; border-radius: 100%;
+                                position: absolute; top: 12px; left: -2px">
+                  </template>
                   <span class="orange-hover"
                         style="font-weight: bold">
                     {{ msg.src }}
@@ -543,6 +549,12 @@
           <i class="bi bi-person-circle"
              style="font-size: 200%">
           </i>
+          <template v-if="usr.iurl != null">
+            <img :src="getImg(usr.iurl, true)" alt="?"
+                 class="b_darkergray"
+                 style="width: 40px; height: 40px; border-radius: 100%;
+                                position: absolute; top: 4px; left: 6px">
+          </template>
           <span style="font-weight: bold; margin-left: 10px">
             {{ usr.usr }}
           </span>
@@ -562,10 +574,17 @@
   <div class="user_profile b_gray" style="overflow: hidden"
        v-show="isViewingUserProfile" @click.stop>
     <div style="position: relative; padding-top: 10px">
-      <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
+      <i class="bi bi-x-lg lead orange-hover"
+         style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideAllWindows()"></i>
       <div style="display: flex; align-items: center">
         <i class="bi bi-person-circle" style="font-size: 400%; margin-right: 15px"></i>
+        <template v-if="this.viewedUserProfile.iurl != null">
+          <img :src="getImg(this.viewedUserProfile.iurl, true)" alt="?"
+               class="b_darkergray"
+               style="width: 75px; height: 75px; border-radius: 100%;
+                                position: absolute; top: 20px; left: -5px">
+        </template>
         <div style="display: block">
           <h2 class="fw-bold">
             {{ this.viewedUserProfile.usr }}
@@ -579,6 +598,12 @@
           </div>
         </div>
       </div>
+      <template v-if="this.viewedUserProfile.usr === this.$store.state.username">
+        <button class="btn c_lightgray gray-hover"
+                v-on:click="isEditingProfile = true">
+          <i class="bi bi-pencil" style="margin-right: 4px"></i> Edit Profile
+        </button>
+      </template>
       <!-- #### MEMBER ROLES #### -->
       <hr class="c_lightgray">
       <div style="display: flex; flex-wrap: wrap">
@@ -614,6 +639,21 @@
       <hr class="c_lightgray">
     </div>
   </div>
+  <modal
+    v-show="isEditingProfile"
+    @close="isEditingProfile = false">
+    <template v-slot:header>
+      <h3>Edit Your Profile</h3>
+    </template>
+    <template v-slot:body>
+      <div style="padding-left: 20px; display: flex">
+        <img src="" alt="No Picture" style="width: 200px; height: 200px">
+        <input type="file" multiple v-on:change="setProfilePicture">
+      </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
   <!-- #### GIF SELECTION #### -->
   <div class="giphygrid b_gray" style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
     <div style="width: 100%; position: absolute; bottom: 10px">
@@ -865,6 +905,7 @@ export default {
       isSelectingImgflipTemplate: false,
       isFillingImgflipTemplate: false,
       isStreamingVideo: false,
+      isEditingProfile: false,
       //
       lastKeyPressed: '',
       viewedUserProfile: {
@@ -880,7 +921,7 @@ export default {
     setTimeout(() => this.initFunction(), 0)
   },
   methods: {
-    closeModal () {
+    closeModal: function () {
       this.isModalVisible = false
       this.$store.commit('setE2EncryptionSeen', true)
     },
@@ -1525,6 +1566,16 @@ export default {
           message.header = timeDiff >= 3
         }
       }
+      if (message.header === true) {
+        message.iurl = ''
+        // Check for profile picture
+        const ix = this.members.findIndex(member => member.usr === message.src)
+        if (ix !== -1) {
+          if (this.members[ix].iurl != null) {
+            message.iurl = this.members[ix].iurl
+          }
+        }
+      }
       /* Are we allowed to edit this message?
       Only allow the user to edit his own messages, not the ones of others
        */
@@ -2094,6 +2145,31 @@ export default {
         files = evt.target.files
       }
       this.setSessionImage(files[0])
+    },
+    setProfilePicture: async function (evt) {
+      evt.stopPropagation()
+      evt.preventDefault()
+      const file = evt.target.files[0]
+      const base64 = await this.getBase64(file)
+      const headers = new Headers()
+      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      const url = this.$store.state.serverIP + '/api/m5/setmemberimage/' + this.getSession()
+      const updateFun = this.getClarifierMetaData
+      const getMessagesFun = this.getClarifierMessages
+      const content = JSON.stringify({
+        imageBase64: base64,
+        username: this.$store.state.username
+      })
+      fetch(
+        url,
+        {
+          method: 'post',
+          headers: headers,
+          body: content
+        }
+      )
+        .then(() => (updateFun()))
+        .then(() => (getMessagesFun()))
     },
     handleUploadImageSelectDrop: function (evt) {
       this.handleUploadFileSelect(evt, true)

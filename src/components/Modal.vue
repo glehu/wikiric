@@ -25,7 +25,7 @@ export default {
           </slot>
           <button
             type="button"
-            class="btn-close"
+            class="btn-close orange-hover"
             style="margin-right: 0"
             @click="close"
             aria-label="Close modal"
@@ -47,7 +47,7 @@ export default {
           </slot>
           <button
             type="button"
-            class="btn btn-lg btn-dark btn-green"
+            class="btn btn-lg btn-green orange-hover"
             @click="close"
             aria-label="Close modal"
           >
@@ -143,12 +143,12 @@ export default {
 
 .modal-header {
   position: relative;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: none;
   justify-content: space-between;
 }
 
 .modal-footer {
-  border-top: 1px solid #eeeeee;
+  border-top: none;
   flex-direction: column;
 }
 
@@ -159,8 +159,8 @@ export default {
 
 .btn-close {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 10px;
+  right: 5px;
   border: none;
   font-size: 20px;
   padding: 10px;
@@ -172,7 +172,6 @@ export default {
 
 .btn-green {
   color: white;
-  border: 1px solid #293139;
   border-radius: 10px;
 }
 
@@ -185,4 +184,10 @@ export default {
 .modal-fade-leave-active {
   transition: opacity .5s ease;
 }
+
+.orange-hover:hover {
+  color: #ff5d37;
+  cursor: pointer;
+}
+
 </style>
