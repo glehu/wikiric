@@ -261,8 +261,8 @@
                   <template v-if="msg.iurl !== ''">
                     <img :src="getImg(msg.iurl, true)" alt="?"
                          class="b_darkergray"
-                         style="width: 35px; height: 35px; border-radius: 100%;
-                                position: absolute; top: 12px; left: -2px">
+                         style="width: 42px; height: 42px; border-radius: 100%;
+                                position: absolute; top: 8px; left: -7px">
                   </template>
                   <span class="orange-hover"
                         style="font-weight: bold">
@@ -555,7 +555,7 @@
                  style="width: 40px; height: 40px; border-radius: 100%;
                                 position: absolute; top: 4px; left: 6px">
           </template>
-          <span style="font-weight: bold; margin-left: 10px">
+          <span style="font-weight: bold; margin-left: 14px">
             {{ usr.usr }}
           </span>
         </div>
@@ -646,9 +646,16 @@
       <h3>Edit Your Profile</h3>
     </template>
     <template v-slot:body>
-      <div style="padding-left: 20px; display: flex">
-        <img src="" alt="No Picture" style="width: 200px; height: 200px">
-        <input type="file" multiple v-on:change="setProfilePicture">
+      <div style="display: flex">
+        <img :src="getImg(this.viewedUserProfile.iurl, true)" alt="No Picture"
+             class="b_darkergray"
+             style="width: 100px; height: 100px; border-radius: 100%">
+        <div style="margin: 0 0 0 10px">
+          <h2 class="fw-bold text-white">
+            {{ this.viewedUserProfile.usr }}
+          </h2>
+          <input type="file" multiple v-on:change="setProfilePicture">
+        </div>
       </div>
     </template>
     <template v-slot:footer>
@@ -1569,10 +1576,10 @@ export default {
       if (message.header === true) {
         message.iurl = ''
         // Check for profile picture
-        const ix = this.members.findIndex(member => member.usr === message.src)
+        const ix = this.mainMembers.findIndex(member => member.usr === message.src)
         if (ix !== -1) {
-          if (this.members[ix].iurl != null) {
-            message.iurl = this.members[ix].iurl
+          if (this.mainMembers[ix].iurl != null) {
+            message.iurl = this.mainMembers[ix].iurl
           }
         }
       }
