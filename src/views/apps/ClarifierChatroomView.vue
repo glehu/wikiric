@@ -305,7 +305,7 @@
                   </div>
                 </template>
                 <!-- #### MESSAGE OPTIONS #### -->
-                <div class="msg_options">
+                <div v-if="msg.mType !== 'CryptError'" class="msg_options">
                   <div class="b_darkgray" style="border-radius: 8px">
                     <button title="Reply" class="btn btn-sm c_lightgray orange-hover">
                       <i class="bi bi-reply-fill"></i>
@@ -1605,6 +1605,7 @@ export default {
             message.mType = 'CryptError'
             message.apiResponse = false
             message.decryptionFailed = true
+            message.reacts = []
           }
           message.decryptionFailed = false
         } catch (e) {
@@ -1612,6 +1613,7 @@ export default {
           message.mType = 'CryptError'
           message.apiResponse = false
           message.decryptionFailed = true
+          message.reacts = []
         }
       }
       message.tagActive = message.msg.includes('@' + this.$store.state.username) === true
