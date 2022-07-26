@@ -1204,6 +1204,10 @@ export default {
       if (message.mType === 'RegistrationNotification') {
         this.getClarifierMetaData()
       }
+      const distanceToBottom = (this.message_section.scrollTop * -1)
+      if (distanceToBottom < 50) {
+        this.scrollToBottom(false)
+      }
     },
     addMessage: async function () {
       if (this.isEditingMessage === true) {
@@ -1459,11 +1463,12 @@ export default {
         .catch((err) => console.error(err.message))
     },
     processMessagesResponse: async function (data, lazyLoad = false) {
-      if (data.messages === undefined) {
+      if (data.messages == null) {
         if (lazyLoad) this.lazyLoadingStatus = 'idle'
         return
       }
       if (data.messages.length === 0) {
+        // No more messages can be loaded
         if (lazyLoad) this.lazyLoadingStatus = 'done'
         return
       }
@@ -1595,10 +1600,17 @@ export default {
           message.msg = await this.decryptPayload(
             JSON.parse(message.msg.substring(12))
           )
+          if (message.msg == null) {
+            message.msg = 'The message could not be decrypted.'
+            message.mType = 'CryptError'
+            message.apiResponse = false
+            message.decryptionFailed = true
+          }
           message.decryptionFailed = false
         } catch (e) {
           message.msg = 'The message could not be decrypted.'
           message.mType = 'CryptError'
+          message.apiResponse = false
           message.decryptionFailed = true
         }
       }
@@ -2261,8 +2273,7 @@ export default {
     checkScroll: function () {
       const distanceToBottom = (this.message_section.scrollTop * -1)
       const distanceToTop = this.message_section.scrollHeight -
-        this.message_section.clientHeight -
-        distanceToBottom
+        this.message_section.clientHeight - distanceToBottom
       // If we're scrolling up, show that we're seeing older messages
       if (distanceToBottom > 0) {
         document.getElementById('scroll_to_bottom').style.opacity = '1'
@@ -2446,9 +2457,9 @@ export default {
         return 'Send Message'
       }
     },
-    scrollToBottom: function () {
+    scrollToBottom: function (focusInput = true) {
       this.message_section.scrollTop = 0
-      this.focusComment(true)
+      if (focusInput) this.focusComment(true)
     },
     hasUnread: function (guid) {
       if (guid == null) return false
