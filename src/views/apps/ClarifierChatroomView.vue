@@ -134,6 +134,13 @@
                 class="fw-bold">
               {{ streamDuration }}
             </h2>
+            <button v-on:click="stopScreenshare"
+                    class="btn btn-sm gray-hover c_lightgray"
+                    style="margin-left: 20px;
+                           border: 2px solid rgba(255,0,0,0.5);
+                           border-radius: 10px;">
+              Hang Up
+            </button>
           </div>
         </div>
         <!-- #### CHAT HEADER #### -->
@@ -222,16 +229,6 @@
                 <br>
               </template>
             </template>
-            <button v-if="isStreamingVideo"
-                    v-on:click="stopScreenshare"
-                    class="btn btn-sm gray-hover
-                           c_lightgray"
-                    style="position: relative;
-                           margin-left: 20px; margin-top: 10px;
-                           border: 2px solid rgba(174, 174, 183, 0.25);
-                           border-radius: 10px;">
-              Hang Up
-            </button>
           </div>
         </div>
         <!-- #### MESSAGES #### -->
@@ -331,6 +328,12 @@
                       <i class="bi bi-hand-thumbs-down"></i>
                     </button>
                   </div>
+                  <div class="b_darkgray" style="border-radius: 8px; margin-left: 10px">
+                    <button title="Awesome!" class="btn btn-sm c_lightgray orange-hover"
+                            v-on:click="reactToMessage(msg, '⭐')">
+                      <i class="bi bi-star-fill"></i>
+                    </button>
+                  </div>
                 </div>
                 <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
                 <template v-if="msg.mType === 'RegistrationNotification'">
@@ -399,6 +402,7 @@
                      class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
                   <i v-else-if="reaction.t === '-'"
                      class="bi bi-hand-thumbs-down" style="margin-right: 2px"></i>
+                  <span v-else> {{ reaction.t }} </span>
                   {{ reaction.src.length }}
                 </div>
               </div>
@@ -870,6 +874,7 @@ export default {
       connection: null,
       peerType: 'idle',
       peerConnection: null,
+      peerConnections: [],
       websocketState: 'CLOSED',
       tagIndex: 0,
       mediaRecorder: {},
@@ -1084,7 +1089,12 @@ export default {
         }
         // Websocket CLOSE
         this.connection.onclose = async () => {
+          if (this.websocketState === 'SWITCHING') {
+            // If we're switching to another channel, don't try to revive!
+            return
+          }
           this.websocketState = 'CLOSED'
+          await this.initFunction()
         }
         // Websocket incoming frames
         this.connection.onmessage = (event) => {
@@ -2323,6 +2333,7 @@ export default {
     },
     gotoSubchat: async function (subchatGUID, subchatMode = true) {
       if (!subchatGUID) return
+      this.websocketState = 'SWITCHING'
       if (subchatMode) {
         await this.$router.replace({
           path: '/apps/clarifier/wss/' + this.getSession(),
