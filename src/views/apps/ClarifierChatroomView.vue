@@ -139,7 +139,7 @@
                     style="margin-left: 20px;
                            border: 2px solid rgba(255,0,0,0.5);
                            border-radius: 10px;">
-              Hang Up
+              <span style="font-weight: bold">Hang Up</span>
             </button>
           </div>
         </div>
@@ -214,9 +214,20 @@
             <video id="screenshare_video" muted autoplay playsinline
                    style="width: 100%; height: 100%"></video>
           </div>
-          <div style="position: absolute; top: 10px; right: 10px">
+          <div v-if="!isStreamingVideo"
+               style="position: absolute; top: 10px; right: 10px" class="text-end">
+            <button v-on:click="startScreenshare()"
+                    class="btn btn-sm gray-hover
+                           c_lightgray"
+                    style="position: relative;
+                           margin-left: 20px; margin-top: 10px;
+                           border: 2px solid #ff5d37;
+                           border-radius: 10px;">
+              Group Meeting
+            </button>
+            <br>
             <template v-for="user in this.members" :key="user">
-              <template v-if="user.id !== userId && !isStreamingVideo">
+              <template v-if="user.id !== userId">
                 <button v-on:click="startScreenshare(user.id)"
                         class="btn btn-sm gray-hover
                            c_lightgray"
@@ -1209,14 +1220,14 @@ export default {
         }
         return
       }
+      const distanceToBottom = (this.message_section.scrollTop * -1)
+      if (distanceToBottom < 50) {
+        this.scrollToBottom(false)
+      }
       this.messages.unshift(message)
       this.extraSkipCount++
       if (message.mType === 'RegistrationNotification') {
         this.getClarifierMetaData()
-      }
-      const distanceToBottom = (this.message_section.scrollTop * -1)
-      if (distanceToBottom < 50) {
-        this.scrollToBottom(false)
       }
     },
     addMessage: async function () {
@@ -2346,6 +2357,7 @@ export default {
       }
       this.disconnect()
       this.messages = []
+      await this.serverLogin()
       this.hideAllSidebars()
       await this.connect(subchatGUID, subchatMode)
       this.inputField.focus()
@@ -2719,12 +2731,29 @@ export default {
         console.error('Error: ' + err)
       }
     },
+    stopScreenshare: function () {
+      if (this.mediaRecorder.state === 'recording') {
+        this.mediaRecorder.stop()
+      }
+      this.isStreamingVideo = false
+      this.streamStartTime = ''
+      this.streamDuration = ''
+      // Revert styling changes
+      this.exitCinemaMode()
+    },
     enterCinemaMode: function () {
       const chat = document.getElementById('chat_section')
       chat.style.position = 'fixed'
       chat.style.top = '0'
       chat.style.left = '0'
       chat.style.zIndex = '9999'
+    },
+    exitCinemaMode: function () {
+      const chat = document.getElementById('chat_section')
+      chat.style.position = 'initial'
+      chat.style.top = 'initial'
+      chat.style.left = 'initial'
+      chat.style.zIndex = 'initial'
     },
     startTimeCounter: function () {
       const now = Math.floor(Date.now() / 1000)
@@ -2743,16 +2772,6 @@ export default {
         i = '0' + i
       }
       return i
-    },
-    stopScreenshare: function () {
-      if (this.mediaRecorder.state === 'recording') {
-        this.mediaRecorder.stop()
-      }
-      this.isStreamingVideo = false
-      this.streamStartTime = ''
-      this.streamDuration = ''
-      // Revert styling changes
-      this.exitCinemaMode()
     },
     createWebRTCOffer: async function (userId) {
       const offerArray = []
@@ -2778,13 +2797,6 @@ export default {
       const answer = await this.peerConnection.createAnswer()
       await this.peerConnection.setLocalDescription(answer)
       this.addMessagePar('[c:SC]' + '[B]' + JSON.stringify(answer))
-    },
-    exitCinemaMode: function () {
-      const chat = document.getElementById('chat_section')
-      chat.style.position = 'initial'
-      chat.style.top = 'initial'
-      chat.style.left = 'initial'
-      chat.style.zIndex = 'initial'
     }
   }
 }
