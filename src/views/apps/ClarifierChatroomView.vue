@@ -1013,41 +1013,6 @@ export default {
           }
         }
       }
-      // WebRTC stuff
-      const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
-      this.peerConnection = new RTCPeerConnection(configuration)
-      this.peerConnection.addEventListener('connectionstatechange', event => {
-        if (this.peerConnection.connectionState === 'connected') {
-          console.log('WebRTC Connection Established')
-        } else {
-          console.log('connection change:', this.peerConnection.connectionState)
-        }
-      })
-      const addMessage = this.addMessagePar
-      this.peerConnection.addEventListener('icecandidate', event => {
-        if (event.candidate) {
-          const payload = {
-            id: this.userId,
-            candidate: event.candidate
-          }
-          addMessage('[c:SC]' + '[C]' + JSON.stringify(payload))
-        }
-      })
-      this.peerConnection.addEventListener('track', async (event) => {
-        if (this.peerType !== 'caller') {
-          const approval = confirm('Incoming Screen Share. Join the session?')
-          if (approval) {
-            console.log('stream', event.streams)
-            this.isStreamingVideo = true
-            this.streamStartTime = Math.floor(Date.now() / 1000)
-            this.startTimeCounter()
-            this.enterCinemaMode()
-            const remoteStream = event.streams[0]
-            const videoElem = document.getElementById('screenshare_video')
-            videoElem.srcObject = remoteStream
-          }
-        }
-      })
     },
     handleFirebaseEvent: function (event) {
       if (event.data.data.subchatGUID != null) {
@@ -1517,28 +1482,36 @@ export default {
     },
     processRawMessage: async function (msg) {
       if (msg.substr(0, 6) === '[c:SC]') {
+        // Incoming Screen Share Payload
         const tmp = msg.substr(6)
         if (tmp.substring(0, 3) === '[A]') {
+          // Offer
           const rtcOfferArray = JSON.parse(tmp.substring(3))
           for (let i = 0; i < rtcOfferArray.length; i++) {
             if (rtcOfferArray[i].id === this.userId) {
-              await this.acceptWebRTCOffer(rtcOfferArray[i].offer)
+              await this.acceptWebRTCOffer(rtcOfferArray[i])
             }
           }
         } else if (tmp.substring(0, 3) === '[B]') {
+          // Answer
           if (this.peerType === 'caller') {
             const rtcAnswer = JSON.parse(tmp.substring(3))
+            const peerConnection = this.getPeerConnection(rtcAnswer.id)
             try {
-              await this.peerConnection.setRemoteDescription(new RTCSessionDescription(rtcAnswer))
+              await peerConnection.setRemoteDescription(
+                new RTCSessionDescription(rtcAnswer.answer)
+              )
             } catch (e) {
               console.error(e.message)
             }
           }
         } else if (tmp.substring(0, 3) === '[C]') {
+          // ICE Candidates
           const rtcCandidatePayload = JSON.parse(tmp.substring(3))
           if (rtcCandidatePayload.id !== this.userId) {
+            const peerConnection = this.getPeerConnection(rtcCandidatePayload.id)
             try {
-              await this.peerConnection.addIceCandidate(rtcCandidatePayload.candidate)
+              await peerConnection.addIceCandidate(rtcCandidatePayload.candidate)
             } catch (e) {
               console.error('Error adding received ice candidate', e)
             }
@@ -2717,11 +2690,7 @@ export default {
         videoElem.srcObject = stream
         this.isStreamingVideo = true
         this.peerType = 'caller'
-        // WebRTC stuff
-        stream.getTracks().forEach(track => {
-          this.peerConnection.addTrack(track, stream)
-        })
-        setTimeout(await this.createWebRTCOffer(userId), 1000)
+        await this.createPeerConnections(stream, userId)
         // Go into distraction free cinema mode
         this.enterCinemaMode()
         // Start the count-up timer
@@ -2773,30 +2742,123 @@ export default {
       }
       return i
     },
-    createWebRTCOffer: async function (userId) {
+    createWebRTCOffer: async function (userId, peerConnection) {
       const offerArray = []
       for (const user of this.members) {
         if (user.id === userId) {
-          const offer = await this.peerConnection.createOffer()
-          await this.peerConnection.setLocalDescription(offer)
+          const offer = await peerConnection.createOffer()
+          await peerConnection.setLocalDescription(offer)
           offerArray.unshift({
             id: user.id,
             offer: offer
           })
+          console.log('Created Offer for', user.id)
+          break
         }
       }
       this.addMessagePar('[c:SC]' + '[A]' + JSON.stringify(offerArray))
     },
-    acceptWebRTCOffer: async function (offer) {
+    acceptWebRTCOffer: async function (payload, recursiveMode = false) {
       if (this.peerType === 'caller') {
         return
       } else {
         this.peerType = 'callee'
       }
-      await this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
-      const answer = await this.peerConnection.createAnswer()
-      await this.peerConnection.setLocalDescription(answer)
-      this.addMessagePar('[c:SC]' + '[B]' + JSON.stringify(answer))
+      console.log('Incoming Offer for <', payload.id, '> DEBUG INFO: <', payload, '>')
+      const peerConnection = this.getPeerConnection(payload.id)
+      if (peerConnection === null) {
+        if (recursiveMode === true) {
+          console.log('>>> ERROR: Peer Connection could not be added <', payload.id, '>')
+          return
+        }
+        console.log('>>> No Peer Connection found!', '\n>>> Creating Peer Connection...')
+        await this.createPeerConnections(null, payload.id, false)
+        await this.acceptWebRTCOffer(payload, true)
+        return
+      } else {
+        if (recursiveMode === true) {
+          console.log('>>> SUCCESS: Peer Connection added <', payload.id, '>')
+        } else {
+          console.log('>>> SUCCESS: Peer Connection found <', peerConnection.calleeId, '>')
+        }
+      }
+      console.log('Setting Remote Description ', payload.offer, '...')
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(payload.offer))
+      const answer = await peerConnection.createAnswer()
+      await peerConnection.setLocalDescription(answer)
+      this.addMessagePar('[c:SC]' + '[B]' + JSON.stringify({
+        id: payload.id,
+        answer: answer
+      }))
+    },
+    createPeerConnections: async function (stream, userId, createOffer = true) {
+      const calleeList = []
+      if (userId) {
+        calleeList.push(userId)
+      } else {
+        for (let i = 0; i < this.members.length; i++) {
+          calleeList.push(this.members[i].id)
+        }
+      }
+      // Create a WebRTC Peer to Peer Connection for each callee
+      const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+      const addMessage = this.addMessagePar
+      for (let i = 0; i < calleeList.length; i++) {
+        const peerConnection = new RTCPeerConnection(configuration)
+        peerConnection.calleeId = calleeList[i]
+        console.log('Adding Callee', calleeList[i])
+        peerConnection.addEventListener('connectionstatechange', event => {
+          if (peerConnection.connectionState === 'connected') {
+            console.log('WebRTC Connection Established')
+          } else {
+            console.log('connection change:', peerConnection.connectionState)
+          }
+        })
+        peerConnection.addEventListener('icecandidate', event => {
+          if (event.candidate) {
+            const payload = {
+              id: this.userId,
+              candidate: event.candidate
+            }
+            addMessage('[c:SC]' + '[C]' + JSON.stringify(payload))
+          }
+        })
+        peerConnection.addEventListener('track', async (event) => {
+          if (this.peerType !== 'caller') {
+            const approval = confirm('Incoming Screen Share. Join the session?')
+            if (approval) {
+              console.log('stream', event.streams)
+              this.isStreamingVideo = true
+              this.streamStartTime = Math.floor(Date.now() / 1000)
+              this.startTimeCounter()
+              this.enterCinemaMode()
+              const remoteStream = event.streams[0]
+              const videoElem = document.getElementById('screenshare_video')
+              videoElem.srcObject = remoteStream
+            }
+          }
+        })
+        if (stream !== null) {
+          stream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, stream)
+          })
+        }
+        this.peerConnections.push(peerConnection)
+        if (createOffer) {
+          await this.createWebRTCOffer(calleeList[i], peerConnection)
+        }
+      }
+    },
+    getPeerConnection: function (id) {
+      let peerConnection = null
+      for (let i = 0; i < this.peerConnections.length; i++) {
+        if (this.peerConnections[i].calleeId === id) {
+          peerConnection = this.peerConnections[i]
+          console.log('>>> Peer Connection found <', peerConnection.calleeId, '>')
+          break
+        }
+      }
+      return peerConnection
     }
   }
 }
