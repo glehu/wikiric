@@ -886,6 +886,7 @@ export default {
       peerType: 'idle',
       peerConnection: null,
       peerConnections: [],
+      peerStreamOutgoing: {},
       websocketState: 'CLOSED',
       tagIndex: 0,
       streamStartTime: '',
@@ -2690,6 +2691,7 @@ export default {
         videoElem.setAttribute('controls', '')
         this.isStreamingVideo = true
         this.peerType = 'caller'
+        this.peerStreamOutgoing = stream
         await this.createPeerConnections(stream, userId)
         // Go into distraction free cinema mode
         this.enterCinemaMode()
@@ -2705,6 +2707,12 @@ export default {
       const videoElem = document.getElementById('screenshare_video')
       videoElem.srcObject = null
       videoElem.removeAttribute('controls')
+      if (this.peerType === 'caller') {
+        this.peerStreamOutgoing.getTracks().forEach(function (track) {
+          track.stop()
+        })
+      }
+      this.peerType = 'idle'
       this.isStreamingVideo = false
       this.streamStartTime = ''
       this.streamDuration = ''
