@@ -202,7 +202,7 @@
               <i class="bi bi-camera-video-off lead"></i>
               <p style="margin: 0 0 0 10px;
                         padding-left: 10px;
-                        border-left: 2px solid rgba(174, 174, 183, 0.25);">
+                        border-left: 2px solid rgba(174, 174, 183, 0.25)">
                 OFFLINE
                 <br>
                 <span style="font-size: 75%">
@@ -2687,6 +2687,7 @@ export default {
         const stream = await navigator.mediaDevices.getDisplayMedia(constraints)
         const videoElem = document.getElementById('screenshare_video')
         videoElem.srcObject = stream
+        videoElem.setAttribute('controls', '')
         this.isStreamingVideo = true
         this.peerType = 'caller'
         await this.createPeerConnections(stream, userId)
@@ -2703,6 +2704,7 @@ export default {
       this.peerConnections = []
       const videoElem = document.getElementById('screenshare_video')
       videoElem.srcObject = null
+      videoElem.removeAttribute('controls')
       this.isStreamingVideo = false
       this.streamStartTime = ''
       this.streamDuration = ''
@@ -2837,6 +2839,7 @@ export default {
               const remoteStream = event.streams[0]
               const videoElem = document.getElementById('screenshare_video')
               videoElem.srcObject = remoteStream
+              videoElem.setAttribute('controls', '')
             }
           }
         })
