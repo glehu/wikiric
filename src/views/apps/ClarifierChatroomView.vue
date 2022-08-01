@@ -2796,8 +2796,11 @@ export default {
       if (userId) {
         calleeList.push(userId)
       } else {
+        // If no userId is provided, add everybody except the current user as a Callee
         for (let i = 0; i < this.members.length; i++) {
-          calleeList.push(this.members[i].id)
+          if (this.members[i].id !== this.userId) {
+            calleeList.push(this.members[i].id)
+          }
         }
       }
       // Create a WebRTC Peer to Peer Connection for each callee
