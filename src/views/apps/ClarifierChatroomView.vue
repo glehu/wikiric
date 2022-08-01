@@ -115,6 +115,8 @@
                class="bi bi-chat-quote-fill" style="position: absolute; left: 20px"></i>
             <span v-if="subchat.type === 'screenshare'"
                   style="font-size: 150%"><i class="bi bi-window-fullscreen"></i></span>
+            <span v-else-if="subchat.type === 'webcam'"
+                  style="font-size: 150%"><i class="bi bi-camera-video"></i></span>
             <span v-else style="font-size: 150%"><i class="bi bi-hash"></i></span>
             <span style="padding-left: 10px">{{ subchat.t }}</span>
           </div>
@@ -154,6 +156,10 @@
                     style="margin-left: 10px">
                 <i class="bi bi-window-fullscreen"></i>
               </span>
+              <span v-else-if="currentSubchat.type === 'webcam'"
+                    style="margin-left: 10px">
+                <i class="bi bi-camera-video"></i>
+              </span>
               <span v-else style="margin-left: 10px">
                 <i class="bi bi-hash"></i>
               </span>
@@ -185,11 +191,11 @@
                     height: calc(100vh - 60px - 50px - 80px);
                     position: absolute; left: 300px;
                     border-bottom: 2px solid rgba(174, 174, 183, 0.25);
-                    padding: 10px 10px 10px 0;
+                    padding: 0;
                     display: flex"
              class="c_lightgray">
-          <div style="position: relative; top: 10px; left: 0;
-                      width: calc(100% - 10px);
+          <div style="position: relative; top: 0; left: 0;
+                      width: 100%;
                       aspect-ratio: 16 / 9"
                class="b_darkergray">
             <div v-if="!isStreamingVideo"
@@ -722,44 +728,61 @@
       <hr class="c_lightgray">
     </div>
   </div>
-  <!-- #### New Subchat #### -->
-  <div class="new_subchat b_gray shadow" style="overflow: hidden"
-       v-show="isViewingNewSubchat" @click.stop>
-    <div style="position: relative; padding-top: 10px; width: 100%">
-      <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
-         v-on:click="hideAllWindows()"></i>
+  <modal
+    v-show="isViewingNewSubchat"
+    @close="hideAllWindows()">
+    <template v-slot:header>
       <h2 class="fw-bold">New Subchat</h2>
-      <hr class="c_lightgray">
-      <label for="new_subchat_name" class="fw-bold lead c_lightgray">Name:</label>
-      <input v-model="new_subchat_name"
-             id="new_subchat_name" type="text"
-             class="mt-2 b_darkergray text-white p-2 ps-3"
-             style="width: 100%; border: none; border-radius: 20px">
-      <label class="fw-bold lead mt-4 c_lightgray" style="width: 100%">Create:</label>
-      <button v-on:click="createSubchatroom('text')"
-              id="new_subchat_type_text" class="btn darkbutton mt-2"
-              style="color: white; width: 100%; text-align: left; display: flex;
+    </template>
+    <template v-slot:body>
+      <!-- #### New Subchat #### -->
+      <div class="new_subchat" style="overflow: hidden; padding: 5px">
+        <div style="position: relative; padding-top: 10px; width: 100%">
+          <label for="new_subchat_name" class="fw-bold lead c_lightgray">Name:</label>
+          <input v-model="new_subchat_name"
+                 id="new_subchat_name" type="text"
+                 class="mt-2 b_darkergray text-white p-2 ps-3"
+                 style="width: 100%; border: none; border-radius: 20px">
+          <label class="fw-bold lead mt-4 c_lightgray" style="width: 100%">Create:</label>
+          <button v-on:click="createSubchatroom('text')"
+                  id="new_subchat_type_text" class="btn darkbutton mt-2"
+                  style="color: white; width: 100%; text-align: left; display: flex;
                      align-items: center; border-radius: 10px">
-        <span style="font-size: 200%"><i class="bi bi-hash"></i></span>
-        <span class="ms-3">
+            <span style="font-size: 200%"><i class="bi bi-hash"></i></span>
+            <span class="ms-3">
           <span>Text Subchat</span>
           <br>
           <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Messages, GIFs and Files...</span>
         </span>
-      </button>
-      <button v-on:click="createSubchatroom('screenshare')"
-              id="new_subchat_type_screenshare" class="btn darkbutton mt-2"
-              style="color: white; width: 100%; text-align: left; display: flex;
+          </button>
+          <button v-on:click="createSubchatroom('screenshare')"
+                  id="new_subchat_type_screenshare" class="btn darkbutton mt-2"
+                  style="color: white; width: 100%; text-align: left; display: flex;
                      align-items: center; border-radius: 10px">
-        <span style="font-size: 200%"><i class="bi bi-window-fullscreen"></i></span>
-        <span class="ms-3">
+            <span style="font-size: 200%"><i class="bi bi-window-fullscreen"></i></span>
+            <span class="ms-3">
           <span>Screenshare Subchat</span>
           <br>
           <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Share your screen for others</span>
         </span>
-      </button>
-    </div>
-  </div>
+          </button>
+          <button v-on:click="createSubchatroom('webcam')"
+                  id="new_subchat_type_webcam" class="btn darkbutton mt-2"
+                  style="color: white; width: 100%; text-align: left; display: flex;
+                     align-items: center; border-radius: 10px">
+            <span style="font-size: 200%"><i class="bi bi-camera-video"></i></span>
+            <span class="ms-3">
+          <span>Webcam Subchat</span>
+          <br>
+          <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Video call with others</span>
+        </span>
+          </button>
+        </div>
+      </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
   <!-- #### File Upload (SnippetBase) #### -->
   <div class="session_settings b_gray shadow" style="overflow-x: hidden; overflow-y: scroll"
        v-show="isUploadingSnippet" @click.stop>
@@ -1344,6 +1367,12 @@ export default {
             // Set new chatroom or subchat + active flag
             if (isSubchat === false) {
               this.chatroom = data
+              if (this.chatroom.subChatrooms != null) {
+                // Parse JSON serialized subchats for performance
+                for (let i = 0; i < this.chatroom.subChatrooms.length; i++) {
+                  this.chatroom.subChatrooms[i] = JSON.parse(this.chatroom.subChatrooms[i])
+                }
+              }
               if (novisual === false) {
                 document.getElementById(this.chatroom.guid + '_subc')
                   .classList.toggle('active')
@@ -1358,7 +1387,7 @@ export default {
           })
           .then(() => (this.processMetaDataResponse(isSubchat)))
           .then(resolve)
-          .catch((err) => console.error(err.message))
+        // .catch((err) => console.error(err.message))
       })
     },
     processMetaDataResponse: async function (isSubchat = false) {
@@ -1379,16 +1408,17 @@ export default {
           notify.style.display = 'none'
         }
         if (this.isSubchat === false) {
-          this.members = this.chatroom.members
+          this.members = []
           // Parse JSON serialized users for performance
           for (let i = 0; i < this.chatroom.members.length; i++) {
+            // Main Members
             this.mainMembers[i] = JSON.parse(this.chatroom.members[i])
             this.mainMembers[i].taggable = true
-          }
-          if (this.chatroom.subChatrooms != null) {
-            // Parse JSON serialized subchats for performance
-            for (let i = 0; i < this.chatroom.subChatrooms.length; i++) {
-              this.chatroom.subChatrooms[i] = JSON.parse(this.chatroom.subChatrooms[i])
+            // Current Members
+            this.members[i] = this.mainMembers[i]
+            this.members[i].taggable = true
+            if (this.members[i].usr === this.$store.state.username) {
+              this.userId = this.chatroom.members[i].id
             }
           }
         }
@@ -1402,7 +1432,15 @@ export default {
           notify.style.opacity = '0'
           notify.style.display = 'none'
         }
-        this.members = this.currentSubchat.members
+        // Parse JSON serialized users for performance and determine current user's ID
+        this.members = []
+        for (let i = 0; i < this.currentSubchat.members.length; i++) {
+          this.members[i] = JSON.parse(this.currentSubchat.members[i])
+          this.members[i].taggable = true
+          if (this.members[i].usr === this.$store.state.username) {
+            this.userId = this.currentSubchat.members[i].id
+          }
+        }
       }
       const messagesSection = document.getElementById('messages_section')
       if (this.currentSubchat.type === 'screenshare') {
@@ -1411,14 +1449,6 @@ export default {
       } else {
         messagesSection.style.width = 'initial'
         messagesSection.style.borderRight = 'initial'
-      }
-      // Parse JSON serialized users for performance and determine current user's ID
-      for (let i = 0; i < this.members.length; i++) {
-        this.members[i] = JSON.parse(this.members[i])
-        this.members[i].taggable = true
-        if (this.members[i].usr === this.$store.state.username) {
-          this.userId = this.members[i].id
-        }
       }
       document.title = this.chatroom.t
     },
@@ -2983,8 +3013,7 @@ export default {
 
 .user_profile,
 .giphygrid,
-.session_settings,
-.new_subchat {
+.session_settings {
   position: fixed;
   z-index: 1001;
   bottom: 80px;
@@ -3204,8 +3233,7 @@ export default {
 
   .user_profile,
   .giphygrid,
-  .session_settings,
-  .new_subchat {
+  .session_settings {
     transform: translateX(-250px);
   }
 }
