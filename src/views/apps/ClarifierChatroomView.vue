@@ -888,7 +888,6 @@ export default {
       peerConnections: [],
       websocketState: 'CLOSED',
       tagIndex: 0,
-      mediaRecorder: {},
       streamStartTime: '',
       streamDuration: '',
       // Messages and pagination
@@ -2701,9 +2700,9 @@ export default {
       }
     },
     stopScreenshare: function () {
-      if (this.mediaRecorder.state === 'recording') {
-        this.mediaRecorder.stop()
-      }
+      this.peerConnections = []
+      const videoElem = document.getElementById('screenshare_video')
+      videoElem.srcObject = null
       this.isStreamingVideo = false
       this.streamStartTime = ''
       this.streamDuration = ''
