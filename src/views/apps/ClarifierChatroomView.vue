@@ -1387,7 +1387,7 @@ export default {
           })
           .then(() => (this.processMetaDataResponse(isSubchat)))
           .then(resolve)
-        // .catch((err) => console.error(err.message))
+          .catch((err) => console.error(err.message))
       })
     },
     processMetaDataResponse: async function (isSubchat = false) {
