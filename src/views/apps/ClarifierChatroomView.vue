@@ -147,10 +147,13 @@
         </div>
         <!-- #### CHAT HEADER #### -->
         <div class="b_darkergray chat_header">
-          <div style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%"
-               class="nopointer">
-            <span style="margin-left: 10px">{{ chatroom.t }}</span>
-            <div v-if="isSubchat === true">
+          <div style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%">
+            <span style="margin-left: 10px"
+                  class="orange-hover"
+                  v-on:click="gotoSubchat(this.getSession(), false)">
+              {{ chatroom.t }}
+            </span>
+            <div v-if="isSubchat === true" class="nopointer">
               <span style="margin-left: 10px"><i class="bi bi-caret-right"></i></span>
               <span v-if="currentSubchat.type === 'screenshare'"
                     style="margin-left: 10px">
