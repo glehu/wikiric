@@ -130,9 +130,10 @@ export default {
   display: flex;
   flex-direction: column;
   max-width: 400px;
+  height: fit-content;
   max-height: 90vh;
   left: calc(50vw - 200px);
-  top: calc(50vh - 45vh);
+  top: 5vh;
 }
 
 .modal-header,

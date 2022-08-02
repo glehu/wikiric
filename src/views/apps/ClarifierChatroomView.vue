@@ -671,17 +671,20 @@
       <h3>Edit Your Profile</h3>
     </template>
     <template v-slot:body>
-      <div style="display: flex">
+      <div style="display: flex; margin-bottom: 5px">
         <img :src="getImg(this.viewedUserProfile.iurl, true)" alt="No Picture"
              class="b_darkergray"
              style="width: 100px; height: 100px; border-radius: 100%">
-        <div style="margin: 0 0 0 10px">
-          <h2 class="fw-bold text-white">
-            {{ this.viewedUserProfile.usr }}
-          </h2>
-          <input type="file" multiple v-on:change="setProfilePicture">
-        </div>
+        <h2 class="fw-bold text-white"
+            style="margin: 0 0 0 10px">
+          {{ this.viewedUserProfile.usr }}
+        </h2>
       </div>
+      <label for="setProfilePicInput"
+             class="my-2">
+        Set a Profile Picture:
+      </label>
+      <input id="setProfilePicInput" type="file" multiple v-on:change="setProfilePicture">
     </template>
     <template v-slot:footer>
     </template>
@@ -1005,6 +1008,7 @@ export default {
       this.message_section.addEventListener('scroll', this.checkScroll, false)
       // Add message input field events
       this.inputField.addEventListener('keydown', this.handleEnter, false)
+      document.addEventListener('keydown', this.handleGlobalKeyEvents, false)
       this.inputField.addEventListener('input', this.handleCommentInput, false)
       this.inputField.focus()
       // Add dropzone events (settings -> image upload)
@@ -1038,6 +1042,15 @@ export default {
             }
             reader.readAsDataURL(blob)
           }
+        }
+      }
+    },
+    handleGlobalKeyEvents: function (event) {
+      if (event.key === 'Escape') {
+        if (this.isEditingMessage === true) {
+          this.resetEditing()
+        } else {
+          this.hideAllWindows()
         }
       }
     },
@@ -1893,6 +1906,7 @@ export default {
       this.isViewingUserProfile = false
       this.isAddingRole = false
       this.new_role = ''
+      this.isEditingProfile = false
     },
     hideSessionSettings: function () {
       this.isViewingSessionSettings = false
@@ -2075,12 +2089,6 @@ export default {
           } else {
             this.tagIndex = this.imgflipSelection.length - 1
           }
-        }
-      } else if (event.key === 'Escape') {
-        if (this.isEditingMessage === true) {
-          this.resetEditing()
-        } else {
-          this.hideAllWindows()
         }
       }
     },
