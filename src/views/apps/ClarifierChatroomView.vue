@@ -189,7 +189,8 @@
             <i class="bi bi-people orange-hover" style="height: 25px; width: 25px"></i>
           </button>
         </div>
-        <div v-if="this.isSubchat === true && this.currentSubchat.type === 'screenshare'"
+        <div v-if="this.isSubchat === true &&
+          (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam')"
              style="width: calc(100% - 300px);
                     height: calc(100vh - 60px - 50px - 80px);
                     position: absolute; left: 300px;
@@ -772,7 +773,7 @@
           <button v-on:click="createSubchatroom('webcam')"
                   id="new_subchat_type_webcam" class="btn darkbutton mt-2"
                   style="color: white; width: 100%; text-align: left; display: flex;
-                     align-items: center; border-radius: 10px">
+                     align-items: center; border-radius: 10px" disabled>
             <span style="font-size: 200%"><i class="bi bi-camera-video"></i></span>
             <span class="ms-3">
           <span>Webcam Subchat</span>
@@ -1421,7 +1422,7 @@ export default {
             this.members[i] = this.mainMembers[i]
             this.members[i].taggable = true
             if (this.members[i].usr === this.$store.state.username) {
-              this.userId = this.chatroom.members[i].id
+              this.userId = this.members[i].id
             }
           }
         }
@@ -1441,12 +1442,12 @@ export default {
           this.members[i] = JSON.parse(this.currentSubchat.members[i])
           this.members[i].taggable = true
           if (this.members[i].usr === this.$store.state.username) {
-            this.userId = this.currentSubchat.members[i].id
+            this.userId = this.members[i].id
           }
         }
       }
       const messagesSection = document.getElementById('messages_section')
-      if (this.currentSubchat.type === 'screenshare') {
+      if (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam') {
         messagesSection.style.width = '300px'
         messagesSection.style.borderRight = '2px solid rgba(174, 174, 183, 0.25)'
       } else {
