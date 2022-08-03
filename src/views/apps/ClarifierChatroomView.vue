@@ -500,20 +500,67 @@
               </div>
             </template>
           </div>
-          <div v-if="isFillingImgflipTemplate"
+          <div v-if="isFillingImgflipTemplate.active"
                class="imgflip_selector b_gray c_lightgray"
                style="padding: 10px; position: relative; z-index: 100; overflow: hidden">
-            <input id="imgflip_topText"
-                   style="top: 10px;"
-                   class="text-center fw-bold imgflip_text"
-                   placeholder="Top Text">
-            <img :src="this.imgflip_template.url" alt="Loading" class="selectableGIF"
-                 style="width: 300px; height: 300px">
-            <input id="imgflip_bottomText"
-                   style="bottom: 10px;"
-                   class="text-center fw-bold imgflip_text"
-                   placeholder="Bottom Text"
-                   v-on:keyup.enter="submitImgflipMeme">
+            <div class="imgflip_toolbar b_darkergray"
+                 style="display: flex; width: 100%; align-items: center; padding: 5px;
+                        border-radius: 10px">
+              <button title="Box Mode"
+                      class="btn b_darkgray gray-hover c_lightgray mx-1"
+                      style="border-radius: 10px;"
+                      v-on:click="toggleImgflipBoxMode">
+                <i class="bi bi-pencil" style="font-size: 125%;"></i>
+              </button>
+              <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
+                <div class="c_darkgray mx-1 fw-bold"
+                     style="font-size: 150%">
+                  |
+                </div>
+                <button title="Add Text Box"
+                        class="btn b_darkgray gray-hover c_lightgray mx-1"
+                        style="border-radius: 10px">
+                  <i class="bi bi-plus-lg" style="font-size: 125%;"></i>
+                </button>
+                <button title="Reset"
+                        class="btn b_darkgray gray-hover c_lightgray mx-1"
+                        style="border-radius: 10px">
+                  <i class="bi bi-arrow-counterclockwise" style="font-size: 125%;"></i>
+                </button>
+                <p style="margin: 0"></p>
+              </template>
+            </div>
+            <br>
+            <img id="imgflip_meme"
+                 :src="this.imgflip_template.url" alt="Loading" class="selectableGIF"
+                 style="width: 300px; height: 300px; border-radius: 10px">
+            <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
+              <div id="meme_boxes_container"
+                   style="width: 100%; height: 100%; position: absolute">
+              </div>
+              <div id="myDiv"
+                   class="imgflip_text"
+                   style="bottom: 80px; font-size: 100%; height: 50px; width: 150px">
+                <div id="myDiv_anchor"
+                     style="width: 30px; height: 20px; background-color: white; cursor: move;
+                            border: 1px solid black">
+                </div>
+                <input id="imgflip_draggableText_1"
+                       class="text-center fw-bold"
+                       placeholder="Text">
+              </div>
+            </template>
+            <template v-else-if="this.isFillingImgflipTemplate.mode === 'top-bottom'">
+              <input id="imgflip_topText"
+                     style="bottom: 80px;"
+                     class="text-center fw-bold imgflip_text"
+                     placeholder="Top Text">
+              <input id="imgflip_bottomText"
+                     style="bottom: 10px;"
+                     class="text-center fw-bold imgflip_text"
+                     placeholder="Bottom Text"
+                     v-on:keyup.enter="submitImgflipMeme">
+            </template>
           </div>
           <textarea id="new_comment"
                     class="new_comment b_gray"
@@ -956,7 +1003,10 @@ export default {
       isEditingMessage: false,
       isTaggingUser: false,
       isSelectingImgflipTemplate: false,
-      isFillingImgflipTemplate: false,
+      isFillingImgflipTemplate: {
+        active: false,
+        mode: 'top-bottom'
+      },
       isStreamingVideo: false,
       isEditingProfile: false,
       //
@@ -996,7 +1046,8 @@ export default {
       })
       const subchatGUID = params.sub
       this.toggleElement('init_loading', 'flex')
-      if (subchatGUID) {
+      if (subchatGUID != null) {
+        console.log('Subchat detected... connecting to:', subchatGUID)
         await this.getClarifierMetaData(this.getSession(), false, true)
         await this.gotoSubchat(subchatGUID)
       } else {
@@ -1110,6 +1161,7 @@ export default {
             return
           }
           this.websocketState = 'CLOSED'
+          console.log('Websocket closed unexpectedly... trying to revive...')
           await this.initFunction()
         }
         // Websocket incoming frames
@@ -1216,7 +1268,6 @@ export default {
             t: response.type
           })
           setTimeout(() => {
-            console.log('react_' + response.uniMessageGUID + '_' + response.type)
             document.getElementById('react_' + response.uniMessageGUID + '_' + response.type).title =
               response.from + ' reacted to this message.'
           }, 1000)
@@ -1667,6 +1718,14 @@ export default {
       let session
       if (full === false) {
         session = this.$route.params.id
+        if (session == null) {
+          // If the URL does not contain a valid GUID, go to fallback...
+          session = this.chatroom.id
+          if (session == null) {
+            // If we still didn't get anything... just show a blue screen and hope for the best
+            this.$router.push('/bsod?reason=' + 'No Valid GUID in URL/CurrentChatroom')
+          }
+        }
       } else {
         session = window.location.href
       }
@@ -1782,7 +1841,7 @@ export default {
         .then((data) => (response = data))
         .then(() => this.handleImgflipSubmissionResponse(response))
         .then(() => {
-          this.isFillingImgflipTemplate = false
+          this.isFillingImgflipTemplate.active = false
           this.imgflip_template = {}
           textOne.value = ''
           textTwo.value = ''
@@ -1858,7 +1917,8 @@ export default {
           }
           this.imgflip_template = template
           this.new_message = ''
-          this.isFillingImgflipTemplate = true
+          this.isFillingImgflipTemplate.active = true
+          this.isFillingImgflipTemplate.mode = 'top-bottom'
           setTimeout(() => {
             document.getElementById('imgflip_topText').focus()
           }, 50)
@@ -1872,7 +1932,7 @@ export default {
       this.isUploadingSnippet = false
       this.isTaggingUser = false
       this.isSelectingImgflipTemplate = false
-      this.isFillingImgflipTemplate = false
+      this.isFillingImgflipTemplate.active = false
       this.imgflip_template = {}
       this.hideUserProfile()
       this.hideSessionSettings()
@@ -1988,7 +2048,7 @@ export default {
         } else if (this.isSelectingImgflipTemplate === true) {
           event.preventDefault()
           this.selectImgflipTemplate(this.imgflipSelection[this.tagIndex])
-        } else if (this.isFillingImgflipTemplate === true) {
+        } else if (this.isFillingImgflipTemplate.active === true) {
           event.preventDefault()
           this.submitImgflipMeme()
         } else {
@@ -2833,7 +2893,7 @@ export default {
           console.log('>>> SUCCESS: Peer Connection found <', peerConnection.calleeId, '>')
         }
       }
-      console.log('Setting Remote Description ', payload.offer, '...')
+      console.log('Setting Remote Description', payload.offer, '...')
       await peerConnection.setRemoteDescription(new RTCSessionDescription(payload.offer))
       const answer = await peerConnection.createAnswer()
       await peerConnection.setLocalDescription(answer)
@@ -2914,6 +2974,55 @@ export default {
         }
       }
       return peerConnection
+    },
+    makeElementDraggable: function (element) {
+      let pos1 = 0
+      let pos2 = 0
+      let pos3 = 0
+      let pos4 = 0
+      if (document.getElementById(element.id + '_anchor')) {
+        document.getElementById(element.id + '_anchor').onmousedown = dragMouseDown
+      } else {
+        element.onmousedown = dragMouseDown
+      }
+
+      function dragMouseDown (e) {
+        e = e || window.event
+        e.preventDefault()
+        pos3 = e.clientX
+        pos4 = e.clientY
+        document.onmouseup = closeDragElement
+        document.onmousemove = elementDrag
+      }
+
+      function elementDrag (e) {
+        e = e || window.event
+        e.preventDefault()
+        pos1 = pos3 - e.clientX
+        pos2 = pos4 - e.clientY
+        pos3 = e.clientX
+        pos4 = e.clientY
+        element.style.top = (element.offsetTop - pos2) + 'px'
+        element.style.left = (element.offsetLeft - pos1) + 'px'
+      }
+
+      function closeDragElement () {
+        document.onmouseup = null
+        document.onmousemove = null
+      }
+    },
+    toggleImgflipBoxMode: function () {
+      if (this.isFillingImgflipTemplate.mode === 'top-bottom') {
+        this.isFillingImgflipTemplate.mode = 'boxes'
+        setTimeout(() => {
+          const img = document.getElementById('imgflip_meme')
+          img.style.width = '400px'
+          img.style.height = '400px'
+          this.makeElementDraggable(document.getElementById('myDiv'))
+        }, 0)
+      } else {
+        this.isFillingImgflipTemplate.mode = 'top-bottom'
+      }
     }
   }
 }
@@ -3461,7 +3570,7 @@ export default {
   padding: 0;
   font-weight: bold;
   transition: 0.3s opacity;
-  max-height: 50vh;
+  max-height: calc(80vh - 80px);
   overflow-y: scroll;
   overflow-x: hidden;
 }
@@ -3485,6 +3594,20 @@ export default {
   color: white;
   background: transparent;
   border: none
+}
+
+.wrapper {
+  display: grid;
+  gap: 50px;
+  grid-auto-rows: minmax(100px, auto);
+  grid-template-columns: repeat(1, 1fr);
+}
+
+/* Small devices (portrait tablets and large phones, 765px and up) */
+@media only screen and (min-width: 992px) {
+  .wrapper {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 </style>

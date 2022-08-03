@@ -112,6 +112,11 @@ const routes = [
     component: () => import('../views/settings/ThirdPartyAccounts.vue'),
     meta: { requiresAuth: true }
   },
+  {
+    path: '/bsod',
+    name: 'WBSOD',
+    component: () => import('../views/errors/BSOD')
+  },
   // 404 NOT FOUND ERROR PAGE --- MUST BE AT THE VERY BOTTOM ---
   {
     path: '/:pathMatch(.*)*',
