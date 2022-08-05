@@ -506,7 +506,8 @@
             <div class="imgflip_toolbar b_darkergray"
                  style="display: flex; width: fit-content; align-items: center; padding: 5px;
                         border-radius: 12px">
-              <button title="Box Mode"
+              <button id="imgflip_toolbar_boxtools_toggler"
+                      title="Box Mode"
                       class="btn b_darkgray gray-hover c_lightgray"
                       style="border-radius: 10px"
                       v-on:click="toggleImgflipBoxMode">
@@ -567,11 +568,11 @@
             </template>
             <template v-else-if="this.isFillingImgflipTemplate.mode === 'top-bottom'">
               <input id="imgflip_topText"
-                     style="bottom: 80px;"
+                     style="bottom: 80px; background-color: rgba(255, 255, 255, 0.5);"
                      class="text-center fw-bold imgflip_text"
                      placeholder="Top Text">
               <input id="imgflip_bottomText"
-                     style="bottom: 10px;"
+                     style="bottom: 10px; background-color: rgba(255, 255, 255, 0.5);"
                      class="text-center fw-bold imgflip_text"
                      placeholder="Bottom Text"
                      v-on:keyup.enter="submitImgflipMeme">
@@ -1854,7 +1855,9 @@ export default {
           username: this.$store.state.imgFlipUsername,
           password: this.$store.state.imgFlipPassword,
           text0: textOne.value,
-          text1: textTwo.value
+          text1: textTwo.value,
+          font: 'impact',
+          max_font_size: 50
         }
       }
       let formBody = []
@@ -1899,6 +1902,7 @@ export default {
             textOne.value = ''
             textTwo.value = ''
           }
+          this.focusComment()
         })
         .catch((err) => console.error(err.message))
     },
@@ -3073,6 +3077,8 @@ export default {
           id: 0
         }]
         setTimeout(() => {
+          const toggler = document.getElementById('imgflip_toolbar_boxtools_toggler')
+          toggler.classList.add('disabled')
           // Increase template size and center it
           const img = document.getElementById('imgflip_meme')
           const boxContainer = document.getElementById('meme_boxes_container')
@@ -3718,7 +3724,9 @@ export default {
   left: 320px;
   text-transform: uppercase;
   font-size: 200%;
+  font-family: Impact, Arial, sans-serif;
   color: white;
+  text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
   background: transparent;
   border: none
 }
