@@ -504,50 +504,65 @@
                class="imgflip_selector b_gray c_lightgray"
                style="padding: 10px; position: relative; z-index: 100; overflow: hidden">
             <div class="imgflip_toolbar b_darkergray"
-                 style="display: flex; width: 100%; align-items: center; padding: 5px;
-                        border-radius: 10px">
+                 style="display: flex; width: fit-content; align-items: center; padding: 5px;
+                        border-radius: 12px">
               <button title="Box Mode"
-                      class="btn b_darkgray gray-hover c_lightgray mx-1"
-                      style="border-radius: 10px;"
+                      class="btn b_darkgray gray-hover c_lightgray"
+                      style="border-radius: 10px"
                       v-on:click="toggleImgflipBoxMode">
                 <i class="bi bi-pencil" style="font-size: 125%;"></i>
               </button>
-              <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
-                <div class="c_darkgray mx-1 fw-bold"
-                     style="font-size: 150%">
-                  |
-                </div>
-                <button title="Add Text Box"
-                        class="btn b_darkgray gray-hover c_lightgray mx-1"
-                        style="border-radius: 10px">
-                  <i class="bi bi-plus-lg" style="font-size: 125%;"></i>
-                </button>
-                <button title="Reset"
-                        class="btn b_darkgray gray-hover c_lightgray mx-1"
-                        style="border-radius: 10px">
-                  <i class="bi bi-arrow-counterclockwise" style="font-size: 125%;"></i>
-                </button>
-                <p style="margin: 0"></p>
-              </template>
+              <div id="imgflip_toolbar_boxtools"
+                   style="display: flex; opacity: 0; transition: 0.5s ease opacity">
+                <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
+                  <div class="c_darkgray ms-2 fw-bold"
+                       style="font-size: 150%; pointer-events: none">
+                    |
+                  </div>
+                  <button title="Add Text Box"
+                          class="btn b_darkgray gray-hover c_lightgray ms-2"
+                          style="border-radius: 10px"
+                          v-on:click="addImgflipTextBox()">
+                    <i class="bi bi-plus-lg" style="font-size: 125%;"></i>
+                  </button>
+                  <button title="Reset"
+                          class="btn b_darkgray gray-hover c_lightgray ms-2"
+                          style="border-radius: 10px"
+                          disabled>
+                    <i class="bi bi-arrow-counterclockwise" style="font-size: 125%;"></i>
+                  </button>
+                  <button title="Send"
+                          class="btn golden-hover c_lightgray ms-2"
+                          style="border-radius: 10px"
+                          v-on:click="sendImgflipBoxes()">
+                    <i class="bi bi-send text-black"
+                       style="font-size: 125%;">
+                    </i>
+                  </button>
+                  <p style="margin: 0"></p>
+                </template>
+              </div>
             </div>
             <br>
             <img id="imgflip_meme"
                  :src="this.imgflip_template.url" alt="Loading" class="selectableGIF"
-                 style="width: 300px; height: 300px; border-radius: 10px">
+                 style="width: auto; height: calc(100% - 80px); border-radius: 10px;
+                        transition: 0.3s ease all;">
             <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
               <div id="meme_boxes_container"
-                   style="width: 100%; height: 100%; position: absolute">
-              </div>
-              <div id="myDiv"
-                   class="imgflip_text"
-                   style="bottom: 80px; font-size: 100%; height: 50px; width: 150px">
-                <div id="myDiv_anchor"
-                     style="width: 30px; height: 20px; background-color: white; cursor: move;
-                            border: 1px solid black">
+                   style="width: auto; height: calc(100% - 80px); position: absolute; top: 60px; left: 0">
+                <div v-for="box in this.isFillingImgflipTemplate.boxes" :key="box.id"
+                     :id="'imgflip_draggableText_' + box.id + '_div'"
+                     class="imgflip_text"
+                     style="top: 100px; left: 10px; font-size: 100%; height: 50px; width: 150px">
+                  <div :id="'imgflip_draggableText_' + box.id + '_div_anchor'"
+                       class="draggable_meme_text_anchor">
+                    <i class="bi bi-arrows-move" style="font-size: 75%; color: black"></i>
+                  </div>
+                  <textarea :id="'imgflip_draggableText_' + box.id" rows="1" cols="8"
+                            class="fw-bold draggable_meme_text">
+                </textarea>
                 </div>
-                <input id="imgflip_draggableText_1"
-                       class="text-center fw-bold"
-                       placeholder="Text">
               </div>
             </template>
             <template v-else-if="this.isFillingImgflipTemplate.mode === 'top-bottom'">
@@ -1005,7 +1020,8 @@ export default {
       isSelectingImgflipTemplate: false,
       isFillingImgflipTemplate: {
         active: false,
-        mode: 'top-bottom'
+        mode: 'top-bottom',
+        boxes: []
       },
       isStreamingVideo: false,
       isEditingProfile: false,
@@ -1409,6 +1425,15 @@ export default {
       if (closeGIFSelection) this.isViewingGIFSelection = false
     },
     getClarifierMetaData: function (sessionID = this.getSession(), isSubchat = false, novisual = false) {
+      if (sessionID == null || sessionID === 'undefined') {
+        this.$notify(
+          {
+            title: 'Invalid Group GUID',
+            text: 'Please re-enter current Group to fix this.',
+            type: 'error'
+          })
+        return
+      }
       return new Promise((resolve) => {
         const headers = new Headers()
         headers.set('Authorization', 'Bearer ' + this.$store.state.token)
@@ -1718,12 +1743,13 @@ export default {
       let session
       if (full === false) {
         session = this.$route.params.id
-        if (session == null) {
+        if (session == null || session === 'undefined') {
           // If the URL does not contain a valid GUID, go to fallback...
           session = this.chatroom.id
-          if (session == null) {
+          if (session == null || session === 'undefined') {
             // If we still didn't get anything... just show a blue screen and hope for the best
             this.$router.push('/bsod?reason=' + 'No Valid GUID in URL/CurrentChatroom')
+            return null
           }
         }
       } else {
@@ -1808,22 +1834,46 @@ export default {
         .then((data) => (this.imgflipSelection = data.data.memes))
         .catch((err) => console.error(err.message))
     },
-    submitImgflipMeme: function () {
+    submitImgflipMeme: function (boxes = []) {
       const url = 'https://api.imgflip.com/caption_image'
       const textOne = document.getElementById('imgflip_topText')
       const textTwo = document.getElementById('imgflip_bottomText')
-      const details = {
-        template_id: this.imgflip_template.id,
-        username: this.$store.state.imgFlipUsername,
-        password: this.$store.state.imgFlipPassword,
-        text0: textOne.value,
-        text1: textTwo.value
+      let details
+      if (boxes.length > 0) {
+        details = {
+          template_id: this.imgflip_template.id,
+          username: this.$store.state.imgFlipUsername,
+          password: this.$store.state.imgFlipPassword,
+          font: 'impact',
+          max_font_size: 50,
+          boxes: boxes
+        }
+      } else {
+        details = {
+          template_id: this.imgflip_template.id,
+          username: this.$store.state.imgFlipUsername,
+          password: this.$store.state.imgFlipPassword,
+          text0: textOne.value,
+          text1: textTwo.value
+        }
       }
       let formBody = []
       for (const property in details) {
         const encodedKey = encodeURIComponent(property)
-        const encodedValue = encodeURIComponent(details[property])
-        formBody.push(encodedKey + '=' + encodedValue)
+        if (encodedKey !== 'boxes') {
+          const encodedValue = encodeURIComponent(details[property])
+          formBody.push(encodedKey + '=' + encodedValue)
+        } else {
+          let box
+          for (let i = 0; i < boxes.length; i++) {
+            box = boxes[i]
+            formBody.push(encodedKey + '[' + i + '][text]=' + box.text)
+            formBody.push(encodedKey + '[' + i + '][x]=' + box.x)
+            formBody.push(encodedKey + '[' + i + '][y]=' + box.y)
+            formBody.push(encodedKey + '[' + i + '][width]=' + box.width)
+            formBody.push(encodedKey + '[' + i + '][height]=' + box.height)
+          }
+        }
       }
       formBody = formBody.join('&')
       let response
@@ -1842,9 +1892,13 @@ export default {
         .then(() => this.handleImgflipSubmissionResponse(response))
         .then(() => {
           this.isFillingImgflipTemplate.active = false
+          this.isFillingImgflipTemplate.boxes = []
+          this.isFillingImgflipTemplate.mode = 'top-bottom'
           this.imgflip_template = {}
-          textOne.value = ''
-          textTwo.value = ''
+          if (boxes.length < 1) {
+            textOne.value = ''
+            textTwo.value = ''
+          }
         })
         .catch((err) => console.error(err.message))
     },
@@ -3014,15 +3068,79 @@ export default {
     toggleImgflipBoxMode: function () {
       if (this.isFillingImgflipTemplate.mode === 'top-bottom') {
         this.isFillingImgflipTemplate.mode = 'boxes'
+        this.isFillingImgflipTemplate.boxes = [{
+          text: '',
+          id: 0
+        }]
         setTimeout(() => {
+          // Increase template size and center it
           const img = document.getElementById('imgflip_meme')
-          img.style.width = '400px'
-          img.style.height = '400px'
-          this.makeElementDraggable(document.getElementById('myDiv'))
+          const boxContainer = document.getElementById('meme_boxes_container')
+          const marginLeft = 'calc(50% - ' + (img.clientWidth / 2).toString() + 'px)'
+          img.style.marginLeft = marginLeft
+          boxContainer.style.marginLeft = marginLeft
+          // Show controls
+          document.getElementById('imgflip_toolbar_boxtools').style.opacity = '1'
+          // Make the default input draggable
+          const defaultTextarea = document.getElementById('imgflip_draggableText_0_div')
+          defaultTextarea.value = ''
+          this.makeElementDraggable(defaultTextarea)
         }, 0)
       } else {
         this.isFillingImgflipTemplate.mode = 'top-bottom'
       }
+    },
+    addImgflipTextBox: function () {
+      if (this.isFillingImgflipTemplate.mode !== 'boxes') return
+      const boxContainer = document.getElementById('meme_boxes_container')
+      if (boxContainer == null) return
+      const boxId = this.isFillingImgflipTemplate.boxes.length
+      this.isFillingImgflipTemplate.boxes.push({
+        text: '',
+        id: boxId
+      })
+      setTimeout(() => {
+        // Make the input draggable
+        const defaultTextarea = document.getElementById('imgflip_draggableText_' + boxId + '_div')
+        defaultTextarea.value = ''
+        this.makeElementDraggable(defaultTextarea)
+      }, 0)
+    },
+    sendImgflipBoxes: function () {
+      // Original template dimensions
+      const widthOriginal = this.imgflip_template.width
+      const heightOriginal = this.imgflip_template.height
+      // Scaled template dimensions
+      const img = document.getElementById('imgflip_meme')
+      const width = img.clientWidth
+      const height = img.clientHeight
+      // Get scaling factors
+      const widthFactor = widthOriginal / width
+      const heightFactor = heightOriginal / height
+      // Create Imgflip compatible boxes array
+      let box
+      let boxDom
+      let boxDivDom
+      let xPos
+      let yPos
+      const boxes = []
+      for (let i = 0; i < this.isFillingImgflipTemplate.boxes.length; i++) {
+        box = this.isFillingImgflipTemplate.boxes[i]
+        boxDom = document.getElementById('imgflip_draggableText_' + box.id)
+        boxDivDom = document.getElementById('imgflip_draggableText_' + box.id + '_div')
+        xPos = Math.floor((parseInt(boxDivDom.style.left, 10) * widthFactor))
+        yPos = Math.floor((parseInt(boxDivDom.style.top, 10) * heightFactor))
+        if (boxDom.value !== '') {
+          boxes.push({
+            text: boxDom.value.trim(),
+            x: xPos,
+            y: yPos,
+            width: boxDivDom.clientWidth,
+            height: boxDivDom.clientHeight
+          })
+        }
+      }
+      this.submitImgflipMeme(boxes)
     }
   }
 }
@@ -3126,6 +3244,15 @@ export default {
   background-color: #37424d;
   cursor: pointer;
   border-radius: 10px;
+}
+
+.golden-hover {
+  background-color: darkgoldenrod;
+}
+
+.golden-hover:hover {
+  background-color: gold;
+  cursor: pointer;
 }
 
 .selectableGIF:hover {
@@ -3570,7 +3697,7 @@ export default {
   padding: 0;
   font-weight: bold;
   transition: 0.3s opacity;
-  max-height: calc(80vh - 80px);
+  max-height: calc(90vh - 70px);
   overflow-y: scroll;
   overflow-x: hidden;
 }
@@ -3608,6 +3735,27 @@ export default {
   .wrapper {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+.draggable_meme_text {
+  resize: both;
+  background-color: rgba(255, 255, 255, 0.5);
+  font-size: 50px;
+  font-family: Impact, Arial, sans-serif;
+  color: white;
+  text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+  padding-left: 10px
+}
+
+.draggable_meme_text_anchor {
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  cursor: move;
+  border: 1px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center
 }
 
 </style>
