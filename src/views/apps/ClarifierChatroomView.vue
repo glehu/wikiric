@@ -367,6 +367,25 @@
                     {{ msg.msg.trim() }}
                   </div>
                 </template>
+                <template v-else-if="msg.mType === 'Leaderboard'">
+                  <div class="serverMessage">
+                    <table class="table-borderless"
+                           style="width: 100%; height: 100%; padding: 5px">
+                      <tr style="pointer-events: none; font-size: 125%;
+                                 height: 2ch;
+                                 border-bottom: 1px solid #7e7d7d">
+                        <th>Username</th>
+                        <th>Messages</th>
+                        <th>Rating</th>
+                      </tr>
+                      <tr v-for="member in JSON.parse(msg.msg)" :key="member">
+                        <td>{{ member.username }}</td>
+                        <td>{{ member.messages }}</td>
+                        <td>{{ member.totalRating }}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </template>
                 <!-- #### CLIENT GIF MESSAGE #### -->
                 <template v-else-if="msg.mType === 'GIF'">
                   <div class="clientMessage">
@@ -547,11 +566,11 @@
             <br>
             <img id="imgflip_meme"
                  :src="this.imgflip_template.url" alt="Loading" class="selectableGIF"
-                 style="width: auto; height: calc(100% - 80px); border-radius: 10px;
+                 style="width: auto; height: calc(90vh - 70px - 80px); border-radius: 10px;
                         transition: 0.3s ease all;">
             <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
               <div id="meme_boxes_container"
-                   style="width: auto; height: calc(100% - 80px); position: absolute; top: 60px; left: 0">
+                   style="width: auto; height: calc(90vh - 70px - 80px); position: absolute; top: 60px; left: 0">
                 <div v-for="box in this.isFillingImgflipTemplate.boxes" :key="box.id"
                      :id="'imgflip_draggableText_' + box.id + '_div'"
                      class="imgflip_text"
@@ -692,6 +711,14 @@
           <i class="bi bi-pencil" style="margin-right: 4px"></i> Edit Profile
         </button>
       </template>
+      <template v-else>
+        <button class="btn c_lightgray gray-hover">
+          <i class="bi bi-arrow-bar-left" style="margin-right: 4px"></i> Kick
+        </button>
+        <button class="btn c_lightgray gray-hover">
+          <i class="bi bi-hammer" style="margin-right: 4px"></i> Ban
+        </button>
+      </template>
       <!-- #### MEMBER ROLES #### -->
       <hr class="c_lightgray">
       <div style="display: flex; flex-wrap: wrap">
@@ -819,33 +846,33 @@
                   style="color: white; width: 100%; text-align: left; display: flex;
                      align-items: center; border-radius: 10px">
             <span style="font-size: 200%"><i class="bi bi-hash"></i></span>
-            <span class="ms-3">
-          <span>Text Subchat</span>
-          <br>
-          <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Messages, GIFs and Files...</span>
-        </span>
+            <div class="ms-3">
+              <span>Text Subchat</span>
+              <br>
+              <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Messages, GIFs and Files...</span>
+            </div>
           </button>
           <button v-on:click="createSubchatroom('screenshare')"
                   id="new_subchat_type_screenshare" class="btn darkbutton mt-2"
                   style="color: white; width: 100%; text-align: left; display: flex;
                      align-items: center; border-radius: 10px">
             <span style="font-size: 200%"><i class="bi bi-window-fullscreen"></i></span>
-            <span class="ms-3">
-          <span>Screenshare Subchat</span>
-          <br>
-          <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Share your screen for others</span>
-        </span>
+            <div class="ms-3">
+              <span>Screenshare Subchat</span>
+              <br>
+              <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Share your screen for others</span>
+            </div>
           </button>
           <button v-on:click="createSubchatroom('webcam')"
                   id="new_subchat_type_webcam" class="btn darkbutton mt-2"
                   style="color: white; width: 100%; text-align: left; display: flex;
                      align-items: center; border-radius: 10px" disabled>
             <span style="font-size: 200%"><i class="bi bi-camera-video"></i></span>
-            <span class="ms-3">
-          <span>Webcam Subchat</span>
-          <br>
-          <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Video call with others</span>
-        </span>
+            <div class="ms-3">
+              <span>Webcam Subchat</span>
+              <br>
+              <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Video call with others</span>
+            </div>
           </button>
         </div>
       </div>
@@ -1057,6 +1084,7 @@ export default {
       // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
       // Generate new token just in case
       await this.serverLogin()
+      await this.getClarifierMetaData(this.getSession(), false, true)
       // Are we connecting to a subchat?
       const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop)
@@ -1349,6 +1377,40 @@ export default {
       // Image Snippet Upload?
       if (isUploadingSnippet === true) {
         this.uploadSnippet()
+        this.focusComment(true)
+        setTimeout(() => this.auto_grow(), 0)
+        return
+      }
+      // Top Flip?
+      if (this.new_message.toLowerCase().startsWith('/topflip')) {
+        let params = ''
+        if (this.new_message.toLowerCase().includes('-d')) params += '-d'
+        this.addMessagePar('[c:CMD]/topflip' + params)
+        this.new_message = ''
+        this.focusComment(true)
+        setTimeout(() => this.auto_grow(), 0)
+        return
+      }
+      // Statistics?
+      if (this.new_message.toLowerCase().startsWith('/stats')) {
+        this.addMessagePar('[c:CMD]/stats')
+        this.new_message = ''
+        this.focusComment(true)
+        setTimeout(() => this.auto_grow(), 0)
+        return
+      }
+      // Help?
+      if (this.new_message.toLowerCase().startsWith('/help')) {
+        this.addMessagePar('[c:CMD]/help')
+        this.new_message = ''
+        this.focusComment(true)
+        setTimeout(() => this.auto_grow(), 0)
+        return
+      }
+      // Help?
+      if (this.new_message.toLowerCase().startsWith('/leaderboard')) {
+        this.addMessagePar('[c:CMD]/leaderboard')
+        this.new_message = ''
         this.focusComment(true)
         setTimeout(() => this.auto_grow(), 0)
         return
@@ -1660,6 +1722,9 @@ export default {
       } else if (message.msg.includes('[s:RegistrationNotification]') === true && message.src === '_server') {
         message.mType = 'RegistrationNotification'
         message.msg = message.msg.substring(28)
+      } else if (message.msg.includes('[s:Leaderboard]') === true && message.src === '_server') {
+        message.mType = 'Leaderboard'
+        message.msg = message.msg.substring(15)
       } else if (message.msg.includes('[c:GIF]') === true) {
         message.mType = 'GIF'
         message.apiResponse = true
@@ -1979,6 +2044,11 @@ export default {
           this.isFillingImgflipTemplate.mode = 'top-bottom'
           setTimeout(() => {
             document.getElementById('imgflip_topText').focus()
+            const img = document.getElementById('imgflip_meme')
+            if (img.clientWidth > img.clientHeight) {
+              img.style.width = 'calc(100% - 20px)'
+              img.style.height = 'auto'
+            }
           }, 50)
         }
       }
@@ -3082,9 +3152,16 @@ export default {
           // Increase template size and center it
           const img = document.getElementById('imgflip_meme')
           const boxContainer = document.getElementById('meme_boxes_container')
-          const marginLeft = 'calc(50% - ' + (img.clientWidth / 2).toString() + 'px)'
-          img.style.marginLeft = marginLeft
-          boxContainer.style.marginLeft = marginLeft
+          if (img.clientWidth > img.clientHeight) {
+            img.style.width = 'calc(100% - 20px)'
+            img.style.height = 'auto'
+            boxContainer.style.width = 'calc(100% - 20px)'
+            boxContainer.style.height = 'auto'
+          } else {
+            const marginLeft = 'calc(50% - ' + (img.clientWidth / 2).toString() + 'px)'
+            img.style.marginLeft = marginLeft
+            boxContainer.style.marginLeft = marginLeft
+          }
           // Show controls
           document.getElementById('imgflip_toolbar_boxtools').style.opacity = '1'
           // Make the default input draggable
@@ -3129,6 +3206,8 @@ export default {
       let boxDivDom
       let xPos
       let yPos
+      let widthScaled
+      let heightScaled
       const boxes = []
       for (let i = 0; i < this.isFillingImgflipTemplate.boxes.length; i++) {
         box = this.isFillingImgflipTemplate.boxes[i]
@@ -3136,13 +3215,15 @@ export default {
         boxDivDom = document.getElementById('imgflip_draggableText_' + box.id + '_div')
         xPos = Math.floor((parseInt(boxDivDom.style.left, 10) * widthFactor))
         yPos = Math.floor((parseInt(boxDivDom.style.top, 10) * heightFactor))
+        widthScaled = Math.floor(boxDivDom.clientWidth * widthFactor)
+        heightScaled = Math.floor(boxDivDom.clientHeight * heightFactor)
         if (boxDom.value !== '') {
           boxes.push({
             text: boxDom.value.trim(),
             x: xPos,
             y: yPos,
-            width: boxDivDom.clientWidth,
-            height: boxDivDom.clientHeight
+            width: widthScaled,
+            height: heightScaled
           })
         }
       }
