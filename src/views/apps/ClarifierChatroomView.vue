@@ -368,22 +368,32 @@
                   </div>
                 </template>
                 <template v-else-if="msg.mType === 'Leaderboard'">
-                  <div class="serverMessage">
-                    <table class="table-borderless"
+                  <div class="serverMessage" style="height: fit-content">
+                    <h4 style="font-weight: normal; border-radius: 20px; padding: 5px; margin-bottom: 10px"
+                        class="b_darkergray">
+                      <i class="bi bi-award"></i>
+                      Leaderboard
+                      <i class="bi bi-award"></i>
+                    </h4>
+                    <table class="table-borderless leaderboard-table text-start"
                            style="width: 100%; height: 100%; padding: 5px">
-                      <tr style="pointer-events: none; font-size: 125%;
+                      <tr style="pointer-events: none;
                                  height: 2ch;
                                  border-bottom: 1px solid #7e7d7d">
                         <th>Username</th>
                         <th>Messages</th>
                         <th>Rating</th>
                       </tr>
-                      <tr v-for="member in JSON.parse(msg.msg)" :key="member">
+                      <tr v-for="member in JSON.parse(msg.msg)" :key="member"
+                          style="font-weight: normal">
                         <td>{{ member.username }}</td>
                         <td>{{ member.messages }}</td>
                         <td>{{ member.totalRating }}</td>
                       </tr>
                     </table>
+                    <div style="font-size: 75%; margin: 20px 10px 10px 10px; font-style: italic">
+                      - Thank you for participating -
+                    </div>
                   </div>
                 </template>
                 <!-- #### CLIENT GIF MESSAGE #### -->
@@ -1298,24 +1308,55 @@ export default {
         const index = this.messages.findIndex(msg => msg.gUID === response.uniMessageGUID)
         // Edit message
         try {
-          for (let i = 0; i < this.messages[index].reacts.length; i++) {
-            if (this.messages[index].reacts[i].t === response.type) {
-              this.messages[index].reacts[i].src.push(response.from)
-              setTimeout(() => {
-                document.getElementById('react_' + response.uniMessageGUID + '_' + response.type).title =
-                  this.messages[index].reacts[i].src.toString() + ' reacted to this message.'
-              }, 1000)
-              return
+          // Check if message already contains a reaction of this type
+          if (this.messages[index].reacts.length > 0) {
+            for (let i = 0; i < this.messages[index].reacts.length; i++) {
+              if (this.messages[index].reacts[i].t === response.type) {
+                // We found the reaction... do we need to add or remove it?
+                if (response.isRemove === false) {
+                  // Add reaction
+                  this.messages[index].reacts[i].src.push(response.from)
+                  setTimeout(() => {
+                    const elem = document.getElementById(
+                      'react_' + response.uniMessageGUID + '_' + response.type)
+                    elem.style.display = 'initial'
+                    document.getElementById('react_' + response.uniMessageGUID + '_' + response.type).title =
+                      this.messages[index].reacts[i].src.toString() + ' reacted to this message.'
+                  }, 0)
+                } else {
+                  // Remove reaction
+                  this.messages[index].reacts[i].src = this.removeValuesFromArray(
+                    this.messages[index].reacts[i].src,
+                    response.from
+                  )
+                  if (this.messages[index].reacts[i].src.length > 0) {
+                    setTimeout(() => {
+                      document.getElementById('react_' + response.uniMessageGUID + '_' + response.type).title =
+                        this.messages[index].reacts[i].src.toString() + ' reacted to this message.'
+                    }, 0)
+                  } else {
+                    const elem = document.getElementById(
+                      'react_' + response.uniMessageGUID + '_' + response.type)
+                    elem.style.display = 'none'
+                  }
+                }
+                return
+              }
             }
           }
-          this.messages[index].reacts.push({
-            src: [response.from],
-            t: response.type
-          })
-          setTimeout(() => {
-            document.getElementById('react_' + response.uniMessageGUID + '_' + response.type).title =
-              response.from + ' reacted to this message.'
-          }, 1000)
+          if (response.isRemove === false) {
+            this.messages[index].reacts.push({
+              src: [response.from],
+              t: response.type
+            })
+            setTimeout(() => {
+              const elem = document.getElementById(
+                'react_' + response.uniMessageGUID + '_' + response.type)
+              elem.style.display = 'initial'
+              document.getElementById('react_' + response.uniMessageGUID + '_' + response.type).title =
+                response.from + ' reacted to this message.'
+            }, 0)
+          }
         } catch (e) {
           console.error(e.message)
         }
@@ -3228,6 +3269,17 @@ export default {
         }
       }
       this.submitImgflipMeme(boxes)
+    },
+    removeValuesFromArray: function (array, value) {
+      let i = 0
+      while (i < array.length) {
+        if (array[i] === value) {
+          array.splice(i, 1)
+        } else {
+          ++i
+        }
+      }
+      return array
     }
   }
 }
@@ -3845,6 +3897,24 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center
+}
+
+/* Leaderboard 1st Place */
+.leaderboard-table tr:nth-child(2) {
+  color: gold;
+  border-bottom: 2px solid gold;
+}
+
+/* Leaderboard 2nd Place */
+.leaderboard-table tr:nth-child(3) {
+  color: silver;
+  border-bottom: 2px solid silver;
+}
+
+/* Leaderboard 3rd Place */
+.leaderboard-table tr:nth-child(4) {
+  color: saddlebrown;
+  border-bottom: 2px solid saddlebrown;
 }
 
 </style>
