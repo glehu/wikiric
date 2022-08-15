@@ -12,7 +12,7 @@ export default {
 <template>
   <transition name="modal-fade">
     <div class="modal-backdrop">
-      <div class="modal b_darkgray c_lightgray"
+      <div class="modal b_darkgray c_lightgray container"
            role="dialog"
            aria-labelledby="modalTitle"
            aria-describedby="modalDescription"
@@ -45,14 +45,6 @@ export default {
         <footer class="modal-footer">
           <slot name="footer">
           </slot>
-          <button
-            type="button"
-            class="btn btn-lg btn-green orange-hover"
-            @click="close"
-            aria-label="Close modal"
-          >
-            Dismiss
-          </button>
         </footer>
       </div>
     </div>
@@ -129,11 +121,12 @@ export default {
   overflow-y: scroll;
   display: flex;
   flex-direction: column;
-  max-width: 400px;
   height: fit-content;
   max-height: 90vh;
-  left: calc(50vw - 200px);
-  top: 5vh;
+  width: fit-content;
+  max-width: 90vw;
+  top: unset;
+  left: unset;
 }
 
 .modal-header,

@@ -98,7 +98,7 @@
           </div>
           <div style="width: 100%; height: 35px; padding-top: 5px;
                       display: flex; position: relative; align-items: center">
-            <span class="fw-bold c_lightgray">Subchats</span>
+            <span class="fw-bold c_lightgray nopointer">Subchats</span>
             <button class="text-white btn-no-outline"
                     style="position: absolute; right: 0"
                     title="New Subchat"
@@ -323,7 +323,7 @@
                   </div>
                 </template>
                 <!-- #### MESSAGE OPTIONS #### -->
-                <div v-if="msg.mType !== 'CryptError'" class="msg_options">
+                <div v-if="msg.mType !== 'CryptError' && !msg.src.startsWith('_server')" class="msg_options">
                   <div class="b_darkgray" style="border-radius: 8px">
                     <button title="Reply" class="btn btn-sm c_lightgray orange-hover">
                       <i class="bi bi-reply-fill"></i>
@@ -370,7 +370,7 @@
                 <template v-else-if="msg.mType === 'Leaderboard'">
                   <div class="serverMessage" style="height: fit-content">
                     <h4 style="font-weight: normal; border-radius: 20px; padding: 5px; margin-bottom: 10px"
-                        class="b_darkergray">
+                        class="b_darkergray nopointer">
                       <i class="bi bi-award"></i>
                       Leaderboard
                       <i class="bi bi-award"></i>
@@ -391,7 +391,9 @@
                         <td>{{ member.totalRating }}</td>
                       </tr>
                     </table>
-                    <div style="font-size: 75%; margin: 20px 10px 10px 10px; font-style: italic">
+                    <div style="font-size: 75%; margin: 20px 10px 10px 10px;
+                                font-style: italic; opacity: 0.5"
+                         class="nopointer">
                       - Thank you for participating -
                     </div>
                   </div>
@@ -562,7 +564,7 @@
                     <i class="bi bi-arrow-counterclockwise" style="font-size: 125%;"></i>
                   </button>
                   <button title="Send"
-                          class="btn golden-hover c_lightgray ms-2"
+                          class="btn golden-hover golden-hover c_lightgray ms-2"
                           style="border-radius: 10px"
                           v-on:click="sendImgflipBoxes()">
                     <i class="bi bi-send text-black"
@@ -780,10 +782,10 @@
           {{ this.viewedUserProfile.usr }}
         </h2>
       </div>
-      <label for="setProfilePicInput"
-             class="my-2">
+      <label for="setProfilePicInput">
         Set a Profile Picture:
       </label>
+      <br>
       <input id="setProfilePicInput" type="file" multiple v-on:change="setProfilePicture">
     </template>
     <template v-slot:footer>
@@ -813,12 +815,14 @@
     </div>
   </div>
   <!-- #### Settings #### -->
-  <div class="session_settings b_gray shadow" style="overflow: hidden"
+  <div class="session_settings b_gray shadow"
+       style="overflow-x: hidden; overflow-y: scroll"
        v-show="isViewingSessionSettings" @click.stop>
     <div style="position: relative; padding-top: 10px; width: 100%">
-      <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
+      <i class="bi bi-x-lg lead orange-hover"
+         style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideAllWindows()"></i>
-      <h2 class="fw-bold">Session Settings</h2>
+      <h2 class="fw-bold nopointer">Session Settings</h2>
       <div style="display: flex; width: 100%; margin-bottom: 10px">
         <img class="b_darkergray" style="min-width: 80px; width: 80px; min-height: 80px; height: 80px;
              border-radius: 20px"
@@ -833,6 +837,73 @@
         <span class="jetb ms-2">Uploading...</span>
       </div>
       <hr class="c_lightgray">
+      <h4 class="c_lightgray nopointer">
+        Reward Program
+      </h4>
+      <p style="margin: 0; font-size: 75%" class="c_lightgray mb-3">
+        Communicate to unlock powerful upgrades for your Clarifier group!
+      </p>
+      <div class="c_lightgray nopointer fw-bold mb-2">
+        {{ chatroom.t }}'s Rank:
+      </div>
+      <div style="display: flex; align-items: center"
+           class="c_lightgray mb-2">
+        <span class="b_purple fw-bold nopointer"
+              style="border-radius: 5px; padding: 0 4px 4px 4px;
+                     margin-right: 5px">
+          Rank {{ chatroom.rank }}
+        </span>
+        <span class="b_purple fw-bold nopointer"
+              style="border-radius: 5px; padding: 0 4px 4px 4px;
+                     margin-right: 5px">
+          {{ chatroom.rankDescription }}
+        </span>
+        <button class="btn fw-bold golden-hover golden-hover-glow"
+                style="border-radius: 5px; padding: 0 6px 4px 4px">
+          <i class="bi bi-lightning-charge-fill"></i>
+          Upgrade to Rank {{ chatroom.rank + 1 }}
+        </button>
+      </div>
+      <div class="c_lightgray nopointer fw-bold mb-2">
+        Benefits:
+      </div>
+      <div style="overflow-y: scroll; font-size: 75%"
+           class="c_lightgray">
+        <div class="d-flex" style="width: 100%">
+          <div style="border: 1px solid gray; border-radius: 10px; padding: 20px"
+               class="text-center">
+            <i class="bi bi-lock"></i>
+            <br><span>Badges</span>
+          </div>
+          <div style="border: 1px solid gray; border-radius: 10px; padding: 20px"
+               class="text-center">
+            <i class="bi bi-lock"></i>
+            <br><span>Emotes</span>
+          </div>
+          <div style="border: 1px solid gray; border-radius: 10px; padding: 20px"
+               class="text-center">
+            <i class="bi bi-lock"></i>
+            <br><span>Events</span>
+          </div>
+        </div>
+        <div class="d-flex" style="width: 100%">
+          <div style="border: 1px solid gray; border-radius: 10px; padding: 20px"
+               class="text-center">
+            <i class="bi bi-lock"></i>
+            <br><span>Tools</span>
+          </div>
+          <div style="border: 1px solid gray; border-radius: 10px; padding: 20px"
+               class="text-center">
+            <i class="bi bi-lock"></i>
+            <br><span>Dashboard</span>
+          </div>
+          <div style="border: 1px solid gray; border-radius: 10px; padding: 20px"
+               class="text-center">
+            <i class="bi bi-lock"></i>
+            <br><span>Predictions</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <modal
@@ -3392,6 +3463,7 @@ export default {
 .golden-hover:hover {
   background-color: gold;
   cursor: pointer;
+  box-shadow: #FFF 0 -1px 4px, #ff0 0 -2px 10px, #ff9931 0 -10px 20px, #9f7900 0 -18px 40px, 5px 5px 15px 5px rgba(0, 0, 0, 0);
 }
 
 .selectableGIF:hover {
@@ -3408,7 +3480,8 @@ export default {
   color: white;
   max-width: calc(100vw - 32px);
   width: 400px;
-  height: 75vh;
+  max-height: calc(90vh - 70px);
+  height: 100%;
   padding: 5px 20px;
   border-radius: 20px;
 }
