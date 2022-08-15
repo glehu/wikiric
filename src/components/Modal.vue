@@ -117,7 +117,8 @@ export default {
 }
 
 .modal {
-  box-shadow: black 2px 2px 20px 1px;
+  border-radius: 10px;
+  box-shadow: black 2px 2px 10px 1px;
   overflow-y: scroll;
   display: flex;
   flex-direction: column;

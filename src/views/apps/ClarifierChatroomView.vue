@@ -84,7 +84,7 @@
       <div style="height: calc(100vh - 60px); position: relative; padding-left: 23px"
            class="b_darkergray">
         <!-- #### SUBCHATS #### -->
-        <div style="height: calc(100% - 35px); overflow-y: scroll; overflow-x: clip"
+        <div style="height: calc(100% - 70px); overflow-y: scroll; overflow-x: clip"
              class="c_lightgray">
           <div style="height: 50px; border-bottom: 2px solid rgba(174, 174, 183, 0.25);
                       align-items: center; display: flex">
@@ -119,6 +119,17 @@
                   style="font-size: 150%"><i class="bi bi-camera-video"></i></span>
             <span v-else style="font-size: 150%"><i class="bi bi-hash"></i></span>
             <span style="padding-left: 10px">{{ subchat.t }}</span>
+          </div>
+          <!-- #### Clarifier Rank Benefits ####-->
+          <div style="width: calc(100% - 20px); position: absolute; bottom: 20px;
+                      flex-direction: column-reverse">
+            <div style="width: 100%; border: 2px solid rgba(174, 174, 183, 0.25);
+                        border-radius: 20px 0 0 20px"
+                 class="subchat gray-hover"
+                 v-on:click="isViewingBadges = true">
+              <span style="font-size: 150%"><i class="bi bi-award"></i></span>
+              <span style="padding-left: 10px">Badges</span>
+            </div>
           </div>
         </div>
       </div>
@@ -369,7 +380,7 @@
                 </template>
                 <template v-else-if="msg.mType === 'Leaderboard'">
                   <div class="serverMessage" style="height: fit-content">
-                    <h4 style="font-weight: normal; border-radius: 20px; padding: 5px; margin-bottom: 10px"
+                    <h4 style="font-weight: normal; border-radius: 15px; padding: 5px; margin-bottom: 10px"
                         class="b_darkergray nopointer">
                       <i class="bi bi-award"></i>
                       Leaderboard
@@ -690,9 +701,9 @@
     </div>
   </div>
   <!-- #### USER PROFILE #### -->
-  <div class="user_profile b_gray" style="overflow: hidden"
+  <div class="user_profile b_gray" style="overflow-x: hidden; overflow-y: scroll"
        v-show="isViewingUserProfile" @click.stop>
-    <div style="position: relative; padding-top: 10px">
+    <div style="position: relative; padding-top: 10px; height: 100%">
       <i class="bi bi-x-lg lead orange-hover"
          style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideAllWindows()"></i>
@@ -764,6 +775,38 @@
         </div>
       </div>
       <hr class="c_lightgray">
+      <template v-if="chatroom.rank > 1">
+        <h5 class="c_lightgray">Badges:</h5>
+        <template v-if="this.viewedUserProfile.badges == null || this.viewedUserProfile.badges.length < 1">
+          <div style="border: 2px solid gray; border-radius: 10px; width: 100%; padding: 10%"
+               class="c_lightgray text-center align-items-center">
+            <i class="bi bi-award-fill lead"></i>
+            <br>Keep communicating to earn badges!
+          </div>
+        </template>
+        <template v-else>
+          <div v-for="badge in this.viewedUserProfile.badges" :key="badge.handle"
+               style="padding: 10px; border: 2px solid rgba(174, 174, 183, 0.25); border-radius: 30px;
+                      margin-bottom: 10px"
+               class="c_lightgray text-center">
+            <div v-if="badge.handle.startsWith('msg')"
+                 style="font-size: 150%">
+              📢
+            </div>
+            <div v-else-if="badge.handle.startsWith('rt')"
+                 style="font-size: 150%">
+              💕
+            </div>
+            <h5 style="margin: 5px 0 5px 0">
+              {{ badge.title }}
+            </h5>
+            <div style="font-size: 75%; margin-bottom: 5px">
+              {{ badge.description }}
+            </div>
+            <span> +{{ badge.xpGain }} xp</span>
+          </div>
+        </template>
+      </template>
     </div>
   </div>
   <modal
@@ -837,13 +880,13 @@
         <span class="jetb ms-2">Uploading...</span>
       </div>
       <hr class="c_lightgray">
-      <h4 class="c_lightgray nopointer">
+      <h4 class="c_lightgray fw-bold nopointer">
         Reward Program
       </h4>
       <p style="margin: 0; font-size: 75%" class="c_lightgray mb-3">
         Communicate to unlock powerful upgrades for your Clarifier group!
       </p>
-      <div class="c_lightgray nopointer fw-bold mb-2">
+      <div class="c_lightgray nopointer mb-2">
         {{ chatroom.t }}'s Rank:
       </div>
       <div style="display: flex; align-items: center"
@@ -859,48 +902,63 @@
           {{ chatroom.rankDescription }}
         </span>
         <button class="btn fw-bold golden-hover golden-hover-glow"
-                style="border-radius: 5px; padding: 0 6px 4px 4px">
+                style="border-radius: 5px; padding: 0 6px 4px 4px"
+                v-on:click="upgradeChatroom()">
           <i class="bi bi-lightning-charge-fill"></i>
           Upgrade to Rank {{ chatroom.rank + 1 }}
         </button>
       </div>
-      <div class="c_lightgray nopointer fw-bold mb-2">
+      <div class="c_lightgray nopointer mb-2">
         Benefits:
       </div>
       <div style="overflow-y: scroll; font-size: 75%"
            class="c_lightgray">
-        <div class="d-flex" style="width: 100%">
-          <div style="border: 1px solid gray; border-radius: 10px; padding: 20px"
-               class="text-center">
-            <i class="bi bi-lock"></i>
-            <br><span>Badges</span>
-          </div>
-          <div style="border: 1px solid gray; border-radius: 10px; padding: 20px"
+        <div class="d-flex gap-1 mb-1" style="width: 100%">
+          <template v-if="chatroom.rank < 2">
+            <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
+                 class="text-center">
+              <i class="bi bi-lock"></i>
+              <br><span>Badges</span>
+            </div>
+          </template>
+          <template v-else>
+            <div style="border: 2px solid rebeccapurple; border-radius: 10px; padding: 20px"
+                 class="text-center">
+              <i class="bi bi-award-fill lead"></i>
+              <br><span class="fw-bold">Badges</span>
+            </div>
+          </template>
+          <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
                class="text-center">
             <i class="bi bi-lock"></i>
             <br><span>Emotes</span>
           </div>
-          <div style="border: 1px solid gray; border-radius: 10px; padding: 20px"
+          <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
                class="text-center">
             <i class="bi bi-lock"></i>
             <br><span>Events</span>
           </div>
-        </div>
-        <div class="d-flex" style="width: 100%">
-          <div style="border: 1px solid gray; border-radius: 10px; padding: 20px"
+          <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
                class="text-center">
             <i class="bi bi-lock"></i>
             <br><span>Tools</span>
           </div>
-          <div style="border: 1px solid gray; border-radius: 10px; padding: 20px"
+        </div>
+        <div class="d-flex gap-1" style="width: 100%">
+          <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
                class="text-center">
             <i class="bi bi-lock"></i>
             <br><span>Dashboard</span>
           </div>
-          <div style="border: 1px solid gray; border-radius: 10px; padding: 20px"
+          <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
                class="text-center">
             <i class="bi bi-lock"></i>
             <br><span>Predictions</span>
+          </div>
+          <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
+               class="text-center">
+            <i class="bi bi-question"></i>
+            <br><span>T.B.A.</span>
           </div>
         </div>
       </div>
@@ -1062,6 +1120,37 @@
       Happy Chatting!
     </template>
   </modal>
+  <modal
+    v-show="isViewingBadges"
+    @close="hideAllWindows()">
+    <template v-slot:header>
+      <h2 class="fw-bold">Badge Hub</h2>
+      <div style="display: flex; align-items: center; margin: 0 40px 0 40px"
+           class="c_lightgray mb-2">
+        <div class="b_purple fw-bold nopointer"
+             style="border-radius: 5px; padding: 0 4px 4px 4px;
+                    margin-right: 5px">
+          Rank {{ chatroom.rank }}
+        </div>
+        <div class="b_purple fw-bold nopointer"
+             style="border-radius: 5px; padding: 0 4px 4px 4px;
+                    margin-right: 5px">
+          {{ chatroom.rankDescription }}
+        </div>
+      </div>
+    </template>
+    <template v-slot:body>
+      <div>
+        <h5 class="c_lightgray">Actions:</h5>
+        <button class="btn btn-lg c_lightgray b_darkergray gray-hover"
+                v-on:click="distributeBadges()">
+          Distribute Badges
+        </button>
+      </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
 </template>
 
 <script>
@@ -1132,6 +1221,7 @@ export default {
         mode: 'top-bottom',
         boxes: []
       },
+      isViewingBadges: false,
       isStreamingVideo: false,
       isEditingProfile: false,
       //
@@ -2118,6 +2208,10 @@ export default {
       this.hideAllWindows()
       this.isViewingUserProfile = true
       this.viewedUserProfile = user
+      if (this.chatroom.rank > 1) {
+        // Does the user have badges?
+        this.getBadges(user.usr)
+      }
     },
     tagUserProfile: function (user) {
       this.isTaggingUser = false
@@ -2173,6 +2267,7 @@ export default {
       this.isTaggingUser = false
       this.isSelectingImgflipTemplate = false
       this.isFillingImgflipTemplate.active = false
+      this.isViewingBadges = false
       this.imgflip_template = {}
       this.hideUserProfile()
       this.hideSessionSettings()
@@ -3351,6 +3446,60 @@ export default {
         }
       }
       return array
+    },
+    upgradeChatroom: function () {
+      const headers = new Headers()
+      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      const content = JSON.stringify({
+        toRank: this.chatroom.rank + 1
+      })
+      fetch(
+        this.$store.state.serverIP + '/api/m5/upgrade/' + this.getSession(),
+        {
+          method: 'post',
+          headers: headers,
+          body: content
+        }
+      )
+        .then(() => this.initFunction())
+        .catch((err) => console.error(err.message))
+    },
+    distributeBadges: function () {
+      const headers = new Headers()
+      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      fetch(
+        this.$store.state.serverIP + '/api/m2/badges/set/' + this.getSession(),
+        {
+          method: 'get',
+          headers: headers
+        }
+      )
+        .then(() => this.initFunction())
+        .catch((err) => console.error(err.message))
+    },
+    getBadges: function (username) {
+      const headers = new Headers()
+      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      fetch(
+        this.$store.state.serverIP + '/api/m2/badges/get/' + username,
+        {
+          method: 'get',
+          headers: headers
+        }
+      )
+        .then((res) => res.json())
+        .then((data) => (this.setUserBadges(data)))
+        .catch((err) => console.error(err.message))
+    },
+    setUserBadges: function (response) {
+      this.viewedUserProfile.badges = []
+      if (response.length > 0) {
+        let badge
+        for (let i = 0; i < response.length; i++) {
+          badge = JSON.parse(response[i])
+          this.viewedUserProfile.badges.push(badge)
+        }
+      }
     }
   }
 }
