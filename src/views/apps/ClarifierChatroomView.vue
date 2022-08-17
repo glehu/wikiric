@@ -121,16 +121,19 @@
             <span style="padding-left: 10px">{{ subchat.t }}</span>
           </div>
           <!-- #### Clarifier Rank Benefits ####-->
-          <div style="width: calc(100% - 20px); position: absolute; bottom: 20px;
+          <template v-if="this.chatroom.rank > 1">
+            <div style="width: calc(100% - 20px); position: absolute; bottom: 20px;
                       flex-direction: column-reverse">
-            <div style="width: 100%; border: 2px solid rgba(174, 174, 183, 0.25);
+              <div style="height: 2.5em;
+                        border: 2px solid rgba(174, 174, 183, 0.25);
                         border-radius: 20px 0 0 20px"
-                 class="subchat gray-hover"
-                 v-on:click="isViewingBadges = true">
-              <span style="font-size: 150%"><i class="bi bi-award"></i></span>
-              <span style="padding-left: 10px">Badges</span>
+                   class="subchat w-100 d-flex align-items-center orange-hover"
+                   v-on:click="isViewingBadges = true">
+                <span style=""><i class="bi bi-award"></i></span>
+                <span style="padding-left: 10px">Badges</span>
+              </div>
             </div>
-          </div>
+          </template>
         </div>
       </div>
     </div>
@@ -955,7 +958,7 @@
             <i class="bi bi-lock"></i>
             <br><span>Predictions</span>
           </div>
-          <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
+          <div style="border: 2px dotted gray; border-radius: 10px; padding: 20px"
                class="text-center">
             <i class="bi bi-question"></i>
             <br><span>T.B.A.</span>
@@ -1712,7 +1715,7 @@ export default {
           .then((res) => res.json())
           .then((data) => {
             // Remove active flag
-            if (novisual === false) {
+            if (!novisual) {
               if (this.chatroom.guid != null) {
                 document.getElementById(this.chatroom.guid + '_subc')
                   .classList.remove('active')
@@ -1723,7 +1726,7 @@ export default {
               }
             }
             // Set new chatroom or subchat + active flag
-            if (isSubchat === false) {
+            if (!isSubchat) {
               this.chatroom = data
               if (this.chatroom.subChatrooms != null) {
                 // Parse JSON serialized subchats for performance
@@ -1731,13 +1734,13 @@ export default {
                   this.chatroom.subChatrooms[i] = JSON.parse(this.chatroom.subChatrooms[i])
                 }
               }
-              if (novisual === false) {
+              if (!novisual) {
                 document.getElementById(this.chatroom.guid + '_subc')
                   .classList.toggle('active')
               }
             } else {
               this.currentSubchat = data
-              if (novisual === false) {
+              if (!novisual) {
                 document.getElementById(this.currentSubchat.guid + '_subc')
                   .classList.toggle('active')
               }
@@ -3461,7 +3464,8 @@ export default {
           body: content
         }
       )
-        .then(() => this.initFunction())
+        .then(() => this.getClarifierMetaData(this.getSession(), false, true))
+        .then(() => this.markActiveSubchat())
         .catch((err) => console.error(err.message))
     },
     distributeBadges: function () {
@@ -3474,7 +3478,8 @@ export default {
           headers: headers
         }
       )
-        .then(() => this.initFunction())
+        .then(() => this.getClarifierMetaData(this.getSession(), false, true))
+        .then(() => this.markActiveSubchat())
         .catch((err) => console.error(err.message))
     },
     getBadges: function (username) {
@@ -3499,6 +3504,15 @@ export default {
           badge = JSON.parse(response[i])
           this.viewedUserProfile.badges.push(badge)
         }
+      }
+    },
+    markActiveSubchat: function () {
+      if (!this.isSubchat) {
+        document.getElementById(this.chatroom.guid + '_subc')
+          .classList.toggle('active', true)
+      } else {
+        document.getElementById(this.currentSubchat.guid + '_subc')
+          .classList.toggle('active', true)
       }
     }
   }
