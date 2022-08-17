@@ -24,9 +24,9 @@
                 <span class="sidebar_tooltip">Exit</span>
               </div>
             </li>
-            <li style="opacity: 0.5;">
-              <div class="sb_link">
-                <div class="c_lightgray orange-hover">
+            <li style="opacity: 0.5">
+              <div class="sb_link nopointer">
+                <div class="c_lightgray">
                   <i class="sb_link_icon bi bi-tools"></i>
                   <span class="sb_link_text">Settings</span>
                 </div>
