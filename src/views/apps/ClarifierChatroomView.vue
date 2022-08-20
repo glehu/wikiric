@@ -297,7 +297,8 @@
                                 position: absolute; top: 8px; left: -7px">
                   </template>
                   <span class="orange-hover"
-                        style="font-weight: bold">
+                        style="font-weight: bold"
+                        v-on:click="showUserProfileFromName(msg.src)">
                     {{ msg.src }}
                   </span>
                   <div style="color: gray; font-size: 80%; padding-left: 10px">
@@ -451,9 +452,8 @@
                 </template>
                 <!-- #### CLIENT MESSAGE #### -->
                 <template v-else>
-                  <p class="clientMessage">
-                    {{ msg.msg }}
-                  </p>
+                  <Markdown :id="'msg_' + msg.gUID"
+                            class="clientMessage" :source="msg.msg" :breaks="true"/>
                 </template>
               </div>
               <div v-if="msg.reacts.length > 0"
@@ -1145,7 +1145,7 @@
     <template v-slot:body>
       <div>
         <h5 class="c_lightgray">Actions:</h5>
-        <button class="btn btn-lg c_lightgray b_darkergray gray-hover"
+        <button class="btn c_lightgray b_darkergray gray-hover"
                 v-on:click="distributeBadges()">
           Distribute Badges
         </button>
@@ -1160,13 +1160,16 @@
 
 import modal from '../../components/Modal.vue'
 import { Base64 } from 'js-base64'
+import Markdown from 'vue3-markdown-it'
+import 'highlight.js/styles/hybrid.css'
 
 export default {
   props: {
     parsed: Object
   },
   components: {
-    modal
+    modal,
+    Markdown
   },
   data () {
     return {
@@ -3514,6 +3517,13 @@ export default {
         document.getElementById(this.currentSubchat.guid + '_subc')
           .classList.toggle('active', true)
       }
+    },
+    showUserProfileFromName: function (username) {
+      for (let i = 0; i < this.mainMembers.length; i++) {
+        if (this.mainMembers[i].usr === username) {
+          this.showUserProfile(this.mainMembers[i])
+        }
+      }
     }
   }
 }
@@ -4013,12 +4023,12 @@ export default {
 }
 
 .clientMessage {
-  white-space: pre-wrap;
-  text-wrap: normal;
+  /* white-space: pre-wrap; */
+  /* text-wrap: normal; */
   word-wrap: break-word;
   position: relative;
   width: calc(100% - 42px);
-  margin: 0;
+  margin: 0 !important;
 }
 
 .send_image_button.active {
@@ -4151,6 +4161,14 @@ export default {
 .leaderboard-table tr:nth-child(4) {
   color: saddlebrown;
   border-bottom: 2px solid saddlebrown;
+}
+
+</style>
+
+<style>
+
+.clientMessage p {
+  margin-bottom: 0 !important;
 }
 
 </style>

@@ -7,10 +7,12 @@ import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import chunk from 'chunk'
 import Notifications from '@kyvg/vue3-notification'
+import Markdown from 'vue3-markdown-it'
 
 createApp(App)
   .use(store)
   .use(router)
   .use(chunk)
   .use(Notifications)
+  .use(Markdown)
   .mount('#app')

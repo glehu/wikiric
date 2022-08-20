@@ -17,6 +17,7 @@
     "codemirror": "^5.65.2",
     "core-js": "^3.8.3",
     "firebase": "8.10.0",
+    "highlight.js": "^11.6.0",
     "jquery": "^3.6.0",
     "js-base64": "^3.7.2",
     "popper.js": "^1.16.1",
@@ -26,6 +27,7 @@
     "vue": "^3.2.32",
     "vue-debounce": "^4.0.0",
     "vue-router": "^4.0.3",
+    "vue3-markdown-it": "^1.0.10",
     "vuex": "^4.0.0",
     "vuex-persistedstate": "^4.1.0"
   },
