@@ -113,6 +113,19 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/knowledge',
+    name: 'WKnowledge Finder',
+    component: () => import('../views/apps/KnowledgeFinderView'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/knowledge/:id',
+    name: 'WKnowledge',
+    component: () => import('../views/apps/KnowledgeView'),
+    meta: { requiresAuth: true }
+  },
+  // ERROR HANDLING ROUTES --- MUST BE AT THE BOTTOM ---
+  {
     path: '/bsod',
     name: 'WBSOD',
     component: () => import('../views/errors/BSOD')

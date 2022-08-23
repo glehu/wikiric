@@ -84,7 +84,7 @@
       <div style="height: calc(100vh - 60px); position: relative; padding-left: 23px"
            class="b_darkergray">
         <!-- #### SUBCHATS #### -->
-        <div style="height: calc(100% - 70px); overflow-y: scroll; overflow-x: clip"
+        <div style="height: calc(100% - 120px); overflow-y: scroll; overflow-x: clip"
              class="c_lightgray">
           <div style="height: 50px; border-bottom: 2px solid rgba(174, 174, 183, 0.25);
                       align-items: center; display: flex">
@@ -122,11 +122,19 @@
           </div>
           <!-- #### Clarifier Rank Benefits ####-->
           <template v-if="this.chatroom.rank > 1">
-            <div style="width: calc(100% - 20px); position: absolute; bottom: 20px;
-                      flex-direction: column-reverse">
-              <div style="height: 2.5em;
+            <div style="width: calc(100% - 20px);
+                        position: absolute; bottom: 20px;
                         border: 2px solid rgba(174, 174, 183, 0.25);
-                        border-radius: 20px 0 0 20px"
+                        border-radius: 20px 0 0 20px">
+              <template v-if="this.chatroom.rank > 2">
+                <div style="height: 40px"
+                     class="subchat w-100 d-flex align-items-center orange-hover"
+                     v-on:click="this.$router.push('/knowledge?src=' + this.getSession())">
+                  <span style=""><i class="bi bi-book-half"></i></span>
+                  <span style="padding-left: 10px">Knowledge</span>
+                </div>
+              </template>
+              <div style="height: 40px"
                    class="subchat w-100 d-flex align-items-center orange-hover"
                    v-on:click="isViewingBadges = true">
                 <span style=""><i class="bi bi-award"></i></span>
@@ -2335,7 +2343,7 @@ export default {
     },
     auto_grow: function () {
       this.sendImageButton.classList.toggle('active', (this.new_message !== '')) // Inverted
-      this.inputField.style.height = '2.5em'
+      this.inputField.style.height = '40px'
       this.inputField.style.height = (this.inputField.scrollHeight) + 'px'
     },
     resizeCanvas: function () {
@@ -3692,16 +3700,16 @@ export default {
   position: absolute;
   left: 10px;
   width: calc(100% - 110px);
-  padding-top: 0.30em;
-  padding-bottom: 0.4em;
+  padding-top: 3px;
+  padding-bottom: 4px;
   padding-left: 1ch;
   color: white;
   border-color: transparent;
   border-radius: 1em;
   resize: none;
   overflow: hidden;
-  height: 2.5em;
-  min-height: 2.5em;
+  height: 40px;
+  min-height: 40px;
 }
 
 .new_comment:focus {
@@ -4047,7 +4055,7 @@ export default {
 
 .message_button {
   width: 40px;
-  height: 2.5em;
+  height: 40px;
   margin-left: 1ch;
   border-color: transparent;
   border-radius: 1em
