@@ -21,6 +21,7 @@
                         required
                         v-model="user.email"
                         type="email"
+                        class="text-black"
                         placeholder="Email"
                       />
                     </div>
@@ -29,6 +30,7 @@
                         required
                         v-model="user.password"
                         type="password"
+                        class="text-black"
                         placeholder="Password"
                       />
                     </div>

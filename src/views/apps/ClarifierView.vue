@@ -11,33 +11,28 @@
                 <div style="pointer-events: none; margin-bottom: 50px">
                   <div style="display: flex; justify-content: space-around;
                               align-items: center;">
-                    <h2 style="font-family: 'Lato', sans-serif">
+                    <h2 class="text-2xl">
                       {{ time }}
                     </h2>
-                    <h3 v-if="hour >= 5 && hour < 10"
-                        style="font-family: 'Lato', sans-serif">
+                    <h3 class="text-2xl" v-if="hour >= 5 && hour < 10">
                       <i class="bi bi-sunrise-fill p-1"></i>
                       Good Morning
                     </h3>
-                    <h3 v-else-if="hour >= 10 && hour < 17"
-                        style="font-family: 'Lato', sans-serif">
+                    <h3 class="text-2xl" v-else-if="hour >= 10 && hour < 17">
                       <i class="bi bi-sun-fill p-1"></i>
                       Good Day
                     </h3>
-                    <h3 v-else-if="hour >= 17 && hour < 22"
-                        style="font-family: 'Lato', sans-serif">
+                    <h3 class="text-2xl" v-else-if="hour >= 17 && hour < 22">
                       <i class="bi bi-sunset p-1"></i>
                       Good Evening
                     </h3>
-                    <h3 v-else-if="hour >= 22 || hour < 5"
-                        style="font-family: 'Lato', sans-serif">
+                    <h3 class="text-2xl" v-else-if="hour >= 22 || hour < 5">
                       <i class="bi bi-moon p-1"></i>
                       Good Night
                     </h3>
                   </div>
-                  <hr style="height: 2px; color: white">
-                  <h1 class="fw-bold mb-2 text-uppercase text-center"
-                      style="font-family: 'Lato', sans-serif">
+                  <hr style="height: 2px; color: white" class="my-2">
+                  <h1 class="fw-bold mb-2 text-uppercase text-center text-3xl">
                     Groups
                   </h1>
                   <p style="width: 100%; text-align: center">
@@ -62,8 +57,7 @@
                          v-bind:src="getImg(group.img,true)"
                          :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
                     <h5 class="sb_link_text text-nowrap"
-                        style="margin: 0 0 0 10px;font-weight: bold;
-                               font-family: 'Lato', sans-serif">
+                        style="margin: 0 0 0 10px;font-weight: bold">
                       &nbsp;{{ group.title }}
                     </h5>
                     <i class="bi bi-shield-lock text-white"
@@ -85,8 +79,8 @@
                         border-radius: 1rem">
               <div class="card-body text-center">
                 <div class="mt-md-0 c_lightgray">
-                  <h1 class="fw-bold mb-2"
-                      style="font-family: 'Lato', sans-serif; pointer-events: none">
+                  <h1 class="fw-bold mb-2 text-3xl"
+                      style="pointer-events: none">
                     Add or Join
                   </h1>
                   <p style="text-align: justify; text-justify: inter-word; width: 100%; pointer-events: none">
@@ -95,8 +89,8 @@
                   <hr style="color: white; height: 4px">
                   <input id="input_session" v-model="input_string"
                          placeholder="Invite ID or Name..."
-                         style="width: 100%; font-size: 150%; font-weight: bold; margin-bottom: 1ch; padding-left: 1ch;
-                         font-family: 'Lato', sans-serif"
+                         class="font-bold px-2 py-1 my-3 text-gray-800 rounded-lg"
+                         style="width: 100%; font-size: 150%"
                          v-on:keyup.enter="joinOrCreate()">
                   <br>
                   <button id="btn_join_session"
@@ -232,48 +226,32 @@ export default {
 
 <style scoped>
 
-.b_purple {
-  background-color: #68349b;
-}
-
-.c_purple {
-  color: #68349b;
-}
-
-.b_darkblue {
-  background-color: #041830;
-}
-
-.c_darkblue {
-  color: #041830;
-}
-
-.b_darkgray {
-  background-color: #192129;
-}
-
-.c_darkgray {
-  color: #192129;
-}
-
 .b_darkergray {
-  background-color: #131313;
+  @apply bg-neutral-900;
 }
 
 .c_darkergray {
-  color: #131313;
+  @apply text-neutral-900;
+}
+
+.b_darkgray {
+  @apply bg-gray-800;
+}
+
+.c_darkgray {
+  @apply text-gray-800;
 }
 
 .b_gray {
-  background-color: #293139;
+  @apply bg-gray-700;
 }
 
 .c_gray {
-  color: #293139;
+  @apply text-gray-700;
 }
 
 .c_lightgray {
-  color: #aeaeb7;
+  @apply text-gray-400;
 }
 
 .b_orange {

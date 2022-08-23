@@ -6,7 +6,7 @@
     <div style="color: white; width: 100%; display: flex; padding: 40px 5vw 20px 5vw;
                 border-bottom: 4px dotted #192129;">
       <div style="width: 100%">
-        <div id="header_title"
+        <div id="header_title" class="backdrop-blur"
              style="border-left: 4px dotted #aeaeb7; padding: 20px; color: #aeaeb7; background-color: rgba(16,16,16,0.5);
                     border-radius: 0 50px 50px 0">
           <h2

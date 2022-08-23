@@ -11,7 +11,7 @@
             <span class="sb_link_text c_lightgray nopointer">Menu</span>
           </div>
           <button class="sb_toggler btn-no-outline" v-on:click="toggleSidebar">
-            <i class="bi bi-list c_lightgray"></i>
+            <i class="bi bi-caret-right c_lightgray"></i>
           </button>
           <ul class="nav_list list-unstyled"
               style="color: white; margin-top: 5px">
@@ -632,10 +632,10 @@
             </template>
           </div>
           <textarea id="new_comment"
-                    class="new_comment b_gray"
+                    class="new_comment b_darkgray p-2"
                     type="text"
                     v-model="new_message"
-                    maxlength="1000"
+                    maxlength="5000"
                     :placeholder="'Message to ' + chatroom.t"
                     v-on:keyup="auto_grow"
                     v-on:click="hideAllSidebars">
@@ -647,7 +647,7 @@
                   v-on:click="toggleUploadingSnippet">
             <span class="fw-bold"><i class="bi bi-plus-circle"></i></span>
           </button>
-          <button class="btn-outline-light message_button b_gray"
+          <button class="btn-outline-light message_button b_darkgray"
                   style="position: absolute; right: 55px"
                   :title="getAddMessageTitle()"
                   v-on:click="addMessage">
@@ -656,7 +656,7 @@
                 <i v-else class="bi bi-pencil-fill"></i>
               </span>
           </button>
-          <button class="btn-outline-light message_button b_gray"
+          <button class="btn-outline-light message_button b_darkgray"
                   style="position: absolute; right: 10px"
                   title="Search on GIPHY"
                   v-on:click="toggleSelectingGIF">
@@ -1632,7 +1632,7 @@ export default {
         return
       }
       // Handle normal message
-      const messageContent = this.new_message.substring(0, 1000)
+      const messageContent = this.new_message.substring(0, 5000)
       const encryptedMessage = await this.encryptPayload(messageContent)
       this.connection.send('[c:MSG<ENCR]' + encryptedMessage)
       this.new_message = ''
@@ -3547,40 +3547,32 @@ export default {
   color: #68349b;
 }
 
-.b_darkblue {
-  background-color: #041830;
-}
-
-.c_darkblue {
-  color: #041830;
-}
-
-.b_darkgray {
-  background-color: #212b36;
-}
-
-.c_darkgray {
-  color: #192129;
-}
-
 .b_darkergray {
-  background-color: #131313;
+  @apply bg-neutral-900;
 }
 
 .c_darkergray {
-  color: #131313;
+  @apply text-neutral-900;
+}
+
+.b_darkgray {
+  @apply bg-gray-800;
+}
+
+.c_darkgray {
+  @apply text-gray-800;
 }
 
 .b_gray {
-  background-color: #293139;
+  @apply bg-gray-700;
 }
 
 .c_gray {
-  color: #293139;
+  @apply text-gray-700;
 }
 
 .c_lightgray {
-  color: #aeaeb7;
+  @apply text-gray-400;
 }
 
 .b_orange {
@@ -3632,7 +3624,7 @@ export default {
 
 .gray-hover:hover,
 .active_gray {
-  background-color: #37424d;
+  @apply bg-gray-800;
   cursor: pointer;
   border-radius: 10px;
 }
@@ -3681,7 +3673,7 @@ export default {
   text-wrap: normal;
   word-wrap: break-word;
   padding: 8px;
-  background-color: #192129;
+  @apply bg-gray-800;
   border-radius: 20px;
   text-align: center;
   color: #aeaeb7;
@@ -3700,16 +3692,15 @@ export default {
   position: absolute;
   left: 10px;
   width: calc(100% - 110px);
-  padding-top: 3px;
-  padding-bottom: 4px;
-  padding-left: 1ch;
   color: white;
   border-color: transparent;
   border-radius: 1em;
   resize: none;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: scroll;
   height: 40px;
   min-height: 40px;
+  max-height: 80vh;
 }
 
 .new_comment:focus {
@@ -3740,7 +3731,7 @@ export default {
 
 .sidebar {
   position: fixed;
-  width: 50px;
+  width: 55px;
   overflow-x: clip;
   transition: ease-in-out all 0.2s;
 }
@@ -3807,7 +3798,7 @@ export default {
 
 .sidebar_tooltip {
   position: fixed;
-  left: 54px;
+  left: 55px;
   transform: translateY(-36px);
   opacity: 0;
   pointer-events: none;
@@ -3823,8 +3814,8 @@ export default {
 
 @media only screen and (max-width: 1099px) {
   .clarifier_chatroom {
-    width: calc(100% - 50px);
-    left: 50px;
+    width: calc(100% - 55px);
+    left: 55px;
   }
 
   .sidebar.active .clarifier_chatroom {
@@ -3894,7 +3885,7 @@ export default {
 .sb_link {
   height: 35px;
   max-height: 35px;
-  padding: 10px;
+  padding: 13px;
   margin-bottom: 10px;
   font-weight: bold;
   font-size: 125%;
@@ -3952,7 +3943,7 @@ export default {
 .chat_header {
   width: 100%;
   height: 50px;
-  box-shadow: 0 0 10px 5px black;
+  box-shadow: 0 15px 10px -15px #111;
   font-weight: bold;
   font-size: 125%;
   color: white;

@@ -7,24 +7,25 @@
         <i id="btn_cut" title="Remove" class="btn text-white bi-x-circle muArrow" style="font-size: 150%"></i>
         <i id="btn_history" title="History" class="btn text-white bi-clock-history muArrow" style="font-size: 150%"></i>
         <i id="btn_deselect" title="Deselect" class="btn text-white bi-x-lg ps-5 muArrow" style="font-size: 150%"></i>
-        <p id="selected_cell" class="text-white pt-3" style="width: 250px"></p>
+        <p id="selected_cell" class="text-white" style="width: 250px"></p>
       </div>
     </div>
     <div class="hide" id="addmenu">
       <div style="display: flex; align-items: center">
         <i id="btn_addbox" title="Add Box" class="btn text-white bi-square" style="font-size: 200%"></i>
-        <input id="addmenu_rows" class="bg-black text-white p-2"
+        <input id="addmenu_rows" class="bg-black text-white p-2 w-16"
                type="number" value="10" min="1" max="10" size="2"
                style="border-radius: 1rem">
-        <i id="btn_addtask" title="Add Task" class="btn text-white bi-file-earmark-check doHover ms-3"
+        <i id="btn_addtask" title="Add Task" class="btn text-white bi-file-earmark-check doHover ms-2"
            style="font-size: 200%"></i>
-        <i id="btn_deselect2" title="Deselect" class="btn text-white bi-x-lg pt-2 ps-5" style="font-size: 150%"></i>
+        <i id="btn_deselect2" title="Deselect" class="btn text-white bi-x-lg pt-2 ps-2"
+           style="font-size: 150%"></i>
       </div>
     </div>
     <nav id="sidebar">
       <div class="sidebar-header">
-        <h3 class="text-center"
-            style="padding-top: 4rem; padding-bottom: 1rem; background-color: black">
+        <h3 class="text-center text-2xl"
+            style="padding-top: 4.5rem; padding-bottom: 1rem; background-color: black">
           <i class="bi bi-wrench-adjustable-circle text-white"></i> <span class="fw-bold">Planner</span>
         </h3>
         <p id="count_cell" class="ps-2"></p>
@@ -57,6 +58,7 @@
       <div style="display: inline">
         <input id="new_comment"
                type="text"
+               class="text-black"
                style="margin-bottom: 20px; width: 85%; height: 4ch"
                v-model="new_comment"
                v-on:keyup.enter="addComment()">

@@ -33,7 +33,7 @@ const routes = [
     path: '/account',
     name: 'WAccount',
     component: () => import('../views/core/AccountView'),
-    meta: { logout: true }
+    meta: { logout: true, requiresAuth: true }
   },
   {
     path: '/songs',
