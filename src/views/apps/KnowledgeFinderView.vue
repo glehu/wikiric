@@ -1,9 +1,10 @@
 <template>
-  <div class="header-margin"/>
-  <div class="container" style="height: calc(100vh - 60px)">
-    <div class="c_lightgray b_darkgray"
-         style="padding: 10px 10px 10px 25px; border-radius: 20px">
-      <div class="d-flex">
+  <div class="header-margin mb-2"/>
+  <div class="mx-4"
+       style="height: calc(100vh - 60px)">
+    <div class="px-4 py-1 text-gray-400"
+         style="border-radius: 20px">
+      <div class="flex items-center">
         <div class="d-flex align-items-center justify-content-center"
              style="margin-right: 25px">
           <i class="bi bi-book-half" style="font-size: 300%"></i>
@@ -20,7 +21,7 @@
       </div>
     </div>
     <div class="my-2">
-      <div class="btn c_lightgray"
+      <div class="btn text-gray-400"
            style="border-radius: 15px; border: 2px dashed #aeaeb7;
                   max-width: 200px; height: 100px; padding: 10px;
                   display: flex; align-items: center">
@@ -30,25 +31,32 @@
         </div>
       </div>
     </div>
-    <div class="wrapper mt-2">
-      <div class="c_lightgray b_darkgray"
-           style="padding: 10px 10px 10px 10px; border-radius: 20px;
-                  grid-column: 1 / 3">
-        <input id="search-field" type="text" class="search-field b_darkergray"
-               placeholder="Search...">
+    <div class="mt-2 grid grid-cols-7 gap-3 w-full">
+      <div class="col-start-1 col-end-3">
+        <div class="c_lightgray bg-gray-700 p-2 rounded-lg flex items-center">
+          <MagnifyingGlassIcon class="h-8 w-8 mx-1 text-gray-900"></MagnifyingGlassIcon>
+          <input id="search-field" type="text"
+                 class="search-field bg-gray-800 h-8"
+                 placeholder="Search...">
+        </div>
+        <div class="c_lightgray bg-gray-700 p-2 mt-2 rounded-lg flex items-center">
+          <FunnelIcon class="h-8 w-8 mx-1 text-gray-900"></FunnelIcon>
+          <div class="h-8">
+
+          </div>
+        </div>
       </div>
-      <div class="c_lightgray"
-           style="padding: 10px 10px 10px 10px;
-                  grid-column: 3 / 7">
+      <div class="col-start-3 col-end-6 bg-yellow-100">
       </div>
-      <div class="c_lightgray"
-           style="padding: 10px 10px 10px 10px;
-                  border-left: 1px solid rgba(174,174,183,0.5);
-                  grid-column: 7">
+      <div class="col-start-6 col-end-8 bg-yellow-500">
       </div>
     </div>
   </div>
 </template>
+
+<script setup>
+import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/vue/24/outline'
+</script>
 
 <script>
 export default {
@@ -97,74 +105,8 @@ export default {
 
 <style scoped>
 
-.b_purple {
-  background-color: #68349b;
-}
-
-.c_purple {
-  color: #68349b;
-}
-
-.b_darkblue {
-  background-color: #041830;
-}
-
-.c_darkblue {
-  color: #041830;
-}
-
-.b_darkgray {
-  background-color: #212b36;
-}
-
-.c_darkgray {
-  color: #192129;
-}
-
-.b_darkergray {
-  background-color: #131313;
-}
-
-.c_darkergray {
-  color: #131313;
-}
-
-.b_gray {
-  background-color: #293139;
-}
-
-.c_gray {
-  color: #293139;
-}
-
-.c_lightgray {
-  color: #aeaeb7;
-}
-
-.b_orange {
-  background-color: #ff5d37;
-}
-
-.c_orange {
-  color: #ff5d37;
-}
-
 .header-margin {
   min-height: 60px;
-}
-
-.wrapper {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 10px;
-  grid-auto-rows: minmax(100px, auto);
-}
-
-/* Small devices (portrait tablets and large phones, 765px and up) */
-@media only screen and (min-width: 992px) {
-  .wrapper {
-    grid-template-columns: repeat(7, 1fr);
-  }
 }
 
 .search-field {

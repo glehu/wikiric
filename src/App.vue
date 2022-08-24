@@ -77,7 +77,8 @@
         </div>
       </div>
     </nav>
-    <Disclosure as="nav" class="bg-neutral-900 fixed-top" v-slot="{ open }">
+    <Disclosure as="nav" class="bg-neutral-900 fixed-top border-b border-neutral-700"
+                v-slot="{ open }">
       <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div class="relative flex items-center justify-between"
              style="height: 60px; max-height: 60px; min-height: 60px">
@@ -115,17 +116,17 @@
           </div>
           <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             <button type="button"
-                    class="bg-gray-800 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                    class="p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
               <span class="sr-only">View notifications</span>
               <BellIcon class="h-6 w-6" aria-hidden="true"/>
             </button>
             <Menu as="div" class="ml-3 relative">
               <div>
                 <MenuButton
-                  class="bg-gray-800 flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                  class="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                   <span class="sr-only">Open user menu</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                       stroke="currentColor" class="w-8 h-8 rounded-full text-gray-400 p-1">
+                       stroke="currentColor" class="w-8 h-8 rounded-full text-gray-400 p-1 hover:text-white">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
                   </svg>

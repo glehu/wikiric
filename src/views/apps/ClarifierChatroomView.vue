@@ -86,8 +86,7 @@
         <!-- #### SUBCHATS #### -->
         <div style="height: calc(100% - 120px); overflow-y: scroll; overflow-x: clip"
              class="c_lightgray">
-          <div style="height: 50px; border-bottom: 2px solid rgba(174, 174, 183, 0.25);
-                      align-items: center; display: flex">
+          <div style="height: 50px; align-items: center; display: flex">
             <div :id="this.getSession() + '_subc'" class="subchat orange-hover"
                  v-on:click="gotoSubchat(this.getSession(), false)">
               <i v-show="hasUnread(this.getSession())" :id="this.getSession() + '_notify'"
@@ -124,7 +123,7 @@
           <template v-if="this.chatroom.rank > 1">
             <div style="width: calc(100% - 20px);
                         position: absolute; bottom: 20px;
-                        border: 2px solid rgba(174, 174, 183, 0.25);
+                        border: 1px solid rgba(174, 174, 183, 0.25);
                         border-radius: 20px 0 0 20px">
               <template v-if="this.chatroom.rank > 2">
                 <div style="height: 40px"
@@ -161,7 +160,7 @@
             <button v-on:click="stopScreenshare"
                     class="btn btn-sm gray-hover c_lightgray"
                     style="margin-left: 20px;
-                           border: 2px solid rgba(255,0,0,0.5);
+                           border: 1px solid rgba(255,0,0,0.5);
                            border-radius: 10px;">
               <span style="font-weight: bold">Hang Up</span>
             </button>
@@ -216,7 +215,7 @@
              style="width: calc(100% - 300px);
                     height: calc(100vh - 60px - 50px - 80px);
                     position: absolute; left: 300px;
-                    border-bottom: 2px solid rgba(174, 174, 183, 0.25);
+                    border-bottom: 1px solid rgba(174, 174, 183, 0.25);
                     padding: 0;
                     display: flex"
              class="c_lightgray">
@@ -234,7 +233,7 @@
               <i class="bi bi-camera-video-off lead"></i>
               <p style="margin: 0 0 0 10px;
                         padding-left: 10px;
-                        border-left: 2px solid rgba(174, 174, 183, 0.25)">
+                        border-left: 1px solid rgba(174, 174, 183, 0.25)">
                 OFFLINE
                 <br>
                 <span style="font-size: 75%">
@@ -253,7 +252,7 @@
                            c_lightgray"
                     style="position: relative;
                            margin-left: 20px; margin-top: 10px;
-                           border: 2px solid #ff5d37;
+                           border: 1px solid #ff5d37;
                            border-radius: 10px;">
               Group Meeting
             </button>
@@ -265,7 +264,7 @@
                            c_lightgray"
                         style="position: relative;
                            margin-left: 20px; margin-top: 10px;
-                           border: 2px solid rgba(174, 174, 183, 0.25);
+                           border: 1px solid rgba(174, 174, 183, 0.25);
                            border-radius: 10px;">
                   Call {{ user.usr }}
                 </button>
@@ -295,7 +294,8 @@
                 <div style="position: relative;
                             display: flex;
                             height: 30px;
-                            align-items: center">
+                            align-items: center"
+                     class="mt-2">
                   <i v-if="msg.src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
                   <i v-else class="sender_avatar bi bi-person-circle"></i>
                   <template v-if="msg.iurl !== ''">
@@ -669,7 +669,7 @@
     <div id="member_section" class="member_section b_darkergray">
       <div class="header-margin" style="box-shadow: none"></div>
       <div style="width: 100%; height: 50px;
-                  border-bottom: 2px solid rgba(174, 174, 183, 0.25);
+                  border-bottom: 1px solid rgba(174, 174, 183, 0.25);
                   display: flex; align-items: center">
         <span class="fw-bold member_count c_lightgray nopointer"
               style="padding-left: 20px">
@@ -727,7 +727,7 @@
                                 position: absolute; top: 20px; left: -5px">
         </template>
         <div style="display: block">
-          <h2 class="fw-bold">
+          <h2 class="fw-bold text-2xl">
             {{ this.viewedUserProfile.usr }}
           </h2>
           <div title="This member's messages are being End-to-End encrypted"
@@ -754,7 +754,7 @@
         </button>
       </template>
       <!-- #### MEMBER ROLES #### -->
-      <hr class="c_lightgray">
+      <hr class="c_lightgray my-2">
       <div style="display: flex; flex-wrap: wrap">
         <div v-for="role in this.viewedUserProfile.roles" :key="role"
              class="b_purple"
@@ -787,9 +787,9 @@
       </div>
       <hr class="c_lightgray">
       <template v-if="chatroom.rank > 1">
-        <h5 class="c_lightgray">Badges:</h5>
+        <h5 class="c_lightgray mt-2 mb-1">Badges:</h5>
         <template v-if="this.viewedUserProfile.badges == null || this.viewedUserProfile.badges.length < 1">
-          <div style="border: 2px solid gray; border-radius: 10px; width: 100%; padding: 10%"
+          <div style="border: 1px solid gray; border-radius: 10px; width: 100%; padding: 10%"
                class="c_lightgray text-center align-items-center">
             <i class="bi bi-award-fill lead"></i>
             <br>Keep communicating to earn badges!
@@ -797,7 +797,7 @@
         </template>
         <template v-else>
           <div v-for="badge in this.viewedUserProfile.badges" :key="badge.handle"
-               style="padding: 10px; border: 2px solid rgba(174, 174, 183, 0.25); border-radius: 30px;
+               style="padding: 10px; border: 1px solid rgba(174, 174, 183, 0.25); border-radius: 30px;
                       margin-bottom: 10px"
                class="c_lightgray text-center">
             <div v-if="badge.handle.startsWith('msg')"
@@ -876,7 +876,7 @@
       <i class="bi bi-x-lg lead orange-hover"
          style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideAllWindows()"></i>
-      <h2 class="fw-bold nopointer">Session Settings</h2>
+      <h2 class="fw-bold nopointer text-xl mb-2">Session Settings</h2>
       <div style="display: flex; width: 100%; margin-bottom: 10px">
         <img class="b_darkergray" style="min-width: 80px; width: 80px; min-height: 80px; height: 80px;
              border-radius: 20px"
@@ -890,16 +890,13 @@
         <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
         <span class="jetb ms-2">Uploading...</span>
       </div>
-      <hr class="c_lightgray">
-      <h4 class="c_lightgray fw-bold nopointer">
+      <hr class="c_lightgray my-2">
+      <h4 class="c_lightgray fw-bold text-lg nopointer">
         Reward Program
       </h4>
       <p style="margin: 0; font-size: 75%" class="c_lightgray mb-3">
         Communicate to unlock powerful upgrades for your Clarifier group!
       </p>
-      <div class="c_lightgray nopointer mb-2">
-        {{ chatroom.t }}'s Rank:
-      </div>
       <div style="display: flex; align-items: center"
            class="c_lightgray mb-2">
         <span class="b_purple fw-bold nopointer"
@@ -939,33 +936,20 @@
               <br><span class="fw-bold">Badges</span>
             </div>
           </template>
-          <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
-               class="text-center">
-            <i class="bi bi-lock"></i>
-            <br><span>Emotes</span>
-          </div>
-          <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
-               class="text-center">
-            <i class="bi bi-lock"></i>
-            <br><span>Events</span>
-          </div>
-          <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
-               class="text-center">
-            <i class="bi bi-lock"></i>
-            <br><span>Tools</span>
-          </div>
-        </div>
-        <div class="d-flex gap-1" style="width: 100%">
-          <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
-               class="text-center">
-            <i class="bi bi-lock"></i>
-            <br><span>Dashboard</span>
-          </div>
-          <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
-               class="text-center">
-            <i class="bi bi-lock"></i>
-            <br><span>Predictions</span>
-          </div>
+          <template v-if="chatroom.rank < 3">
+            <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
+                 class="text-center">
+              <i class="bi bi-lock"></i>
+              <br><span>Knowledge</span>
+            </div>
+          </template>
+          <template v-else>
+            <div style="border: 2px solid rebeccapurple; border-radius: 10px; padding: 20px"
+                 class="text-center">
+              <i class="bi bi-book-half lead"></i>
+              <br><span class="fw-bold">Knowledge</span>
+            </div>
+          </template>
           <div style="border: 2px dotted gray; border-radius: 10px; padding: 20px"
                class="text-center">
             <i class="bi bi-question"></i>
@@ -1370,10 +1354,10 @@ export default {
     },
     connect: async function (sessionID = this.getSession(), isSubchat = false) {
       this.toggleElement('loading', 'flex')
+      this.resetStats()
       // Generate Key Pair
       await this.generateRSAKeyPair(this.getChatGUID())
       return new Promise((resolve) => {
-        this.resetStats()
         this.isSubchat = isSubchat
         // Connect to the chat
         this.connection = new WebSocket('wss://wikiric.xyz/clarifier/' + sessionID)
@@ -3760,7 +3744,7 @@ export default {
   z-index: 1000;
   position: absolute;
   right: 0;
-  border-left: 2px solid rgba(174, 174, 183, 0.25);
+  border-left: 1px solid rgba(174, 174, 183, 0.25);
   height: 100vh;
   opacity: 0;
   transition: ease-in-out all 0.2s;
@@ -3772,7 +3756,7 @@ export default {
 
 .sidebar2.active {
   width: 250px;
-  border-right: 2px solid rgba(174, 174, 183, 0.25);
+  border-right: 1px solid rgba(174, 174, 183, 0.25);
   opacity: 1;
 }
 
@@ -3943,7 +3927,7 @@ export default {
 .chat_header {
   width: 100%;
   height: 50px;
-  box-shadow: 0 15px 10px -15px #111;
+  box-shadow: 0 20px 10px -15px #111;
   font-weight: bold;
   font-size: 125%;
   color: white;
@@ -3951,7 +3935,7 @@ export default {
   display: flex;
   z-index: 10;
   position: relative;
-  border-bottom: 2px solid rgba(174, 174, 183, 0.25);
+  border-bottom: 1px solid rgba(174, 174, 183, 0.25);
   align-items: center;
 }
 
@@ -3986,7 +3970,7 @@ export default {
 
 .message {
   color: white;
-  padding: 5px 25px 5px 15px;
+  padding: 2px 25px 2px 15px;
 }
 
 .message:hover {
@@ -4022,8 +4006,6 @@ export default {
 }
 
 .clientMessage {
-  /* white-space: pre-wrap; */
-  /* text-wrap: normal; */
   word-wrap: break-word;
   position: relative;
   width: calc(100% - 42px);
@@ -4167,7 +4149,26 @@ export default {
 <style>
 
 .clientMessage p {
-  margin-bottom: 0 !important;
+}
+
+.clientMessage h1 {
+  @apply text-4xl;
+}
+
+.clientMessage h2 {
+  @apply text-3xl;
+}
+
+.clientMessage h3 {
+  @apply text-2xl;
+}
+
+.clientMessage h4 {
+  @apply text-xl;
+}
+
+.clientMessage h5 {
+  @apply text-lg;
 }
 
 </style>
