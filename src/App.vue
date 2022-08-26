@@ -1,82 +1,5 @@
 <template>
-  <!-- Autocompletion List -->
-  <datalist id="keywords">
-    <option value="About"/>
-    <option value="Account"/>
-    <option value="API Manager"/>
-    <option value="Cart"/>
-    <option value="Chat"/>
-    <option value="Clarifier"/>
-    <option value="Home"/>
-    <option value="Invoices"/>
-    <option value="Mockingbird"/>
-    <option value="Planner"/>
-    <option value="Preferences"/>
-    <option value="Settings"/>
-    <option value="Shop"/>
-  </datalist>
   <div id="root" class="home">
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top"
-         style="background-color: #131313; display: none">
-      <div class="container">
-        <a class="navbar-brand" href="/"
-           style="font-family: 'Lato', sans-serif; font-weight: bold">
-          wikiric.xyz
-        </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navmenu"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse navm" id="navmenu">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item" data-bs-toggle="collapse" data-bs-target="#navmenu">
-              <router-link to="/" class="nav-link fw-bold">
-                <span style="color: white">
-                  <i class="bi bi-house" style="margin-right: 5px"></i>Home</span>
-              </router-link>
-            </li>
-            <li class="nav-item" data-bs-toggle="collapse" data-bs-target="#navmenu">
-              <router-link to="/shop" class="nav-link fw-bold">
-                <span style="color: white">
-                  <i class="bi bi-shop-window" style="margin-right: 5px"></i>Shop</span>
-              </router-link>
-            </li>
-            <li class="nav-item" data-bs-toggle="collapse" data-bs-target="#navmenu">
-              <router-link to="/about" class="nav-link fw-bold">
-                <span style="color: white">
-                  <i class="bi bi-question-circle" style="margin-right: 5px"></i>About</span>
-              </router-link>
-            </li>
-            <!-- Account -->
-            <li v-if="isLoggedIn"
-                class="nav-item" data-bs-toggle="collapse" data-bs-target="#navmenu">
-              <router-link to="/account" class="nav-link">
-                <span style="color: white">
-                  <i class="bi bi-person-bounding-box"
-                     style="margin-right: 5px"></i>{{ this.$store.state.username.split('@')[0] }}
-                  (<i class="bi bi-stack small" style="margin-right: 5px"></i>
-                  {{ this.$store.state.cart.length }})
-                </span>
-              </router-link>
-            </li>
-            <li v-else
-                class="nav-item" data-bs-toggle="collapse" data-bs-target="#navmenu">
-              <router-link to="/login?redirect=/account" class="nav-link">
-                <span style="color: white">
-                  <i class="bi bi-person-bounding-box" style="margin-right: 5px"></i>Login
-                  (<i class="bi bi-stack small" style="margin-right: 5px"></i>
-                  {{ this.$store.state.cart.length }})
-                </span>
-              </router-link>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
     <Disclosure as="nav" class="bg-neutral-900 fixed-top border-b border-neutral-700"
                 v-slot="{ open }">
       <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
@@ -104,13 +27,71 @@
                      :aria-current="item.current ? 'page' : undefined">
                   {{ item.name }}
                 </div>
-                <input
-                  class="keyword-search w-52 h-7 font-bold block mx-3 px-2 py-1 rounded-full bg-gray-800 text-gray-300"
-                  id="keyword-search"
-                  v-model="keyword"
-                  v-on:keyup.enter="processKeyword(keyword)"
-                  placeholder="ctrl+y"
-                  list="keywords">
+                <Combobox v-model="selected">
+                  <div class="relative">
+                    <div
+                      class="relative w-full cursor-default overflow-hidden rounded-lg bg-neutral-400 text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
+                    >
+                      <ComboboxInput
+                        id="cboxinput"
+                        class="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
+                        :displayValue="(nav) => nav.name"
+                        @change="query = $event.target.value"
+                      />
+                      <ComboboxButton
+                        class="absolute inset-y-0 right-0 flex items-center pr-2"
+                      >
+                        <ArrowsUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true"/>
+                      </ComboboxButton>
+                    </div>
+                    <TransitionRoot
+                      leave="transition ease-in duration-100"
+                      leaveFrom="opacity-100"
+                      leaveTo="opacity-0"
+                      @after-leave="query = ''"
+                    >
+                      <ComboboxOptions
+                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                      >
+                        <div
+                          v-if="filteredPeople.length === 0 && query !== ''"
+                          class="relative cursor-default select-none py-2 px-4 text-gray-700"
+                        >
+                          Nothing found.
+                        </div>
+
+                        <ComboboxOption
+                          v-for="nav in filteredPeople"
+                          as="template"
+                          :key="nav.name"
+                          :value="nav"
+                          v-slot="{ selected, active }"
+                        >
+                          <li
+                            class="relative cursor-default select-none py-2 pl-10 pr-4"
+                            :class="{
+                  'bg-teal-600 text-white': active,
+                  'text-gray-900': !active,
+                }"
+                          >
+                <span
+                  class="block truncate"
+                  :class="{ 'font-medium': selected, 'font-normal': !selected }"
+                >
+                  {{ nav.name }}
+                </span>
+                            <span
+                              v-if="selected"
+                              class="absolute inset-y-0 left-0 flex items-center pl-3"
+                              :class="{ 'text-white': active, 'text-teal-600': !active }"
+                            >
+                </span>
+                          </li>
+                        </ComboboxOption>
+                      </ComboboxOptions>
+                    </TransitionRoot>
+                  </div>
+                </Combobox>
               </div>
             </div>
           </div>
@@ -140,7 +121,7 @@
                           leave-to-class="transform opacity-0 scale-95">
                 <MenuItems
                   class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <template v-if="this.isLoggedIn">
+                  <template v-if="isLoggedIn">
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="$router.push('/account')"
                          :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
@@ -156,21 +137,21 @@
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="logout()"
                          :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
-                        Sign out
+                        Sign Out
                       </a>
                     </MenuItem>
                   </template>
                   <template v-else>
                     <MenuItem v-slot="{ active }">
-                      <a v-on:click="this.$router.push('/login?redirect=/account')"
-                         :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
-                        Sign in
+                      <a v-on:click="$router.push('/login?redirect=/account')"
+                         :class="[active ? 'bg-gray-200' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
+                        <i class="bi bi-key mr-3"></i> Sign In
                       </a>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
-                      <a v-on:click="this.$router.push('/register?redirect=/account')"
-                         :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
-                        Sign up
+                      <a v-on:click="$router.push('/register?redirect=/account')"
+                         :class="[active ? 'bg-gray-200' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
+                        <i class="bi bi-person-plus mr-3"></i> Sign Up
                       </a>
                     </MenuItem>
                   </template>
@@ -188,11 +169,12 @@
                             :aria-current="item.current ? 'page' : undefined">
             {{ item.name }}
           </DisclosureButton>
-          <input class="keyword-search w-72 font-bold block mx-3 my-2 p-1"
-                 id="keyword-search"
-                 v-model="keyword"
-                 v-on:keyup.enter="processKeyword(keyword)"
-                 placeholder="ctrl+y"
+          <input type="text"
+                 class="keyword-search w-72 font-bold block mx-3 my-2 p-1"
+                 id="keyword-search-small"
+                 v-model="keywordSmall"
+                 v-on:keyup.enter="processKeyword(keywordSmall)"
+                 placeholder="Search"
                  list="keywords">
         </div>
       </DisclosurePanel>
@@ -205,47 +187,64 @@
 </template>
 
 <script setup>
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { BellIcon, Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+  Combobox,
+  ComboboxInput,
+  ComboboxButton,
+  ComboboxOptions,
+  ComboboxOption,
+  TransitionRoot
+} from '@headlessui/vue'
+
+import {
+  BellIcon,
+  Bars3Icon,
+  XMarkIcon
+} from '@heroicons/vue/24/outline'
+
+import { ArrowsUpDownIcon } from '@heroicons/vue/24/solid'
+
 </script>
-
-<style scoped>
-
-@font-face {
-  font-family: "JetBrains Mono Medium";
-  font-style: normal;
-  font-display: auto;
-  src: local("JetBrains Mono Medium"), url(./assets/fonts/JetBrainsMono-Medium.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "JetBrains Mono Bold";
-  font-style: normal;
-  font-display: auto;
-  src: local("JetBrains Mono Bold"), url(./assets/fonts/JetBrainsMono-Bold.ttf) format("truetype");
-}
-
-.keyword-search:focus::placeholder {
-  color: transparent;
-}
-
-.navbar {
-  min-height: 60px;
-}
-
-@media only screen and (min-width: 992px) {
-  .nav-link {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-}
-
-</style>
 
 <script>
 import { Base64 } from 'js-base64'
 import firebase from 'firebase/app'
 import 'firebase/firebase-messaging'
+import { ref, computed } from 'vue'
+
+const navigationDrop = [
+  {
+    name: 'Clarifier',
+    href: '/apps/clarifier',
+    current: false
+  },
+  {
+    name: 'Planner',
+    href: '/apps/planner/_user',
+    current: false
+  }
+]
+
+const selected = ref({ name: 'ctrl-y' })
+const query = ref('')
+
+const filteredPeople = computed(() =>
+  query.value === ''
+    ? navigationDrop
+    : navigationDrop.filter((nav) =>
+      nav.name
+        .toLowerCase()
+        .replace(/\s+/g, '')
+        .includes(query.value.toLowerCase().replace(/\s+/g, ''))
+    )
+)
 
 export default {
   mounted () {
@@ -305,7 +304,7 @@ export default {
     window.addEventListener('keydown', function (event) {
       if (event.ctrlKey && event.key === 'y') {
         event.preventDefault()
-        const keywordSearch = document.getElementById('keyword-search')
+        const keywordSearch = document.getElementById('cboxinput')
         keywordSearch.focus()
         keywordSearch.select()
       }
@@ -317,6 +316,7 @@ export default {
       color1: 'darkred',
       color2: 'rebeccapurple',
       keyword: '',
+      keywordSmall: '',
       navigation: [
         {
           name: 'Clarifier',
@@ -366,7 +366,7 @@ export default {
     },
     processKeyword: function (keyword) {
       const term = keyword.toLowerCase().replace(' ', '')
-      if (term === undefined || term === '') return
+      if (term == null) return
       switch (term) {
         case 'home':
           this.$router.push('/')
@@ -409,11 +409,12 @@ export default {
           this.$notify(
             {
               title: 'Nothing Found :(',
-              text: 'No results for ' + this.keyword + '. Try something else maybe?',
+              text: 'No results for <' + this.keyword + '>. Try something else maybe?',
               type: 'error'
             })
       }
       this.keyword = ''
+      this.keywordSmall = ''
       document.activeElement.blur()
     },
     logout () {
@@ -446,3 +447,36 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+
+@font-face {
+  font-family: "JetBrains Mono Medium";
+  font-style: normal;
+  font-display: auto;
+  src: local("JetBrains Mono Medium"), url(./assets/fonts/JetBrainsMono-Medium.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "JetBrains Mono Bold";
+  font-style: normal;
+  font-display: auto;
+  src: local("JetBrains Mono Bold"), url(./assets/fonts/JetBrainsMono-Bold.ttf) format("truetype");
+}
+
+.keyword-search:focus::placeholder {
+  color: transparent;
+}
+
+.navbar {
+  min-height: 60px;
+}
+
+@media only screen and (min-width: 992px) {
+  .nav-link {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+</style>

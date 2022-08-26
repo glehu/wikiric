@@ -2011,7 +2011,7 @@ export default {
         session = this.$route.params.id
         if (session == null || session === 'undefined') {
           // If the URL does not contain a valid GUID, go to fallback...
-          session = this.chatroom.id
+          session = this.chatroom.guid
           if (session == null || session === 'undefined') {
             // If we still didn't get anything... just show a blue screen and hope for the best
             this.$router.push('/bsod?reason=' + 'No Valid GUID in URL/CurrentChatroom')
@@ -2111,10 +2111,11 @@ export default {
           username: this.$store.state.imgFlipUsername,
           password: this.$store.state.imgFlipPassword,
           font: 'impact',
-          max_font_size: 50,
+          max_font_size: 100,
           boxes: boxes
         }
       } else {
+        if (textOne.value == null && textTwo.value == null) return
         details = {
           template_id: this.imgflip_template.id,
           username: this.$store.state.imgFlipUsername,
@@ -2122,7 +2123,7 @@ export default {
           text0: textOne.value,
           text1: textTwo.value,
           font: 'impact',
-          max_font_size: 50
+          max_font_size: 100
         }
       }
       let formBody = []
@@ -2163,10 +2164,8 @@ export default {
           this.isFillingImgflipTemplate.boxes = []
           this.isFillingImgflipTemplate.mode = 'top-bottom'
           this.imgflip_template = {}
-          if (boxes.length < 1) {
-            textOne.value = ''
-            textTwo.value = ''
-          }
+          textOne.value = ''
+          textTwo.value = ''
           this.focusComment()
         })
         .catch((err) => console.error(err.message))
