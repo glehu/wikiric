@@ -26,9 +26,9 @@
           </p>
         </div>
         <div class="d-flex justify-content-center" style="margin-top: 40px; margin-bottom: 40px">
-          <button class="muArrow fw-bold backdrop-blur-xl rounded-full border-2 border-gray-100"
+          <button class="muArrow fw-bold backdrop-blur-xl rounded-full"
                   v-on:click="gotoClarifier()"
-                  style="width: 200px; height: 50px">
+                  style="width: 200px; height: 50px; border: 2px solid rgba(174, 174, 183, 0.5);">
             <i class="sb_link_icon bi bi-app-indicator lead" style="padding-right: 10px"></i>
             Explore
           </button>
