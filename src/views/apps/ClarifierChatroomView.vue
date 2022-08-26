@@ -2011,7 +2011,7 @@ export default {
         session = this.$route.params.id
         if (session == null || session === 'undefined') {
           // If the URL does not contain a valid GUID, go to fallback...
-          session = this.chatroom.guid
+          session = this.chatroom.guid ? this.currentSubchat.guid : null
           if (session == null || session === 'undefined') {
             // If we still didn't get anything... just show a blue screen and hope for the best
             this.$router.push('/bsod?reason=' + 'No Valid GUID in URL/CurrentChatroom')
@@ -2755,7 +2755,7 @@ export default {
       if (subchatMode) {
         await this.$router.replace({
           path: '/apps/clarifier/wss/' + this.getSession(),
-          query: { sub: subchatGUID }
+          navQuery: { sub: subchatGUID }
         })
       } else {
         await this.$router.replace({

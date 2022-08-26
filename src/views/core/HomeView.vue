@@ -3,11 +3,12 @@
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <div class="header-margin"></div>
-    <div style="color: white; width: 100%; display: flex; padding: 40px 5vw 20px 5vw;
+    <div class="text-gray-300"
+         style="width: 100%; display: flex; padding: 40px 5vw 20px 5vw;
                 border-bottom: 4px dotted #192129;">
       <div style="width: 100%">
-        <div id="header_title" class="backdrop-blur"
-             style="border-left: 4px dotted #aeaeb7; padding: 20px; color: #aeaeb7; background-color: rgba(16,16,16,0.5);
+        <div id="header_title" class="backdrop-blur-xl"
+             style="border-left: 4px dotted #aeaeb7; padding: 20px;
                     border-radius: 0 50px 50px 0">
           <h2
             style="pointer-events: none; font-size: clamp(3rem, 4vw, 5rem); margin: 0"
@@ -16,18 +17,18 @@
           </h2>
           <h1 style="font-weight: bold; font-style: italic; pointer-events: none;
                      font-size: clamp(4rem, 8vw, 7rem); margin: 0"
-              class="text-center c_lightgray">
+              class="text-center">
             Enterprise Network
           </h1>
-          <p class="demotext c_lightgray">
+          <p class="demotext text-neutral-400">
             Bringing ideas and people close.
             <br>Communicate and share files on a platform that grows as you do.
           </p>
         </div>
         <div class="d-flex justify-content-center" style="margin-top: 40px; margin-bottom: 40px">
-          <button class="btn btn-lg btn-dark muArrow fw-bold"
+          <button class="muArrow fw-bold backdrop-blur-xl rounded-full border-2 border-gray-100"
                   v-on:click="gotoClarifier()"
-                  style="border-radius: 30px 0 30px 0; width: 200px; height: 50px">
+                  style="width: 200px; height: 50px">
             <i class="sb_link_icon bi bi-app-indicator lead" style="padding-right: 10px"></i>
             Explore
           </button>

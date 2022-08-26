@@ -16,28 +16,34 @@
           <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
             <div class="flex-shrink-0 flex items-center text-white font-bold cursor-pointer"
                  v-on:click="$router.push('/')">
-              <div class="block lg:hidden w-auto">wikiric.xyz</div>
-              <div class="hidden lg:block w-auto">wikiric.xyz</div>
+              <div class="block lg:hidden w-auto sm:ml-5">wikiric.xyz</div>
+              <div class="hidden lg:block w-auto ml-5">wikiric.xyz</div>
             </div>
             <div class="hidden sm:block sm:ml-6">
               <div class="flex space-x-2 items-center">
-                <div v-for="item in navigation" :key="item.name"
-                     v-on:click="$router.push(item.href)"
-                     :class="[item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'px-3 py-2 rounded-md text-sm font-medium cursor-pointer']"
-                     :aria-current="item.current ? 'page' : undefined">
-                  {{ item.name }}
-                </div>
-                <Combobox v-model="selected">
+                <template v-for="item in navigation" :key="item.name">
+                  <div v-if="item.main"
+                       v-on:click="$router.push(item.href)"
+                       :class="[item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'px-3 py-2 rounded-md text-sm font-medium cursor-pointer']"
+                       :aria-current="item.current ? 'page' : undefined">
+                    {{ item.name }}
+                  </div>
+                </template>
+                <Combobox v-model="navSelected" class="ml-2">
                   <div class="relative">
                     <div
                       class="relative w-full cursor-default overflow-hidden rounded-lg bg-neutral-400 text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
                     >
-                      <ComboboxInput
-                        id="cboxinput"
-                        class="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
-                        :displayValue="(nav) => nav.name"
-                        @change="query = $event.target.value"
-                      />
+                      <div class="relative flex items-center">
+                        <ComboboxInput
+                          id="cboxinput"
+                          placeholder="ctrl-y"
+                          class="w-full border-none py-1 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
+                          :displayValue="(nav) => nav.name"
+                          @change="navQuery = $event.target.value"
+                          v-on:keyup.enter="processCombo()"
+                        />
+                      </div>
                       <ComboboxButton
                         class="absolute inset-y-0 right-0 flex items-center pr-2"
                       >
@@ -48,44 +54,40 @@
                       leave="transition ease-in duration-100"
                       leaveFrom="opacity-100"
                       leaveTo="opacity-0"
-                      @after-leave="query = ''"
                     >
                       <ComboboxOptions
                         class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                       >
                         <div
-                          v-if="filteredPeople.length === 0 && query !== ''"
+                          v-if="filteredNav.length === 0 && navQuery !== ''"
                           class="relative cursor-default select-none py-2 px-4 text-gray-700"
                         >
                           Nothing found.
                         </div>
 
                         <ComboboxOption
-                          v-for="nav in filteredPeople"
+                          v-for="nav in filteredNav"
                           as="template"
                           :key="nav.name"
                           :value="nav"
                           v-slot="{ selected, active }"
                         >
                           <li
-                            class="relative cursor-default select-none py-2 pl-10 pr-4"
-                            :class="{
-                  'bg-teal-600 text-white': active,
-                  'text-gray-900': !active,
-                }"
+                            class="relative cursor-pointer select-none py-2 pl-10 pr-4 hover:text-blue-600"
+                            :class="{'bg-gray-300': active }"
+                            v-on:click="processCombo()"
                           >
-                <span
-                  class="block truncate"
-                  :class="{ 'font-medium': selected, 'font-normal': !selected }"
-                >
-                  {{ nav.name }}
-                </span>
-                            <span
+                            <div
+                              class="block truncate"
+                              :class="{ 'font-medium': selected, 'font-normal': !selected }"
+                            >
+                              {{ nav.name }}
+                            </div>
+                            <div
                               v-if="selected"
                               class="absolute inset-y-0 left-0 flex items-center pl-3"
-                              :class="{ 'text-white': active, 'text-teal-600': !active }"
-                            >
-                </span>
+                              :class="{ 'text-white': active }">
+                            </div>
                           </li>
                         </ComboboxOption>
                       </ComboboxOptions>
@@ -124,19 +126,19 @@
                   <template v-if="isLoggedIn">
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="$router.push('/account')"
-                         :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
+                         :class="[active ? 'bg-gray-300' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
                         Your Profile
                       </a>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="$router.push('/preferences')"
-                         :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
+                         :class="[active ? 'bg-gray-300' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
                         Settings
                       </a>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="logout()"
-                         :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
+                         :class="[active ? 'bg-gray-300' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
                         Sign Out
                       </a>
                     </MenuItem>
@@ -144,13 +146,13 @@
                   <template v-else>
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="$router.push('/login?redirect=/account')"
-                         :class="[active ? 'bg-gray-200' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
+                         :class="[active ? 'bg-gray-300' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
                         <i class="bi bi-key mr-3"></i> Sign In
                       </a>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="$router.push('/register?redirect=/account')"
-                         :class="[active ? 'bg-gray-200' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
+                         :class="[active ? 'bg-gray-300' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
                         <i class="bi bi-person-plus mr-3"></i> Sign Up
                       </a>
                     </MenuItem>
@@ -163,19 +165,14 @@
       </div>
       <DisclosurePanel class="sm:hidden">
         <div class="px-2 pt-2 pb-3 space-y-1">
-          <DisclosureButton v-for="item in navigation" :key="item.name" as="a"
-                            v-on:click="$router.push(item.href)"
-                            :class="[item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium']"
-                            :aria-current="item.current ? 'page' : undefined">
-            {{ item.name }}
-          </DisclosureButton>
-          <input type="text"
-                 class="keyword-search w-72 font-bold block mx-3 my-2 p-1"
-                 id="keyword-search-small"
-                 v-model="keywordSmall"
-                 v-on:keyup.enter="processKeyword(keywordSmall)"
-                 placeholder="Search"
-                 list="keywords">
+          <template v-for="item in navigation" :key="item.name">
+            <DisclosureButton v-if="item.main" as="a"
+                              v-on:click="$router.push(item.href)"
+                              :class="[item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium cursor-pointer']"
+                              :aria-current="item.current ? 'page' : undefined">
+              {{ item.name }}
+            </DisclosureButton>
+          </template>
         </div>
       </DisclosurePanel>
     </Disclosure>
@@ -186,7 +183,11 @@
   </div>
 </template>
 
-<script setup>
+<script>
+import { Base64 } from 'js-base64'
+import firebase from 'firebase/app'
+import 'firebase/firebase-messaging'
+import { toRaw } from 'vue'
 import {
   Disclosure,
   DisclosureButton,
@@ -211,42 +212,26 @@ import {
 
 import { ArrowsUpDownIcon } from '@heroicons/vue/24/solid'
 
-</script>
-
-<script>
-import { Base64 } from 'js-base64'
-import firebase from 'firebase/app'
-import 'firebase/firebase-messaging'
-import { ref, computed } from 'vue'
-
-const navigationDrop = [
-  {
-    name: 'Clarifier',
-    href: '/apps/clarifier',
-    current: false
-  },
-  {
-    name: 'Planner',
-    href: '/apps/planner/_user',
-    current: false
-  }
-]
-
-const selected = ref({ name: 'ctrl-y' })
-const query = ref('')
-
-const filteredPeople = computed(() =>
-  query.value === ''
-    ? navigationDrop
-    : navigationDrop.filter((nav) =>
-      nav.name
-        .toLowerCase()
-        .replace(/\s+/g, '')
-        .includes(query.value.toLowerCase().replace(/\s+/g, ''))
-    )
-)
-
 export default {
+  components: {
+    Disclosure,
+    DisclosureButton,
+    DisclosurePanel,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuItems,
+    Combobox,
+    ComboboxInput,
+    ComboboxButton,
+    ComboboxOptions,
+    ComboboxOption,
+    TransitionRoot,
+    BellIcon,
+    Bars3Icon,
+    XMarkIcon,
+    ArrowsUpDownIcon
+  },
   mounted () {
     this.checkServerIP()
     this.serverLogin()
@@ -315,18 +300,44 @@ export default {
       angle: '45',
       color1: 'darkred',
       color2: 'rebeccapurple',
-      keyword: '',
-      keywordSmall: '',
+      navQuery: '',
+      navSelected: { name: '' },
       navigation: [
+        {
+          name: 'Home',
+          href: '/',
+          current: false,
+          main: false
+        },
+        {
+          name: 'About',
+          href: '/about',
+          current: false,
+          main: true
+        },
+        {
+          name: 'Account',
+          href: '/account',
+          current: false,
+          main: false
+        },
+        {
+          name: 'Cookie Settings',
+          href: '/preferences',
+          current: false,
+          main: false
+        },
         {
           name: 'Clarifier',
           href: '/apps/clarifier',
-          current: false
+          current: false,
+          main: true
         },
         {
           name: 'Planner',
           href: '/apps/planner/_user',
-          current: false
+          current: false,
+          main: true
         }
       ]
     }
@@ -364,59 +375,6 @@ export default {
         this.$store.commit('setServerToken', this.loginResponse.token)
       }
     },
-    processKeyword: function (keyword) {
-      const term = keyword.toLowerCase().replace(' ', '')
-      if (term == null) return
-      switch (term) {
-        case 'home':
-          this.$router.push('/')
-          break
-        case 'shop':
-          this.$router.push('/shop')
-          break
-        case 'about':
-          this.$router.push('/about')
-          break
-        case 'account':
-          if (this.isLoggedIn) {
-            this.$router.push('/account')
-          } else {
-            this.$router.push('/login?redirect=/account')
-          }
-          break
-        case 'cart':
-          this.$router.push('/cart')
-          break
-        case 'invoices':
-          this.$router.push('/invoices')
-          break
-        case 'preferences':
-        case 'settings':
-          this.$router.push('/preferences?redirect=/account')
-          break
-        case 'planner':
-          this.$router.push('/apps/planner/_user')
-          break
-        case 'apimanager':
-        case 'mockingbird':
-          this.$router.push('/dev/api')
-          break
-        case 'chat':
-        case 'clarifier':
-          this.$router.push('/apps/clarifier')
-          break
-        default:
-          this.$notify(
-            {
-              title: 'Nothing Found :(',
-              text: 'No results for <' + this.keyword + '>. Try something else maybe?',
-              type: 'error'
-            })
-      }
-      this.keyword = ''
-      this.keywordSmall = ''
-      document.activeElement.blur()
-    },
     logout () {
       if (this.isLoggedIn) {
         const headers = new Headers()
@@ -435,6 +393,17 @@ export default {
         this.$store.commit('clearCart')
         this.$router.push('/login?redirect=/account')
       }
+    },
+    processCombo: function () {
+      setTimeout(() => {
+        const value = toRaw(this.navSelected)
+        if (value.href == null) {
+          return
+        }
+        this.$router.push(value.href)
+        this.navQuery = ''
+        this.navSelected = { name: '' }
+      }, 100)
     }
   },
   computed: {
@@ -443,6 +412,16 @@ export default {
     },
     isLoggedIn () {
       return this.$store.state.authenticated
+    },
+    filteredNav () {
+      return this.navQuery === ''
+        ? this.navigation
+        : this.navigation.filter((nav) =>
+          nav.name
+            .toLowerCase()
+            .replace(/\s+/g, '')
+            .includes(this.navQuery.toLowerCase().replace(/\s+/g, ''))
+        )
     }
   }
 }
