@@ -614,8 +614,7 @@
                     <i class="bi bi-arrows-move" style="font-size: 75%; color: black"></i>
                   </div>
                   <textarea :id="'imgflip_draggableText_' + box.id" rows="1" cols="8"
-                            class="fw-bold draggable_meme_text">
-                </textarea>
+                            class="fw-bold draggable_meme_text"></textarea>
                 </div>
               </div>
             </template>
@@ -638,8 +637,7 @@
                     maxlength="5000"
                     :placeholder="'Message to ' + chatroom.t"
                     v-on:keyup="auto_grow"
-                    v-on:click="hideAllSidebars">
-          </textarea>
+                    v-on:click="hideAllSidebars"></textarea>
           <button id="send_image_button"
                   class="btn-outline-light message_button send_image_button"
                   style="position: absolute; right: 100px; background-color: transparent"

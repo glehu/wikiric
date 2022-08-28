@@ -1,57 +1,94 @@
 <template>
-  <div class="header-margin mb-2"/>
-  <div class="mx-4"
-       style="height: calc(100vh - 60px)">
-    <div class="px-4 py-1 text-gray-400"
-         style="border-radius: 20px">
-      <div class="flex items-center">
-        <div class="d-flex align-items-center justify-content-center"
-             style="margin-right: 25px">
-          <i class="bi bi-book-half" style="font-size: 300%"></i>
-        </div>
-        <div>
-          <h2>Knowledge</h2>
-          <template v-if="source !== ''">
-            <h4 class="fw-bold">{{ source }}</h4>
-          </template>
-          <template v-else>
-            <h5>Welcome to the Knowledge Hub</h5>
-          </template>
-        </div>
-      </div>
-    </div>
-    <div class="my-2">
-      <div class="btn text-gray-400"
-           style="border-radius: 15px; border: 2px dashed #aeaeb7;
-                  max-width: 200px; height: 100px; padding: 10px;
-                  display: flex; align-items: center">
-        <div class="text-center w-100">
-          <i class="bi bi-plus-circle-dotted lead"></i>
-          <div>Create a new category!</div>
-        </div>
-      </div>
-    </div>
-    <div class="mt-2 grid grid-cols-7 gap-3 w-full">
-      <div class="col-start-1 col-end-3">
-        <div class="c_lightgray bg-gray-700 p-2 rounded-lg flex items-center">
-          <MagnifyingGlassIcon class="h-8 w-8 mx-1 text-gray-900"></MagnifyingGlassIcon>
-          <input id="search-field" type="text"
-                 class="search-field bg-gray-800 h-8"
-                 placeholder="Search...">
-        </div>
-        <div class="c_lightgray bg-gray-700 p-2 mt-2 rounded-lg flex items-center">
-          <FunnelIcon class="h-8 w-8 mx-1 text-gray-900"></FunnelIcon>
-          <div class="h-8">
-
+  <div class="header-margin"/>
+  <template v-if="knowledgeExists">
+    <div class="mx-4"
+         style="height: calc(100vh - 60px)">
+      <div class="px-4 py-1 text-gray-400"
+           style="border-radius: 20px">
+        <div class="flex items-center">
+          <div class="d-flex align-items-center justify-content-center"
+               style="margin-right: 25px">
+            <i class="bi bi-book-half" style="font-size: 300%"></i>
+          </div>
+          <div>
+            <h2>Knowledge</h2>
+            <template v-if="source !== ''">
+              <h4 class="fw-bold">{{ source }}</h4>
+            </template>
+            <template v-else>
+              <h5>Welcome to the Knowledge Hub</h5>
+            </template>
           </div>
         </div>
       </div>
-      <div class="col-start-3 col-end-6 bg-yellow-100">
+      <div class="my-2">
+        <div class="btn text-gray-400"
+             style="border-radius: 15px; border: 2px dashed #aeaeb7;
+                  max-width: 200px; height: 100px; padding: 10px;
+                  display: flex; align-items: center">
+          <div class="text-center w-100">
+            <i class="bi bi-plus-circle-dotted lead"></i>
+            <div>Create a new category!</div>
+          </div>
+        </div>
       </div>
-      <div class="col-start-6 col-end-8 bg-yellow-500">
+      <div class="mt-2 grid grid-cols-7 gap-3 w-full">
+        <div class="col-start-1 col-end-3">
+          <div class="c_lightgray bg-gray-700 p-2 rounded-lg flex items-center">
+            <MagnifyingGlassIcon class="h-8 w-8 mx-1 text-gray-900"></MagnifyingGlassIcon>
+            <input id="search-field" type="text"
+                   class="search-field bg-gray-800 h-8"
+                   placeholder="Search...">
+          </div>
+          <div class="c_lightgray bg-gray-700 p-2 mt-2 rounded-lg flex items-center">
+            <FunnelIcon class="h-8 w-8 mx-1 text-gray-900"></FunnelIcon>
+            <div class="h-8">
+
+            </div>
+          </div>
+        </div>
+        <div class="col-start-3 col-end-6 bg-yellow-100">
+        </div>
+        <div class="col-start-6 col-end-8 bg-yellow-500">
+        </div>
       </div>
     </div>
-  </div>
+  </template>
+  <template v-else>
+    <div class="">
+      <div :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-anni-roenkae-2156881.jpg')+')',
+         backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
+        <div class="backdrop-blur-3xl p-10 backdrop-brightness-50">
+          <div class="text-gray-300 mb-5 pointer-events-none">
+            <span class="text-5xl font-bold">Create new Knowledge Hub</span>
+            <hr class="text-neutral-500 opacity-100">
+          </div>
+          <form class="flex">
+            <div class="text-gray-300 w-25 ml-5">
+              <label for="title" class="text-3xl mb-2">Title</label>
+              <br>
+              <input type="text" id="title" class="rounded text-xl w-full p-2 bg-neutral-400 bg-opacity-25"
+                     required>
+              <br>
+              <label for="description" class="mt-3 mb-2 text-3xl">Description</label>
+              <br>
+              <textarea type="text" rows="3" id="description"
+                        class="rounded text-xl w-full p-2 bg-neutral-400 bg-opacity-25"></textarea>
+            </div>
+            <div class="text-gray-300 w-25 ml-5">
+              <label for="keywords" class="text-3xl mb-2">Keywords</label>
+              <span class="text-gray-500 ml-3">Comma separated</span>
+              <br>
+              <input type="text" id="keywords" class="rounded text-xl w-full p-2 bg-neutral-400 bg-opacity-25">
+            </div>
+            <button type="submit">
+              Create
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </template>
 </template>
 
 <script setup>
@@ -63,7 +100,9 @@ export default {
   name: 'KnowledgeFinderView',
   data () {
     return {
-      source: ''
+      source: '',
+      knowledgeExists: true,
+      knowledge: {}
     }
   },
   mounted () {
@@ -81,6 +120,10 @@ export default {
         if (chatroom != null) {
           this.source = chatroom.t
         }
+        const knowledge = await this.getKnowledge(srcGUID)
+        if (knowledge != null) {
+          this.knowledge = knowledge
+        }
       }
     },
     getClarifierChatroom: async function (sessionID) {
@@ -92,6 +135,48 @@ export default {
           {
             method: 'get',
             headers: headers
+          }
+        )
+          .then((res) => res.json())
+          .then((data) => resolve(data))
+          .catch((err) => console.error(err.message))
+      })
+    },
+    getKnowledge: async function (sessionID) {
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m7/get?src=' + sessionID + '&from=clarifier',
+          {
+            method: 'get',
+            headers: headers
+          }
+        )
+          .then((res) => res.json())
+          .then((data) => resolve(data))
+          .catch(() => {
+            this.knowledgeExists = false
+          })
+      })
+    },
+    createKnowledge: async function (sessionID, title, description, keywords) {
+      const payload = {
+        mainChatroomGUID: sessionID,
+        title: title,
+        description: description,
+        keywords: keywords,
+        isPrivate: true
+      }
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m7/create',
+          {
+            method: 'post',
+            headers: headers,
+            body: payload
           }
         )
           .then((res) => res.json())

@@ -443,19 +443,4 @@ export default {
   src: local("JetBrains Mono Bold"), url(./assets/fonts/JetBrainsMono-Bold.ttf) format("truetype");
 }
 
-.keyword-search:focus::placeholder {
-  color: transparent;
-}
-
-.navbar {
-  min-height: 60px;
-}
-
-@media only screen and (min-width: 992px) {
-  .nav-link {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-}
-
 </style>
