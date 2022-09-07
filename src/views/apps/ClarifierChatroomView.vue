@@ -306,7 +306,7 @@
                   </template>
                   <span class="orange-hover"
                         style="font-weight: bold"
-                        v-on:click="showUserProfileFromName(msg.src)">
+                        @click.stop="showUserProfileFromName(msg.src)">
                     {{ msg.src }}
                   </span>
                   <div style="color: gray; font-size: 80%; padding-left: 10px">
@@ -631,7 +631,7 @@
             </template>
           </div>
           <textarea id="new_comment"
-                    class="new_comment b_darkgray p-2"
+                    class="new_comment b_darkgray py-2 px-3"
                     type="text"
                     v-model="new_message"
                     maxlength="5000"
@@ -1252,6 +1252,7 @@ export default {
       // Generate new token just in case
       await this.serverLogin()
       await this.getClarifierMetaData(this.getSession(), false, true)
+      this.$store.commit('setLastClarifierGUID', this.getSession())
       // Are we connecting to a subchat?
       const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop)
@@ -2008,13 +2009,12 @@ export default {
       if (full === false) {
         session = this.$route.params.id
         if (session == null) {
-          if (!this.isSubchat) {
-            session = this.chatroom.guid
-          } else {
-            session = this.currentSubchat.guid
-          }
+          session = this.chatroom.guid
           if (session == null) {
-            this.$router.push('/bsod?reason=' + 'Invalid Chatroom GUID')
+            session = this.$store.getters.getLastClarifierGUID()
+            if (session == null) {
+              this.$router.push('/bsod?reason=' + 'Invalid Chatroom GUID')
+            }
           }
         }
       } else {
@@ -2778,6 +2778,7 @@ export default {
       this.extraSkipCount = 0
       this.lazyLoadingStatus = 'idle'
       this.last_message = {}
+      this.currentSubchat = {}
     },
     uploadSnippet: function () {
       this.toggleElement('confirm_snippet_loading', 'flex')
@@ -4147,6 +4148,23 @@ export default {
 <style>
 
 .clientMessage p {
+  @apply mb-4;
+}
+
+.clientMessage p:last-child {
+  @apply m-0;
+}
+
+.clientMessage ul {
+  @apply list-disc list-inside;
+}
+
+.clientMessage ol {
+  @apply list-decimal list-inside;
+}
+
+.clientMessage a {
+  @apply underline;
 }
 
 .clientMessage h1 {

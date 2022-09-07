@@ -31,6 +31,7 @@ export default createStore({
     clarifierTimestamps: [],
     clarifierKeys: [],
     e2eEncryptionSeen: false,
+    lastClarifierGUID: '',
     // ImgFlip
     imgFlipUsername: '',
     imgFlipPassword: ''
@@ -177,6 +178,9 @@ export default createStore({
     setImgFlipAccount (state, imgFlipAccount) {
       state.imgFlipUsername = imgFlipAccount.username
       state.imgFlipPassword = imgFlipAccount.password
+    },
+    setLastClarifierGUID (state, guid) {
+      state.lastClarifierGUID = guid
     }
   },
   actions: {},
@@ -190,6 +194,9 @@ export default createStore({
     },
     hasSeenE2ENotification: (state) => () => {
       return state.e2eEncryptionSeen
+    },
+    getLastClarifierGUID: (state) => () => {
+      return state.lastClarifierGUID
     }
   }
 })

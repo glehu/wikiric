@@ -1,72 +1,78 @@
 <template>
-  <div class="header-margin"/>
+  <div class="header-margin shadow-xl"/>
   <template v-if="knowledgeExists">
-    <div class="mx-4"
+    <div class=""
          style="min-height: calc(100vh - 60px)">
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full bg-neutral-900">
-        <div class="mt-2 border-r-2 border-dotted border-gray-500 pr-5">
-          <div class="py-1 mb-2 text-gray-400"
-               style="border-radius: 20px">
-            <div class="flex items-center">
-              <div class="w-full"
-                   :style="{
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full bg-neutral-900 h-full">
+        <div class="border-r border-neutral-700 h-full sm:h-[calc(100vh-60px)]"
+             :style="{
                 backgroundImage: 'url('+require('@/assets/'+'account/pexels-anni-roenkae-2156881.jpg')+')',
                 backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-                <div class="backdrop-blur-xl p-4 text-gray-300 pointer-events-none">
-                  <div class="text-5xl border-l border-gray-300 pl-5">
-                    {{ this.knowledge.t }}
-                  </div>
-                  <div class="border-l border-gray-300 pl-5 text-gray-400">
-                    {{ this.knowledge.desc }}
+          <div class="backdrop-blur-2xl backdrop-brightness-75 h-full relative">
+            <div class="py-1 shadow rounded-none">
+              <div class="flex items-center">
+                <div v-on:click="$router.back()"
+                     class="h-full ml-4 mr-2 px-2 py-4 rounded-xl text-center text-gray-300 hover:text-orange-500 cursor-pointer">
+                  <ArrowLeftOnRectangleIcon
+                    class="h-8 w-8"></ArrowLeftOnRectangleIcon>
+                </div>
+                <div class="font-bold w-full overflow-x-hidden mr-2">
+                  <div class="py-4 px-2 text-gray-100 pointer-events-none">
+                    <div class="text-5xl border-l border-gray-300 pl-5">
+                      {{ this.knowledge.t }}
+                    </div>
+                    <div class="border-l border-gray-300 pl-5 text-gray-300">
+                      {{ this.knowledge.desc }}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="p-2 flex items-center relative">
-            <div class="flex overflow-x-scroll overflow-y-hidden pb-3 pr-3">
-              <template v-for="category in this.knowledge.categories" :key="category">
-                <div
-                  class="text-gray-400 hover:bg-gray-800 cursor-pointer mr-3 flex items-center py-1 h-12 border-2 border-gray-500 rounded-full"
-                  style="min-width: 150px; max-width: 200px">
-                  <div class="text-center w-100">
-                    <div> {{ category.category }}</div>
+            <div class="shadow py-4 backdrop-brightness-75">
+              <div class="px-4 py-2 rounded-lg flex items-center">
+                <MagnifyingGlassIcon class="w-12 h-12 mx-1 text-gray-200"></MagnifyingGlassIcon>
+                <input id="search-field" type="text"
+                       class="search-field py-4 bg-neutral-900 h-8 ml-2 text-lg border-2 border-neutral-800"
+                       placeholder="Search..."
+                       v-on:keyup.enter="searchWisdom()"
+                       v-model="queryText">
+              </div>
+              <div class="px-4 py-2 flex items-center">
+                <div class="flex overflow-x-scroll overflow-y-hidden pb-3">
+                  <template v-for="category in this.knowledge.categories" :key="category">
+                    <div
+                      class="font-bold text-gray-200 backdrop-brightness-75 cursor-pointer mr-3 flex items-center py-1 border-2 border-gray-500 rounded-full hover:border-gray-100 hover:text-gray-100"
+                      style="min-width: 150px; max-width: 200px">
+                      <div class="text-center w-100">
+                        <div> {{ category.category }}</div>
+                      </div>
+                    </div>
+                  </template>
+                  <div
+                    class="font-bold text-gray-200 backdrop-brightness-50 cursor-pointer mr-3 flex items-center py-1 border-2 border-dashed border-gray-500 rounded-full hover:border-gray-100 hover:text-gray-100"
+                    style="min-width: 150px; max-width: 200px"
+                    v-on:click="this.isAddingCategory = true">
+                    <div class="text-center w-100">
+                      <i class="bi bi-plus-circle-dotted lead"></i>
+                    </div>
                   </div>
-                </div>
-              </template>
-              <div class="text-gray-400 hover:bg-gray-800 cursor-pointer mr-3 flex items-center py-1 h-12"
-                   style="border-radius: 15px; border: 2px dashed #aeaeb7;
-                          min-width: 150px; max-width: 200px"
-                   v-on:click="this.isAddingCategory = true">
-                <div class="text-center w-100">
-                  <i class="bi bi-plus-circle-dotted lead"></i>
                 </div>
               </div>
             </div>
-            <ChevronRightIcon
-              class="absolute right-0 text-gray-300 bg-neutral-900 h-full w-6 pb-3 items-center flex"></ChevronRightIcon>
-          </div>
-          <div class="c_lightgray bg-gray-700 p-2 rounded-lg flex items-center">
-            <MagnifyingGlassIcon class="h-8 w-8 mx-1 text-neutral-900"></MagnifyingGlassIcon>
-            <input id="search-field" type="text"
-                   class="search-field bg-gray-800 h-8 ml-2"
-                   placeholder="Search..."
-                   v-on:keyup.enter="searchWisdom()"
-                   v-model="queryText">
-          </div>
-          <!-- QUICK VIEW -->
-          <div class="mt-4">
-            <div class="flex">
-              <button
-                class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-xl text-gray-300 hover:text-gray-200 mr-3 w-1/2">
-                <i class="bi bi-question-lg mr-2"></i>
-                Ask
-              </button>
-              <button v-on:click="writeLesson()"
-                      class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-xl text-gray-300 hover:text-gray-200 w-1/2">
-                <i class="bi bi-lightbulb small mr-2"></i>
-                Teach
-              </button>
+            <!-- QUICK VIEW -->
+            <div class="mt-2 p-2 pt-4 pb-4 sm:absolute sm:bottom-0 sm:w-full">
+              <div class="flex">
+                <button
+                  class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-xl text-gray-200 hover:text-gray-200 mr-3 w-1/2 backdrop-brightness-75">
+                  <i class="bi bi-question-lg mr-2"></i>
+                  Ask
+                </button>
+                <button v-on:click="writeLesson()"
+                        class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-xl text-gray-200 hover:text-gray-200 w-1/2 backdrop-brightness-75">
+                  <i class="bi bi-lightbulb small mr-2"></i>
+                  Teach
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -104,33 +110,58 @@
             </div>
           </template>
           <template v-if="results.length > 0">
-            <div class="text-gray-500">{{ results.length }} Results</div>
-            <hr class="text-gray-500 opacity-100 mb-2">
+            <div class="text-gray-300 pointer-events-none px-4 py-1">
+              {{ results.length }} Results <span class="text-gray-500">({{ results.time }} s)</span>
+            </div>
+            <hr class="text-gray-300 opacity-100 mb-2">
             <template v-for="result in results" :key="result">
               <div
-                class="result relative text-gray-300 hover:bg-gray-700 hover:bg-opacity-25 mb-2 p-2 pb-3 border-b border-gray-700">
-                <div v-if="result.copyContent != null"
-                     class="absolute right-0 flex-row-reverse text-white result-copy backdrop-blur rounded-full p-3 cursor-pointer hover:bg-gray-600">
-                  <ClipboardIcon class="h-9 w-9"
-                                 v-on:click="copy(result.copyContent)">
-                  </ClipboardIcon>
+                class="result relative text-gray-300 hover:bg-gray-800 hover:bg-opacity-25 mb-2 p-3 mb-4 pb-4 border-b border-gray-700">
+                <template v-if="result.priority === 'low'">
+                  <div
+                    class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
+                </template>
+                <div
+                  class="absolute right-0 flex text-white result-copy backdrop-blur">
+                  <div v-if="result.result.author === $store.state.username"
+                       v-on:click="editWisdom(result.result)"
+                       class="cursor-pointer hover:bg-gray-600 rounded-full p-3 mr-2">
+                    <PencilSquareIcon class="h-8 w-8">
+                    </PencilSquareIcon>
+                    Edit
+                  </div>
+                  <div v-if="result.result.copyContent != null"
+                       v-on:click="copy(result.result.copyContent)"
+                       class="cursor-pointer hover:bg-gray-600 rounded-full p-3 mr-2">
+                    <ClipboardIcon class="h-8 w-8">
+                    </ClipboardIcon>
+                    Copy
+                  </div>
                 </div>
-                <div class="text-gray-500 mb-2">
-                  {{ capitalizeFirstLetter(result.type) }}
-                  from
-                  {{ result.author }}
+                <div class="text-gray-500 mb-4 flex items-center">
+                  <template v-if="result.priority === 'high'">
+                    <SparklesIcon class="w-4 h-4 mr-2"></SparklesIcon>
+                  </template>
+                  <div class="pointer-events-none">
+                    {{ capitalizeFirstLetter(result.result.type) }}
+                    from
+                    {{ result.result.author }}
+                  </div>
                 </div>
-                <Markdown class="text-lg marked" :source="result.t"></Markdown>
-                <Markdown class="text-gray-400 marked" :source="result.desc"></Markdown>
+                <div class="flex">
+                  <Markdown class="text-lg marked" :source="result.result.t"></Markdown>
+                  <span></span>
+                </div>
+                <Markdown class="text-gray-400 marked" :source="result.result.desc"></Markdown>
                 <div class="flex mt-4">
-                  <template v-if="result.copyContent != null">
-                    <ClipboardIcon
-                      class="w-9 h-9 text-gray-400 flex items-center px-2 border-2 border-yellow-500 rounded-lg mr-1">
+                  <template v-if="result.result.copyContent != null">
+                    <ClipboardIcon v-on:click="copy(result.result.copyContent)"
+                                   class="w-10 h-10 text-yellow-500 flex items-center px-2 border-2 border-yellow-500 rounded-lg mr-1 cursor-pointer hover:bg-yellow-500 hover:text-black">
                     </ClipboardIcon>
                   </template>
-                  <template v-for="cat in result.categories" :key="cat">
+                  <template v-for="cat in result.result.categories" :key="cat">
                     <div v-if="JSON.parse(cat).category != null"
-                         class="text-gray-400 flex items-center px-2 border-2 border-gray-500 rounded-lg w-fit mr-1">
+                         class="text-gray-400 flex items-center px-2 border-2 border-gray-500 rounded-lg w-fit mr-1 pointer-events-none">
                       {{ JSON.parse(cat).category }}
                     </div>
                   </template>
@@ -169,7 +200,7 @@
         <span class="text-3xl font-bold">Teach</span>
       </template>
       <template v-slot:body>
-        <div class="flex w-screen lg:w-[90vw]" style="max-height: 90vh">
+        <div class="flex w-full lg:w-[90vw]" style="max-height: 90vh">
           <div class="w-full pr-3 md:pr-0 md:w-1/2">
             <label for="wisTitle" class="text-xl mb-2">Title:</label>
             <br>
@@ -254,13 +285,18 @@
               Submit
             </button>
           </div>
-          <div class="hidden md:block w-2/5 ml-2 pl-2 border-l-2 border-gray-500">
-            <p class="text-xl mb-2">Preview:</p>
+          <div class="hidden lg:block w-2/5 ml-2 pl-2">
+            <p class="text-xl font-bold mb-2 pointer-events-none">Preview:</p>
             <div class="bg-neutral-900 rounded-xl p-2 cursor-not-allowed">
               <Markdown :source="wisTitle" class="w-full marked"></Markdown>
               <Markdown :source="wisDescription" class="w-full mt-4 marked"></Markdown>
-              <Markdown :source="wisCopyContent" class="w-full mt-4 marked"></Markdown>
             </div>
+            <template v-if="wisCopyContent != null">
+              <p class="text-xl my-2 pointer-events-none">Copy Content:</p>
+              <div class="bg-neutral-900 rounded-xl p-2">
+                <Markdown :source="wisCopyContent" class="w-full marked"></Markdown>
+              </div>
+            </template>
           </div>
         </div>
       </template>
@@ -313,14 +349,24 @@
 import modal from '../../components/Modal.vue'
 import Markdown from 'vue3-markdown-it'
 import 'highlight.js/styles/hybrid.css'
-import { MagnifyingGlassIcon, ClipboardIcon } from '@heroicons/vue/24/outline'
-import { CheckIcon, ArrowsUpDownIcon, ChevronRightIcon } from '@heroicons/vue/24/solid'
+import {
+  MagnifyingGlassIcon,
+  ClipboardIcon,
+  PencilSquareIcon
+} from '@heroicons/vue/24/outline'
+import {
+  CheckIcon,
+  ArrowsUpDownIcon,
+  ArrowLeftOnRectangleIcon,
+  SparklesIcon
+} from '@heroicons/vue/24/solid'
 import {
   Listbox,
   ListboxButton,
   ListboxOptions,
   ListboxOption
 } from '@headlessui/vue'
+import { Base64 } from 'js-base64'
 
 export default {
   name: 'KnowledgeFinderView',
@@ -334,8 +380,10 @@ export default {
     CheckIcon,
     ArrowsUpDownIcon,
     MagnifyingGlassIcon,
-    ChevronRightIcon,
-    ClipboardIcon
+    ClipboardIcon,
+    ArrowLeftOnRectangleIcon,
+    SparklesIcon,
+    PencilSquareIcon
   },
   data () {
     return {
@@ -353,11 +401,13 @@ export default {
       wisKeywords: '',
       wisCopyContent: '',
       wisCategories: [],
+      wisGUID: '',
       // Etc.
       newCategory: '',
       isAddingCategory: false,
       isWritingWisdom: false,
       isWritingLesson: false,
+      isEditingWisdom: false,
       queryText: '',
       querySubmission: '',
       emptyState: true,
@@ -370,6 +420,7 @@ export default {
   },
   methods: {
     initFunction: async function () {
+      await this.serverLogin()
       const input = document.getElementById('search-field')
       input.focus()
       // Whose knowledge are we trying to see?
@@ -506,8 +557,33 @@ export default {
           .then(res => res.json())
           .then((data) => {
             this.noResults = false
-            this.results = JSON.parse(data)
-            console.log(this.results)
+            const parsedData = JSON.parse(data)
+            console.log(parsedData)
+            if (parsedData.first != null) {
+              for (let i = 0; i < parsedData.first.length; i++) {
+                this.results.push({
+                  priority: 'high',
+                  result: parsedData.first[i].wisdom
+                })
+              }
+            }
+            if (parsedData.second != null) {
+              for (let i = 0; i < parsedData.second.length; i++) {
+                this.results.push({
+                  priority: 'medium',
+                  result: parsedData.second[i].wisdom
+                })
+              }
+            }
+            if (parsedData.third != null) {
+              for (let i = 0; i < parsedData.third.length; i++) {
+                this.results.push({
+                  priority: 'low',
+                  result: parsedData.third[i].wisdom
+                })
+              }
+            }
+            this.results.time = parsedData.time / 1000
           })
           .then(() => resolve)
           .catch((err) => {
@@ -516,7 +592,8 @@ export default {
           })
       })
     },
-    createLesson: function () {
+    createLesson: async function () {
+      await this.serverLogin()
       const categories = []
       for (let i = 0; i < this.wisCategories.length; i++) {
         categories.push(JSON.stringify(this.wisCategories[i]))
@@ -530,11 +607,15 @@ export default {
         categories: categories
       }
       const bodyPayload = JSON.stringify(payload)
+      let extension = ''
+      if (this.isEditingWisdom) {
+        extension = '?guid=' + this.wisGUID
+      }
       return new Promise((resolve) => {
         const headers = new Headers()
         headers.set('Authorization', 'Bearer ' + this.$store.state.token)
         fetch(
-          this.$store.state.serverIP + '/api/m7/teach',
+          this.$store.state.serverIP + '/api/m7/teach' + extension,
           {
             method: 'post',
             headers: headers,
@@ -542,12 +623,15 @@ export default {
           }
         )
           .then(() => {
-            this.wisTitle = ''
+            this.wisTitle = '## '
             this.wisDescription = ''
             this.wisKeywords = ''
             this.wisCopyContent = ''
             this.wisCategories = []
+            this.wisGUID = ''
+            this.isWritingWisdom = false
             this.isWritingLesson = false
+            this.isEditingWisdom = false
           })
           .then(() => resolve)
           .catch((err) => {
@@ -557,10 +641,38 @@ export default {
       })
     },
     writeLesson: function () {
+      this.wisTitle = ''
+      this.wisDescription = ''
+      this.wisKeywords = ''
+      this.wisCopyContent = ''
+      this.wisCategories = []
+      this.wisGUID = ''
       this.isWritingWisdom = true
       this.isWritingLesson = true
+      this.isEditingWisdom = false
       // Defaults
       this.wisTitle = '## ' + this.capitalizeFirstLetter(this.queryText).trim()
+    },
+    editWisdom: function (wisdom) {
+      this.wisTitle = ''
+      this.wisDescription = ''
+      this.wisKeywords = ''
+      this.wisCopyContent = ''
+      this.wisCategories = []
+      this.wisGUID = ''
+      this.isWritingWisdom = true
+      this.isWritingLesson = true
+      this.isEditingWisdom = true
+      // Defaults
+      this.wisTitle = wisdom.t
+      this.wisDescription = wisdom.desc
+      this.wisKeywords = wisdom.keywords
+      console.log(wisdom.categories)
+      for (let i = 0; i < wisdom.categories.length; i++) {
+        this.wisCategories.push(JSON.parse(wisdom.categories[i]))
+      }
+      this.wisCopyContent = wisdom.copyContent
+      this.wisGUID = wisdom.gUID
     },
     capitalizeFirstLetter: function ([first, ...rest], locale = navigator.language) {
       return first === undefined ? '' : first.toLocaleUpperCase(locale) + rest.join('')
@@ -573,6 +685,38 @@ export default {
           text: 'CTRL-V to paste.',
           type: 'info'
         })
+    },
+    serverLogin: function () {
+      return new Promise((resolve) => {
+        if (this.$store.state.email === undefined || this.$store.state.email === '') return
+        const headers = new Headers()
+        headers.set(
+          'Authorization',
+          'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
+        )
+        fetch(
+          this.$store.state.serverIP + '/login',
+          {
+            method: 'get',
+            headers: headers
+          }
+        )
+          .then((res) => res.json())
+          .then((data) => (this.loginResponse = JSON.parse(data.contentJson)))
+          .then(this.processLogin)
+          .then(resolve)
+          .catch((err) => this.$notify(
+            {
+              title: 'Unable to Login',
+              text: err.message,
+              type: 'error'
+            }))
+      })
+    },
+    processLogin: function () {
+      if (this.loginResponse.httpCode === 200) {
+        this.$store.commit('setServerToken', this.loginResponse.token)
+      }
     }
   }
 }
@@ -585,9 +729,8 @@ export default {
 }
 
 .search-field {
-  padding: 4px 8px 4px 8px;
+  padding: 6px 12px 6px 12px;
   color: white;
-  border-color: transparent;
   border-radius: 10px;
   resize: none;
   overflow: hidden;
@@ -595,7 +738,23 @@ export default {
 }
 
 .marked p {
-  @apply mb-2;
+  @apply mb-4;
+}
+
+.marked p:last-child {
+  @apply m-0;
+}
+
+.marked a {
+  @apply underline;
+}
+
+.marked ul {
+  @apply list-disc list-inside;
+}
+
+.marked ol {
+  @apply list-decimal list-inside;
 }
 
 .marked h1 {
