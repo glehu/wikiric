@@ -2751,6 +2751,7 @@ export default {
     gotoSubchat: async function (subchatGUID, subchatMode = true) {
       if (!subchatGUID) return
       this.websocketState = 'SWITCHING'
+      this.lazyLoadingStatus = 'switching'
       if (subchatMode) {
         await this.$router.replace({
           path: '/apps/clarifier/wss/' + this.getSession(),
@@ -2766,6 +2767,7 @@ export default {
       await this.serverLogin()
       this.hideAllSidebars()
       await this.connect(subchatGUID, subchatMode)
+      this.lazyLoadingStatus = 'idle'
       this.inputField.focus()
     },
     disconnect: function () {
@@ -2778,7 +2780,6 @@ export default {
       this.extraSkipCount = 0
       this.lazyLoadingStatus = 'idle'
       this.last_message = {}
-      this.currentSubchat = {}
     },
     uploadSnippet: function () {
       this.toggleElement('confirm_snippet_loading', 'flex')
