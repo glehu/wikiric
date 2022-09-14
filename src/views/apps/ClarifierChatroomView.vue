@@ -1,9 +1,9 @@
 <template>
   <div style="height: 100vh" class="b_darkergray"
        :style="{
-                backgroundImage: 'url('+require('@/assets/'+'account/pexels-anni-roenkae-2156881.jpg')+')',
+                backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
                 backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div class="backdrop-blur-3xl bg-neutral-900 bg-opacity-75 fixed top-0 left-0 w-full h-full">
+    <div class="bg-neutral-900 bg-opacity-80 fixed top-0 left-0 w-full h-full">
       <div id="sidebar" class="sidebar"
            style="height: 100vh; z-index: 1000">
         <div class="header-margin" style="box-shadow: none"></div>
@@ -151,32 +151,16 @@
            style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip"
            v-on:click="closeModals">
         <div id="chat_section" class="chat_section" style="width: 100%; height: 100%">
-          <div class="header-margin" style="box-shadow: none">
-            <div v-if="isStreamingVideo"
-                 style="width: 100%; min-height: 60px;
-                      display: flex;
-                      align-items: center">
-              <h2 style="color: white; margin: 0 0 0 20px"
-                  class="fw-bold">
-                {{ streamDuration }}
-              </h2>
-              <button v-on:click="stopScreenshare"
-                      class="btn btn-sm gray-hover c_lightgray"
-                      style="margin-left: 20px;
-                           border: 1px solid rgba(255,0,0,0.5);
-                           border-radius: 10px;">
-                <span style="font-weight: bold">Hang Up</span>
-              </button>
-            </div>
-          </div>
+          <div class="header-margin" style="box-shadow: none"></div>
           <!-- #### CHAT HEADER #### -->
           <div class="chat_header bg-neutral-900 bg-opacity-60">
-            <div style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%">
-            <span style="margin-left: 10px"
-                  class="orange-hover"
-                  v-on:click="gotoSubchat(this.getSession(), false)">
-              {{ chatroom.t }}
-            </span>
+            <div
+              style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%; align-items: center">
+              <div style="margin-left: 10px"
+                   class="orange-hover"
+                   v-on:click="gotoSubchat(this.getSession(), false)">
+                {{ chatroom.t }}
+              </div>
               <div v-if="isSubchat === true" class="nopointer">
                 <span style="margin-left: 10px"><i class="bi bi-caret-right"></i></span>
                 <span v-if="currentSubchat.type === 'screenshare'"
@@ -191,6 +175,19 @@
                 <i class="bi bi-hash"></i>
               </span>
                 <span style="margin-left: 10px">{{ currentSubchat.t }}</span>
+              </div>
+              <div v-if="isStreamingVideo"
+                   id="stream_nav"
+                   class="text-xl flex items-center ml-6">
+                <h2 class="fw-bold text-neutral-300">
+                  {{ streamDuration }}
+                </h2>
+                <button v-on:click="stopScreenshare"
+                        class="btn btn-sm gray-hover c_lightgray ml-6"
+                        style="border: 1px solid rgba(255,0,0,0.5);
+                             border-radius: 10px;">
+                  <span style="font-weight: bold">Hang Up</span>
+                </button>
               </div>
             </div>
             <button class="btn-no-outline c_lightgray"
@@ -278,7 +275,7 @@
           </div>
           <!-- #### MESSAGES #### -->
           <div id="messages_section"
-               class="messages_section bg-neutral-900 bg-opacity-60"
+               class="messages_section bg-neutral-900 bg-opacity-80"
                style="overflow-y: auto; overflow-x: clip;
                     height: calc(100vh - 60px - 50px - 80px);
                     display: flex; flex-direction: column-reverse">
@@ -1907,12 +1904,18 @@ export default {
         } else if (tmp.substring(0, 3) === '[C]') {
           // ICE Candidates
           const rtcCandidatePayload = JSON.parse(tmp.substring(3))
-          if (rtcCandidatePayload.id !== this.userId) {
+          if (rtcCandidatePayload != null && rtcCandidatePayload.id !== this.userId) {
+            console.debug('INCOMING ICE PAYLOAD ID', rtcCandidatePayload.id)
             const peerConnection = this.getPeerConnection(rtcCandidatePayload.id)
-            try {
-              await peerConnection.addIceCandidate(rtcCandidatePayload.candidate)
-            } catch (e) {
-              console.error('Error adding received ice candidate', e)
+            if (peerConnection != null) {
+              try {
+                if (rtcCandidatePayload.candidate != null) {
+                  console.debug(peerConnection, rtcCandidatePayload)
+                  await peerConnection.addIceCandidate(rtcCandidatePayload.candidate)
+                }
+              } catch (e) {
+                console.error('Error adding received ice candidate', e)
+              }
             }
           }
         }
@@ -3174,9 +3177,6 @@ export default {
       chat.style.top = '0'
       chat.style.left = '0'
       chat.style.zIndex = '9999'
-      const nav = document.getElementById('global_nav')
-      nav.style.height = '0'
-      nav.style.overflow = 'hidden'
       const sidebar = document.getElementById('sidebar')
       sidebar.style.display = 'none'
       const sidebar2 = document.getElementById('sidebar2')
@@ -3190,9 +3190,6 @@ export default {
       chat.style.top = 'initial'
       chat.style.left = 'initial'
       chat.style.zIndex = 'initial'
-      const nav = document.getElementById('global_nav')
-      nav.style.height = '60px'
-      nav.style.overflow = 'initial'
       const sidebar = document.getElementById('sidebar')
       sidebar.style.display = 'initial'
       const sidebar2 = document.getElementById('sidebar2')
@@ -3226,6 +3223,7 @@ export default {
           await peerConnection.setLocalDescription(offer)
           offerArray.unshift({
             id: user.id,
+            callerID: this.userId,
             offer: offer
           })
           console.log('Created Offer for', user.id)
@@ -3240,20 +3238,20 @@ export default {
       } else {
         this.peerType = 'callee'
       }
-      console.log('Incoming Offer for <', payload.id, '> DEBUG INFO: <', payload, '>')
-      const peerConnection = this.getPeerConnection(payload.id)
+      console.log('Incoming Offer from <', payload.callerID, '> DEBUG INFO: <', payload, '>')
+      const peerConnection = this.getPeerConnection(payload.callerID)
       if (peerConnection === null) {
         if (recursiveMode === true) {
-          console.log('>>> ERROR: Peer Connection could not be added <', payload.id, '>')
+          console.log('>>> ERROR: Peer Connection could not be added <', payload.callerID, '>')
           return
         }
         console.log('>>> No Peer Connection found!', '\n>>> Creating Peer Connection...')
-        await this.createPeerConnections(null, payload.id, false)
+        await this.createPeerConnections(null, payload.callerID, false)
         await this.acceptWebRTCOffer(payload, true)
         return
       } else {
         if (recursiveMode === true) {
-          console.log('>>> SUCCESS: Peer Connection added <', payload.id, '>')
+          console.log('>>> SUCCESS: Peer Connection added <', payload.callerID, '>')
         } else {
           console.log('>>> SUCCESS: Peer Connection found <', peerConnection.calleeId, '>')
         }
@@ -3285,7 +3283,7 @@ export default {
       for (let i = 0; i < calleeList.length; i++) {
         const peerConnection = new RTCPeerConnection(configuration)
         peerConnection.calleeId = calleeList[i]
-        console.log('Adding Callee', calleeList[i])
+        console.log('Adding Callee ID', calleeList[i])
         peerConnection.addEventListener('connectionstatechange', event => {
           if (peerConnection.connectionState === 'connected') {
             console.log('WebRTC Connection Established')
@@ -3332,6 +3330,7 @@ export default {
     getPeerConnection: function (id) {
       let peerConnection = null
       for (let i = 0; i < this.peerConnections.length; i++) {
+        console.debug(this.peerConnections[i].calleeId, '=?', id)
         if (this.peerConnections[i].calleeId === id) {
           peerConnection = this.peerConnections[i]
           console.log('>>> Peer Connection found <', peerConnection.calleeId, '>')
@@ -3847,8 +3846,8 @@ export default {
     border-radius: 10px;
   }
 
-  .sidebar, .sidebar2, .member_section {
-    @apply backdrop-blur-3xl backdrop-opacity-100;
+  .sidebar.active, .sidebar2.active, .member_section.active {
+    @apply backdrop-blur-xl bg-neutral-900 bg-opacity-75;
   }
 }
 
