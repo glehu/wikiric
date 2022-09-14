@@ -1,7 +1,7 @@
 <template>
   <div id="root" class="home">
-    <Disclosure as="nav" class="bg-neutral-900 fixed-top border-b border-neutral-700"
-                v-slot="{ open }">
+    <Disclosure as="nav" class="backdrop-blur-xl fixed-top border-b border-neutral-700"
+                v-slot="{ open }" id="global_nav">
       <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div class="relative flex items-center justify-between"
              style="height: 60px; max-height: 60px; min-height: 60px">
@@ -24,7 +24,7 @@
                 <template v-for="item in navigation" :key="item.name">
                   <div v-if="item.main"
                        v-on:click="$router.push(item.href)"
-                       :class="[item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'px-3 py-2 rounded-md text-sm font-medium cursor-pointer']"
+                       :class="[item.current ? 'bg-neutral-900 text-white' : 'text-neutral-300 hover:bg-neutral-700 hover:text-white', 'px-3 py-2 rounded-md text-sm font-medium cursor-pointer']"
                        :aria-current="item.current ? 'page' : undefined">
                     {{ item.name }}
                   </div>
@@ -38,7 +38,7 @@
                         <ComboboxInput
                           id="cboxinput"
                           placeholder="ctrl-y"
-                          class="w-full border-none py-1 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
+                          class="w-full border-none py-1 pl-3 pr-10 text-sm leading-5 text-neutral-900 focus:ring-0"
                           :displayValue="(nav) => nav.name"
                           @change="navQuery = $event.target.value"
                           v-on:keyup.enter="processCombo()"
@@ -99,7 +99,7 @@
           </div>
           <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             <button type="button"
-                    class="p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                    class="p-1 rounded-full text-neutral-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
               <span class="sr-only">View notifications</span>
               <BellIcon class="h-6 w-6" aria-hidden="true"/>
             </button>
@@ -126,19 +126,19 @@
                   <template v-if="isLoggedIn">
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="$router.push('/account')"
-                         :class="[active ? 'bg-gray-300' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
+                         :class="[active ? 'bg-neutral-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
                         Your Profile
                       </a>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="$router.push('/preferences')"
-                         :class="[active ? 'bg-gray-300' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
+                         :class="[active ? 'bg-neutral-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
                         Settings
                       </a>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="logout()"
-                         :class="[active ? 'bg-gray-300' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
+                         :class="[active ? 'bg-neutral-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
                         Sign Out
                       </a>
                     </MenuItem>
@@ -146,13 +146,13 @@
                   <template v-else>
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="$router.push('/login?redirect=/account')"
-                         :class="[active ? 'bg-gray-300' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
+                         :class="[active ? 'bg-neutral-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
                         <i class="bi bi-key mr-3"></i> Sign In
                       </a>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="$router.push('/register?redirect=/account')"
-                         :class="[active ? 'bg-gray-300' : '', 'block px-4 py-2 text-sm text-gray-700 cursor-pointer']">
+                         :class="[active ? 'bg-neutral-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
                         <i class="bi bi-person-plus mr-3"></i> Sign Up
                       </a>
                     </MenuItem>
@@ -168,7 +168,7 @@
           <template v-for="item in navigation" :key="item.name">
             <DisclosureButton v-if="item.main" as="a"
                               v-on:click="$router.push(item.href)"
-                              :class="[item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium cursor-pointer']"
+                              :class="[item.current ? 'bg-neutral-900 text-white' : 'text-neutral-300 hover:bg-neutral-700 hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium cursor-pointer']"
                               :aria-current="item.current ? 'page' : undefined">
               {{ item.name }}
             </DisclosureButton>
@@ -176,7 +176,7 @@
         </div>
       </DisclosurePanel>
     </Disclosure>
-    <div style="min-height: 100vh" class="bg-neutral-900">
+    <div style="min-height: 100vh" class="bg-neutral-900 relative top-0 left-0">
       <router-view/>
     </div>
     <notifications position="bottom right"/>
@@ -252,10 +252,15 @@ export default {
     const bc = new BroadcastChannel('dlChannel')
     bc.onmessage = event => {
       this.serverLogin()
+      console.debug('firebase->dlChannel->connect')
       if (event.data.subchatGUID) {
+        console.debug('firebase->dlChannel->connect as SUBCHAT', event.data.subchatGUID)
         window.location.href = event.data.destination + '?sub=' + event.data.subchatGUID
       } else {
-        window.location.href = event.data.destination
+        if (event.data.destination != null) {
+          console.debug('firebase->dlChannel->connect as GENERAL', event.data.destination)
+          window.location.href = event.data.destination
+        }
       }
     }
 
@@ -332,6 +337,12 @@ export default {
           href: '/apps/clarifier',
           current: false,
           main: true
+        },
+        {
+          name: 'Chat',
+          href: '/apps/clarifier',
+          current: false,
+          main: false
         },
         {
           name: 'Planner',

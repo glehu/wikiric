@@ -3,7 +3,7 @@
   <template v-if="knowledgeExists">
     <div class=""
          style="min-height: calc(100vh - 60px)">
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full bg-neutral-900 h-full">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full bg-neutral-900 h-full">
         <div class="border-r border-neutral-700 h-full sm:h-[calc(100vh-60px)]"
              :style="{
                 backgroundImage: 'url('+require('@/assets/'+'account/pexels-anni-roenkae-2156881.jpg')+')',
@@ -16,7 +16,7 @@
                   <ArrowLeftOnRectangleIcon
                     class="h-8 w-8"></ArrowLeftOnRectangleIcon>
                 </div>
-                <div class="font-bold w-full overflow-x-hidden mr-2">
+                <div class="font-bold w-full overflow-x-hidden pr-2">
                   <div class="py-4 px-2 text-gray-100 pointer-events-none">
                     <div class="text-5xl border-l border-gray-300 pl-5">
                       {{ this.knowledge.t }}
@@ -77,10 +77,21 @@
           </div>
         </div>
         <!-- RESULTS -->
-        <div class="md:col-span-2 pt-2 overflow-y-scroll overflow-x-hidden md:max-h-[calc(100vh-120px)]">
+        <div class="lg:col-span-2 pt-2 overflow-y-scroll overflow-x-hidden sm:max-h-[calc(100vh-120px)]">
           <template v-if="emptyState">
-            <div class="flex w-full justify-content-center items-center text-gray-300 pointer-events-none p-3 md:mt-10">
-              <MagnifyingGlassIcon class="h-16 w-16 mr-4"></MagnifyingGlassIcon>
+            <div class="text-neutral-400 p-2">
+              <p class="text-3xl font-bold mb-2 pointer-events-none">Top Contributors</p>
+              <div class="flex">
+                <div v-for="author in topWriters.contributors" :key="author.username"
+                     class="items-center flex w-fit mr-4">
+                  <span class="text-neutral-400 text-3xl mr-2">{{ author.username }}</span>
+                  <span class="text-neutral-500 text-2xl pl-1 border-l-2 border-l-neutral-700">{{ author.lessons }} lessons</span>
+                </div>
+              </div>
+            </div>
+            <div
+              class="flex w-full justify-content-center items-center text-neutral-400 pointer-events-none p-3 md:mt-10 border-t border-t-neutral-800">
+              <MagnifyingGlassIcon class="h-12 w-12 mr-4"></MagnifyingGlassIcon>
               <p>Search to get some results!</p>
             </div>
           </template>
@@ -110,53 +121,73 @@
             </div>
           </template>
           <template v-if="results.length > 0">
-            <div class="text-gray-300 pointer-events-none px-4 py-1">
-              {{ results.length }} Results <span class="text-gray-500">({{ results.time }} s)</span>
+            <div class="text-neutral-400 pointer-events-none px-3 pb-2">
+              {{ results.length }} results in {{ results.time }} seconds
             </div>
-            <hr class="text-gray-300 opacity-100 mb-2">
             <template v-for="result in results" :key="result">
               <div
-                class="result relative text-gray-300 hover:bg-gray-800 hover:bg-opacity-25 mb-2 p-3 mb-4 pb-4 border-b border-gray-700">
+                class="result relative text-gray-300 hover:bg-neutral-800 hover:bg-opacity-25 hover:border-l-2 hover:border-l-neutral-500 px-3 py-3 border-b border-neutral-800">
                 <template v-if="result.priority === 'low'">
                   <div
                     class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
                 </template>
                 <div
-                  class="absolute right-0 flex text-white result-copy backdrop-blur">
-                  <div v-if="result.result.author === $store.state.username"
-                       v-on:click="editWisdom(result.result)"
-                       class="cursor-pointer hover:bg-gray-600 rounded-full p-3 mr-2">
-                    <PencilSquareIcon class="h-8 w-8">
-                    </PencilSquareIcon>
-                    Edit
+                  class="absolute right-0 flex text-neutral-300 result-copy backdrop-blur mr-2">
+                  <div v-on:click="reactToMessage(result.result, '+')"
+                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-1">
+                    <HandThumbUpIcon class="h-8 w-8"></HandThumbUpIcon>
+                  </div>
+                  <div v-on:click="reactToMessage(result.result, '-')"
+                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-1">
+                    <HandThumbDownIcon class="h-8 w-8"></HandThumbDownIcon>
+                  </div>
+                  <div v-on:click="reactToMessage(result.result, '⭐')"
+                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-4">
+                    <StarIcon class="h-8 w-8"></StarIcon>
+                  </div>
+                  <div v-on:click="editWisdom(result.result)"
+                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-4">
+                    <PencilSquareIcon class="h-8 w-8"></PencilSquareIcon>
                   </div>
                   <div v-if="result.result.copyContent != null"
                        v-on:click="copy(result.result.copyContent)"
-                       class="cursor-pointer hover:bg-gray-600 rounded-full p-3 mr-2">
-                    <ClipboardIcon class="h-8 w-8">
-                    </ClipboardIcon>
-                    Copy
+                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-1">
+                    <ClipboardIcon class="h-8 w-8"></ClipboardIcon>
                   </div>
                 </div>
-                <div class="text-gray-500 mb-4 flex items-center">
+                <div class="text-neutral-400 mb-4 flex items-center">
                   <template v-if="result.priority === 'high'">
-                    <SparklesIcon class="w-4 h-4 mr-2"></SparklesIcon>
+                    <SparklesIcon class="w-6 h-6 mr-2"></SparklesIcon>
                   </template>
                   <div class="pointer-events-none">
                     {{ capitalizeFirstLetter(result.result.type) }}
                     from
                     {{ result.result.author }}
                   </div>
+                  <div v-if="result.result.reacts != null" class="flex ml-2">
+                    <div v-for="reaction in result.result.reacts" :key="reaction.src"
+                         style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
+                         class="b_darkgray c_lightgray gray-hover"
+                         :title="JSON.parse(reaction).src.toString() + ' reacted to this message.'"
+                         v-on:click="reactToMessage(result.result, JSON.parse(reaction).t)"
+                         :id="'react_' + result.result.gUID + '_' + JSON.parse(reaction).t">
+                      <i v-if="JSON.parse(reaction).t === '+'"
+                         class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
+                      <i v-else-if="JSON.parse(reaction).t === '-'"
+                         class="bi bi-hand-thumbs-down" style="margin-right: 2px"></i>
+                      <span v-else> {{ JSON.parse(reaction).t }} </span>
+                      {{ JSON.parse(reaction).src.length }}
+                    </div>
+                  </div>
                 </div>
                 <div class="flex">
                   <Markdown class="text-lg marked" :source="result.result.t"></Markdown>
-                  <span></span>
                 </div>
                 <Markdown class="text-gray-400 marked" :source="result.result.desc"></Markdown>
                 <div class="flex mt-4">
                   <template v-if="result.result.copyContent != null">
-                    <ClipboardIcon v-on:click="copy(result.result.copyContent)"
-                                   class="w-10 h-10 text-yellow-500 flex items-center px-2 border-2 border-yellow-500 rounded-lg mr-1 cursor-pointer hover:bg-yellow-500 hover:text-black">
+                    <ClipboardIcon
+                      class="w-10 h-10 text-yellow-500 flex items-center px-2 border-2 border-yellow-500 rounded-lg mr-1">
                     </ClipboardIcon>
                   </template>
                   <template v-for="cat in result.result.categories" :key="cat">
@@ -200,16 +231,26 @@
         <span class="text-3xl font-bold">Teach</span>
       </template>
       <template v-slot:body>
-        <div class="flex w-full lg:w-[90vw]" style="max-height: 90vh">
-          <div class="w-full pr-3 md:pr-0 md:w-1/2">
-            <label for="wisTitle" class="text-xl mb-2">Title:</label>
+        <div class="flex w-[90vw]" style="max-height: 90vh">
+          <div class="w-full pr-12 md:pr-0 md:w-1/2">
+            <div class="mb-2">
+              <button v-on:click="createLesson()"
+                      class="mr-2 py-2 px-3 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black font-bold">
+                Submit
+              </button>
+              <button v-on:click="deleteLesson()"
+                      class="py-2 px-3 border-2 border-red-700 rounded-lg hover:bg-red-700 hover:text-black font-bold">
+                Delete
+              </button>
+            </div>
+            <label for="wisTitle" class="text-xl">Title:</label>
             <br>
             <input type="text" id="wisTitle" v-model="wisTitle"
                    class="bg-neutral-900 rounded-xl w-full py-2 px-3">
             <br>
             <div class="block lg:flex w-full">
               <div class="lg:w-1/2">
-                <label for="wisCategories" class="text-xl mt-2 mb-2">Categories:</label>
+                <label for="wisCategories" class="text-xl mt-2">Categories:</label>
                 <br>
                 <Listbox v-model="wisCategories" multiple id="wisCategories">
                   <div class="relative mt-1">
@@ -262,30 +303,24 @@
                   </div>
                 </Listbox>
               </div>
-              <div class="lg:w-1/2 lg:ml-3">
-                <label for="wisKeywords" class="text-xl mb-2 mt-2">Keywords:</label>
+              <div class="md:w-3/5 lg:ml-3">
+                <label for="wisKeywords" class="text-xl mt-2">Keywords:</label>
                 <br>
                 <input type="text" id="wisKeywords" v-model="wisKeywords"
                        class="bg-neutral-900 rounded-xl py-2 px-3 w-full">
               </div>
             </div>
-            <br>
-            <label for="wisDescription" class="text-xl mt-2 mb-2">Description:</label>
+            <label for="wisDescription" class="text-xl mt-2">Description:</label>
             <br>
             <textarea type="text" id="wisDescription" v-model="wisDescription" rows="10"
                       class="bg-neutral-900 rounded-xl w-full py-2 px-3"></textarea>
             <br>
-            <label for="wisCopyContent" class="text-xl mt-2 mb-2">Copy Content:</label>
+            <label for="wisCopyContent" class="text-xl mt-2">Copy Content:</label>
             <br>
             <textarea type="text" id="wisCopyContent" v-model="wisCopyContent" rows="10"
                       class="bg-neutral-900 rounded-xl w-full py-2 px-3"></textarea>
-            <br>
-            <button v-on:click="createLesson()"
-                    class="mt-3 mb-2 py-2 px-3 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black">
-              Submit
-            </button>
           </div>
-          <div class="hidden lg:block w-2/5 ml-2 pl-2">
+          <div class="hidden md:block w-2/5 ml-2 pl-2">
             <p class="text-xl font-bold mb-2 pointer-events-none">Preview:</p>
             <div class="bg-neutral-900 rounded-xl p-2 cursor-not-allowed">
               <Markdown :source="wisTitle" class="w-full marked"></Markdown>
@@ -352,7 +387,10 @@ import 'highlight.js/styles/hybrid.css'
 import {
   MagnifyingGlassIcon,
   ClipboardIcon,
-  PencilSquareIcon
+  PencilSquareIcon,
+  HandThumbUpIcon,
+  HandThumbDownIcon,
+  StarIcon
 } from '@heroicons/vue/24/outline'
 import {
   CheckIcon,
@@ -383,7 +421,10 @@ export default {
     ClipboardIcon,
     ArrowLeftOnRectangleIcon,
     SparklesIcon,
-    PencilSquareIcon
+    PencilSquareIcon,
+    HandThumbUpIcon,
+    HandThumbDownIcon,
+    StarIcon
   },
   data () {
     return {
@@ -412,7 +453,8 @@ export default {
       querySubmission: '',
       emptyState: true,
       noResults: false,
-      results: []
+      results: [],
+      topWriters: []
     }
   },
   mounted () {
@@ -437,6 +479,10 @@ export default {
         const knowledge = await this.getKnowledge(srcGUID)
         if (knowledge != null) {
           this.knowledge = knowledge
+        }
+        const topContributors = await this.getTopContributors(srcGUID)
+        if (topContributors != null) {
+          // this.knowledge = knowledge
         }
       }
     },
@@ -558,7 +604,6 @@ export default {
           .then((data) => {
             this.noResults = false
             const parsedData = JSON.parse(data)
-            console.log(parsedData)
             if (parsedData.first != null) {
               for (let i = 0; i < parsedData.first.length; i++) {
                 this.results.push({
@@ -640,6 +685,49 @@ export default {
           })
       })
     },
+    deleteLesson: async function () {
+      if (this.wisGUID == null || this.wisGUID === '') return
+      await this.serverLogin()
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m7/delete/' + this.wisGUID,
+          {
+            method: 'get',
+            headers: headers
+          }
+        )
+          .then(res => res)
+          .then(() => {
+            this.wisTitle = '## '
+            this.wisDescription = ''
+            this.wisKeywords = ''
+            this.wisCopyContent = ''
+            this.wisCategories = []
+            this.wisGUID = ''
+            this.isWritingWisdom = false
+            this.isWritingLesson = false
+            this.isEditingWisdom = false
+            this.$notify(
+              {
+                title: 'Wisdom deleted.',
+                text: '',
+                type: 'info'
+              })
+          })
+          .then(() => resolve)
+          .catch((err) => {
+            this.$notify(
+              {
+                title: 'Error!',
+                text: 'Maybe you aren\'t the owner of the Wisdom.',
+                type: 'info'
+              })
+            console.error(err.message)
+          })
+      })
+    },
     writeLesson: function () {
       this.wisTitle = ''
       this.wisDescription = ''
@@ -667,9 +755,10 @@ export default {
       this.wisTitle = wisdom.t
       this.wisDescription = wisdom.desc
       this.wisKeywords = wisdom.keywords
-      console.log(wisdom.categories)
-      for (let i = 0; i < wisdom.categories.length; i++) {
-        this.wisCategories.push(JSON.parse(wisdom.categories[i]))
+      if (wisdom.categories != null && wisdom.categories.length > 0) {
+        for (let i = 0; i < wisdom.categories.length; i++) {
+          this.wisCategories.push(JSON.parse(wisdom.categories[i]))
+        }
       }
       this.wisCopyContent = wisdom.copyContent
       this.wisGUID = wisdom.gUID
@@ -717,6 +806,57 @@ export default {
       if (this.loginResponse.httpCode === 200) {
         this.$store.commit('setServerToken', this.loginResponse.token)
       }
+    },
+    getTopContributors: async function () {
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m7/topwriters/' + this.knowledge.gUID,
+          {
+            method: 'get',
+            headers: headers
+          }
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            this.topWriters = data
+            resolve()
+          })
+          .catch((err) => {
+            console.error(err.message)
+          })
+      })
+    },
+    reactToMessage: async function (wisdom, t) {
+      const payload = JSON.stringify({
+        src: [],
+        t: t
+      })
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m7/react/' + wisdom.gUID,
+          {
+            method: 'post',
+            headers: headers,
+            body: payload
+          }
+        )
+          .then(() => {
+            this.$notify(
+              {
+                title: 'Feedback sent to the server.',
+                text: 'Thanks!',
+                type: 'info'
+              })
+          })
+          .then(() => resolve)
+          .catch((err) => {
+            console.error(err.message)
+          })
+      })
     }
   }
 }
@@ -757,20 +897,36 @@ export default {
   @apply list-decimal list-inside;
 }
 
+.marked table {
+  @apply mb-4;
+}
+
+.marked th, td {
+  @apply p-2 border border-slate-700;
+}
+
+.marked tr {
+  @apply hover:bg-neutral-800;
+}
+
 .marked h1 {
-  @apply text-4xl;
+  @apply text-4xl mb-2;
 }
 
 .marked h2 {
-  @apply text-3xl;
+  @apply text-3xl mb-2;
 }
 
 .marked h3 {
-  @apply text-2xl;
+  @apply text-2xl mb-2;
 }
 
 .marked h4 {
-  @apply text-xl;
+  @apply text-xl mb-2;
+}
+
+.marked h5 {
+  @apply text-lg mb-2;
 }
 
 .marked h5 {

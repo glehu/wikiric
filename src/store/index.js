@@ -32,6 +32,7 @@ export default createStore({
     clarifierKeys: [],
     e2eEncryptionSeen: false,
     lastClarifierGUID: '',
+    lastClarifierSubGUID: '',
     // ImgFlip
     imgFlipUsername: '',
     imgFlipPassword: ''
@@ -180,7 +181,14 @@ export default createStore({
       state.imgFlipPassword = imgFlipAccount.password
     },
     setLastClarifierGUID (state, guid) {
-      state.lastClarifierGUID = guid
+      if (guid != null && guid.toString().length > 30) {
+        state.lastClarifierGUID = guid
+      }
+    },
+    setLastClarifierSubGUID (state, guid) {
+      if (guid != null && (guid.toString().length > 30 || guid === 'none')) {
+        state.lastClarifierSubGUID = guid
+      }
     }
   },
   actions: {},
@@ -197,6 +205,9 @@ export default createStore({
     },
     getLastClarifierGUID: (state) => () => {
       return state.lastClarifierGUID
+    },
+    getLastClarifierSubGUID: (state) => () => {
+      return state.lastClarifierSubGUID
     }
   }
 })
