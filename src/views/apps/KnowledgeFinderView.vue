@@ -6,9 +6,9 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full bg-neutral-900 h-full">
         <div class="border-r border-neutral-700 h-full sm:h-[calc(100vh-60px)]"
              :style="{
-                backgroundImage: 'url('+require('@/assets/'+'account/pexels-anni-roenkae-2156881.jpg')+')',
-                backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-          <div class="backdrop-blur-2xl backdrop-brightness-75 h-full relative">
+                backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
+                backgroundPosition: 'top left', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
+          <div class="bg-neutral-900 bg-opacity-40 h-full relative">
             <div class="py-1 shadow rounded-none">
               <div class="flex items-center">
                 <div v-on:click="$router.back()"
@@ -939,6 +939,12 @@ export default {
 
 .result:hover .result-copy {
   opacity: 1;
+}
+
+.gray-hover:hover {
+  @apply bg-gray-800;
+  cursor: pointer;
+  border-radius: 10px;
 }
 
 </style>

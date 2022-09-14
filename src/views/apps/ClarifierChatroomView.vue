@@ -212,9 +212,9 @@
           </div>
           <div v-if="this.isSubchat === true &&
           (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam')"
-               style="width: calc(100% - 300px);
+               style="width: calc(100% - 350px);
                     height: calc(100vh - 60px - 50px - 80px);
-                    position: absolute; left: 300px;
+                    position: absolute; left: 350px;
                     border-bottom: 1px solid rgba(174, 174, 183, 0.25);
                     padding: 0;
                     display: flex"
@@ -424,7 +424,8 @@
                   <!-- #### CLIENT GIF MESSAGE #### -->
                   <template v-else-if="msg.mType === 'GIF'">
                     <div class="clientMessage">
-                      <img :src="msg.msg" :alt="msg.msg" style="max-width: 300px">
+                      <img :src="msg.msg" :alt="msg.msg"
+                           :style="{maxWidth: mediaMaxWidth}">
                       <br>
                       <div>
                         <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png"
@@ -438,7 +439,8 @@
                     <div class="clientMessage">
                       <img :src="msg.msg"
                            :alt="msg.msg"
-                           style="max-width: 300px; cursor: zoom-in"
+                           style="cursor: zoom-in"
+                           :style="{maxWidth: mediaMaxWidth}"
                            v-on:click="openURL(msg.msg)">
                     </div>
                   </template>
@@ -846,26 +848,28 @@
     </template>
   </modal>
   <!-- #### GIF SELECTION #### -->
-  <div class="giphygrid b_gray" style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
-    <div style="width: 100%; position: absolute; bottom: 10px">
-      <input id="gif_query"
-             type="text"
-             class="fw-bold b_darkergray"
-             style="height: 4ch; padding-left: 1ch; color: white; border: none"
-             v-model="gif_query_string"
-             :placeholder="'Search for GIFs on GIPHY'"
-             v-on:keyup.enter="getGIFSelection(gif_query_string)">
-      <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
-           style="width: 125px; padding-left: 10px"/>
-    </div>
-    <div style="height: 85%; width: 100%; overflow-x: clip; overflow-y: scroll; margin-top: 2ch"
-         class="b_darkergray">
+  <div class="giphygrid b_gray p-3"
+       style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
+    <div style="height: calc(100% - 50px); width: 100%; overflow-x: clip; overflow-y: scroll;"
+         class="b_darkergray rounded-lg">
       <div v-for="gif in gifSelection" :key="gif"
            style="padding-top: 10px; padding-left: 10px; display: inline-flex"
            v-on:click="this.sendSelectedGIF(gif.images.fixed_height.url)">
         <img :src="gif.images.fixed_height.url" alt="Loading" class="selectableGIF"
              style="width: 150px; max-height: 150px">
       </div>
+    </div>
+    <div style="width: 100%; height: 50px"
+         class="flex items-center">
+      <input id="gif_query"
+             type="text"
+             class="fw-bold b_darkergray rounded-lg px-2 py-1"
+             style="height: 34px; color: white; border: none"
+             v-model="gif_query_string"
+             :placeholder="'Search on GIPHY'"
+             v-on:keyup.enter="getGIFSelection(gif_query_string)">
+      <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
+           style="width: 90px; height: 10px" class="ml-2"/>
     </div>
   </div>
   <!-- #### Settings #### -->
@@ -1202,6 +1206,7 @@ export default {
       uploadFileType: '',
       messageEditing: {},
       imgflip_template: {},
+      mediaMaxWidth: '300px',
       // Conditions
       isModalVisible: false,
       isViewingGIFSelection: false,
@@ -1806,13 +1811,18 @@ export default {
       }
       const messagesSection = document.getElementById('messages_section')
       if (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam') {
-        messagesSection.style.width = '300px'
+        messagesSection.style.width = '350px'
         messagesSection.style.borderRight = '2px solid rgba(174, 174, 183, 0.25)'
+        this.mediaMaxWidth = '260px'
       } else {
         messagesSection.style.width = 'initial'
         messagesSection.style.borderRight = 'initial'
+        this.mediaMaxWidth = '300px'
       }
       document.title = this.chatroom.t
+      if (this.isSubchat) {
+        document.title += ' - ' + this.currentSubchat.t
+      }
     },
     getClarifierMessages: function (lazyLoad = false, sessionID) {
       if (sessionID == null) {

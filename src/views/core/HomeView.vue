@@ -1,11 +1,10 @@
 <template style="max-width: 100vw; width: 100vw; overflow: hidden">
-  <div style="width: 100%"
+  <div style="width: 100%; min-height: 100vh; border-bottom: 4px dotted #192129"
+       class="flex items-center justify-center"
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div class="header-margin"></div>
-    <div class="text-gray-300"
-         style="width: 100%; display: flex; padding: 40px 5vw 20px 5vw;
-                border-bottom: 4px dotted #192129;">
+    <div class="text-gray-300 p-5"
+         style="width: 100%; display: flex">
       <div style="width: 100%">
         <div id="header_title" class="backdrop-blur-xl"
              style="border-left: 4px dotted #aeaeb7; padding: 20px;
@@ -20,34 +19,36 @@
               class="text-center">
             Enterprise Network
           </h1>
-          <p class="demotext text-neutral-400">
-            Bringing ideas and people close.
-            <br>Communicate and share files on a platform that grows as you do.
-          </p>
-        </div>
-        <div class="d-flex justify-content-center" style="margin-top: 40px; margin-bottom: 40px">
-          <button class="muArrow fw-bold backdrop-blur-xl rounded-full"
-                  v-on:click="gotoClarifier()"
-                  style="width: 200px; height: 50px; border: 2px solid rgba(174, 174, 183, 0.5);">
-            <i class="sb_link_icon bi bi-app-indicator lead" style="padding-right: 10px"></i>
-            Explore
-          </button>
         </div>
         <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
-          <div style="width: 100%; display: flex; justify-content: center">
+          <div style="width: 100%; display: flex; justify-content: center"
+               class="mt-4">
             <img src='@/assets/clarifier/clarifier_demo.png' alt=""
                  style="width: 100%; border-radius: 10px; background-color: #101010">
           </div>
           <div style="width: 100%; display: flex; align-items: center; justify-content: center">
-            <p class="demotext c_lightgray">
-              Connect and collaborate in a modern, fast and responsive environment.
-              <br>
-              <br>
-              <i class="bi bi-download lead p-1"></i>
-              <span class="lead">
-                Available as a Progressive Web App for all devices.
-              </span>
-            </p>
+            <div style="pointer-events: inherit"
+                 class="backdrop-blur rounded-2xl p-3 py-5">
+              <div class="d-flex justify-content-center">
+                <button class="muArrow fw-bold rounded-full text-4xl px-5 py-3 flex items-center"
+                        v-on:click="gotoClarifier()"
+                        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
+                                  backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
+                  <ChatBubbleLeftRightIcon class="h-12 w-12 mr-4"></ChatBubbleLeftRightIcon>
+                  Clarifier
+                </button>
+              </div>
+              <div class="lead demotext text-neutral-400 mb-4">
+                <i class="bi bi-download lead p-1"></i>
+                Install me on any device.
+              </div>
+              <p class="demotext font-bold text-neutral-300 italic" style="font-size: 175%">
+                Connect and collaborate in a modern,<br>secure and responsive environment.
+              </p>
+              <p class="demotext text-neutral-400 font-bold italic">
+                Communicate and share files on a platform that grows as you do.
+              </p>
+            </div>
           </div>
         </div><!-- Demo Wrapper End -->
       </div>
@@ -171,9 +172,17 @@
 </template>
 
 <script>
+
+import {
+  ChatBubbleLeftRightIcon
+} from '@heroicons/vue/24/outline'
+
 export default {
   data () {
     return {}
+  },
+  components: {
+    ChatBubbleLeftRightIcon
   },
   methods: {
     scrollTo (content) {

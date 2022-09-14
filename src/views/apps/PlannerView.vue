@@ -272,7 +272,7 @@ export default {
       taskValue.style.height = ((this.cellHeight - 30) - 20) + 'px'
       taskValue.style.color = 'black'
       taskValue.style.fontSize = '85%'
-      taskValue.setAttribute('class', 'fw-bold')
+      taskValue.setAttribute('class', 'fw-bold px-1')
       if (description !== '' && description !== undefined) {
         taskValue.value = description
       } else {
