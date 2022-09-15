@@ -3,32 +3,17 @@
        class="flex items-center justify-center"
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div class="text-gray-300 p-5"
+    <div class="text-gray-200 p-4"
          style="width: 100%; display: flex">
-      <div style="width: 100%">
-        <div id="header_title" class="backdrop-blur-xl"
-             style="border-left: 4px dotted #aeaeb7; padding: 20px;
-                    border-radius: 0 50px 50px 0">
-          <h2
-            style="pointer-events: none; font-size: clamp(3rem, 4vw, 5rem); margin: 0"
-            class="text-center">
-            Build your
-          </h2>
-          <h1 style="font-weight: bold; font-style: italic; pointer-events: none;
-                     font-size: clamp(4rem, 8vw, 7rem); margin: 0"
-              class="text-center">
-            Enterprise Network
-          </h1>
-        </div>
+      <div class="w-full h-full mt-12">
         <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
-          <div style="width: 100%; display: flex; justify-content: center"
-               class="mt-4">
-            <img src='@/assets/clarifier/clarifier_demo.png' alt=""
-                 style="width: 100%; border-radius: 10px; background-color: #101010">
-          </div>
           <div style="width: 100%; display: flex; align-items: center; justify-content: center">
             <div style="pointer-events: inherit"
-                 class="backdrop-blur rounded-2xl p-3 py-5">
+                 class="rounded-2xl p-4 backdrop-blur-sm">
+              <p
+                class="font-bold text-neutral-300 italic mb-12 text-3xl md:text-4xl w-full pointer-events-none text-center">
+                Connect and collaborate in a modern,<br>secure and responsive environment.
+              </p>
               <div class="d-flex justify-content-center">
                 <button class="muArrow fw-bold rounded-full text-4xl px-5 py-3 flex items-center"
                         v-on:click="gotoClarifier()"
@@ -42,15 +27,21 @@
                 <i class="bi bi-download lead p-1"></i>
                 Install me on any device.
               </div>
-              <p class="demotext font-bold text-neutral-300 italic" style="font-size: 175%">
-                Connect and collaborate in a modern,<br>secure and responsive environment.
-              </p>
-              <p class="demotext text-neutral-400 font-bold italic">
-                Communicate and share files on a platform that grows as you do.
-              </p>
             </div>
           </div>
+          <div style="width: 100%; display: flex; justify-content: center">
+            <img src='@/assets/clarifier/clarifier_demo.png' alt=""
+                 style="width: 100%; object-fit: contain;">
+          </div>
         </div><!-- Demo Wrapper End -->
+        <div class="relative">
+          <div class="absolute w-full text-center cursor-pointer hover:bg-neutral-900 my-4 p-2 rounded-full"
+               v-on:click="scrollTo('firstSection')">
+            <p class="text-neutral-400 font-bold">Learn</p>
+            <i class="bi bi-arrow-down text-2xl text-neutral-400"
+               id="firstSection"></i>
+          </div>
+        </div>
       </div>
     </div>
   </div>

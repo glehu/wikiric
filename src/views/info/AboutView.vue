@@ -1,6 +1,5 @@
 <template>
-  <div class="about">
-    <div style="min-height: 60px"></div>
+  <div class="about h-screen w-screen flex items-center justify-around">
     <div class="container text-white wrapper">
       <div class="text-wrapper mb-5"
            style="text-align: justify; text-justify: inter-word;
@@ -11,7 +10,7 @@
             <i class="bi bi-fingerprint"/> What/Who is wikiric.xyz?
           </span>
           <br>This website is part of a project being worked on by
-          <a style="color: white" :href="'https://github.com/glehu'">Luca Goldhausen</a>
+          <a style="color: white" :href="'https://github.com/glehu'">Luca Goldhausen</a>.
           It currently consists of this website including all its apps and services and
           <a :href="'https://github.com/glehu/CWO_ERP'" style="color: white">CWO_DB</a>,
           the back-end, database and API hub handling everything being shown on this website.
