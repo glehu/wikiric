@@ -1,5 +1,5 @@
 <template style="max-width: 100vw; width: 100vw; overflow: hidden">
-  <div style="width: 100%; min-height: 100vh; border-bottom: 4px dotted #192129"
+  <div style="width: 100%; min-height: 100vh"
        class="flex items-center justify-center"
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
@@ -11,7 +11,7 @@
             <div style="pointer-events: inherit"
                  class="rounded-2xl p-4 backdrop-blur-sm">
               <p
-                class="font-bold text-neutral-300 italic mb-12 text-3xl md:text-4xl w-full pointer-events-none text-center">
+                class="font-bold text-neutral-200 italic mb-12 text-3xl md:text-6xl w-full pointer-events-none text-center">
                 Connect and collaborate in a modern,<br>secure and responsive environment.
               </p>
               <div class="d-flex justify-content-center">
@@ -31,7 +31,7 @@
           </div>
           <div style="width: 100%; display: flex; justify-content: center">
             <img src='@/assets/clarifier/clarifier_demo.png' alt=""
-                 style="width: 100%; object-fit: contain;">
+                 style="width: 100%; object-fit: contain">
           </div>
         </div><!-- Demo Wrapper End -->
         <div class="relative">
@@ -47,7 +47,7 @@
   </div>
   <div style="color: white; width: 100%;
               display: flex; padding: 20px 5vw 20px 5vw;
-              border-bottom: 4px dotted #192129;"
+              border-bottom: 4px dotted #192129"
        class="b_darkergray">
     <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
       <div style="width: 100%; display: flex; justify-content: center">

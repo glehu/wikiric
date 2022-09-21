@@ -10,34 +10,35 @@
             <div class="card-subtitle text-white" style="border-radius: 1rem">
               <div class="card-body mt-md-0 c_lightgray">
                 <div style="pointer-events: none; margin-bottom: 50px">
-                  <div style="display: flex; justify-content: space-around;
-                              align-items: center;">
-                    <h2 class="text-2xl">
-                      {{ time }}
-                    </h2>
-                    <h3 class="text-2xl" v-if="hour >= 5 && hour < 10">
-                      <i class="bi bi-sunrise-fill p-1"></i>
-                      Good Morning
-                    </h3>
-                    <h3 class="text-2xl" v-else-if="hour >= 10 && hour < 17">
-                      <i class="bi bi-sun-fill p-1"></i>
-                      Good Day
-                    </h3>
-                    <h3 class="text-2xl" v-else-if="hour >= 17 && hour < 22">
-                      <i class="bi bi-sunset p-1"></i>
-                      Good Evening
-                    </h3>
-                    <h3 class="text-2xl" v-else-if="hour >= 22 || hour < 5">
-                      <i class="bi bi-moon p-1"></i>
-                      Good Night
-                    </h3>
+                  <div class="flex items-center justify-between">
+                    <h1 class="fw-bold text-uppercase text-3xl text-gray-300">
+                      Groups
+                    </h1>
+                    <div class="flex">
+                      <h2 class="text-2xl mr-3">
+                        {{ time }}
+                      </h2>
+                      <h3 class="text-2xl" v-if="hour >= 5 && hour < 10">
+                        <i class="bi bi-sunrise-fill p-1"></i>
+                        Good Morning
+                      </h3>
+                      <h3 class="text-2xl" v-else-if="hour >= 10 && hour < 17">
+                        <i class="bi bi-sun-fill p-1"></i>
+                        Good Day
+                      </h3>
+                      <h3 class="text-2xl" v-else-if="hour >= 17 && hour < 22">
+                        <i class="bi bi-sunset p-1"></i>
+                        Good Evening
+                      </h3>
+                      <h3 class="text-2xl" v-else-if="hour >= 22 || hour < 5">
+                        <i class="bi bi-moon p-1"></i>
+                        Good Night
+                      </h3>
+                    </div>
                   </div>
-                  <hr style="height: 2px; color: white" class="my-2">
-                  <h1 class="fw-bold mb-2 text-uppercase text-center text-3xl">
-                    Groups
-                  </h1>
-                  <p style="width: 100%; text-align: center">
-                    Your current Clarifier Groups. Click on one of them to quickly enter!
+                  <hr class="my-2">
+                  <p class="text-gray-400">
+                    Your current Clarifier Groups. Click on one of them to quickly enter.
                   </p>
                 </div>
                 <div v-for="group in this.$store.state.clarifierSessions" :key="group"
@@ -48,7 +49,7 @@
                           v-on:click="this.removeGroup(group)">
                     <i class="bi bi-x-lg"></i>
                   </button>
-                  <div class="b_darkgray c_lightgray orange-hover"
+                  <div class="c_lightgray orange-hover bg-gray-800 hover:bg-gray-700"
                        style="display: flex; align-items: center;
                               justify-items: center;
                               width: 100%; border-radius: 15px; padding: 5px"
@@ -75,22 +76,21 @@
       <div class="container c-modal mb-4">
         <div class="row d-flex justify-content-center align-items-center">
           <div style="min-width: 400px; width: 80%">
-            <div class="card-subtitle text-white"
-                 style="border: 2px dashed rgba(174,174,183,0.5); padding: 20px;
-                        border-radius: 1rem">
-              <div class="card-body text-center">
+            <div class="card-subtitle text-white">
+              <div class="card-body">
                 <div class="mt-md-0 c_lightgray">
-                  <h1 class="fw-bold mb-2 text-3xl"
+                  <h1 class="fw-bold mb-2 text-3xl text-gray-300"
                       style="pointer-events: none">
                     Add or Join
                   </h1>
-                  <p style="text-align: justify; text-justify: inter-word; width: 100%; pointer-events: none">
-                    Enter an invite ID and click Join or type in some name and create your own chatroom!
+                  <hr class="my-2">
+                  <p style="text-align: justify; text-justify: inter-word; width: 100%; pointer-events: none"
+                     class="text-gray-400">
+                    Enter an invite ID or create your own chatroom.
                   </p>
-                  <hr style="color: white; height: 4px">
                   <input id="input_session" v-model="input_string"
                          placeholder="Invite ID or Name..."
-                         class="font-bold px-2 py-1 my-3 text-gray-800 rounded-lg"
+                         class="font-bold px-2 py-1 my-3 bg-neutral-900 text-neutral-300 rounded-lg border-2 border-neutral-600"
                          style="width: 100%; font-size: 150%"
                          v-on:keyup.enter="joinOrCreate()">
                   <br>

@@ -211,7 +211,7 @@
             </button>
           </div>
           <div v-if="this.isSubchat === true &&
-          (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam')"
+                     (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam')"
                style="width: calc(100% - 350px);
                     height: calc(100vh - 60px - 50px - 80px);
                     position: absolute; left: 350px;
@@ -222,7 +222,7 @@
             <div style="position: relative; top: 0; left: 0;
                       width: 100%;
                       aspect-ratio: 16 / 9"
-                 class="b_darkergray">
+                 class="b_darkergray flex">
               <div v-if="!isStreamingVideo"
                    class="d-flex"
                    style="pointer-events: none;
@@ -242,18 +242,38 @@
                 </span>
                 </p>
               </div>
-              <video id="screenshare_video" muted autoplay playsinline
-                     style="width: 100%; height: 100%"></video>
+              <template v-if="currentSubchat.type === 'screenshare'">
+                <video id="screenshare_video" muted autoplay playsinline
+                       style="width: 100%; height: 100%"></video>
+              </template>
+              <template v-else-if="currentSubchat.type === 'webcam'">
+                <video id="screenshare_video" muted autoplay playsinline
+                       style="width: 50%; height: 100%"></video>
+                <video id="screenshare_video_remote" muted autoplay playsinline
+                       style="width: 50%; height: 100%"></video>
+              </template>
             </div>
-            <div v-if="!isStreamingVideo"
+            <div v-if="!isStreamingVideo && (this.currentSubchat.type === 'webcam')"
+                 style="position: absolute; bottom: 10px; left: 0"
+                 class="text-end flex items-center justify-center w-full text-neutral-400">
+              <div class="p-2 text-neutral-400 gray-hover"
+                   v-on:click="startScreenshare(undefined, {video: false, audio: true})">
+                <PhoneIcon class="h-8 w-8"></PhoneIcon>
+              </div>
+              <div class="p-2 text-neutral-400 gray-hover"
+                   v-on:click="startScreenshare(undefined, {video: true, audio: true})">
+                <VideoCameraIcon class="h-8 w-8"></VideoCameraIcon>
+              </div>
+            </div>
+            <div v-if="!isStreamingVideo && (this.currentSubchat.type === 'screenshare')"
                  style="position: absolute; top: 10px; right: 10px" class="text-end">
               <button v-on:click="startScreenshare()"
                       class="btn btn-sm gray-hover
                            c_lightgray"
                       style="position: relative;
-                           margin-left: 20px; margin-top: 10px;
-                           border: 1px solid #ff5d37;
-                           border-radius: 10px;">
+                             margin-left: 20px; margin-top: 10px;
+                             border: 1px solid #ff5d37;
+                             border-radius: 10px;">
                 Group Meeting
               </button>
               <br>
@@ -463,7 +483,10 @@
                   <!-- #### CLIENT MESSAGE #### -->
                   <template v-else>
                     <Markdown :id="'msg_' + msg.gUID"
-                              class="clientMessage" :source="msg.msg" :breaks="true"/>
+                              class="clientMessage"
+                              :source="msg.msg"
+                              :breaks="true"
+                              :plugins="plugins"/>
                   </template>
                 </div>
                 <div v-if="msg.reacts.length > 0"
@@ -982,7 +1005,7 @@
           <button v-on:click="createSubchatroom('text')"
                   id="new_subchat_type_text" class="btn darkbutton mt-2"
                   style="color: white; width: 100%; text-align: left; display: flex;
-                     align-items: center; border-radius: 10px">
+                         align-items: center; border-radius: 10px">
             <span style="font-size: 200%"><i class="bi bi-hash"></i></span>
             <div class="ms-3">
               <span>Text Subchat</span>
@@ -993,7 +1016,7 @@
           <button v-on:click="createSubchatroom('screenshare')"
                   id="new_subchat_type_screenshare" class="btn darkbutton mt-2"
                   style="color: white; width: 100%; text-align: left; display: flex;
-                     align-items: center; border-radius: 10px">
+                         align-items: center; border-radius: 10px">
             <span style="font-size: 200%"><i class="bi bi-window-fullscreen"></i></span>
             <div class="ms-3">
               <span>Screenshare Subchat</span>
@@ -1004,7 +1027,7 @@
           <button v-on:click="createSubchatroom('webcam')"
                   id="new_subchat_type_webcam" class="btn darkbutton mt-2"
                   style="color: white; width: 100%; text-align: left; display: flex;
-                     align-items: center; border-radius: 10px" disabled>
+                         align-items: center; border-radius: 10px">
             <span style="font-size: 200%"><i class="bi bi-camera-video"></i></span>
             <div class="ms-3">
               <span>Webcam Subchat</span>
@@ -1157,7 +1180,13 @@
 import modal from '../../components/Modal.vue'
 import { Base64 } from 'js-base64'
 import Markdown from 'vue3-markdown-it'
+import markdownItMermaid from 'markdown-it-mermaid'
+import mermaid from 'mermaid'
 import 'highlight.js/styles/hybrid.css'
+import {
+  PhoneIcon,
+  VideoCameraIcon
+} from '@heroicons/vue/24/solid'
 
 export default {
   props: {
@@ -1165,7 +1194,9 @@ export default {
   },
   components: {
     modal,
-    Markdown
+    Markdown,
+    PhoneIcon,
+    VideoCameraIcon
   },
   data () {
     return {
@@ -1233,7 +1264,12 @@ export default {
         id: -1,
         usr: '',
         roles: []
-      }
+      },
+      plugins: [
+        {
+          plugin: markdownItMermaid
+        }
+      ]
     }
   },
   created () {
@@ -1461,6 +1497,9 @@ export default {
             this.messages[index].msg = await this.decryptPayload(
               JSON.parse(response.newContent.substring(12))
             )
+            setTimeout(() => {
+              mermaid.init()
+            }, 0)
           } catch (e) {
             console.error(e.message)
           }
@@ -1541,6 +1580,9 @@ export default {
       if (message.mType === 'RegistrationNotification') {
         this.getClarifierMetaData()
       }
+      setTimeout(() => {
+        mermaid.init()
+      }, 0)
     },
     addMessage: async function () {
       if (this.isEditingMessage === true) {
@@ -1885,6 +1927,15 @@ export default {
         this.currentPage++
         this.lazyLoadingStatus = 'idle'
       }
+      setTimeout(() => {
+        mermaid.initialize({
+          startOnLoad: true,
+          theme: 'dark'
+        })
+      }, 0)
+      setTimeout(() => {
+        mermaid.init()
+      }, 0)
     },
     processRawMessage: async function (msg) {
       if (msg.substr(0, 6) === '[c:SC]') {
@@ -3129,7 +3180,7 @@ export default {
       }
       return bytes.buffer
     },
-    startScreenshare: async function (userId) {
+    startScreenshare: async function (userId, constraints = null) {
       if (this.isStreamingVideo) {
         this.$notify(
           {
@@ -3139,15 +3190,29 @@ export default {
           })
         return
       }
-      const constraints = {
-        video: {
-          cursor: 'always'
-        },
-        audio: true
-      }
       try {
         // Ask for screen sharing permission + prompt user to select screen
-        const stream = await navigator.mediaDevices.getDisplayMedia(constraints)
+        let stream = null
+        if (this.currentSubchat.type === 'screenshare') {
+          const constraintsT = {
+            video: {
+              cursor: 'always'
+            },
+            audio: true
+          }
+          stream = await navigator.mediaDevices.getDisplayMedia(constraintsT)
+        } else if (this.currentSubchat.type === 'webcam') {
+          let constraintsT
+          if (constraints) {
+            constraintsT = constraints
+          } else {
+            constraintsT = {
+              video: true,
+              audio: true
+            }
+          }
+          stream = await navigator.mediaDevices.getUserMedia(constraintsT)
+        }
         const videoElem = document.getElementById('screenshare_video')
         videoElem.srcObject = stream
         videoElem.setAttribute('controls', '')
@@ -3169,6 +3234,11 @@ export default {
       const videoElem = document.getElementById('screenshare_video')
       videoElem.srcObject = null
       videoElem.removeAttribute('controls')
+      const videoElem2 = document.getElementById('screenshare_video_remote')
+      if (videoElem2 != null) {
+        videoElem2.srcObject = null
+        videoElem2.removeAttribute('controls')
+      }
       if (this.peerType === 'caller') {
         this.peerStreamOutgoing.getTracks().forEach(function (track) {
           track.stop()
@@ -3234,7 +3304,8 @@ export default {
           offerArray.unshift({
             id: user.id,
             callerID: this.userId,
-            offer: offer
+            offer: offer,
+            type: this.currentSubchat.type
           })
           console.log('Created Offer for', user.id)
           break
@@ -3256,7 +3327,20 @@ export default {
           return
         }
         console.log('>>> No Peer Connection found!', '\n>>> Creating Peer Connection...')
-        await this.createPeerConnections(null, payload.callerID, false)
+        let webcamStream = null
+        if (this.currentSubchat.type === 'webcam') {
+          const videoElemOwn = document.getElementById('screenshare_video')
+          if (videoElemOwn.srcObject == null) {
+            console.log('>>> Starting outgoing stream...')
+            webcamStream = await navigator.mediaDevices.getUserMedia({
+              video: true,
+              audio: true
+            })
+            videoElemOwn.srcObject = webcamStream
+            videoElemOwn.setAttribute('controls', '')
+          }
+        }
+        await this.createPeerConnections(webcamStream, payload.callerID, false)
         await this.acceptWebRTCOffer(payload, true)
         return
       } else {
@@ -3291,63 +3375,73 @@ export default {
       const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
       const addMessage = this.addMessagePar
       for (let i = 0; i < calleeList.length; i++) {
+        console.log('Adding Callee ID', calleeList[i])
         const peerConnection = new RTCPeerConnection(configuration)
         peerConnection.calleeId = calleeList[i]
-        console.log('Adding Callee ID', calleeList[i])
-        peerConnection.addEventListener('connectionstatechange', event => {
-          if (peerConnection.connectionState === 'connected') {
-            console.log('WebRTC Connection Established')
-          } else {
-            console.log('connection change:', peerConnection.connectionState)
-          }
-        })
-        peerConnection.addEventListener('icecandidate', event => {
-          if (event.candidate) {
-            const payload = {
-              id: this.userId,
-              candidate: event.candidate
-            }
-            addMessage('[c:SC]' + '[C]' + JSON.stringify(payload))
-          }
-        })
-        peerConnection.addEventListener('track', async (event) => {
-          if (this.peerType !== 'caller') {
-            const approval = confirm('Incoming Screen Share. Join the session?')
-            if (approval) {
-              console.log('stream', event.streams)
-              this.isStreamingVideo = true
-              this.streamStartTime = Math.floor(Date.now() / 1000)
-              this.startTimeCounter()
-              this.enterCinemaMode()
-              const remoteStream = event.streams[0]
-              const videoElem = document.getElementById('screenshare_video')
-              videoElem.srcObject = remoteStream
-              videoElem.setAttribute('controls', '')
-            }
-          }
-        })
+        this.peerConnections.push(peerConnection)
+      }
+      // Adding event listeners to the new connection(s)
+      for (let i = 0; i < this.peerConnections.length; i++) {
+        console.log('Preparing Callee ID', this.peerConnections[i].calleeId)
         if (stream !== null) {
           stream.getTracks().forEach(track => {
-            peerConnection.addTrack(track, stream)
+            this.peerConnections[i].addTrack(track, stream)
           })
         }
-        this.peerConnections.push(peerConnection)
+        this.peerConnections[i]
+          .addEventListener('connectionstatechange', event => {
+            if (this.peerConnections[i].connectionState === 'connected') {
+              console.log('WebRTC Connection Established')
+            } else {
+              console.log('connection change:', this.peerConnections[i].connectionState)
+            }
+          })
+        this.peerConnections[i]
+          .addEventListener('icecandidate', event => {
+            if (event.candidate) {
+              const payload = {
+                id: this.userId,
+                candidate: event.candidate
+              }
+              addMessage('[c:SC]' + '[C]' + JSON.stringify(payload))
+            }
+          })
+        this.peerConnections[i]
+          .addEventListener('track', async (event) => {
+            if (this.peerType !== 'caller') {
+              let approval
+              if (this.isStreamingVideo === false) {
+                if (this.currentSubchat.type === 'screenshare') {
+                  approval = confirm('Incoming Screen Share. Join?')
+                } else if (this.currentSubchat.type === 'webcam') {
+                  approval = confirm('Incoming Video Call. Join?')
+                }
+              } else {
+                // Don't prompt user more than once!
+                approval = true
+              }
+              if (approval) {
+                console.log('stream', event.streams)
+                this.isStreamingVideo = true
+                this.streamStartTime = Math.floor(Date.now() / 1000)
+                this.startTimeCounter()
+                this.enterCinemaMode()
+                const [remoteStream] = event.streams
+                let videoElem
+                if (this.currentSubchat.type === 'screenshare') {
+                  videoElem = document.getElementById('screenshare_video')
+                } else if (this.currentSubchat.type === 'webcam') {
+                  videoElem = document.getElementById('screenshare_video_remote')
+                }
+                videoElem.srcObject = remoteStream
+                videoElem.setAttribute('controls', '')
+              }
+            }
+          })
         if (createOffer) {
-          await this.createWebRTCOffer(calleeList[i], peerConnection)
+          await this.createWebRTCOffer(calleeList[i], this.peerConnections[i])
         }
       }
-    },
-    getPeerConnection: function (id) {
-      let peerConnection = null
-      for (let i = 0; i < this.peerConnections.length; i++) {
-        console.debug(this.peerConnections[i].calleeId, '=?', id)
-        if (this.peerConnections[i].calleeId === id) {
-          peerConnection = this.peerConnections[i]
-          console.log('>>> Peer Connection found <', peerConnection.calleeId, '>')
-          break
-        }
-      }
-      return peerConnection
     },
     makeElementDraggable: function (element) {
       let pos1 = 0
@@ -4006,11 +4100,11 @@ export default {
 }
 
 .darkbutton {
-  background-color: #192129;
+  @apply bg-neutral-900;
 }
 
 .darkbutton:hover {
-  background-color: #101010;
+  @apply bg-black;
 }
 
 .message {

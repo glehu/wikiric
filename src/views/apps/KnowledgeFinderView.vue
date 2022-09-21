@@ -168,7 +168,7 @@
                     <div v-for="reaction in result.result.reacts" :key="reaction.src"
                          style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
                          class="b_darkgray c_lightgray gray-hover"
-                         :title="JSON.parse(reaction).src.toString() + ' reacted to this message.'"
+                         :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
                          v-on:click="reactToMessage(result.result, JSON.parse(reaction).t)"
                          :id="'react_' + result.result.gUID + '_' + JSON.parse(reaction).t">
                       <i v-if="JSON.parse(reaction).t === '+'"
@@ -181,9 +181,9 @@
                   </div>
                 </div>
                 <div class="flex">
-                  <Markdown class="text-lg marked" :source="result.result.t"></Markdown>
+                  <Markdown class="text-lg marked" :source="result.result.t" :plugins="plugins"></Markdown>
                 </div>
-                <Markdown class="text-gray-400 marked" :source="result.result.desc"></Markdown>
+                <Markdown class="text-gray-400 marked" :source="result.result.desc" :plugins="plugins"></Markdown>
                 <div class="flex mt-4">
                   <template v-if="result.result.copyContent != null">
                     <ClipboardIcon
@@ -233,13 +233,13 @@
       <template v-slot:body>
         <div class="flex w-[90vw]" style="max-height: 90vh">
           <div class="w-full pr-12 md:pr-0 md:w-1/2">
-            <div class="mb-2">
+            <div class="mb-3">
               <button v-on:click="createLesson()"
-                      class="mr-2 py-2 px-3 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black font-bold">
+                      class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black font-bold">
                 Submit
               </button>
               <button v-on:click="deleteLesson()"
-                      class="py-2 px-3 border-2 border-red-700 rounded-lg hover:bg-red-700 hover:text-black font-bold">
+                      class="py-2 px-3 border-2 border-red-700 rounded-full hover:bg-red-700 hover:text-black font-bold">
                 Delete
               </button>
             </div>
@@ -323,13 +323,13 @@
           <div class="hidden md:block w-2/5 ml-2 pl-2">
             <p class="text-xl font-bold mb-2 pointer-events-none">Preview:</p>
             <div class="bg-neutral-900 rounded-xl p-2 cursor-not-allowed">
-              <Markdown :source="wisTitle" class="w-full marked"></Markdown>
-              <Markdown :source="wisDescription" class="w-full mt-4 marked"></Markdown>
+              <Markdown :source="wisTitle" class="w-full marked" :plugins="plugins"></Markdown>
+              <Markdown :source="wisDescription" class="w-full mt-4 marked" :plugins="plugins"></Markdown>
             </div>
             <template v-if="wisCopyContent != null">
               <p class="text-xl my-2 pointer-events-none">Copy Content:</p>
               <div class="bg-neutral-900 rounded-xl p-2">
-                <Markdown :source="wisCopyContent" class="w-full marked"></Markdown>
+                <Markdown :source="wisCopyContent" class="w-full marked" :plugins="plugins"></Markdown>
               </div>
             </template>
           </div>
@@ -383,6 +383,7 @@
 <script>
 import modal from '../../components/Modal.vue'
 import Markdown from 'vue3-markdown-it'
+import markdownItMermaid from 'markdown-it-mermaid'
 import 'highlight.js/styles/hybrid.css'
 import {
   MagnifyingGlassIcon,
@@ -405,6 +406,7 @@ import {
   ListboxOption
 } from '@headlessui/vue'
 import { Base64 } from 'js-base64'
+import mermaid from 'mermaid'
 
 export default {
   name: 'KnowledgeFinderView',
@@ -454,8 +456,15 @@ export default {
       emptyState: true,
       noResults: false,
       results: [],
-      topWriters: []
+      topWriters: [],
+      plugins: [
+        {
+          plugin: markdownItMermaid
+        }
+      ]
     }
+  },
+  created () {
   },
   mounted () {
     this.initFunction()
@@ -629,6 +638,17 @@ export default {
               }
             }
             this.results.time = parsedData.time / 1000
+          })
+          .then(() => {
+            setTimeout(() => {
+              mermaid.initialize({
+                startOnLoad: true,
+                theme: 'dark'
+              })
+            }, 0)
+            setTimeout(() => {
+              mermaid.init()
+            }, 0)
           })
           .then(() => resolve)
           .catch((err) => {
