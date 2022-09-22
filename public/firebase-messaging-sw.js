@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-undef
-importScripts('https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js')
+importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js')
 // eslint-disable-next-line no-undef
-importScripts('https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js')
+importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js')
 
 const bc = new BroadcastChannel('dlChannel')
 const bcNotify = new BroadcastChannel('dlChannelNotify')
