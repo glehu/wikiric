@@ -13,8 +13,7 @@
               <div class="flex items-center">
                 <div v-on:click="$router.back()"
                      class="h-full ml-4 mr-2 px-2 py-4 rounded-xl text-center text-gray-300 hover:text-orange-500 cursor-pointer">
-                  <ArrowLeftOnRectangleIcon
-                    class="h-8 w-8"></ArrowLeftOnRectangleIcon>
+                  <i class="sb_link_icon bi bi-x-square text-xl"></i>
                 </div>
                 <div class="font-bold w-full overflow-x-hidden pr-2">
                   <div class="py-4 px-2 text-gray-100 pointer-events-none">
@@ -396,7 +395,6 @@ import {
 import {
   CheckIcon,
   ArrowsUpDownIcon,
-  ArrowLeftOnRectangleIcon,
   SparklesIcon
 } from '@heroicons/vue/24/solid'
 import {
@@ -421,7 +419,6 @@ export default {
     ArrowsUpDownIcon,
     MagnifyingGlassIcon,
     ClipboardIcon,
-    ArrowLeftOnRectangleIcon,
     SparklesIcon,
     PencilSquareIcon,
     HandThumbUpIcon,
@@ -782,6 +779,9 @@ export default {
       }
       this.wisCopyContent = wisdom.copyContent
       this.wisGUID = wisdom.gUID
+      setTimeout(() => {
+        mermaid.init()
+      }, 0)
     },
     capitalizeFirstLetter: function ([first, ...rest], locale = navigator.language) {
       return first === undefined ? '' : first.toLocaleUpperCase(locale) + rest.join('')

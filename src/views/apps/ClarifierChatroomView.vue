@@ -665,26 +665,26 @@
                       v-on:keyup="auto_grow"
                       v-on:click="hideAllSidebars"></textarea>
             <button id="send_image_button"
-                    class="btn-outline-light message_button send_image_button"
+                    class="message_button send_image_button text-neutral-300 hover:brightness-200"
                     style="position: absolute; right: 100px; background-color: transparent"
                     title="Send Files"
                     v-on:click="toggleUploadingSnippet">
-              <span class="fw-bold"><i class="bi bi-plus-circle"></i></span>
+              <span class="fw-bold text-neutral-400"><i class="bi bi-plus-circle"></i></span>
             </button>
-            <button class="btn-outline-light message_button b_darkgray"
+            <button class="message_button b_darkgray hover:brightness-200"
                     style="position: absolute; right: 55px"
                     :title="getAddMessageTitle()"
                     v-on:click="addMessage">
-              <span class="fw-bold">
+              <span class="fw-bold text-neutral-300">
                 <i v-if="isEditingMessage === false" class="bi bi-send"></i>
                 <i v-else class="bi bi-pencil-fill"></i>
               </span>
             </button>
-            <button class="btn-outline-light message_button b_darkgray"
+            <button class="message_button b_darkgray hover:brightness-200"
                     style="position: absolute; right: 10px"
                     title="Search on GIPHY"
                     v-on:click="toggleSelectingGIF">
-              <span class="fw-bold">GIF</span>
+              <span class="fw-bold text-neutral-300">GIF</span>
             </button>
           </div>
         </div>
@@ -724,7 +724,7 @@
             {{ usr.usr }}
           </span>
           </div>
-          <div style="padding-left: 10px; display: flex">
+          <div style="padding-left: 15px; display: flex">
             <button class="text-white btn-no-outline"
                     title="Invite"
                     v-on:click="invite()">
@@ -1187,6 +1187,7 @@ import {
   PhoneIcon,
   VideoCameraIcon
 } from '@heroicons/vue/24/solid'
+import WRTC from '@/webrtc/wRTC'
 
 export default {
   props: {
@@ -1214,6 +1215,7 @@ export default {
       tagIndex: 0,
       streamStartTime: '',
       streamDuration: '',
+      wRTC: {},
       // Messages and pagination
       messages: [],
       currentPage: 0,
@@ -1283,6 +1285,8 @@ export default {
       this.$store.commit('setE2EncryptionSeen', true)
     },
     initFunction: async function () {
+      this.wRTC = WRTC
+      this.wRTC.sayHi()
       console.debug('initFunction')
       this.$store.commit('setLastClarifierGUID', this.$route.params.id)
       this.isModalVisible = !this.$store.getters.hasSeenE2ENotification()
