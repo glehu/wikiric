@@ -261,7 +261,7 @@
                 <PhoneIcon class="h-8 w-8"></PhoneIcon>
               </div>
               <div class="p-2 text-neutral-400 gray-hover"
-                   v-on:click="startScreenshare(undefined, {video: true, audio: true})">
+                   v-on:click="startScreenshare(undefined, {video: true, audio: false})">
                 <VideoCameraIcon class="h-8 w-8"></VideoCameraIcon>
               </div>
             </div>
@@ -1285,9 +1285,8 @@ export default {
       this.$store.commit('setE2EncryptionSeen', true)
     },
     initFunction: async function () {
-      this.wRTC = WRTC
-      this.wRTC.sayHi()
       console.debug('initFunction')
+      this.setUpWRTC()
       this.$store.commit('setLastClarifierGUID', this.$route.params.id)
       this.isModalVisible = !this.$store.getters.hasSeenE2ENotification()
       this.toggleElement('init_loading', 'flex')
@@ -1359,6 +1358,51 @@ export default {
             }
             reader.readAsDataURL(blob)
           }
+        }
+      }
+    },
+    setUpWRTC: function () {
+      // Initialize wRTC.js
+      this.wRTC = WRTC
+      this.wRTC.sayHi() // :D
+      // Create BroadcastChannel to listen to wRTC events!
+      const eventChannel = new BroadcastChannel('wrtcevents')
+      eventChannel.onmessage = event => {
+        this.handleWRTCEvent(event)
+      }
+    },
+    handleWRTCEvent: function (event) {
+      if (!event || !event.data) return
+      const addMessage = this.addMessagePar
+      if (event.data.event === 'connection_change') {
+        console.log(event.data.status)
+      }
+      if (event.data.event === 'new_ice') {
+        const candidate = this.wRTC.getICECandidate(event.data.remoteId, event.data.candidateId)
+        if (candidate) {
+          const payload = {
+            selfId: event.data.remoteId,
+            remoteId: event.data.selfId,
+            candidate: candidate
+          }
+          addMessage('[c:SC]' + '[C]' + JSON.stringify(payload))
+        }
+      }
+      if (event.data.event === 'incoming_track') {
+        if (this.peerType !== 'caller') {
+          this.isStreamingVideo = true
+          this.streamStartTime = Math.floor(Date.now() / 1000)
+          this.startTimeCounter()
+          this.enterCinemaMode()
+          const remoteStream = this.wRTC.getStream(event.data.remoteId, event.data.streamId)
+          let videoElem
+          if (this.currentSubchat.type === 'screenshare') {
+            videoElem = document.getElementById('screenshare_video')
+          } else if (this.currentSubchat.type === 'webcam') {
+            videoElem = document.getElementById('screenshare_video_remote')
+          }
+          videoElem.srcObject = remoteStream
+          videoElem.setAttribute('controls', '')
         }
       }
     },
@@ -1947,41 +1991,49 @@ export default {
         const tmp = msg.substr(6)
         if (tmp.substring(0, 3) === '[A]') {
           // Offer
-          const rtcOfferArray = JSON.parse(tmp.substring(3))
-          for (let i = 0; i < rtcOfferArray.length; i++) {
-            if (rtcOfferArray[i].id === this.userId) {
-              await this.acceptWebRTCOffer(rtcOfferArray[i])
+          const rtcOffer = JSON.parse(tmp.substring(3))
+          if (rtcOffer.selfId === this.userId) {
+            let approval
+            if (this.isStreamingVideo === false) {
+              if (this.currentSubchat.type === 'screenshare') {
+                approval = confirm('Incoming Screen Share. Join?')
+              } else if (this.currentSubchat.type === 'webcam') {
+                approval = confirm('Incoming Video Call. Join?')
+              }
+            } else {
+              // Don't prompt user more than once!
+              approval = true
+            }
+            if (approval) {
+              let stream = null
+              if (this.currentSubchat.type === 'webcam') {
+                try {
+                  const streamLocal = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                  })
+                  const videoElem = document.getElementById('screenshare_video')
+                  videoElem.srcObject = streamLocal
+                  videoElem.setAttribute('controls', '')
+                  if (streamLocal) stream = streamLocal
+                } catch (e) {
+                  console.error(e.message)
+                }
+              }
+              await this.acceptWebRTCOffer(rtcOffer, stream)
             }
           }
         } else if (tmp.substring(0, 3) === '[B]') {
           // Answer
           if (this.peerType === 'caller') {
             const rtcAnswer = JSON.parse(tmp.substring(3))
-            const peerConnection = this.getPeerConnection(rtcAnswer.id)
-            try {
-              await peerConnection.setRemoteDescription(
-                new RTCSessionDescription(rtcAnswer.answer)
-              )
-            } catch (e) {
-              console.error(e.message)
-            }
+            await this.acceptWebRTCAnswer(rtcAnswer)
           }
         } else if (tmp.substring(0, 3) === '[C]') {
           // ICE Candidates
           const rtcCandidatePayload = JSON.parse(tmp.substring(3))
-          if (rtcCandidatePayload != null && rtcCandidatePayload.id !== this.userId) {
-            console.debug('INCOMING ICE PAYLOAD ID', rtcCandidatePayload.id)
-            const peerConnection = this.getPeerConnection(rtcCandidatePayload.id)
-            if (peerConnection != null) {
-              try {
-                if (rtcCandidatePayload.candidate != null) {
-                  console.debug(peerConnection, rtcCandidatePayload)
-                  await peerConnection.addIceCandidate(rtcCandidatePayload.candidate)
-                }
-              } catch (e) {
-                console.error('Error adding received ice candidate', e)
-              }
-            }
+          if (rtcCandidatePayload != null && rtcCandidatePayload.selfId === this.userId) {
+            await this.setICECandidate(rtcCandidatePayload)
           }
         }
         return new Promise((resolve) => {
@@ -3223,7 +3275,7 @@ export default {
         this.isStreamingVideo = true
         this.peerType = 'caller'
         this.peerStreamOutgoing = stream
-        await this.createPeerConnections(stream, userId)
+        await this.createOutgoingPeerConnections(stream, userId)
         // Go into distraction free cinema mode
         this.enterCinemaMode()
         // Start the count-up timer
@@ -3299,71 +3351,24 @@ export default {
       }
       return i
     },
-    createWebRTCOffer: async function (userId, peerConnection) {
-      const offerArray = []
-      for (const user of this.members) {
-        if (user.id === userId) {
-          const offer = await peerConnection.createOffer()
-          await peerConnection.setLocalDescription(offer)
-          offerArray.unshift({
-            id: user.id,
-            callerID: this.userId,
-            offer: offer,
-            type: this.currentSubchat.type
-          })
-          console.log('Created Offer for', user.id)
-          break
-        }
-      }
-      this.addMessagePar('[c:SC]' + '[A]' + JSON.stringify(offerArray))
-    },
-    acceptWebRTCOffer: async function (payload, recursiveMode = false) {
+    acceptWebRTCOffer: async function (payload, stream) {
       if (this.peerType === 'caller') {
         return
       } else {
         this.peerType = 'callee'
       }
-      console.log('Incoming Offer from <', payload.callerID, '> DEBUG INFO: <', payload, '>')
-      const peerConnection = this.getPeerConnection(payload.callerID)
-      if (peerConnection === null) {
-        if (recursiveMode === true) {
-          console.log('>>> ERROR: Peer Connection could not be added <', payload.callerID, '>')
-          return
-        }
-        console.log('>>> No Peer Connection found!', '\n>>> Creating Peer Connection...')
-        let webcamStream = null
-        if (this.currentSubchat.type === 'webcam') {
-          const videoElemOwn = document.getElementById('screenshare_video')
-          if (videoElemOwn.srcObject == null) {
-            console.log('>>> Starting outgoing stream...')
-            webcamStream = await navigator.mediaDevices.getUserMedia({
-              video: true,
-              audio: true
-            })
-            videoElemOwn.srcObject = webcamStream
-            videoElemOwn.setAttribute('controls', '')
-          }
-        }
-        await this.createPeerConnections(webcamStream, payload.callerID, false)
-        await this.acceptWebRTCOffer(payload, true)
-        return
-      } else {
-        if (recursiveMode === true) {
-          console.log('>>> SUCCESS: Peer Connection added <', payload.callerID, '>')
-        } else {
-          console.log('>>> SUCCESS: Peer Connection found <', peerConnection.calleeId, '>')
-        }
+      const answer = await this.wRTC.acceptOffer(payload.selfId, payload.remoteId, payload.offer, stream)
+      if (answer.answer) {
+        this.addMessagePar('[c:SC]' + '[B]' + JSON.stringify(answer))
       }
-      console.log('Setting Remote Description', payload.offer, '...')
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(payload.offer))
-      const answer = await peerConnection.createAnswer()
-      await peerConnection.setLocalDescription(answer)
-      this.addMessagePar('[c:SC]' + '[B]' + JSON.stringify({
-        id: payload.id,
-        answer: answer
-      }))
     },
-    createPeerConnections: async function (stream, userId, createOffer = true) {
+    acceptWebRTCAnswer: async function (payload) {
+      await this.wRTC.acceptAnswer(payload.remoteId, payload.answer)
+    },
+    setICECandidate: async function (payload) {
+      await this.wRTC.setICECandidate(payload.remoteId, payload.candidate)
+    },
+    createOutgoingPeerConnections: async function (stream, userId) {
       const calleeList = []
       if (userId) {
         calleeList.push(userId)
@@ -3376,74 +3381,12 @@ export default {
         }
       }
       // Create a WebRTC Peer to Peer Connection for each callee
-      const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
-      const addMessage = this.addMessagePar
+      let offer = null
       for (let i = 0; i < calleeList.length; i++) {
-        console.log('Adding Callee ID', calleeList[i])
-        const peerConnection = new RTCPeerConnection(configuration)
-        peerConnection.calleeId = calleeList[i]
-        this.peerConnections.push(peerConnection)
-      }
-      // Adding event listeners to the new connection(s)
-      for (let i = 0; i < this.peerConnections.length; i++) {
-        console.log('Preparing Callee ID', this.peerConnections[i].calleeId)
-        if (stream !== null) {
-          stream.getTracks().forEach(track => {
-            this.peerConnections[i].addTrack(track, stream)
-          })
-        }
-        this.peerConnections[i]
-          .addEventListener('connectionstatechange', event => {
-            if (this.peerConnections[i].connectionState === 'connected') {
-              console.log('WebRTC Connection Established')
-            } else {
-              console.log('connection change:', this.peerConnections[i].connectionState)
-            }
-          })
-        this.peerConnections[i]
-          .addEventListener('icecandidate', event => {
-            if (event.candidate) {
-              const payload = {
-                id: this.userId,
-                candidate: event.candidate
-              }
-              addMessage('[c:SC]' + '[C]' + JSON.stringify(payload))
-            }
-          })
-        this.peerConnections[i]
-          .addEventListener('track', async (event) => {
-            if (this.peerType !== 'caller') {
-              let approval
-              if (this.isStreamingVideo === false) {
-                if (this.currentSubchat.type === 'screenshare') {
-                  approval = confirm('Incoming Screen Share. Join?')
-                } else if (this.currentSubchat.type === 'webcam') {
-                  approval = confirm('Incoming Video Call. Join?')
-                }
-              } else {
-                // Don't prompt user more than once!
-                approval = true
-              }
-              if (approval) {
-                console.log('stream', event.streams)
-                this.isStreamingVideo = true
-                this.streamStartTime = Math.floor(Date.now() / 1000)
-                this.startTimeCounter()
-                this.enterCinemaMode()
-                const [remoteStream] = event.streams
-                let videoElem
-                if (this.currentSubchat.type === 'screenshare') {
-                  videoElem = document.getElementById('screenshare_video')
-                } else if (this.currentSubchat.type === 'webcam') {
-                  videoElem = document.getElementById('screenshare_video_remote')
-                }
-                videoElem.srcObject = remoteStream
-                videoElem.setAttribute('controls', '')
-              }
-            }
-          })
-        if (createOffer) {
-          await this.createWebRTCOffer(calleeList[i], this.peerConnections[i])
+        this.wRTC.initiatePeerConnection(stream, this.userId, calleeList[i])
+        offer = await this.wRTC.createOffer(calleeList[i])
+        if (offer.offer) {
+          this.addMessagePar('[c:SC]' + '[A]' + JSON.stringify(offer))
         }
       }
     },
