@@ -131,7 +131,7 @@
                     class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
                 </template>
                 <div
-                  class="absolute right-0 flex text-neutral-300 result-copy backdrop-blur mr-2">
+                  class="absolute right-0 flex text-neutral-300 result-copy backdrop-blur px-2 py-1 rounded-xl -translate-y-4">
                   <div v-on:click="reactToMessage(result.result, '+')"
                        class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-1">
                     <HandThumbUpIcon class="h-8 w-8"></HandThumbUpIcon>
@@ -141,11 +141,11 @@
                     <HandThumbDownIcon class="h-8 w-8"></HandThumbDownIcon>
                   </div>
                   <div v-on:click="reactToMessage(result.result, '⭐')"
-                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-4">
+                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-1">
                     <StarIcon class="h-8 w-8"></StarIcon>
                   </div>
                   <div v-on:click="editWisdom(result.result)"
-                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-4">
+                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-1">
                     <PencilSquareIcon class="h-8 w-8"></PencilSquareIcon>
                   </div>
                   <div v-if="result.result.copyContent != null"
@@ -910,11 +910,15 @@ export default {
 }
 
 .marked ul {
-  @apply list-disc list-inside;
+  @apply list-disc list-inside mb-2;
 }
 
 .marked ol {
-  @apply list-decimal list-inside;
+  @apply list-decimal list-inside mb-2;
+}
+
+.marked pre {
+  @apply mb-2;
 }
 
 .marked table {

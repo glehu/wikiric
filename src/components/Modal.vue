@@ -69,7 +69,7 @@ export default {
 }
 
 .b_darkgray {
-  background-color: #212b36;
+  @apply bg-gray-700;
 }
 
 .c_darkgray {

@@ -3,7 +3,7 @@
        :style="{
                 backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
                 backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div class="bg-neutral-900 bg-opacity-80 fixed top-0 left-0 w-full h-full">
+    <div class="bg-neutral-900 bg-opacity-70 fixed top-0 left-0 w-full h-full">
       <div id="sidebar" class="sidebar"
            style="height: 100vh; z-index: 1000">
         <div class="header-margin" style="box-shadow: none"></div>
@@ -87,7 +87,7 @@
            class="sidebar2 border-l border-l-[rgba(174,174,183,0.25)] bg-neutral-900 bg-opacity-60">
         <div style="height: calc(100vh - 60px); position: relative; padding-left: 23px">
           <!-- #### SUBCHATS #### -->
-          <div style="height: calc(100% - 120px); overflow-y: scroll; overflow-x: clip"
+          <div style="height: calc(100% - 120px); overflow-y: auto; overflow-x: clip"
                class="c_lightgray">
             <div style="height: 50px; align-items: center; display: flex">
               <div :id="this.getSession() + '_subc'" class="subchat orange-hover"
@@ -213,23 +213,23 @@
           <div v-if="this.isSubchat === true &&
                      (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam')"
                style="width: calc(100% - 350px);
-                    height: calc(100vh - 60px - 50px - 80px);
-                    position: absolute; left: 350px;
-                    border-bottom: 1px solid rgba(174, 174, 183, 0.25);
-                    padding: 0;
-                    display: flex"
+                      height: calc(100vh - 60px - 50px - 80px);
+                      position: absolute; left: 350px;
+                      border-bottom: 1px solid rgba(174, 174, 183, 0.25);
+                      padding: 0;
+                      display: flex"
                class="c_lightgray">
             <div style="position: relative; top: 0; left: 0;
-                      width: 100%;
-                      aspect-ratio: 16 / 9"
+                        width: 100%;
+                        aspect-ratio: 16 / 9"
                  class="b_darkergray flex">
               <div v-if="!isStreamingVideo"
                    class="d-flex"
                    style="pointer-events: none;
-                        position: absolute;
-                        width: 100%; height: 100%;
-                        align-items: center; justify-content: center;
-                        background-color: rgba(19,19,19,0.75)">
+                          position: absolute;
+                          width: 100%; height: 100%;
+                          align-items: center; justify-content: center;
+                          background-color: rgba(19,19,19,0.75)">
                 <i class="bi bi-camera-video-off lead"></i>
                 <p style="margin: 0 0 0 10px;
                         padding-left: 10px;
@@ -237,8 +237,8 @@
                   OFFLINE
                   <br>
                   <span style="font-size: 75%">
-                  Start sharing or
-                  <br>wait for somebody to start the stream.
+                  Start sharing or wait for
+                  <br>somebody to start the stream.
                 </span>
                 </p>
               </div>
@@ -367,10 +367,12 @@
                   </template>
                   <!-- #### MESSAGE OPTIONS #### -->
                   <div v-if="msg.mType !== 'CryptError' && !msg.src.startsWith('_server')" class="msg_options">
-                    <div class="b_darkgray" style="border-radius: 8px">
+                    <div class="b_darkgray rounded mr-1">
+                      <!--
                       <button title="Reply" class="btn btn-sm c_lightgray orange-hover">
                         <i class="bi bi-reply-fill"></i>
                       </button>
+                      -->
                       <template v-if="msg.editable === true">
                         <button title="Edit" class="btn btn-sm c_lightgray orange-hover"
                                 v-on:click="editMessage(msg)">
@@ -382,7 +384,7 @@
                         </button>
                       </template>
                     </div>
-                    <div class="b_darkgray" style="border-radius: 8px; margin-left: 10px">
+                    <div class="b_darkgray rounded mr-1">
                       <button title="Upvote" class="btn btn-sm c_lightgray orange-hover"
                               v-on:click="reactToMessage(msg, '+')">
                         <i class="bi bi-hand-thumbs-up"></i>
@@ -392,7 +394,7 @@
                         <i class="bi bi-hand-thumbs-down"></i>
                       </button>
                     </div>
-                    <div class="b_darkgray" style="border-radius: 8px; margin-left: 10px">
+                    <div class="b_darkgray rounded mr-1">
                       <button title="Awesome!" class="btn btn-sm c_lightgray orange-hover"
                               v-on:click="reactToMessage(msg, '⭐')">
                         <i class="bi bi-star-fill"></i>
@@ -665,17 +667,17 @@
                       v-on:keyup="auto_grow"
                       v-on:click="hideAllSidebars"></textarea>
             <button id="send_image_button"
-                    class="message_button send_image_button text-neutral-300 hover:brightness-200"
+                    class="message_button send_image_button hover:brightness-200"
                     style="position: absolute; right: 100px; background-color: transparent"
                     title="Send Files"
                     v-on:click="toggleUploadingSnippet">
-              <span class="fw-bold text-neutral-400"><i class="bi bi-plus-circle"></i></span>
+              <span class="text-neutral-300"><i class="bi bi-plus-circle"></i></span>
             </button>
             <button class="message_button b_darkgray hover:brightness-200"
                     style="position: absolute; right: 55px"
                     :title="getAddMessageTitle()"
                     v-on:click="addMessage">
-              <span class="fw-bold text-neutral-300">
+              <span class="text-neutral-300">
                 <i v-if="isEditingMessage === false" class="bi bi-send"></i>
                 <i v-else class="bi bi-pencil-fill"></i>
               </span>
@@ -737,7 +739,7 @@
     </div>
   </div>
   <!-- #### USER PROFILE #### -->
-  <div class="user_profile b_gray" style="overflow-x: hidden; overflow-y: scroll"
+  <div class="user_profile b_gray" style="overflow-x: hidden; overflow-y: auto"
        v-show="isViewingUserProfile" @click.stop>
     <div style="position: relative; padding-top: 10px; height: 100%">
       <i class="bi bi-x-lg lead orange-hover"
@@ -873,7 +875,7 @@
   <!-- #### GIF SELECTION #### -->
   <div class="giphygrid b_gray p-3"
        style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
-    <div style="height: calc(100% - 50px); width: 100%; overflow-x: clip; overflow-y: scroll;"
+    <div style="height: calc(100% - 50px); width: 100%; overflow-x: clip; overflow-y: auto;"
          class="b_darkergray rounded-lg">
       <div v-for="gif in gifSelection" :key="gif"
            style="padding-top: 10px; padding-left: 10px; display: inline-flex"
@@ -897,7 +899,7 @@
   </div>
   <!-- #### Settings #### -->
   <div class="session_settings b_gray shadow"
-       style="overflow-x: hidden; overflow-y: scroll"
+       style="overflow-x: hidden; overflow-y: auto"
        v-show="isViewingSessionSettings" @click.stop>
     <div style="position: relative; padding-top: 10px; width: 100%">
       <i class="bi bi-x-lg lead orange-hover"
@@ -946,7 +948,7 @@
       <div class="c_lightgray nopointer mb-2">
         Benefits:
       </div>
-      <div style="overflow-y: scroll; font-size: 75%"
+      <div style="overflow-y: auto; font-size: 75%"
            class="c_lightgray">
         <div class="d-flex gap-1 mb-1" style="width: 100%">
           <template v-if="chatroom.rank < 2">
@@ -1010,7 +1012,7 @@
             <div class="ms-3">
               <span>Text Subchat</span>
               <br>
-              <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Messages, GIFs and Files...</span>
+              <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Write messages and send files.</span>
             </div>
           </button>
           <button v-on:click="createSubchatroom('screenshare')"
@@ -1021,7 +1023,7 @@
             <div class="ms-3">
               <span>Screenshare Subchat</span>
               <br>
-              <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Share your screen for others</span>
+              <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Share your screen for others.</span>
             </div>
           </button>
           <button v-on:click="createSubchatroom('webcam')"
@@ -1032,7 +1034,7 @@
             <div class="ms-3">
               <span>Webcam Subchat</span>
               <br>
-              <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Video call with others</span>
+              <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Video call with others.</span>
             </div>
           </button>
         </div>
@@ -1042,7 +1044,7 @@
     </template>
   </modal>
   <!-- #### File Upload (SnippetBase) #### -->
-  <div class="session_settings b_gray shadow" style="overflow-x: hidden; overflow-y: scroll"
+  <div class="session_settings b_gray shadow" style="overflow-x: hidden; overflow-y: auto"
        v-show="isUploadingSnippet" @click.stop>
     <div style="position: relative; padding-top: 10px; width: 100%">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
@@ -1208,8 +1210,6 @@ export default {
       currentSubchat: {},
       connection: null,
       peerType: 'idle',
-      peerConnection: null,
-      peerConnections: [],
       peerStreamOutgoing: {},
       websocketState: 'CLOSED',
       tagIndex: 0,
@@ -1373,37 +1373,32 @@ export default {
     },
     handleWRTCEvent: function (event) {
       if (!event || !event.data) return
-      const addMessage = this.addMessagePar
       if (event.data.event === 'connection_change') {
-        console.log(event.data.status)
+        console.log('%c' + event.data.status, this.wRTC.logStyle)
       }
       if (event.data.event === 'new_ice') {
-        const candidate = this.wRTC.getICECandidate(event.data.remoteId, event.data.candidateId)
-        if (candidate) {
-          const payload = {
-            selfId: event.data.remoteId,
-            remoteId: event.data.selfId,
-            candidate: candidate
-          }
-          addMessage('[c:SC]' + '[C]' + JSON.stringify(payload))
+        const candidatePayload = {
+          selfId: event.data.remoteId,
+          remoteId: this.userId,
+          candidate: event.data.candidate
         }
+        console.log('%cSending Candidate', this.wRTC.logStyle)
+        this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
       }
       if (event.data.event === 'incoming_track') {
-        if (this.peerType !== 'caller') {
-          this.isStreamingVideo = true
-          this.streamStartTime = Math.floor(Date.now() / 1000)
-          this.startTimeCounter()
-          this.enterCinemaMode()
-          const remoteStream = this.wRTC.getStream(event.data.remoteId, event.data.streamId)
-          let videoElem
-          if (this.currentSubchat.type === 'screenshare') {
-            videoElem = document.getElementById('screenshare_video')
-          } else if (this.currentSubchat.type === 'webcam') {
-            videoElem = document.getElementById('screenshare_video_remote')
-          }
-          videoElem.srcObject = remoteStream
-          videoElem.setAttribute('controls', '')
+        this.isStreamingVideo = true
+        this.streamStartTime = Math.floor(Date.now() / 1000)
+        this.startTimeCounter()
+        this.enterCinemaMode()
+        const remoteStream = this.wRTC.getStream(event.data.remoteId, event.data.streamId)
+        let videoElem
+        if (this.currentSubchat.type === 'screenshare') {
+          videoElem = document.getElementById('screenshare_video')
+        } else if (this.currentSubchat.type === 'webcam') {
+          videoElem = document.getElementById('screenshare_video_remote')
         }
+        videoElem.srcObject = remoteStream
+        videoElem.setAttribute('controls', '')
       }
     },
     handleGlobalKeyEvents: function (event) {
@@ -2025,15 +2020,30 @@ export default {
           }
         } else if (tmp.substring(0, 3) === '[B]') {
           // Answer
-          if (this.peerType === 'caller') {
-            const rtcAnswer = JSON.parse(tmp.substring(3))
-            await this.acceptWebRTCAnswer(rtcAnswer)
-          }
+          // if (this.peerType === 'caller') {
+          const rtcAnswer = JSON.parse(tmp.substring(3))
+          await this.acceptWebRTCAnswer(rtcAnswer)
+          // }
         } else if (tmp.substring(0, 3) === '[C]') {
           // ICE Candidates
           const rtcCandidatePayload = JSON.parse(tmp.substring(3))
           if (rtcCandidatePayload != null && rtcCandidatePayload.selfId === this.userId) {
             await this.setICECandidate(rtcCandidatePayload)
+          }
+        } else if (tmp.substring(0, 3) === '[D]') {
+          // ICE Candidates
+          const payload = JSON.parse(tmp.substring(3))
+          const peerConnection = await this.wRTC.getPeerConnection(payload.remoteId)
+          if (peerConnection && peerConnection.candidates) {
+            for (let i = 0; i < peerConnection.candidates.length; i++) {
+              const candidatePayload = {
+                selfId: payload.remoteId,
+                remoteId: this.userId,
+                candidate: peerConnection.candidates[i].candidate
+              }
+              console.log('%cSending Candidate', this.wRTC.logStyle)
+              this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
+            }
           }
         }
         return new Promise((resolve) => {
@@ -3286,7 +3296,6 @@ export default {
       }
     },
     stopScreenshare: function () {
-      this.peerConnections = []
       const videoElem = document.getElementById('screenshare_video')
       videoElem.srcObject = null
       videoElem.removeAttribute('controls')
@@ -3363,7 +3372,26 @@ export default {
       }
     },
     acceptWebRTCAnswer: async function (payload) {
-      await this.wRTC.acceptAnswer(payload.remoteId, payload.answer)
+      const accepted = await this.wRTC.acceptAnswer(payload.remoteId, payload.answer)
+      if (!accepted) return
+      const resp = {
+        selfId: payload.remoteId,
+        remoteId: payload.selfId
+      }
+      console.debug('%cAccepted Answer... sending and triggering ICE on REMOTE', this.wRTC.logStyle)
+      this.addMessagePar('[c:SC]' + '[D]' + JSON.stringify(resp))
+      const peerConnection = await this.wRTC.getPeerConnection(payload.remoteId)
+      if (peerConnection.candidates) {
+        for (const candidate in peerConnection.candidates) {
+          const candidatePayload = {
+            selfId: payload.remoteId,
+            remoteId: this.userId,
+            candidate: candidate.candidate
+          }
+          console.log('%cSending Candidate', this.wRTC.logStyle)
+          this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
+        }
+      }
     },
     setICECandidate: async function (payload) {
       await this.wRTC.setICECandidate(payload.remoteId, payload.candidate)
@@ -3622,7 +3650,7 @@ export default {
 }
 
 .b_darkgray {
-  @apply bg-gray-800;
+  @apply bg-slate-700;
 }
 
 .c_darkgray {
@@ -3719,7 +3747,7 @@ export default {
   color: white;
   max-width: calc(100vw - 32px);
   width: 400px;
-  max-height: calc(90vh - 70px);
+  max-height: calc(100vh - 200px);
   height: 100%;
   padding: 5px 20px;
   border-radius: 20px;
@@ -3739,7 +3767,7 @@ export default {
   text-wrap: normal;
   word-wrap: break-word;
   padding: 8px;
-  @apply bg-gray-800;
+  @apply bg-gray-700;
   border-radius: 20px;
   text-align: center;
   color: #aeaeb7;
@@ -3763,10 +3791,10 @@ export default {
   border-radius: 1em;
   resize: none;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   height: 40px;
   min-height: 40px;
-  max-height: 80vh;
+  max-height: calc(100vh - 150px);
 }
 
 .new_comment:focus {
@@ -4035,7 +4063,7 @@ export default {
 }
 
 .subchat.active {
-  @apply bg-gray-800
+  @apply bg-slate-700
 }
 
 .subchat.active span {
@@ -4047,7 +4075,7 @@ export default {
 }
 
 .darkbutton {
-  @apply bg-neutral-900;
+  @apply bg-gray-800;
 }
 
 .darkbutton:hover {
@@ -4151,7 +4179,7 @@ export default {
   font-weight: bold;
   transition: 0.3s opacity;
   max-height: calc(90vh - 70px);
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 
@@ -4256,11 +4284,15 @@ export default {
 }
 
 .clientMessage ul {
-  @apply list-disc list-inside;
+  @apply list-disc list-inside mb-2;
 }
 
 .clientMessage ol {
-  @apply list-decimal list-inside;
+  @apply list-decimal list-inside mb-2;
+}
+
+.clientMessage pre {
+  @apply mb-2;
 }
 
 .clientMessage a {

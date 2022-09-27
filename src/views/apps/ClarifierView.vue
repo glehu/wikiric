@@ -14,25 +14,25 @@
                     <h1 class="fw-bold text-uppercase text-3xl text-gray-300">
                       Groups
                     </h1>
-                    <div class="flex">
-                      <h2 class="text-2xl mr-3">
+                    <div class="text-end">
+                      <h2 class="text-2xl hidden sm:block">
                         {{ time }}
                       </h2>
                       <h3 class="text-2xl" v-if="hour >= 5 && hour < 10">
                         <i class="bi bi-sunrise-fill p-1"></i>
-                        Good Morning
+                        Good&nbsp;Morning
                       </h3>
                       <h3 class="text-2xl" v-else-if="hour >= 10 && hour < 17">
                         <i class="bi bi-sun-fill p-1"></i>
-                        Good Day
+                        Good&nbsp;Day
                       </h3>
                       <h3 class="text-2xl" v-else-if="hour >= 17 && hour < 22">
                         <i class="bi bi-sunset p-1"></i>
-                        Good Evening
+                        Good&nbsp;Evening
                       </h3>
                       <h3 class="text-2xl" v-else-if="hour >= 22 || hour < 5">
                         <i class="bi bi-moon p-1"></i>
-                        Good Night
+                        Good&nbsp;Night
                       </h3>
                     </div>
                   </div>
