@@ -10,14 +10,11 @@
             <div class="card-subtitle text-white" style="border-radius: 1rem">
               <div class="card-body mt-md-0 c_lightgray">
                 <div style="pointer-events: none; margin-bottom: 50px">
-                  <div class="flex items-center justify-between">
+                  <div class="flex items-end justify-between">
                     <h1 class="fw-bold text-uppercase text-3xl text-gray-300">
                       Groups
                     </h1>
                     <div class="text-end">
-                      <h2 class="text-2xl hidden sm:block">
-                        {{ time }}
-                      </h2>
                       <h3 class="text-2xl" v-if="hour >= 5 && hour < 10">
                         <i class="bi bi-sunrise-fill p-1"></i>
                         Good&nbsp;Morning
@@ -41,31 +38,32 @@
                     Your current Clarifier Groups. Click on one of them to quickly enter.
                   </p>
                 </div>
-                <div v-for="group in this.$store.state.clarifierSessions" :key="group"
+                <div v-for="group in $store.state.clarifierSessions" :key="group"
+                     class="justify-content-center"
                      style="padding-bottom: 15px; display: flex">
-                  <button class="btn"
-                          title="Remove Group"
-                          style="color: red; opacity: 0.8"
-                          v-on:click="this.removeGroup(group)">
-                    <i class="bi bi-x-lg"></i>
-                  </button>
-                  <div class="c_lightgray orange-hover bg-gray-800 hover:bg-gray-700"
+                  <div class="text-neutral-400 hover:text-white hover:bg-slate-700 cursor-pointer"
                        style="display: flex; align-items: center;
                               justify-items: center;
-                              width: 100%; border-radius: 15px; padding: 5px"
+                              width: 75%; border-radius: 15px; padding: 5px"
                        v-on:click="joinActive(group.id)">
                     <img class="b_darkergray"
                          style="width: 40px; height: 40px; border-radius: 10px"
                          v-bind:src="getImg(group.img,true)"
                          :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
                     <h5 class="sb_link_text text-nowrap"
-                        style="margin: 0 0 0 10px;font-weight: bold">
+                        style="margin: 0 0 0 10px; font-weight: bold">
                       &nbsp;{{ group.title }}
                     </h5>
                     <i class="bi bi-shield-lock text-white"
                        title="End-to-End Encrypted Group"
                        style="margin-left: auto; margin-right: 4px"></i>
                   </div>
+                  <button class="btn"
+                          title="Remove Group"
+                          style="color: red; opacity: 0.8"
+                          v-on:click="this.removeGroup(group)">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
                 </div>
               </div>
             </div>

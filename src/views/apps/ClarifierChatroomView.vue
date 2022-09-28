@@ -1371,26 +1371,33 @@ export default {
         this.handleWRTCEvent(event)
       }
     },
-    handleWRTCEvent: function (event) {
+    handleWRTCEvent: async function (event) {
       if (!event || !event.data) return
       if (event.data.event === 'connection_change') {
         console.log('%c' + event.data.status, this.wRTC.logStyle)
       }
       if (event.data.event === 'new_ice') {
-        const candidatePayload = {
-          selfId: event.data.remoteId,
-          remoteId: this.userId,
-          candidate: event.data.candidate
+        const candidateId = event.data.candidateId
+        const peerConnection = await this.wRTC.getPeerConnection(event.data.remoteId)
+        for (let i = 0; i < peerConnection.candidates.length; i++) {
+          if (peerConnection.candidates[i].id === candidateId) {
+            const candidatePayload = {
+              selfId: peerConnection.remoteId,
+              remoteId: this.userId,
+              candidate: peerConnection.candidates[i].candidate
+            }
+            console.log('%cSending renegotiated Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
+            this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
+            break
+          }
         }
-        console.log('%cSending Candidate', this.wRTC.logStyle)
-        this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
       }
       if (event.data.event === 'incoming_track') {
         this.isStreamingVideo = true
         this.streamStartTime = Math.floor(Date.now() / 1000)
         this.startTimeCounter()
         this.enterCinemaMode()
-        const remoteStream = this.wRTC.getStream(event.data.remoteId, event.data.streamId)
+        const remoteStream = this.wRTC.getStream(event.data.remoteId)[0]
         let videoElem
         if (this.currentSubchat.type === 'screenshare') {
           videoElem = document.getElementById('screenshare_video')
@@ -1400,6 +1407,9 @@ export default {
         videoElem.srcObject = remoteStream
         videoElem.setAttribute('controls', '')
       }
+      return new Promise((resolve) => {
+        resolve()
+      })
     },
     handleGlobalKeyEvents: function (event) {
       if (event.key === 'Escape') {
@@ -2027,7 +2037,7 @@ export default {
         } else if (tmp.substring(0, 3) === '[C]') {
           // ICE Candidates
           const rtcCandidatePayload = JSON.parse(tmp.substring(3))
-          if (rtcCandidatePayload != null && rtcCandidatePayload.selfId === this.userId) {
+          if (rtcCandidatePayload.selfId === this.userId) {
             await this.setICECandidate(rtcCandidatePayload)
           }
         } else if (tmp.substring(0, 3) === '[D]') {
@@ -2041,7 +2051,7 @@ export default {
                 remoteId: this.userId,
                 candidate: peerConnection.candidates[i].candidate
               }
-              console.log('%cSending Candidate', this.wRTC.logStyle)
+              console.log('%cSending gathered Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
               this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
             }
           }

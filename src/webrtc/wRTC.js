@@ -3,7 +3,13 @@ const WRTC = {
   DATA
    */
   eventChannel: new BroadcastChannel('wrtcevents'),
-  iceConfig: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
+  iceConfig: {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun1:stun.l.google.com:19302' },
+      { urls: 'stun2:stun.l.google.com:19302' }
+    ]
+  },
   peerConnections: new Map(),
   logStyle: 'color: #FFF; background-color: #000; padding: 2px; font-weight: bold;',
   /*
@@ -27,7 +33,9 @@ const WRTC = {
     const peerConnection = new RTCPeerConnection(this.iceConfig)
     peerConnection.selfId = selfId
     peerConnection.remoteId = remoteId
+    peerConnection.candidates = []
     peerConnection.candidateCounter = 0
+    peerConnection.streams = []
     peerConnection.streamCounter = 0
     peerConnection.iceAvailable = false
     peerConnection.isAccepted = false
@@ -50,35 +58,33 @@ const WRTC = {
     })
     // Listen for new ICE candidates
     peerConnection.addEventListener('icecandidate', event => {
+      let iceCandidate = null
       if (event.candidate) {
-        if (!peerConnection.candidates) {
-          peerConnection.candidates = []
+        iceCandidate = event.candidate
+      } else {
+        console.log('%cReached End of Candidates)', this.logStyle, event.candidate)
+      }
+      peerConnection.iceAvailable = true
+      peerConnection.candidateCounter += 1
+      peerConnection.candidates.push({
+        id: peerConnection.candidateCounter,
+        candidate: iceCandidate
+      })
+      console.log('%cNew ICE Candidate Gathered', this.logStyle, iceCandidate)
+      if (peerConnection.isAccepted) {
+        console.log('%c---> Forwarding as Connection was Agreed Upon', this.logStyle)
+        const payload = {
+          event: 'new_ice',
+          selfId: peerConnection.selfId,
+          remoteId: peerConnection.remoteId,
+          candidateId: peerConnection.candidateCounter
         }
-        peerConnection.candidateCounter += 1
-        peerConnection.iceAvailable = true
-        peerConnection.candidates.push({
-          id: peerConnection.candidateCounter,
-          candidate: event.candidate
-        })
-        console.log('%cNew ICE Candidate Gathered', this.logStyle)
-        if (peerConnection.isAccepted) {
-          console.log('%c---> Forwarding as Connection was Agreed Upon', this.logStyle)
-          const payload = {
-            event: 'new_ice',
-            selfId: peerConnection.selfId,
-            remoteId: peerConnection.remoteId,
-            candidateId: peerConnection.candidateCounter
-          }
-          this.eventChannel.postMessage(payload)
-        }
+        this.eventChannel.postMessage(payload)
       }
     })
     peerConnection.addEventListener('track', async (event) => {
       if (event.streams) {
         const [remoteStream] = event.streams
-        if (!peerConnection.streams) {
-          peerConnection.streams = []
-        }
         peerConnection.streamCounter += 1
         peerConnection.streams.push(remoteStream)
         const payload = {
@@ -138,6 +144,7 @@ const WRTC = {
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
     const answer = await peerConnection.createAnswer()
     await peerConnection.setLocalDescription(answer)
+    console.log('%cCreated Answer for', this.logStyle, remoteId)
     peerConnection.isAccepted = true
     this.peerConnections.set(remoteId, peerConnection)
     /* Generate response payload
@@ -199,18 +206,23 @@ const WRTC = {
    * @returns {Promise<null>}
    */
   setICECandidate: async function (remoteId, candidate) {
-    if (remoteId == null) return null
+    if (typeof remoteId === 'undefined' || remoteId === null) {
+      console.log('%cInvalid remoteId while adding ICE candidate', this.logStyle)
+      return null
+    }
     if (!this.peerConnections.has(remoteId)) {
-      console.log('%Discarding ICE Candidate (Wrong Recipient)', this.logStyle)
+      console.log('%cDiscarding ICE Candidate (Wrong Recipient)', this.logStyle)
       return null
     } else {
-      console.log('%cSetting ICE Candidate', this.logStyle, 'from', remoteId)
+      console.log('%cSetting ICE Candidate from', this.logStyle, remoteId, candidate)
       const peerConnection = this.peerConnections.get(remoteId)
-      if (!peerConnection.candidates) {
-        peerConnection.candidates = []
-      }
       try {
-        await peerConnection.addIceCandidate(candidate)
+        if (candidate) {
+          await peerConnection.addIceCandidate(candidate)
+        } else {
+          console.log('%cReceived End of Candidates from remote peer', this.wRTC.logStyle, remoteId)
+          await peerConnection.addIceCandidate(null)
+        }
       } catch (e) {
         console.error('Error adding received ice candidate', e)
       }
@@ -220,7 +232,7 @@ const WRTC = {
   /***
    * Retrieves the remote stream (single or multiple tracks) from a Peer to Peer Connection
    * @param remoteId
-   * @returns {null|*}
+   * @returns {null|MediaStream}
    */
   getStream: function (remoteId) {
     if (remoteId == null) return null

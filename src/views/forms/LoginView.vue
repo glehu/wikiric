@@ -12,7 +12,7 @@
               <div class="card text-white" style="border-radius: 1rem; background: #131313">
                 <div class="card-body p-5 text-center">
                   <div class="mt-md-0 pb-5">
-                    <h2 class="fw-bold mb-2 text-uppercase"
+                    <h2 class="fw-bold mb-2 text-uppercase text-4xl mb-4"
                         style="font-family: 'Lato', sans-serif; pointer-events: none">
                       Login
                     </h2>
@@ -21,7 +21,7 @@
                         required
                         v-model="user.email"
                         type="email"
-                        class="text-black"
+                        class="text-black py-1 px-2"
                         placeholder="Email"
                       />
                     </div>
@@ -30,15 +30,19 @@
                         required
                         v-model="user.password"
                         type="password"
-                        class="text-black"
+                        class="text-black py-1 px-2"
                         placeholder="Password"
                       />
                     </div>
                     <!--<p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#">Forgot password?</a></p>-->
                     <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
-                    <p class="mt-5"><span style="pointer-events: none">Don't have an account?</span>
-                      <button v-on:click="gotoRegister()" class="btn btn-lg text-white muArrow">Sign Up</button>
-                    </p>
+                    <div class="flex items-center justify-content-center w-full mt-5">
+                      <p class="pointer-events-none text-neutral-400">Don't have an account?</p>
+                      <button v-on:click="gotoRegister()"
+                              class="btn btn-lg text-white muArrow">
+                        Sign Up
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

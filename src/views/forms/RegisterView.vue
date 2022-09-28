@@ -8,7 +8,7 @@
       <div class="d-flex">
         <div class="mb-2"
              style="text-align: justify; text-justify: inter-word; width: 200px; pointer-events: none">
-          Only a few steps 'till success. Before you lie many possibilities and experiments.
+          Only a few steps 'till success. Before you lie many possibilities and ex- periments.
           It is up to you to discover them and figure out what's next. But it is our mission,
           to assist you and make you a part of this project.
         </div>
@@ -32,15 +32,16 @@
             <div class="card text-white" style="border-radius: 1rem; background: #131313">
               <div class="card-body p-5 text-center">
                 <div class="mt-md-0 pb-5">
-                  <h1 class="fw-bold mb-3" style="font-family: 'Lato', sans-serif; pointer-events: none">
-                    Register
+                  <h1 class="fw-bold mb-4 text-4xl"
+                      style="font-family: 'Lato', sans-serif; pointer-events: none">
+                    REGISTER
                   </h1>
                   <div class="form-outline form-white mb-4">
                     <input
                       required
                       v-model="user.email"
                       type="email"
-                      class="text-black"
+                      class="text-black py-1 px-2"
                       placeholder="Email"
                     />
                   </div>
@@ -49,7 +50,7 @@
                       required
                       v-model="user.password"
                       type="password"
-                      class="text-black"
+                      class="text-black py-1 px-2"
                       placeholder="Password"
                     />
                   </div>
@@ -58,7 +59,7 @@
                       required
                       v-model="user.passwordRpt"
                       type="password"
-                      class="text-black"
+                      class="text-black py-1 px-2"
                       placeholder="Confirm Password"
                     />
                   </div>
@@ -68,7 +69,7 @@
                       required
                       v-model="user.username"
                       type="text"
-                      class="text-black"
+                      class="text-black py-1 px-2"
                       placeholder="Username"
                     />
                   </div>
