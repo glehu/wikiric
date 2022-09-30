@@ -295,7 +295,7 @@
           </div>
           <!-- #### MESSAGES #### -->
           <div id="messages_section"
-               class="messages_section bg-neutral-900 bg-opacity-80"
+               class="messages_section bg-neutral-900 bg-opacity-80 relative"
                style="overflow-y: auto; overflow-x: clip;
                     height: calc(100vh - 60px - 50px - 80px);
                     display: flex; flex-direction: column-reverse">
@@ -512,13 +512,12 @@
           </div>
           <!-- #### USER INPUT FIELD #### -->
           <div style="display: inline-flex;
-                    width: 100%;
-                    min-height: 80px;
-                    position: absolute;
-                    bottom: 0;
-                    padding-bottom: 20px;
-                    flex-direction: column-reverse"
-               class="bg-neutral-900">
+                      width: 100%;
+                      min-height: 80px;
+                      position: absolute;
+                      bottom: 0;
+                      padding-bottom: 20px;
+                      flex-direction: column-reverse">
             <button class="btn btn-no-fx c_lightgray text-center scroll_to_bottom"
                     id="scroll_to_bottom"
                     v-on:click="scrollToBottom">
@@ -638,11 +637,12 @@
                        class="imgflip_text"
                        style="top: 100px; left: 10px; font-size: 100%; height: 50px; width: 150px">
                     <div :id="'imgflip_draggableText_' + box.id + '_div_anchor'"
-                         class="draggable_meme_text_anchor">
+                         class="draggable_meme_text_anchor"
+                         style="font-family: Arial, sans-serif; text-shadow: none">
                       <i class="bi bi-arrows-move" style="font-size: 75%; color: black"></i>
                     </div>
                     <textarea :id="'imgflip_draggableText_' + box.id" rows="1" cols="8"
-                              class="fw-bold draggable_meme_text"></textarea>
+                              class="fw-bold draggable_meme_text border-2 border-black"></textarea>
                   </div>
                 </div>
               </template>
@@ -1414,6 +1414,7 @@ export default {
         } else {
           this.hideAllWindows()
         }
+        this.focusComment()
       }
     },
     handleFirebaseEvent: function (event) {
@@ -2475,8 +2476,9 @@ export default {
       }
     },
     auto_grow: function () {
-      this.inputField.style.height = '40px'
-      this.inputField.style.height = (this.inputField.scrollHeight) + 'px'
+      this.inputField.style.height = '40px' // Default
+      this.inputField.style.height = (this.inputField.scrollHeight) + 'px' // Grow if scrollHeight > 0
+      this.message_section.style.bottom = (this.inputField.scrollHeight - 40) + 'px'
     },
     resizeCanvas: function () {
       if (window.innerWidth >= 1100) {
