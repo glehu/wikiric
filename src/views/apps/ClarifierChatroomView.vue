@@ -667,26 +667,17 @@
                       v-on:keyup="auto_grow"
                       v-on:click="hideAllSidebars"></textarea>
             <button id="send_image_button"
-                    class="message_button send_image_button hover:brightness-200"
-                    style="position: absolute; right: 100px; background-color: transparent"
+                    class="message_button send_image_button b_darkgray hover:brightness-200 flex justify-center items-center"
+                    style="position: absolute; right: 50px; border-radius: 0"
                     title="Send Files"
                     v-on:click="toggleUploadingSnippet">
-              <span class="text-neutral-300"><i class="bi bi-plus-circle"></i></span>
+              <DocumentArrowUpIcon class="text-neutral-300 h-6 w-6"></DocumentArrowUpIcon>
             </button>
-            <button class="message_button b_darkgray hover:brightness-200"
-                    style="position: absolute; right: 55px"
-                    :title="getAddMessageTitle()"
-                    v-on:click="addMessage">
-              <span class="text-neutral-300">
-                <i v-if="isEditingMessage === false" class="bi bi-send"></i>
-                <i v-else class="bi bi-pencil-fill"></i>
-              </span>
-            </button>
-            <button class="message_button b_darkgray hover:brightness-200"
-                    style="position: absolute; right: 10px"
+            <button class="message_button b_darkgray hover:brightness-200 flex justify-center items-center"
+                    style="position: absolute; right: 10px; border-radius: 0 6px 6px 0"
                     title="Search on GIPHY"
                     v-on:click="toggleSelectingGIF">
-              <span class="fw-bold text-neutral-300">GIF</span>
+              <GifIcon class="text-neutral-300 h-8 w-6"></GifIcon>
             </button>
           </div>
         </div>
@@ -1050,7 +1041,6 @@
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="closeUploadingSnippet()"></i>
       <h2 class="fw-bold">File Upload</h2>
-      <hr class="c_lightgray">
       <template v-if="uploadFileType !== ''">
         <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px">
           <img v-if="uploadFileType.includes('image')"
@@ -1065,7 +1055,7 @@
         </div>
       </template>
       <template v-if="uploadFileBase64 === ''">
-        <div class="drop_zone" id="snippet_drop_zone" style="margin-bottom: 10px">Drop a file here!</div>
+        <div class="drop_zone my-8" id="snippet_drop_zone">Drop a file here!</div>
         <input type="file" class="file_input" id="snippet_files" name="files[]"
                style="width: 100%"
                multiple v-on:change="handleUploadFileSelect"/>
@@ -1187,8 +1177,12 @@ import mermaid from 'mermaid'
 import 'highlight.js/styles/hybrid.css'
 import {
   PhoneIcon,
-  VideoCameraIcon
+  VideoCameraIcon,
+  GifIcon
 } from '@heroicons/vue/24/solid'
+import {
+  DocumentArrowUpIcon
+} from '@heroicons/vue/24/outline'
 import WRTC from '@/webrtc/wRTC'
 
 export default {
@@ -1199,7 +1193,9 @@ export default {
     modal,
     Markdown,
     PhoneIcon,
-    VideoCameraIcon
+    VideoCameraIcon,
+    DocumentArrowUpIcon,
+    GifIcon
   },
   data () {
     return {
@@ -2479,7 +2475,6 @@ export default {
       }
     },
     auto_grow: function () {
-      this.sendImageButton.classList.toggle('active', (this.new_message !== '')) // Inverted
       this.inputField.style.height = '40px'
       this.inputField.style.height = (this.inputField.scrollHeight) + 'px'
     },
@@ -3777,7 +3772,7 @@ export default {
   text-wrap: normal;
   word-wrap: break-word;
   padding: 8px;
-  @apply bg-gray-700;
+  @apply bg-slate-700;
   border-radius: 20px;
   text-align: center;
   color: #aeaeb7;
@@ -3795,10 +3790,10 @@ export default {
 .new_comment {
   position: absolute;
   left: 10px;
-  width: calc(100% - 110px);
+  width: calc(100% - 100px);
   color: white;
   border-color: transparent;
-  border-radius: 1em;
+  border-radius: 6px 0 0 6px;
   resize: none;
   overflow-x: hidden;
   overflow-y: auto;
@@ -4154,7 +4149,6 @@ export default {
 .message_button {
   width: 40px;
   height: 40px;
-  margin-left: 1ch;
   border-color: transparent;
   border-radius: 1em
 }
