@@ -69,7 +69,7 @@ export default {
 }
 
 .b_darkgray {
-  @apply bg-gray-700;
+  @apply bg-slate-700;
 }
 
 .c_darkgray {

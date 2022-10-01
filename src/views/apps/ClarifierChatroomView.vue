@@ -518,7 +518,7 @@
                       bottom: 0;
                       padding-bottom: 20px;
                       flex-direction: column-reverse">
-            <button class="btn btn-no-fx c_lightgray text-center scroll_to_bottom"
+            <button class="c_lightgray text-center scroll_to_bottom orange-hover"
                     id="scroll_to_bottom"
                     v-on:click="scrollToBottom">
               <i class="bi bi-arrow-down"></i>
@@ -646,7 +646,7 @@
                   </div>
                 </div>
               </template>
-              <template v-else-if="this.isFillingImgflipTemplate.mode === 'top-bottom'">
+              <template v-else-if="isFillingImgflipTemplate.mode === 'top-bottom'">
                 <input id="imgflip_topText"
                        style="bottom: 80px; background-color: rgba(255, 255, 255, 0.5);"
                        class="text-center fw-bold imgflip_text"
@@ -730,7 +730,7 @@
     </div>
   </div>
   <!-- #### USER PROFILE #### -->
-  <div class="user_profile b_gray" style="overflow-x: hidden; overflow-y: auto"
+  <div class="user_profile b_darkgray" style="overflow-x: hidden; overflow-y: auto"
        v-show="isViewingUserProfile" @click.stop>
     <div style="position: relative; padding-top: 10px; height: 100%">
       <i class="bi bi-x-lg lead orange-hover"
@@ -738,15 +738,15 @@
          v-on:click="hideAllWindows()"></i>
       <div style="display: flex; align-items: center">
         <i class="bi bi-person-circle" style="font-size: 400%; margin-right: 15px"></i>
-        <template v-if="this.viewedUserProfile.iurl != null">
-          <img :src="getImg(this.viewedUserProfile.iurl, true)" alt="?"
+        <template v-if="viewedUserProfile.iurl != null">
+          <img :src="getImg(viewedUserProfile.iurl, true)" alt="?"
                class="b_darkergray"
                style="width: 75px; height: 75px; border-radius: 100%;
                                 position: absolute; top: 20px; left: -5px">
         </template>
         <div style="display: block">
           <h2 class="fw-bold text-2xl">
-            {{ this.viewedUserProfile.usr }}
+            {{ viewedUserProfile.usr }}
           </h2>
           <div title="This member's messages are being End-to-End encrypted"
                style="display: flex; align-items: center">
@@ -757,20 +757,26 @@
           </div>
         </div>
       </div>
-      <template v-if="this.viewedUserProfile.usr === this.$store.state.username">
-        <button class="btn c_lightgray gray-hover"
-                v-on:click="isEditingProfile = true">
-          <i class="bi bi-pencil" style="margin-right: 4px"></i> Edit Profile
-        </button>
-      </template>
-      <template v-else>
-        <button class="btn c_lightgray gray-hover">
-          <i class="bi bi-arrow-bar-left" style="margin-right: 4px"></i> Kick
-        </button>
-        <button class="btn c_lightgray gray-hover">
-          <i class="bi bi-hammer" style="margin-right: 4px"></i> Ban
-        </button>
-      </template>
+      <div class="items-center flex">
+        <template v-if="viewedUserProfile.usr === this.$store.state.username">
+          <button class="c_lightgray gray-hover py-1 px-2"
+                  v-on:click="isEditingProfile = true">
+            <i class="bi bi-pencil mr-2"></i>Edit Profile
+          </button>
+          <button class="c_lightgray gray-hover py-1 px-2"
+                  v-on:click="startTransferring()">
+            <span class="flex items-center"><QrCodeIcon class="h-5 w-5 mr-1"></QrCodeIcon>Transfer</span>
+          </button>
+        </template>
+        <template v-else>
+          <button class="c_lightgray gray-hover py-1 px-2">
+            <i class="bi bi-arrow-bar-left mr-2"></i>Kick
+          </button>
+          <button class="c_lightgray gray-hover py-1 px-2">
+            <i class="bi bi-hammer mr-2"></i>Ban
+          </button>
+        </template>
+      </div>
       <!-- #### MEMBER ROLES #### -->
       <hr class="c_lightgray my-2">
       <div style="display: flex; flex-wrap: wrap">
@@ -864,7 +870,7 @@
     </template>
   </modal>
   <!-- #### GIF SELECTION #### -->
-  <div class="giphygrid b_gray p-3"
+  <div class="giphygrid b_darkgray p-3"
        style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
     <div style="height: calc(100% - 50px); width: 100%; overflow-x: clip; overflow-y: auto;"
          class="b_darkergray rounded-lg">
@@ -889,7 +895,7 @@
     </div>
   </div>
   <!-- #### Settings #### -->
-  <div class="session_settings b_gray shadow"
+  <div class="session_settings b_darkgray shadow"
        style="overflow-x: hidden; overflow-y: auto"
        v-show="isViewingSessionSettings" @click.stop>
     <div style="position: relative; padding-top: 10px; width: 100%">
@@ -1040,7 +1046,7 @@
     <div style="position: relative; padding-top: 10px; width: 100%">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="closeUploadingSnippet()"></i>
-      <h2 class="fw-bold">File Upload</h2>
+      <h2 class="fw-bold text-2xl mb-4">File Upload</h2>
       <template v-if="uploadFileType !== ''">
         <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px">
           <img v-if="uploadFileType.includes('image')"
@@ -1055,24 +1061,23 @@
         </div>
       </template>
       <template v-if="uploadFileBase64 === ''">
-        <div class="drop_zone my-8" id="snippet_drop_zone">Drop a file here!</div>
+        <div class="drop_zone mb-2" id="snippet_drop_zone">Drop a file here!</div>
         <input type="file" class="file_input" id="snippet_files" name="files[]"
                style="width: 100%"
                multiple v-on:change="handleUploadFileSelect"/>
       </template>
-      <div id="confirm_snippet_loading" class="ms-3 mt-3" style="display: none">
+      <div id="confirm_snippet_loading" class="ml-2 my-2" style="display: none">
         <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
         <span class="jetb ms-2">Uploading...</span>
       </div>
       <template v-if="uploadFileBase64 !== ''">
-        <hr class="c_lightgray">
         <div style="width: 100%; display: flex; align-items: center; justify-items: center">
           <button class="btn-outline-light darkbutton text-white"
                   style="width: 90%; height: 2.5em; border-color: transparent;
                          border-radius: 1em; margin: auto"
                   title="Send"
                   v-on:click="addMessage">
-            <span class="fw-bold"><i class="bi bi-send"></i> Submit</span>
+            <span class="fw-bold"><i class="bi bi-send mr-2"></i>Submit</span>
             <span style="margin-left: 10px" class="c_lightgray"> {{ this.uploadFileType }}</span>
           </button>
         </div>
@@ -1165,25 +1170,55 @@
     <template v-slot:footer>
     </template>
   </modal>
+  <modal
+    v-show="isTransferring"
+    @close="hideAllWindows()">
+    <template v-slot:header>
+      <h2 class="fw-bold text-2xl">Transfer</h2>
+    </template>
+    <template v-slot:body>
+      <div class="md:flex">
+        <div id="transfer_qrcode"><!--AutoGeneratedQRCodes--></div>
+        <div class="mt-4 md:mt-0 md:mx-4">
+          <p class="text-xl">Guide:</p>
+          <ol class="list-decimal list-inside">
+            <li>Get the device that you are trying to migrate to.</li>
+            <li>Scan the QR Code on the device.</li>
+            <li>Follow the instructions that will be shown.</li>
+          </ol>
+          <div class="flex mt-4 items-center">
+            <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
+            <span class="ml-2 fw-bold c_lightgray">Waiting...</span>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
 </template>
 
 <script>
-
+// Own
 import modal from '../../components/Modal.vue'
+import WRTC from '@/webrtc/wRTC'
+// External
 import { Base64 } from 'js-base64'
 import Markdown from 'vue3-markdown-it'
 import markdownItMermaid from 'markdown-it-mermaid'
 import mermaid from 'mermaid'
-import 'highlight.js/styles/hybrid.css'
+import 'highlight.js/styles/base16/google-dark.css'
+import * as QRCode from 'easyqrcodejs'
+// Icons
 import {
   PhoneIcon,
   VideoCameraIcon,
-  GifIcon
+  GifIcon,
+  QrCodeIcon
 } from '@heroicons/vue/24/solid'
 import {
   DocumentArrowUpIcon
 } from '@heroicons/vue/24/outline'
-import WRTC from '@/webrtc/wRTC'
 
 export default {
   props: {
@@ -1195,7 +1230,8 @@ export default {
     PhoneIcon,
     VideoCameraIcon,
     DocumentArrowUpIcon,
-    GifIcon
+    GifIcon,
+    QrCodeIcon
   },
   data () {
     return {
@@ -1228,7 +1264,6 @@ export default {
       imgflipSelection: [],
       showInviteCopied: false,
       new_subchat_name: '',
-      sendImageButton: null,
       inputField: null,
       message_section: null,
       uploadFileBase64: '',
@@ -1256,6 +1291,7 @@ export default {
       isViewingBadges: false,
       isStreamingVideo: false,
       isEditingProfile: false,
+      isTransferring: false,
       //
       lastKeyPressed: '',
       viewedUserProfile: {
@@ -1281,7 +1317,6 @@ export default {
       this.$store.commit('setE2EncryptionSeen', true)
     },
     initFunction: async function () {
-      console.debug('initFunction')
       this.setUpWRTC()
       this.$store.commit('setLastClarifierGUID', this.$route.params.id)
       this.isModalVisible = !this.$store.getters.hasSeenE2ENotification()
@@ -1289,7 +1324,6 @@ export default {
       window.addEventListener('resize', this.resizeCanvas, false)
       this.resizeCanvas()
       // Save elements to gain performance boost by avoiding too many lookups
-      this.sendImageButton = document.getElementById('send_image_button')
       this.inputField = document.getElementById('new_comment')
       this.message_section = document.getElementById('messages_section')
       // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
@@ -1330,6 +1364,9 @@ export default {
       const dropZoneSnippet = document.getElementById('snippet_drop_zone')
       dropZoneSnippet.addEventListener('dragover', this.handleDragOver, false)
       dropZoneSnippet.addEventListener('drop', this.handleUploadImageSelectDrop, false)
+      const dropFilesZoneSnippet = document.getElementById('snippet_files')
+      dropFilesZoneSnippet.addEventListener('dragover', this.handleDragOver, false)
+      dropFilesZoneSnippet.addEventListener('drop', this.handleUploadImageSelectDrop, false)
       // Broadcast channels to listen to firebase cloud messaging notifications
       const bc = new BroadcastChannel('dlChannel')
       bc.onmessage = event => {
@@ -2416,6 +2453,7 @@ export default {
       this.isSelectingImgflipTemplate = false
       this.isFillingImgflipTemplate.active = false
       this.isViewingBadges = false
+      this.isTransferring = false
       this.imgflip_template = {}
       this.hideUserProfile()
       this.hideSessionSettings()
@@ -3633,6 +3671,27 @@ export default {
           this.showUserProfile(this.mainMembers[i])
         }
       }
+    },
+    startTransferring: function () {
+      this.isTransferring = true
+      setTimeout(() => {
+        const elem = document.getElementById('transfer_qrcode')
+        while (elem.firstChild) {
+          elem.firstChild.remove()
+        }
+        const qrCodePayload = this.$store.state.serverIP +
+          '/apps/clarifier/transfer' +
+          '?guid=' + this.chatroom.guid +
+          '&who=' + this.$store.state.username
+        const qrCode = new QRCode(elem, {
+          text: qrCodePayload,
+          quietZone: 10,
+          quietZoneColor: 'rgba(255,255,255,1)'
+        })
+        if (qrCode) {
+          console.debug(qrCode)
+        }
+      }, 0)
     }
   }
 }
@@ -4095,7 +4154,7 @@ export default {
 }
 
 .message:hover {
-  background-color: rgba(44, 44, 44, 0.35);
+  background-color: rgba(38, 38, 38, 0.2);
 }
 
 .msg_options {
