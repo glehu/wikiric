@@ -3427,13 +3427,13 @@ export default {
       this.addMessagePar('[c:SC]' + '[D]' + JSON.stringify(resp))
       const peerConnection = await this.wRTC.getPeerConnection(payload.remoteId)
       if (peerConnection.candidates) {
-        for (const candidate in peerConnection.candidates) {
+        for (let i = 0; i < peerConnection.candidates.length; i++) {
           const candidatePayload = {
-            selfId: payload.remoteId,
+            selfId: peerConnection.remoteId,
             remoteId: this.userId,
-            candidate: candidate.candidate
+            candidate: peerConnection.candidates[i].candidate
           }
-          console.log('%cSending Candidate', this.wRTC.logStyle)
+          console.log('%cSending Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
           this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
         }
       }
