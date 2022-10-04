@@ -1184,7 +1184,7 @@
           <ol class="list-decimal list-inside">
             <li>Get the device that you are trying to migrate to.</li>
             <li>Scan the QR Code on the device.</li>
-            <li>Follow the instructions that will be shown.</li>
+            <li>Wait for the transfer to finish.</li>
           </ol>
           <div class="flex mt-4 items-center">
             <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
@@ -4340,7 +4340,7 @@ export default {
   @apply mb-4;
 }
 
-.clientMessage th, td {
+.clientMessage th, .clientMessage td {
   @apply p-2 border border-slate-700;
 }
 

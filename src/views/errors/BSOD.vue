@@ -13,7 +13,7 @@
         <i class="bi bi-square small"></i>
       </button>
       <button class="btn btn-light ms-2 p-0" style="width: 30px; height: 30px"
-      v-on:click="this.$router.push('/')">
+              v-on:click="this.$router.push('/')">
         <span class="m-0">X</span>
       </button>
     </div>
@@ -31,9 +31,9 @@
     <hr style="color: white">
     <div id="help" class="mt-2">
       <p>Consider the following:</p>
-      <ul>
+      <ul class="list-disc list-inside">
         <li>Report this error via
-          <a style="color: white;" :href="'https://github.com/glehu/wikiric/issues'">Github</a>,
+          <a class="underline" :href="'https://github.com/glehu/wikiric/issues'">Github</a>,
           providing a description of how this happened
         </li>
         <li>Visit another page</li>
@@ -41,9 +41,9 @@
     </div>
     <hr style="color: white">
     <div id="links" class="text-center">
-      <p class="fw-bold">
-        <i class="bi bi-house mx-2"/><a style="color: white;" :href="'/'">Homepage</a>
-        <i class="bi bi-chat-dots mx-2 ms-3"/><a style="color: white;" :href="'/apps/clarifier'">Clarifier</a>
+      <p class="fw-bold underline">
+        <i class="bi bi-house mx-2"/><a :href="'/'">Homepage</a>
+        <i class="bi bi-chat-dots mx-2 ms-3"/><a :href="'/apps/clarifier'">Clarifier</a>
       </p>
     </div>
   </div>

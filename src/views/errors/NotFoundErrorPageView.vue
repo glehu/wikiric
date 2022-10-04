@@ -1,21 +1,25 @@
 <template>
   <div class="supercenter text-white" style="width: 350px">
-    <div id="404" class="text-center">
+    <div id="404" class="text-center mb-4">
       <p class="fw-bold doHover" style="font-size: 400%;">404</p>
       <p class="doHover" style="color: gray; font-size: 200%;">(╯°□°）╯︵ ┻━┻</p>
-      <strong>The requested content does not exist.</strong>
+      <div id="message" class="my-2">
+        <strong class="text-xl">
+          The requested content does not exist.
+        </strong>
+      </div>
     </div>
     <hr style="color: white">
-    <div id="help" class="mt-2">
+    <div id="help" class="my-2">
       <p>Consider the following:</p>
-      <ul>
+      <ul class="list-disc list-inside">
         <li>Check the spelling of the URL</li>
         <li>Visit another page</li>
       </ul>
     </div>
     <hr style="color: white">
-    <div id="links" class="text-center">
-      <p class="fw-bold">
+    <div id="links" class="text-center mt-2">
+      <p class="fw-bold underline">
         <i class="bi bi-house mx-2"/><a :href="'/'">Homepage</a>
         <i class="bi bi-chat-dots mx-2 ms-3"/><a :href="'/apps/clarifier'">Clarifier</a>
       </p>

@@ -11,7 +11,9 @@
           <div class="bg-neutral-900 bg-opacity-40 h-full relative">
             <div class="py-1 shadow rounded-none">
               <div class="flex items-center">
-                <div v-on:click="$router.back()"
+                <div v-on:click="$router.push(
+                  'apps/clarifier/wss/' + srcGUID
+                )"
                      class="h-full ml-4 mr-2 px-2 py-4 rounded-xl text-center text-gray-300 hover:text-orange-500 cursor-pointer">
                   <i class="sb_link_icon bi bi-x-square text-xl"></i>
                 </div>
@@ -75,21 +77,27 @@
             </div>
           </div>
         </div>
-        <!-- RESULTS -->
         <div class="lg:col-span-2 pt-2 overflow-y-scroll overflow-x-hidden sm:max-h-[calc(100vh-120px)]">
           <template v-if="emptyState">
             <div class="text-neutral-400 p-2">
-              <p class="text-3xl font-bold mb-2 pointer-events-none">Top Contributors</p>
+              <p class="text-3xl font-bold mb-4 pointer-events-none">Top Contributors</p>
               <div class="flex">
                 <div v-for="author in topWriters.contributors" :key="author.username"
-                     class="items-center flex w-fit mr-4">
-                  <span class="text-neutral-400 text-3xl mr-2">{{ author.username }}</span>
-                  <span class="text-neutral-500 text-2xl pl-1 border-l-2 border-l-neutral-700">{{ author.lessons }} lessons</span>
+                     class="mr-4 text-neutral-400 shadow shadow-black rounded-xl">
+                  <div class="bg-neutral-800 rounded-t-xl py-2 px-3 pointer-events-none">
+                    <p class="text-3xl">{{ author.username }}</p>
+                  </div>
+                  <div class="bg-slate-700 rounded-b-xl py-1 px-3 pointer-events-none">
+                    <div class="flex items-center">
+                      <BookOpenIcon class="h-6 w-6 mr-2"></BookOpenIcon>
+                      <p class="text-2xl">{{ author.lessons }}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
             <div
-              class="flex w-full justify-content-center items-center text-neutral-400 pointer-events-none p-3 md:mt-10 border-t border-t-neutral-800">
+              class="flex w-full justify-content-center items-center text-neutral-400 pointer-events-none p-3 mt-4 border-t border-t-neutral-800">
               <MagnifyingGlassIcon class="h-12 w-12 mr-4"></MagnifyingGlassIcon>
               <p>Search to get some results!</p>
             </div>
@@ -119,6 +127,7 @@
               </div>
             </div>
           </template>
+          <!-- RESULTS -->
           <template v-if="results.length > 0">
             <div class="text-neutral-400 pointer-events-none px-3 pb-2">
               {{ results.length }} results in {{ results.time }} seconds
@@ -130,30 +139,6 @@
                   <div
                     class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
                 </template>
-                <div
-                  class="absolute right-0 flex text-neutral-300 result-copy backdrop-blur px-2 py-1 rounded-xl -translate-y-4">
-                  <div v-on:click="reactToMessage(result.result, '+')"
-                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-1">
-                    <HandThumbUpIcon class="h-8 w-8"></HandThumbUpIcon>
-                  </div>
-                  <div v-on:click="reactToMessage(result.result, '-')"
-                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-1">
-                    <HandThumbDownIcon class="h-8 w-8"></HandThumbDownIcon>
-                  </div>
-                  <div v-on:click="reactToMessage(result.result, '⭐')"
-                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-1">
-                    <StarIcon class="h-8 w-8"></StarIcon>
-                  </div>
-                  <div v-on:click="editWisdom(result.result)"
-                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-1">
-                    <PencilSquareIcon class="h-8 w-8"></PencilSquareIcon>
-                  </div>
-                  <div v-if="result.result.copyContent != null"
-                       v-on:click="copy(result.result.copyContent)"
-                       class="cursor-pointer hover:bg-gray-600 rounded-full p-2 mr-1">
-                    <ClipboardIcon class="h-8 w-8"></ClipboardIcon>
-                  </div>
-                </div>
                 <div class="text-neutral-400 mb-4 flex items-center">
                   <template v-if="result.priority === 'high'">
                     <SparklesIcon class="w-6 h-6 mr-2"></SparklesIcon>
@@ -170,28 +155,33 @@
                          :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
                          v-on:click="reactToMessage(result.result, JSON.parse(reaction).t)"
                          :id="'react_' + result.result.gUID + '_' + JSON.parse(reaction).t">
-                      <i v-if="JSON.parse(reaction).t === '+'"
-                         class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
-                      <i v-else-if="JSON.parse(reaction).t === '-'"
-                         class="bi bi-hand-thumbs-down" style="margin-right: 2px"></i>
+                      <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
+                                       class="w-6 h-6 mr-1"></HandThumbUpIcon>
+                      <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
+                                         class="w-6 h-6 mr-1"></HandThumbDownIcon>
+                      <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
+                                class="w-6 h-6 mr-1"></StarIcon>
                       <span v-else> {{ JSON.parse(reaction).t }} </span>
                       {{ JSON.parse(reaction).src.length }}
                     </div>
                   </div>
                 </div>
                 <div class="flex">
-                  <Markdown class="text-lg marked" :source="result.result.t" :plugins="plugins"></Markdown>
+                  <Markdown v-on:click="gotoWisdom(result.result.gUID)"
+                            class="text-lg marked hover:text-orange-500 cursor-pointer"
+                            :source="result.result.t"
+                            :plugins="plugins"></Markdown>
                 </div>
                 <Markdown class="text-gray-400 marked" :source="result.result.desc" :plugins="plugins"></Markdown>
-                <div class="flex mt-4">
+                <div class="flex mt-3">
                   <template v-if="result.result.copyContent != null">
                     <ClipboardIcon
-                      class="w-10 h-10 text-yellow-500 flex items-center px-2 border-2 border-yellow-500 rounded-lg mr-1">
+                      class="w-10 h-8 text-yellow-500 flex items-center px-2 border-2 border-yellow-500 rounded-lg mr-1">
                     </ClipboardIcon>
                   </template>
                   <template v-for="cat in result.result.categories" :key="cat">
                     <div v-if="JSON.parse(cat).category != null"
-                         class="text-gray-400 flex items-center px-2 border-2 border-gray-500 rounded-lg w-fit mr-1 pointer-events-none">
+                         class="h-8 text-gray-400 flex items-center px-2 border-2 border-gray-500 rounded-lg w-fit mr-1 pointer-events-none">
                       {{ JSON.parse(cat).category }}
                     </div>
                   </template>
@@ -387,10 +377,10 @@ import 'highlight.js/styles/hybrid.css'
 import {
   MagnifyingGlassIcon,
   ClipboardIcon,
-  PencilSquareIcon,
   HandThumbUpIcon,
   HandThumbDownIcon,
-  StarIcon
+  StarIcon,
+  BookOpenIcon
 } from '@heroicons/vue/24/outline'
 import {
   CheckIcon,
@@ -420,10 +410,10 @@ export default {
     MagnifyingGlassIcon,
     ClipboardIcon,
     SparklesIcon,
-    PencilSquareIcon,
     HandThumbUpIcon,
     HandThumbDownIcon,
-    StarIcon
+    StarIcon,
+    BookOpenIcon
   },
   data () {
     return {
@@ -471,10 +461,10 @@ export default {
       await this.serverLogin()
       const input = document.getElementById('search-field')
       input.focus()
-      // Whose knowledge are we trying to see?
       const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop)
       })
+      // Whose knowledge are we trying to see?
       const srcGUID = params.src
       if (srcGUID != null) {
         const chatroom = await this.getClarifierChatroom(srcGUID)
@@ -486,9 +476,13 @@ export default {
         if (knowledge != null) {
           this.knowledge = knowledge
         }
-        const topContributors = await this.getTopContributors(srcGUID)
-        if (topContributors != null) {
-          // this.knowledge = knowledge
+        // Did we already search for something?
+        const queryText = params.query
+        if (queryText != null) {
+          this.queryText = queryText
+          await this.searchWisdom()
+        } else {
+          await this.getTopContributors(srcGUID)
         }
       }
     },
@@ -651,6 +645,15 @@ export default {
           .catch((err) => {
             console.error(err.message)
             this.noResults = true
+          })
+          .finally(() => {
+            this.$router.push({
+              path: 'knowledge',
+              query: {
+                src: this.srcGUID,
+                query: this.queryText
+              }
+            })
           })
       })
     },
@@ -877,6 +880,18 @@ export default {
             console.error(err.message)
           })
       })
+    },
+    toggleElement: function (id, display = 'block') {
+      const elem = document.getElementById(id)
+      if (elem.style.display === display) {
+        elem.style.display = 'none'
+      } else {
+        elem.style.display = display
+      }
+    },
+    gotoWisdom: function (id) {
+      if (id == null) return
+      this.$router.push('/knowledge/' + id + '?src=' + this.srcGUID)
     }
   }
 }
@@ -925,7 +940,7 @@ export default {
   @apply mb-4;
 }
 
-.marked th, td {
+.marked th, .marked td {
   @apply p-2 border border-slate-700;
 }
 
@@ -953,7 +968,7 @@ export default {
   @apply text-lg mb-2;
 }
 
-.marked h5 {
+.marked h6 {
   @apply text-lg;
 }
 

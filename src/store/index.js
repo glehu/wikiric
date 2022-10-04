@@ -35,7 +35,10 @@ export default createStore({
     lastClarifierSubGUID: '',
     // ImgFlip
     imgFlipUsername: '',
-    imgFlipPassword: ''
+    imgFlipPassword: '',
+    // Knowledge
+    // Wisdom
+    wisdomTutorialSeen: false
   },
   mutations: {
     logIn (state, user) {
@@ -189,6 +192,9 @@ export default createStore({
       if (guid != null && (guid.toString().length > 30 || guid === 'none')) {
         state.lastClarifierSubGUID = guid
       }
+    },
+    setWisdomTutorialSeen (state, seen) {
+      state.wisdomTutorialSeen = seen
     }
   },
   actions: {},
@@ -208,6 +214,9 @@ export default createStore({
     },
     getLastClarifierSubGUID: (state) => () => {
       return state.lastClarifierSubGUID
+    },
+    hasSeenWisdomTutorial: (state) => () => {
+      return state.wisdomTutorialSeen
     }
   }
 })

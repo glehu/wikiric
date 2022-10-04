@@ -222,7 +222,7 @@ const WRTC = {
         if (candidate) {
           await peerConnection.addIceCandidate(candidate)
         } else {
-          console.log('%cReceived End of Candidates from remote peer', this.wRTC.logStyle, remoteId)
+          console.log('%cReceived End of Candidates from remote peer', this.logStyle, remoteId)
           await peerConnection.addIceCandidate(null)
         }
       } catch (e) {

@@ -37,7 +37,7 @@
         <div class="relative">
           <div class="absolute w-full text-center cursor-pointer hover:bg-neutral-900 my-4 p-2 rounded-full"
                v-on:click="scrollTo('firstSection')">
-            <p class="text-neutral-400 font-bold">Learn</p>
+            <p class="text-neutral-400 font-bold">Explore</p>
             <i class="bi bi-arrow-down text-2xl text-neutral-400"
                id="firstSection"></i>
           </div>
