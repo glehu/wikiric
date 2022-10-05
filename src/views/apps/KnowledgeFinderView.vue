@@ -139,7 +139,7 @@
                   <div
                     class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
                 </template>
-                <div class="text-neutral-400 mb-4 flex items-center">
+                <div class="text-neutral-400 mb-2 flex items-center">
                   <template v-if="result.priority === 'high'">
                     <SparklesIcon class="w-6 h-6 mr-2"></SparklesIcon>
                   </template>
@@ -148,10 +148,10 @@
                     from
                     {{ result.result.author }}
                   </div>
-                  <div v-if="result.result.reacts != null" class="flex ml-2">
+                  <div v-if="result.result.reacts != null" class="flex ml-4">
                     <div v-for="reaction in result.result.reacts" :key="reaction.src"
                          style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                         class="b_darkgray c_lightgray gray-hover"
+                         class="c_lightgray gray-hover"
                          :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
                          v-on:click="reactToMessage(result.result, JSON.parse(reaction).t)"
                          :id="'react_' + result.result.gUID + '_' + JSON.parse(reaction).t">
@@ -168,11 +168,13 @@
                 </div>
                 <div class="flex">
                   <Markdown v-on:click="gotoWisdom(result.result.gUID)"
-                            class="text-lg marked hover:text-orange-500 cursor-pointer"
+                            class="text-lg markedFinder hover:text-orange-500 cursor-pointer"
                             :source="result.result.t"
                             :plugins="plugins"></Markdown>
                 </div>
-                <Markdown class="text-gray-400 marked" :source="result.result.desc" :plugins="plugins"></Markdown>
+                <Markdown class="text-gray-400 markedFinder lg:w-3/4"
+                          :source="result.result.desc"
+                          :plugins="plugins"></Markdown>
                 <div class="flex mt-3">
                   <template v-if="result.result.copyContent != null">
                     <ClipboardIcon
@@ -220,31 +222,33 @@
         <span class="text-3xl font-bold">Teach</span>
       </template>
       <template v-slot:body>
+        <div class="flex">
+          <div class="mb-3">
+            <button v-on:click="createLesson()"
+                    class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black font-bold">
+              Submit
+            </button>
+            <button v-on:click="deleteLesson()"
+                    class="py-2 px-3 border-2 border-red-700 rounded-full hover:bg-red-700 hover:text-black font-bold">
+              Delete
+            </button>
+          </div>
+        </div>
         <div class="flex w-[90vw]" style="max-height: 90vh">
           <div class="w-full pr-12 md:pr-0 md:w-1/2">
-            <div class="mb-3">
-              <button v-on:click="createLesson()"
-                      class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black font-bold">
-                Submit
-              </button>
-              <button v-on:click="deleteLesson()"
-                      class="py-2 px-3 border-2 border-red-700 rounded-full hover:bg-red-700 hover:text-black font-bold">
-                Delete
-              </button>
-            </div>
-            <label for="wisTitle" class="text-xl">Title:</label>
+            <label for="wisTitle" class="text-xl font-bold">Title:</label>
             <br>
             <input type="text" id="wisTitle" v-model="wisTitle"
                    class="bg-neutral-900 rounded-xl w-full py-2 px-3">
             <br>
             <div class="block lg:flex w-full">
               <div class="lg:w-1/2">
-                <label for="wisCategories" class="text-xl mt-2">Categories:</label>
+                <label for="wisCategories" class="text-xl mt-2 font-bold">Categories:</label>
                 <br>
                 <Listbox v-model="wisCategories" multiple id="wisCategories">
                   <div class="relative mt-1">
                     <ListboxButton
-                      class="bg-gray-700 w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                      class="bg-neutral-900 w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
                     >
                       <template v-if="wisCategories.length > 0">
                         <div class="block truncate font-bold text-gray-300">
@@ -264,7 +268,7 @@
                       leave-from-class="opacity-100"
                       leave-to-class="opacity-0">
                       <ListboxOptions
-                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-gray-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-neutral-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                       >
                         <ListboxOption
                           v-slot="{ active, selected }"
@@ -293,32 +297,32 @@
                 </Listbox>
               </div>
               <div class="md:w-3/5 lg:ml-3">
-                <label for="wisKeywords" class="text-xl mt-2">Keywords:</label>
+                <label for="wisKeywords" class="text-xl mt-2 font-bold">Keywords:</label>
                 <br>
                 <input type="text" id="wisKeywords" v-model="wisKeywords"
                        class="bg-neutral-900 rounded-xl py-2 px-3 w-full">
               </div>
             </div>
-            <label for="wisDescription" class="text-xl mt-2">Description:</label>
+            <label for="wisDescription" class="text-xl mt-2 font-bold">Description:</label>
             <br>
-            <textarea type="text" id="wisDescription" v-model="wisDescription" rows="10"
+            <textarea type="text" id="wisDescription" v-model="wisDescription" rows="20"
                       class="bg-neutral-900 rounded-xl w-full py-2 px-3"></textarea>
             <br>
-            <label for="wisCopyContent" class="text-xl mt-2">Copy Content:</label>
+            <label for="wisCopyContent" class="text-xl mt-2 font-bold">Copy Content:</label>
             <br>
-            <textarea type="text" id="wisCopyContent" v-model="wisCopyContent" rows="10"
+            <textarea type="text" id="wisCopyContent" v-model="wisCopyContent" rows="5"
                       class="bg-neutral-900 rounded-xl w-full py-2 px-3"></textarea>
           </div>
-          <div class="hidden md:block w-2/5 ml-2 pl-2">
-            <p class="text-xl font-bold mb-2 pointer-events-none">Preview:</p>
+          <div class="hidden md:block w-[46%] ml-2">
+            <p class="text-xl font-bold pointer-events-none">Preview:</p>
             <div class="bg-neutral-900 rounded-xl p-2 cursor-not-allowed">
-              <Markdown :source="wisTitle" class="w-full marked" :plugins="plugins"></Markdown>
-              <Markdown :source="wisDescription" class="w-full mt-4 marked" :plugins="plugins"></Markdown>
+              <Markdown :source="wisTitle" class="w-full markedFinder" :plugins="plugins"></Markdown>
+              <Markdown :source="wisDescription" class="w-full mt-4 markedFinder" :plugins="plugins"></Markdown>
             </div>
             <template v-if="wisCopyContent != null">
-              <p class="text-xl my-2 pointer-events-none">Copy Content:</p>
+              <p class="text-xl my-2 pointer-events-none font-bold">Copy Content:</p>
               <div class="bg-neutral-900 rounded-xl p-2">
-                <Markdown :source="wisCopyContent" class="w-full marked" :plugins="plugins"></Markdown>
+                <Markdown :source="wisCopyContent" class="w-full markedFinder" :plugins="plugins"></Markdown>
               </div>
             </template>
           </div>
@@ -603,7 +607,7 @@ export default {
           .then(res => res.json())
           .then((data) => {
             this.noResults = false
-            const parsedData = JSON.parse(data)
+            const parsedData = data
             if (parsedData.first != null) {
               for (let i = 0; i < parsedData.first.length; i++) {
                 this.results.push({
@@ -672,15 +676,11 @@ export default {
         categories: categories
       }
       const bodyPayload = JSON.stringify(payload)
-      let extension = ''
-      if (this.isEditingWisdom) {
-        extension = '?guid=' + this.wisGUID
-      }
       return new Promise((resolve) => {
         const headers = new Headers()
         headers.set('Authorization', 'Bearer ' + this.$store.state.token)
         fetch(
-          this.$store.state.serverIP + '/api/m7/teach' + extension,
+          this.$store.state.serverIP + '/api/m7/teach',
           {
             method: 'post',
             headers: headers,
@@ -761,42 +761,8 @@ export default {
       // Defaults
       this.wisTitle = '## ' + this.capitalizeFirstLetter(this.queryText).trim()
     },
-    editWisdom: function (wisdom) {
-      this.wisTitle = ''
-      this.wisDescription = ''
-      this.wisKeywords = ''
-      this.wisCopyContent = ''
-      this.wisCategories = []
-      this.wisGUID = ''
-      this.isWritingWisdom = true
-      this.isWritingLesson = true
-      this.isEditingWisdom = true
-      // Defaults
-      this.wisTitle = wisdom.t
-      this.wisDescription = wisdom.desc
-      this.wisKeywords = wisdom.keywords
-      if (wisdom.categories != null && wisdom.categories.length > 0) {
-        for (let i = 0; i < wisdom.categories.length; i++) {
-          this.wisCategories.push(JSON.parse(wisdom.categories[i]))
-        }
-      }
-      this.wisCopyContent = wisdom.copyContent
-      this.wisGUID = wisdom.gUID
-      setTimeout(() => {
-        mermaid.init()
-      }, 0)
-    },
     capitalizeFirstLetter: function ([first, ...rest], locale = navigator.language) {
       return first === undefined ? '' : first.toLocaleUpperCase(locale) + rest.join('')
-    },
-    copy: function (parameter) {
-      navigator.clipboard.writeText(parameter)
-      this.$notify(
-        {
-          title: 'Quick Copy Done!',
-          text: 'CTRL-V to paste.',
-          type: 'info'
-        })
     },
     serverLogin: function () {
       return new Promise((resolve) => {
@@ -881,14 +847,6 @@ export default {
           })
       })
     },
-    toggleElement: function (id, display = 'block') {
-      const elem = document.getElementById(id)
-      if (elem.style.display === display) {
-        elem.style.display = 'none'
-      } else {
-        elem.style.display = display
-      }
-    },
     gotoWisdom: function (id) {
       if (id == null) return
       this.$router.push('/knowledge/' + id + '?src=' + this.srcGUID)
@@ -912,76 +870,68 @@ export default {
   width: 100%;
 }
 
-.marked p {
+.markedFinder p {
   @apply mb-4;
 }
 
-.marked p:last-child {
+.markedFinder p:last-child {
   @apply m-0;
 }
 
-.marked a {
+.markedFinder a {
   @apply underline;
 }
 
-.marked ul {
+.markedFinder ul {
   @apply list-disc list-inside mb-2;
 }
 
-.marked ol {
+.markedFinder ol {
   @apply list-decimal list-inside mb-2;
 }
 
-.marked pre {
+.markedFinder pre {
   @apply mb-2;
 }
 
-.marked table {
+.markedFinder table {
   @apply mb-4;
 }
 
-.marked th, .marked td {
+.markedFinder th, .markedFinder td {
   @apply p-2 border border-slate-700;
 }
 
-.marked tr {
+.markedFinder tr {
   @apply hover:bg-neutral-800;
 }
 
-.marked h1 {
+.markedFinder h1 {
   @apply text-4xl mb-2;
 }
 
-.marked h2 {
+.markedFinder h2 {
   @apply text-3xl mb-2;
 }
 
-.marked h3 {
+.markedFinder h3 {
   @apply text-2xl mb-2;
 }
 
-.marked h4 {
+.markedFinder h4 {
   @apply text-xl mb-2;
 }
 
-.marked h5 {
+.markedFinder h5 {
   @apply text-lg mb-2;
 }
 
-.marked h6 {
+.markedFinder h6 {
   @apply text-lg;
 }
 
-.result-copy {
-  opacity: 0;
-}
-
-.result:hover .result-copy {
-  opacity: 1;
-}
-
 .gray-hover:hover {
-  @apply bg-gray-800;
+  @apply bg-neutral-700 text-neutral-200;
   cursor: pointer;
   border-radius: 10px;
 }

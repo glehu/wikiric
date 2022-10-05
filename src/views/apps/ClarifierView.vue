@@ -8,13 +8,13 @@
         <div class="row d-flex justify-content-center align-items-center">
           <div style="min-width: 400px; width: 80%">
             <div class="card-subtitle text-white" style="border-radius: 1rem">
-              <div class="card-body mt-md-0 c_lightgray">
+              <div class="card-body mt-md-0">
                 <div style="pointer-events: none; margin-bottom: 50px">
                   <div class="flex items-end justify-between">
                     <h1 class="fw-bold text-uppercase text-3xl text-gray-300">
                       Groups
                     </h1>
-                    <div class="text-end">
+                    <div class="text-end text-neutral-300">
                       <h3 class="text-2xl" v-if="hour >= 5 && hour < 10">
                         <i class="bi bi-sunrise-fill p-1"></i>
                         Good&nbsp;Morning
@@ -34,7 +34,7 @@
                     </div>
                   </div>
                   <hr class="my-2">
-                  <p class="text-gray-400">
+                  <p class="text-neutral-400">
                     Your current Clarifier Groups. Click on one of them to quickly enter.
                   </p>
                 </div>
@@ -76,14 +76,14 @@
           <div style="min-width: 400px; width: 80%">
             <div class="card-subtitle text-white">
               <div class="card-body">
-                <div class="mt-md-0 c_lightgray">
+                <div class="mt-md-0">
                   <h1 class="fw-bold mb-2 text-3xl text-gray-300"
                       style="pointer-events: none">
                     Add or Join
                   </h1>
                   <hr class="my-2">
                   <p style="text-align: justify; text-justify: inter-word; width: 100%; pointer-events: none"
-                     class="text-gray-400">
+                     class="text-neutral-400">
                     Enter an invite ID or create your own chatroom.
                   </p>
                   <input id="input_session" v-model="input_string"
