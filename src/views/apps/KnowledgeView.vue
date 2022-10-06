@@ -96,6 +96,26 @@
                   :source="wisdom.desc"
                   :plugins="plugins"></Markdown>
         <!-- Comments/Answers -->
+        <div class="w-full">
+          <div class="w-full relative">
+            <div
+              class="p-2 rounded-full hover:bg-neutral-700 text-neutral-500 hover:text-neutral-200 absolute right-0 sidebar_button cursor-pointer">
+              <Squares2X2Icon
+                class="h-6 w-6"></Squares2X2Icon>
+              <div class="-translate-x-4 translate-y-2">
+                <div class="sidebar_tooltip text-neutral-400">Preview</div>
+              </div>
+            </div>
+            <textarea type="text" id="input_comment" v-model="wisComment" rows="1"
+                      class="w-[calc(100%-50px)] border-b border-neutral-500 text-neutral-300 bg-transparent focus:outline-none"
+                      v-on:keyup="auto_grow">
+            </textarea>
+          </div>
+          <label for="input_comment"
+                 class="text-neutral-500 italic">
+            Write a comment
+          </label>
+        </div>
         <template v-if="related.comments == null">
           <div class="flex w-full items-center justify-content-center py-4">
             <div class="w-full">
@@ -104,42 +124,24 @@
             </div>
           </div>
         </template>
-        <div class="w-full">
-          <div class="w-full relative">
-            <div
-              class="p-2 rounded-full hover:bg-neutral-700 text-neutral-500 hover:text-neutral-200 absolute right-0 -translate-y-2 sidebar_button cursor-pointer">
-              <Squares2X2Icon
-                class="h-6 w-6"></Squares2X2Icon>
-              <div class="-translate-x-4 translate-y-2">
-                <div class="sidebar_tooltip text-neutral-400">Preview</div>
-              </div>
-            </div>
-            <textarea type="text" id="input_comment" v-model="wisComment" rows="1"
-                      class="w-[calc(100%-50px)] border-b border-neutral-500 text-neutral-300 bg-transparent focus:outline-none">
-            </textarea>
-          </div>
-          <label for="input_comment"
-                 class="text-neutral-500 italic">
-            Write a comment
-          </label>
-        </div>
-        <template v-if="related.comments != null">
-          <div class="flex items-center mt-4 mb-2">
+        <template v-else>
+          <div class="flex items-center mt-4 mb-2 pointer-events-none">
             <ChatBubbleLeftEllipsisIcon class="w-6 h-6 mr-2 text-neutral-500"></ChatBubbleLeftEllipsisIcon>
-            <p class="text-neutral-500 text-2xl italic">
+            <p class="text-neutral-400 text-2xl italic">
               {{ related.comments.length }} Comments:
             </p>
           </div>
           <div v-for="comment in related.comments" :key="comment.uID"
-               class="mb-4 w-full bg-neutral-800 backdrop-opacity-50 rounded-xl py-1 px-2">
+               class="mb-2 w-full bg-neutral-800 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2 border-r-2 border-b-neutral-700 border-r-neutral-700">
             <Markdown :source="comment.desc"
-                      class="text-neutral-400 w-full markedView"
+                      class="text-neutral-300 w-full markedView py-3 px-3"
                       :plugins="plugins"></Markdown>
             <div class="flex w-full">
-              <p class="text-neutral-400 ml-auto">
-                <span class="text-neutral-500 text-xs mr-2">{{ comment.cdate }}</span>
-                <span class="text-xl">{{ comment.author }}</span>
-              </p>
+              <div
+                class="text-neutral-400 ml-auto bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
+                <p class="text-neutral-500 text-xs mr-2">{{ comment.cdate }}</p>
+                <p class="text-xl">{{ comment.author }}</p>
+              </div>
             </div>
           </div>
         </template>
@@ -374,6 +376,7 @@ export default {
         comments: []
       },
       wisComment: '',
+      inputComment: null,
       plugins: [
         {
           plugin: markdownItMermaid
@@ -403,6 +406,9 @@ export default {
       this.renderMermaidInit()
       const input = document.getElementById('input_comment')
       input.addEventListener('keydown', this.handleEnter, false)
+      this.inputComment = document.getElementById('input_comment')
+      // this.mainContent = document.getElementById('')
+      this.auto_grow()
     },
     serverLogin: async function () {
       return new Promise((resolve) => {
@@ -686,6 +692,7 @@ export default {
       } else {
         this.postComment(this.wisDescription, this.wisTitle)
       }
+      this.inputComment.blur()
     },
     postComment: async function (comment, title = '') {
       const payload = {
@@ -726,6 +733,11 @@ export default {
       this.isWritingWisdom = false
       this.isWritingLesson = false
       this.isEditingWisdom = false
+    },
+    auto_grow: function () {
+      this.inputComment.style.height = '36px' // Default
+      this.inputComment.style.height = (this.inputComment.scrollHeight) + 'px' // Grow if scrollHeight > 0
+      // this.mainContent.style.bottom = (this.inputComment.scrollHeight - 40) + 'px'
     }
   }
 }
