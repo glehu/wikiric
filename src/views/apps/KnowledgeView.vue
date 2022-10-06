@@ -2,7 +2,7 @@
   <div class="flex mx-2 pt-[60px] h-screen">
     <div id="sidebar" class="h-full w-[80px] border-r border-neutral-700 flex flex-col items-center overflow-y-auto">
       <div class="text-neutral-400 mr-2 pt-2">
-        <div class="sidebar_button">
+        <div class="sidebar_button rounded-full">
           <div v-on:click="$router.back()"
                class="cursor-pointer hover:text-neutral-200 p-2">
             <XMarkIcon class="h-8 w-8"></XMarkIcon>
@@ -10,21 +10,21 @@
           <div class="sidebar_tooltip">Exit</div>
         </div>
         <div class="my-2 py-2 border-y border-neutral-700">
-          <div class="sidebar_button">
+          <div class="sidebar_button rounded-full">
             <div v-on:click="reactToMessage(wisdom, '+')"
                  class="cursor-pointer hover:text-neutral-200 p-2">
               <HandThumbUpIcon class="h-8 w-8"></HandThumbUpIcon>
             </div>
             <div class="sidebar_tooltip">Upvote</div>
           </div>
-          <div class="sidebar_button">
+          <div class="sidebar_button rounded-full">
             <div v-on:click="reactToMessage(wisdom, '-')"
                  class="cursor-pointer hover:text-neutral-200 p-2">
               <HandThumbDownIcon class="h-8 w-8"></HandThumbDownIcon>
             </div>
             <div class="sidebar_tooltip">Downvote</div>
           </div>
-          <div class="sidebar_button">
+          <div class="sidebar_button rounded-full">
             <div v-on:click="reactToMessage(wisdom, '⭐')"
                  class="cursor-pointer hover:text-neutral-200 p-2">
               <StarIcon class="h-8 w-8"></StarIcon>
@@ -33,7 +33,7 @@
           </div>
         </div>
         <div v-if="wisdom.copyContent != null"
-             class="sidebar_button">
+             class="sidebar_button rounded-full">
           <div v-on:click="copy(wisdom.copyContent)"
                class="cursor-pointer hover:text-neutral-200 p-2">
             <ClipboardIcon class="h-8 w-8"></ClipboardIcon>
@@ -54,8 +54,8 @@
           </template>
         </div>
         <div class="text-neutral-400 mb-1 flex items-center">
-          <p>{{ capitalizeFirstLetter(wisdom.type) }}</p>
-          <p class="inline lg:hidden">from {{ wisdom.author }}</p>
+          <p class="pointer-events-none">{{ capitalizeFirstLetter(wisdom.type) }}</p>
+          <p class="inline lg:hidden pointer-events-none">from {{ wisdom.author }}</p>
           <template v-if="wisdom.reacts != null">
             <div class="flex ml-4">
               <div v-for="reaction in wisdom.reacts" :key="reaction.src"
@@ -75,7 +75,7 @@
             </div>
           </template>
           <template v-else>
-            <div class="text-neutral-500 text-xs ml-4">
+            <div class="text-neutral-600 text-xs ml-5 pointer-events-none">
               (Unrated)
             </div>
           </template>
@@ -91,9 +91,58 @@
           </div>
         </div>
         <hr class="text-neutral-700 mb-3 opacity-100">
+        <!-- Main Content -->
         <Markdown class="markedView text-gray-400 pb-5"
                   :source="wisdom.desc"
                   :plugins="plugins"></Markdown>
+        <!-- Comments/Answers -->
+        <template v-if="related.comments == null">
+          <div class="flex w-full items-center justify-content-center py-4">
+            <div class="w-full">
+              <CubeTransparentIcon class="h-8 w-8 text-neutral-700 mx-auto"></CubeTransparentIcon>
+              <p class="text-neutral-700 text-md font-bold italic w-fit mx-auto">No Comments</p>
+            </div>
+          </div>
+        </template>
+        <div class="w-full">
+          <div class="w-full relative">
+            <div
+              class="p-2 rounded-full hover:bg-neutral-700 text-neutral-500 hover:text-neutral-200 absolute right-0 -translate-y-2 sidebar_button cursor-pointer">
+              <Squares2X2Icon
+                class="h-6 w-6"></Squares2X2Icon>
+              <div class="-translate-x-4 translate-y-2">
+                <div class="sidebar_tooltip text-neutral-400">Preview</div>
+              </div>
+            </div>
+            <textarea type="text" id="input_comment" v-model="wisComment" rows="1"
+                      class="w-[calc(100%-50px)] border-b border-neutral-500 text-neutral-300 bg-transparent focus:outline-none">
+            </textarea>
+          </div>
+          <label for="input_comment"
+                 class="text-neutral-500 italic">
+            Write a comment
+          </label>
+        </div>
+        <template v-if="related.comments != null">
+          <div class="flex items-center mt-4 mb-2">
+            <ChatBubbleLeftEllipsisIcon class="w-6 h-6 mr-2 text-neutral-500"></ChatBubbleLeftEllipsisIcon>
+            <p class="text-neutral-500 text-2xl italic">
+              {{ related.comments.length }} Comments:
+            </p>
+          </div>
+          <div v-for="comment in related.comments" :key="comment.uID"
+               class="mb-4 w-full bg-neutral-800 backdrop-opacity-50 rounded-xl py-1 px-2">
+            <Markdown :source="comment.desc"
+                      class="text-neutral-400 w-full markedView"
+                      :plugins="plugins"></Markdown>
+            <div class="flex w-full">
+              <p class="text-neutral-400 ml-auto">
+                <span class="text-neutral-500 text-xs mr-2">{{ comment.cdate }}</span>
+                <span class="text-xl">{{ comment.author }}</span>
+              </p>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
     <div id="rightbar"
@@ -264,7 +313,9 @@ import {
   XMarkIcon,
   ClipboardIcon,
   TagIcon,
-  PencilSquareIcon
+  PencilSquareIcon,
+  CubeTransparentIcon,
+  ChatBubbleLeftEllipsisIcon
 } from '@heroicons/vue/24/outline'
 import {
   Listbox,
@@ -274,7 +325,8 @@ import {
 } from '@headlessui/vue'
 import {
   CheckIcon,
-  ArrowsUpDownIcon
+  ArrowsUpDownIcon,
+  Squares2X2Icon
 } from '@heroicons/vue/24/solid'
 
 export default {
@@ -294,7 +346,10 @@ export default {
     ListboxOption,
     CheckIcon,
     ArrowsUpDownIcon,
-    PencilSquareIcon
+    PencilSquareIcon,
+    CubeTransparentIcon,
+    Squares2X2Icon,
+    ChatBubbleLeftEllipsisIcon
   },
   data () {
     return {
@@ -308,6 +363,7 @@ export default {
       isWritingWisdom: false,
       isWritingLesson: false,
       isEditingWisdom: false,
+      isWritingComment: false,
       // ---
       knowledge: {},
       wisdom: {
@@ -317,6 +373,7 @@ export default {
         answers: [],
         comments: []
       },
+      wisComment: '',
       plugins: [
         {
           plugin: markdownItMermaid
@@ -343,16 +400,9 @@ export default {
           this.knowledge = knowledge
         }
       }
-      // Draw mermaid content
-      setTimeout(() => {
-        mermaid.initialize({
-          startOnLoad: true,
-          theme: 'dark'
-        })
-        setTimeout(() => {
-          mermaid.init()
-        }, 0)
-      }, 0)
+      this.renderMermaidInit()
+      const input = document.getElementById('input_comment')
+      input.addEventListener('keydown', this.handleEnter, false)
     },
     serverLogin: async function () {
       return new Promise((resolve) => {
@@ -400,6 +450,7 @@ export default {
           .then((res) => res.json())
           .then((data) => {
             this.wisdom = data
+            this.wisGUID = data.gUID
             resolve()
           })
           .catch((err) => {
@@ -421,6 +472,9 @@ export default {
           .then((res) => res.json())
           .then((data) => {
             this.related = data
+          })
+          .then(() => {
+            this.renderMermaid()
             resolve()
           })
           .catch((err) => {
@@ -506,15 +560,7 @@ export default {
           }
         )
           .then(() => {
-            this.wisTitle = '## '
-            this.wisDescription = ''
-            this.wisKeywords = ''
-            this.wisCopyContent = ''
-            this.wisCategories = []
-            this.wisGUID = ''
-            this.isWritingWisdom = false
-            this.isWritingLesson = false
-            this.isEditingWisdom = false
+            this.resetValues()
             this.getWisdom()
           })
           .then(() => resolve)
@@ -538,21 +584,14 @@ export default {
         )
           .then(res => res)
           .then(() => {
-            this.wisTitle = '## '
-            this.wisDescription = ''
-            this.wisKeywords = ''
-            this.wisCopyContent = ''
-            this.wisCategories = []
-            this.wisGUID = ''
-            this.isWritingWisdom = false
-            this.isWritingLesson = false
-            this.isEditingWisdom = false
+            this.resetValues()
             this.$notify(
               {
                 title: 'Wisdom deleted.',
                 text: '',
                 type: 'info'
               })
+            this.$router.back()
           })
           .then(() => resolve)
           .catch((err) => {
@@ -617,6 +656,76 @@ export default {
             this.knowledgeExists = false
           })
       })
+    },
+    renderMermaidInit: function () {
+      setTimeout(() => {
+        mermaid.initialize({
+          startOnLoad: true,
+          theme: 'dark'
+        })
+        setTimeout(() => {
+          mermaid.init()
+        }, 0)
+      }, 0)
+    },
+    renderMermaid: function () {
+      setTimeout(() => {
+        mermaid.init()
+      }, 0)
+    },
+    handleEnter: function () {
+      if (event.key === 'Enter') {
+        if (event.shiftKey) return
+        event.preventDefault()
+        this.submitComment()
+      }
+    },
+    submitComment: function () {
+      if (!this.isWritingComment) {
+        this.postComment(this.wisComment)
+      } else {
+        this.postComment(this.wisDescription, this.wisTitle)
+      }
+    },
+    postComment: async function (comment, title = '') {
+      const payload = {
+        title: title,
+        description: comment,
+        wisdomGUID: this.wisGUID,
+        keywords: ''
+      }
+      const bodyPayload = JSON.stringify(payload)
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m7/reply',
+          {
+            method: 'post',
+            headers: headers,
+            body: bodyPayload
+          }
+        )
+          .then(() => {
+            this.resetValues()
+            this.getRelated()
+          })
+          .then(() => resolve)
+          .catch((err) => {
+            console.error(err.message)
+          })
+      })
+    },
+    resetValues: function () {
+      this.wisTitle = '## '
+      this.wisDescription = ''
+      this.wisKeywords = ''
+      this.wisCopyContent = ''
+      this.wisCategories = []
+      this.wisComment = ''
+      this.isWritingWisdom = false
+      this.isWritingLesson = false
+      this.isEditingWisdom = false
     }
   }
 }
@@ -686,10 +795,6 @@ export default {
 
 .sidebar_tooltip {
   @apply absolute translate-x-16 -translate-y-9 opacity-0 font-bold pointer-events-none hidden lg:block;
-}
-
-.sidebar_button {
-  @apply rounded-full;
 }
 
 .sidebar_button:hover {

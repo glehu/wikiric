@@ -81,7 +81,7 @@
           <template v-if="emptyState">
             <div class="text-neutral-400 p-2">
               <p class="text-3xl font-bold mb-4 pointer-events-none">Top Contributors</p>
-              <div class="flex">
+              <div class="flex w-full overflow-x-auto">
                 <div v-for="author in topWriters.contributors" :key="author.username"
                      class="mr-4 text-neutral-400 shadow shadow-black rounded-xl">
                   <div class="bg-neutral-800 rounded-t-xl py-2 px-3 pointer-events-none">

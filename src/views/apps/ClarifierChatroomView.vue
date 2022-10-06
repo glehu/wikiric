@@ -2531,26 +2531,32 @@ export default {
     },
     showSidebar: function () {
       const sidebar = document.getElementById('sidebar')
+      if (!sidebar) return
       if (!sidebar.classList.contains('active')) sidebar.classList.add('active')
     },
     hideSidebar: function () {
       const sidebar = document.getElementById('sidebar')
+      if (!sidebar) return
       if (sidebar.classList.contains('active')) sidebar.classList.remove('active')
     },
     showSidebar2: function () {
       const sidebar = document.getElementById('sidebar2')
+      if (!sidebar) return
       if (!sidebar.classList.contains('active')) sidebar.classList.add('active')
     },
     hideSidebar2: function () {
       const sidebar = document.getElementById('sidebar2')
+      if (!sidebar) return
       if (sidebar.classList.contains('active')) sidebar.classList.remove('active')
     },
     showMemberSidebar: function () {
       const memberSidebar = document.getElementById('member_section')
+      if (!memberSidebar) return
       if (!memberSidebar.classList.contains('active')) memberSidebar.classList.add('active')
     },
     hideMemberSidebar: function () {
       const memberSidebar = document.getElementById('member_section')
+      if (!memberSidebar) return
       if (memberSidebar.classList.contains('active')) memberSidebar.classList.remove('active')
     },
     hideAllSidebars: function (force = false) {
