@@ -39,7 +39,7 @@
                        v-model="queryText">
               </div>
               <div class="px-4 py-2 flex items-center">
-                <div class="flex overflow-x-scroll overflow-y-hidden pb-3">
+                <div class="flex overflow-x-auto overflow-y-hidden pb-4">
                   <template v-for="category in this.knowledge.categories" :key="category">
                     <div
                       class="font-bold text-gray-200 backdrop-brightness-75 cursor-pointer mr-3 flex items-center py-1 border-2 border-gray-500 rounded-full hover:border-gray-100 hover:text-gray-100"

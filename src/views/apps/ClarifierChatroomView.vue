@@ -3020,7 +3020,6 @@ export default {
       return chatGUID
     },
     processUploadSnippetResponse: function (response) {
-      response = JSON.parse(response)
       if (response.httpCode !== 201) {
         this.handleUploadSnippetError()
         return
