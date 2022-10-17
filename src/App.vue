@@ -290,7 +290,6 @@ export default {
       // Forward the notification to the clarifier
       bc.postMessage(payload)
     })
-
     window.addEventListener('keydown', function (event) {
       if (event.ctrlKey && event.key === 'y') {
         event.preventDefault()
@@ -349,6 +348,12 @@ export default {
           href: '/apps/planner/_user',
           current: false,
           main: true
+        },
+        {
+          name: 'Planner New',
+          href: '/apps/plannernew',
+          current: false,
+          main: false
         }
       ]
     }

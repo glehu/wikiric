@@ -117,7 +117,7 @@ export default {
 }
 
 .modal {
-  border-radius: 10px;
+  @apply rounded;
   box-shadow: black 2px 2px 10px 1px;
   overflow-y: scroll;
   display: flex;

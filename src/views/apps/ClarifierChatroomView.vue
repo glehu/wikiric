@@ -128,18 +128,26 @@
                         position: absolute; bottom: 20px;
                         border: 1px solid rgba(174, 174, 183, 0.25);
                         border-radius: 20px 0 0 20px">
+                <template v-if="this.chatroom.rank > 3">
+                  <div style="height: 40px"
+                       class="subchat w-full flex items-center orange-hover"
+                       v-on:click="this.$router.push('/apps/plannernew?src=' + this.getSession())">
+                    <ViewColumnsIcon class="h-5 w-5"></ViewColumnsIcon>
+                    <span style="padding-left: 10px">Planner</span>
+                  </div>
+                </template>
                 <template v-if="this.chatroom.rank > 2">
                   <div style="height: 40px"
-                       class="subchat w-100 d-flex align-items-center orange-hover"
-                       v-on:click="this.$router.push('/knowledge?src=' + this.getSession())">
-                    <span style=""><i class="bi bi-book-half"></i></span>
+                       class="subchat w-full flex items-center orange-hover"
+                       v-on:click="this.$router.push('/apps/knowledge?src=' + this.getSession())">
+                    <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
                     <span style="padding-left: 10px">Knowledge</span>
                   </div>
                 </template>
                 <div style="height: 40px"
-                     class="subchat w-100 d-flex align-items-center orange-hover"
+                     class="subchat w-full flex items-center orange-hover"
                      v-on:click="isViewingBadges = true">
-                  <span style=""><i class="bi bi-award"></i></span>
+                  <TrophyIcon class="h-5 w-5"></TrophyIcon>
                   <span style="padding-left: 10px">Badges</span>
                 </div>
               </div>
@@ -295,7 +303,7 @@
           </div>
           <!-- #### MESSAGES #### -->
           <div id="messages_section"
-               class="messages_section bg-neutral-900 bg-opacity-80 relative"
+               class="messages_section bg-neutral-900 relative"
                style="overflow-y: auto; overflow-x: clip;
                     height: calc(100vh - 60px - 50px - 80px);
                     display: flex; flex-direction: column-reverse">
@@ -517,7 +525,8 @@
                       position: absolute;
                       bottom: 0;
                       padding-bottom: 20px;
-                      flex-direction: column-reverse">
+                      flex-direction: column-reverse"
+               class="bg-neutral-900">
             <button class="c_lightgray text-center scroll_to_bottom orange-hover"
                     id="scroll_to_bottom"
                     v-on:click="scrollToBottom">
@@ -820,25 +829,27 @@
           </div>
         </template>
         <template v-else>
-          <div v-for="badge in this.viewedUserProfile.badges" :key="badge.handle"
-               style="padding: 10px; border: 1px solid rgba(174, 174, 183, 0.25); border-radius: 30px;
-                      margin-bottom: 10px"
-               class="c_lightgray text-center">
-            <div v-if="badge.handle.startsWith('msg')"
-                 style="font-size: 150%">
-              📢
+          <div class="w-full grid grid-cols-2 gap-3 mb-4">
+            <div v-for="badge in this.viewedUserProfile.badges" :key="badge.handle"
+                 class="c_lightgray text-center rounded-xl border-2 border-slate-600 py-1 px-2 hover:bg-slate-800">
+              <div class="pointer-events-none">
+                <div v-if="badge.handle.startsWith('msg')"
+                     style="font-size: 150%">
+                  📢
+                </div>
+                <div v-else-if="badge.handle.startsWith('rt')"
+                     style="font-size: 150%">
+                  💕
+                </div>
+                <h5 style="margin: 5px 0 5px 0">
+                  {{ badge.title }}
+                </h5>
+                <div style="font-size: 75%; margin-bottom: 5px">
+                  {{ badge.description }}
+                </div>
+                <span> +{{ badge.xpGain }} xp</span>
+              </div>
             </div>
-            <div v-else-if="badge.handle.startsWith('rt')"
-                 style="font-size: 150%">
-              💕
-            </div>
-            <h5 style="margin: 5px 0 5px 0">
-              {{ badge.title }}
-            </h5>
-            <div style="font-size: 75%; margin-bottom: 5px">
-              {{ badge.description }}
-            </div>
-            <span> +{{ badge.xpGain }} xp</span>
           </div>
         </template>
       </template>
@@ -1217,7 +1228,10 @@ import {
   QrCodeIcon
 } from '@heroicons/vue/24/solid'
 import {
-  DocumentArrowUpIcon
+  DocumentArrowUpIcon,
+  ViewColumnsIcon,
+  TrophyIcon,
+  BookOpenIcon
 } from '@heroicons/vue/24/outline'
 
 export default {
@@ -1231,7 +1245,10 @@ export default {
     VideoCameraIcon,
     DocumentArrowUpIcon,
     GifIcon,
-    QrCodeIcon
+    QrCodeIcon,
+    ViewColumnsIcon,
+    TrophyIcon,
+    BookOpenIcon
   },
   data () {
     return {
@@ -4195,7 +4212,7 @@ export default {
   position: relative;
   width: calc(100% - 42px);
   margin: 0 !important;
-  @apply text-neutral-200;
+  @apply text-neutral-300;
 }
 
 .send_image_button.active {

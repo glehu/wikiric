@@ -12,13 +12,13 @@
             <div class="py-1 shadow rounded-none">
               <div class="flex items-center">
                 <div v-on:click="$router.push(
-                  'apps/clarifier/wss/' + srcGUID
+                  '/apps/clarifier/wss/' + srcGUID
                 )"
                      class="h-full ml-4 mr-2 px-2 py-4 rounded-xl text-center text-gray-300 hover:text-orange-500 cursor-pointer">
                   <i class="sb_link_icon bi bi-x-square text-xl"></i>
                 </div>
                 <div class="font-bold w-full overflow-x-hidden pr-2">
-                  <div class="py-4 px-2 text-gray-100 pointer-events-none">
+                  <div class="py-2 px-2 text-gray-100 pointer-events-none">
                     <div class="text-5xl border-l border-gray-300 pl-5">
                       {{ this.knowledge.t }}
                     </div>
@@ -29,31 +29,29 @@
                 </div>
               </div>
             </div>
-            <div class="shadow py-4 backdrop-brightness-75">
-              <div class="px-4 py-2 rounded-lg flex items-center">
-                <MagnifyingGlassIcon class="w-12 h-12 mx-1 text-gray-200"></MagnifyingGlassIcon>
+            <div class="shadow py-2 backdrop-brightness-75">
+              <div class="px-4 py-2 rounded-lg flex items-center relative">
+                <MagnifyingGlassIcon class="w-8 h-8 mx-1 text-neutral-300 absolute translate-x-1">
+                </MagnifyingGlassIcon>
                 <input id="search-field" type="text"
-                       class="search-field py-4 bg-neutral-900 h-8 ml-2 text-lg border-2 border-neutral-800"
+                       class="search-field py-4 pl-12 pr-4 bg-neutral-900 h-8 text-lg border-2 border-neutral-800"
                        placeholder="Search..."
                        v-on:keyup.enter="searchWisdom()"
                        v-model="queryText">
               </div>
-              <div class="px-4 py-2 flex items-center">
-                <div class="flex overflow-x-auto overflow-y-hidden pb-4">
+              <div class="px-4 pb-2 flex items-center">
+                <div class="flex overflow-x-auto overflow-y-hidden py-2">
                   <template v-for="category in this.knowledge.categories" :key="category">
                     <div
-                      class="font-bold text-gray-200 backdrop-brightness-75 cursor-pointer mr-3 flex items-center py-1 border-2 border-gray-500 rounded-full hover:border-gray-100 hover:text-gray-100"
-                      style="min-width: 150px; max-width: 200px">
-                      <div class="text-center w-100">
-                        <div> {{ category.category }}</div>
-                      </div>
+                      class="font-bold text-sm text-neutral-400 backdrop-brightness-75 cursor-pointer mr-2 flex items-center justify-center text-center px-3 border-2 border-gray-500 rounded-full hover:border-gray-100 hover:text-gray-100 h-10">
+                      <p>{{ category.category.replace(' ', '&nbsp;') }}</p>
                     </div>
                   </template>
                   <div
-                    class="font-bold text-gray-200 backdrop-brightness-50 cursor-pointer mr-3 flex items-center py-1 border-2 border-dashed border-gray-500 rounded-full hover:border-gray-100 hover:text-gray-100"
-                    style="min-width: 150px; max-width: 200px"
+                    class="font-bold text-sm text-neutral-400 backdrop-brightness-75 cursor-pointer mr-2 flex items-center justify-center text-center px-3 border-2 border-gray-500 rounded-full hover:border-gray-100 hover:text-gray-100 h-10"
+                    style="min-width: 150px; max-width: 150px"
                     v-on:click="this.isAddingCategory = true">
-                    <div class="text-center w-100">
+                    <div class="text-center w-full">
                       <i class="bi bi-plus-circle-dotted lead"></i>
                     </div>
                   </div>
@@ -61,7 +59,7 @@
               </div>
             </div>
             <!-- QUICK VIEW -->
-            <div class="mt-2 p-2 pt-4 pb-4 sm:absolute sm:bottom-0 sm:w-full">
+            <div class="px-4 py-2 sm:absolute sm:bottom-0 sm:w-full">
               <div class="flex">
                 <button
                   class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-xl text-gray-200 hover:text-gray-200 mr-3 w-1/2 backdrop-brightness-75">
@@ -79,9 +77,9 @@
         </div>
         <div class="lg:col-span-2 pt-2 overflow-y-scroll overflow-x-hidden sm:max-h-[calc(100vh-120px)]">
           <template v-if="emptyState">
-            <div class="text-neutral-400 p-2">
-              <p class="text-3xl font-bold mb-4 pointer-events-none">Top Contributors</p>
-              <div class="flex w-full overflow-x-auto">
+            <div class="text-neutral-400 px-4">
+              <p class="text-3xl font-bold mb-2 pointer-events-none">Top Contributors</p>
+              <div class="flex w-full overflow-x-auto py-2">
                 <div v-for="author in topWriters.contributors" :key="author.username"
                      class="mr-4 text-neutral-400 shadow shadow-black rounded-xl">
                   <div class="bg-neutral-800 rounded-t-xl py-2 px-3 pointer-events-none">
@@ -764,7 +762,7 @@ export default {
     capitalizeFirstLetter: function ([first, ...rest], locale = navigator.language) {
       return first === undefined ? '' : first.toLocaleUpperCase(locale) + rest.join('')
     },
-    serverLogin: function () {
+    serverLogin: async function () {
       return new Promise((resolve) => {
         if (this.$store.state.email === undefined || this.$store.state.email === '') return
         const headers = new Headers()
@@ -849,7 +847,7 @@ export default {
     },
     gotoWisdom: function (id) {
       if (id == null) return
-      this.$router.push('/knowledge/' + id + '?src=' + this.srcGUID)
+      this.$router.push('/apps/knowledge/' + id + '?src=' + this.srcGUID)
     }
   }
 }
@@ -862,7 +860,6 @@ export default {
 }
 
 .search-field {
-  padding: 6px 12px 6px 12px;
   color: white;
   border-radius: 10px;
   resize: none;

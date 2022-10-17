@@ -113,13 +113,19 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/knowledge',
+    path: '/apps/knowledge',
     name: 'WKnowledge Finder',
     component: () => import('../views/apps/KnowledgeFinderView'),
     meta: { requiresAuth: true }
   },
   {
-    path: '/knowledge/:id',
+    path: '/apps/plannernew',
+    name: 'WPlanner New',
+    component: () => import('../views/apps/PlannerNewView'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/apps/knowledge/:id',
     name: 'WKnowledge',
     component: () => import('../views/apps/KnowledgeView'),
     meta: { requiresAuth: true }

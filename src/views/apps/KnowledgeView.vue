@@ -1,6 +1,7 @@
 <template>
   <div class="flex mx-2 pt-[60px] h-screen overflow-hidden">
-    <div id="sidebar" class="h-full w-[80px] border-r border-neutral-700 flex flex-col items-center overflow-y-auto">
+    <div id="sidebar"
+         class="h-full min-w-[60px] max-w-[60px] border-r border-neutral-700 flex flex-col items-center overflow-y-auto">
       <div class="text-neutral-400 mr-2 pt-2">
         <div class="sidebar_button rounded-full">
           <div v-on:click="$router.back()"
@@ -44,18 +45,30 @@
     </div>
     <div id="main" class="h-full w-full lg:px-[10vw] flex justify-center overflow-y-auto pb-10">
       <div class="h-fit w-full pt-4 px-4">
-        <div class="flex mb-4 items-center">
-          <TagIcon class="text-gray-400 h-5 w-5 mr-2"></TagIcon>
-          <template v-for="cat in wisdom.categories" :key="cat">
-            <div v-if="JSON.parse(cat).category != null"
-                 class="text-gray-400 flex items-center px-2 border-2 border-gray-700 rounded-lg mr-1 pointer-events-none">
-              {{ JSON.parse(cat).category }}
+        <div class="flex mb-2 items-center">
+          <TagIcon class="text-neutral-400 h-5 w-5 mr-2"></TagIcon>
+          <template v-if="wisdom.categories">
+            <template v-for="cat in wisdom.categories" :key="cat">
+              <div v-if="JSON.parse(cat).category != null"
+                   class="text-neutral-400 flex items-center py-0.5 px-1.5 rounded mr-1 pointer-events-none text-sm font-bold"
+                   style="border: 1px solid #424242">
+                {{ JSON.parse(cat).category }}
+              </div>
+            </template>
+          </template>
+          <template v-else>
+            <div class="text-neutral-600 text-xs pointer-events-none">
+              (No Categories)
             </div>
           </template>
         </div>
-        <div class="text-neutral-400 mb-1 flex items-center">
-          <p class="pointer-events-none">{{ capitalizeFirstLetter(wisdom.type) }}</p>
-          <p class="inline lg:hidden pointer-events-none">from {{ wisdom.author }}</p>
+        <div class="text-neutral-400 mb-4 flex items-center">
+          <div class="flex pointer-events-none items-center">
+            <p class="mr-2 pr-2 border-r border-neutral-700 font-bold">
+              {{ capitalizeFirstLetter(wisdom.type) }}
+            </p>
+            <p> {{ wisdom.author }} </p>
+          </div>
           <template v-if="wisdom.reacts != null">
             <div class="flex ml-5">
               <div v-for="reaction in wisdom.reacts" :key="reaction.src"
@@ -99,13 +112,13 @@
                     :plugins="plugins"></Markdown>
           <div v-on:click="editWisdom(wisdom)"
                class="cursor-pointer flex items-center text-neutral-400 w-fit ml-auto hover:text-white">
-            <PencilSquareIcon class="h-6 w-6"></PencilSquareIcon>
+            <PencilSquareIcon class="h-6 w-6 mr-1"></PencilSquareIcon>
             Edit
           </div>
         </div>
-        <hr class="text-neutral-700 mb-3 opacity-100">
+        <hr class="text-neutral-700 opacity-100 mb-3">
         <!-- Main Content -->
-        <Markdown class="markedView text-gray-400"
+        <Markdown class="markedView text-neutral-400"
                   :source="wisdom.desc"
                   :plugins="plugins"></Markdown>
         <!-- Comments/Answers -->
@@ -130,7 +143,7 @@
           </label>
           <template v-if="related.comments == null">
             <div class="flex w-full items-center justify-content-center py-4">
-              <div class="w-full text-neutral-600">
+              <div class="w-full text-neutral-600 pointer-events-none">
                 <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
                 <p class="text-md font-bold italic w-fit mx-auto">No Comments</p>
               </div>
@@ -166,11 +179,15 @@
         <table class="border-none mb-2 pointer-events-none">
           <tr>
             <th class="text-neutral-400 text-xs pr-2">Author</th>
-            <td class="text-xl">{{ wisdom.author }}</td>
+            <td class="text-sm">{{ wisdom.author }}</td>
           </tr>
           <tr>
             <th class="text-neutral-400 text-xs pr-2">Source</th>
-            <td class="text-xl">{{ knowledge.t }}</td>
+            <td class="text-sm">{{ knowledge.t }}</td>
+          </tr>
+          <tr>
+            <th class="text-neutral-400 text-xs pr-2">Date</th>
+            <td class="text-sm">{{ new Date(wisdom.cdate).toLocaleString('de-DE').replace(' ', '&nbsp;') }}</td>
           </tr>
         </table>
         <template v-if="!this.$store.getters.hasSeenWisdomTutorial()">
@@ -232,16 +249,16 @@
                     class="bg-neutral-900 w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
                   >
                     <template v-if="wisCategories.length > 0">
-                      <div class="block truncate font-bold text-gray-300">
+                      <div class="block truncate font-bold text-neutral-300">
                         {{ wisCategories.map((cat) => cat.category).join(', ') }}
                       </div>
                     </template>
                     <template v-else>
-                      <span class="block truncate font-bold text-gray-500">Select...</span>
+                      <span class="block truncate font-bold text-neutral-500">Select...</span>
                     </template>
                     <div
                       class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                      <ArrowsUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true"/>
+                      <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
                     </div>
                   </ListboxButton>
                   <transition
@@ -260,7 +277,7 @@
                       >
                         <li
                           :class="[ active ? 'bg-gray-700' : '',
-                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-gray-200' ]">
+                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-neutral-200' ]">
                           <div
                             :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
                             {{ cat.category }}
@@ -397,6 +414,9 @@ export default {
       ]
     }
   },
+  created () {
+    this.fetchData()
+  },
   mounted () {
     this.initFunction()
   },
@@ -414,7 +434,7 @@ export default {
     }
   },
   methods: {
-    initFunction: async function () {
+    fetchData: async function () {
       await this.serverLogin()
       await this.getWisdom()
       await this.getRelated()
@@ -429,6 +449,11 @@ export default {
           this.knowledge = knowledge
         }
       }
+      return new Promise((resolve) => {
+        resolve()
+      })
+    },
+    initFunction: async function () {
       this.renderMermaidInit()
       const input = document.getElementById('input_comment')
       input.addEventListener('keydown', this.handleEnter, false)
@@ -631,7 +656,7 @@ export default {
               {
                 title: 'Error!',
                 text: 'Maybe you aren\'t the owner of the Wisdom.',
-                type: 'info'
+                type: 'error'
               })
             console.error(err.message)
           })
