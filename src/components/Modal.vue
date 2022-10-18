@@ -117,7 +117,7 @@ export default {
 }
 
 .modal {
-  @apply rounded;
+  @apply rounded-lg;
   box-shadow: black 2px 2px 10px 1px;
   overflow-y: scroll;
   display: flex;
@@ -132,7 +132,6 @@ export default {
 
 .modal-header,
 .modal-footer {
-  padding: 10px;
   display: flex;
 }
 
@@ -142,14 +141,14 @@ export default {
   justify-content: space-between;
 }
 
-.modal-footer {
-  border-top: none;
-  flex-direction: column;
-}
-
 .modal-body {
   position: relative;
-  padding: 20px 10px;
+  padding: 0;
+}
+
+.modal-footer {
+  padding: 0 0 8px 0;
+  border: none;
 }
 
 .btn-close {
@@ -177,7 +176,7 @@ export default {
 
 .modal-fade-enter-active,
 .modal-fade-leave-active {
-  transition: opacity .5s ease;
+  transition: opacity 0.1s ease-in;
 }
 
 .orange-hover:hover {

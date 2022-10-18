@@ -131,11 +131,11 @@
               {{ results.length }} results in {{ results.time }} seconds
             </div>
             <template v-for="result in results" :key="result">
-              <div
-                class="result relative text-gray-300 hover:bg-neutral-800 hover:bg-opacity-25 hover:border-l-2 hover:border-l-neutral-500 px-3 py-3 border-b border-neutral-800">
+              <div v-on:click="gotoWisdom(result.result.gUID)"
+                   class="result relative text-gray-300 hover:bg-neutral-800 hover:bg-opacity-25 hover:border-l-2 hover:border-l-neutral-500 px-3 py-3 border-b border-neutral-800">
                 <template v-if="result.priority === 'low'">
                   <div
-                    class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
+                    class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0 hover:hidden"></div>
                 </template>
                 <div class="text-neutral-400 mb-2 flex items-center">
                   <template v-if="result.priority === 'high'">
@@ -165,8 +165,7 @@
                   </div>
                 </div>
                 <div class="flex">
-                  <Markdown v-on:click="gotoWisdom(result.result.gUID)"
-                            class="text-lg markedFinder hover:text-orange-500 cursor-pointer"
+                  <Markdown class="text-lg markedFinder hover:text-orange-500 cursor-pointer"
                             :source="result.result.t"
                             :plugins="plugins"></Markdown>
                 </div>

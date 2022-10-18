@@ -36,7 +36,7 @@
          class="h-full w-full flex p-1 bg-neutral-900 overflow-x-auto overflow-y-auto">
       <template v-if="boxes.length > 0">
         <template v-for="box in boxes" :key="box.uID">
-          <div class="p_card">
+          <div class="p_card" style="margin-bottom: 42px !important">
             <div class="p_card_header_section relative text-neutral-300 flex items-center pb-1">
               <Markdown class="p_markdown p_markdown_xl_only font-bold"
                         :source="box.box.t"
@@ -100,7 +100,7 @@
             <div v-if="box.tasks" class="mb-4">
               <template v-for="task in box.tasks" :key="task.uID">
                 <div class="p_task bg-neutral-900 bg-opacity-75 rounded mb-2 flex items-center relative w-full">
-                  <div class="w-full h-full cursor-pointer hover:border rounded py-1 px-2"
+                  <div class="w-full h-full cursor-pointer hover:border rounded py-1 px-1"
                        v-on:click="openTask(task)">
                     <div class="flex mb-2 items-center">
                       <template v-if="task.categories">
@@ -112,10 +112,10 @@
                         </template>
                       </template>
                     </div>
-                    <Markdown class="p_markdown p_markdown_xl_only font-bold text-neutral-300 w-full"
+                    <Markdown class="p_markdown p_markdown_xl_only font-bold text-neutral-300 w-full px-1"
                               :source="task.t"
                               :plugins="plugins"></Markdown>
-                    <Markdown class="p_markdown p_markdown_xl_only text-neutral-400 text-sm mt-2 w-full"
+                    <Markdown class="p_markdown p_markdown_xl_only text-neutral-400 text-sm mt-2 w-full px-1"
                               :source="task.desc"
                               :plugins="plugins"></Markdown>
                     <div class="flex mt-2">
@@ -213,6 +213,56 @@
                         placeholder="Description"
                         v-on:keydown="newTaskKeyUp(box.box)"
                         v-on:keyup="auto_grow('taskname_' + box.box.uID + '_desc')"></textarea>
+              <Listbox v-model="newTask.categories" multiple id="newtaskcategories">
+                <div class="relative mt-1">
+                  <ListboxButton
+                    class="bg-neutral-900 w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                  >
+                    <template v-if="newTask.categories.length > 0">
+                      <div class="block truncate font-bold text-neutral-300">
+                        {{ newTask.categories.map((cat) => cat.category).join(', ') }}
+                      </div>
+                    </template>
+                    <template v-else>
+                      <span class="block truncate font-bold text-neutral-500">Select...</span>
+                    </template>
+                    <div
+                      class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                      <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
+                    </div>
+                  </ListboxButton>
+                  <transition
+                    leave-active-class="transition duration-100 ease-in"
+                    leave-from-class="opacity-100"
+                    leave-to-class="opacity-0">
+                    <ListboxOptions
+                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-neutral-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                    >
+                      <ListboxOption
+                        v-slot="{ active, selected }"
+                        v-for="cat in knowledge.categories"
+                        :key="cat"
+                        :value="cat"
+                        as="template"
+                      >
+                        <li
+                          :class="[ active ? 'bg-gray-700' : '',
+                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-neutral-200' ]">
+                          <div
+                            :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
+                            {{ cat.category }}
+                          </div>
+                          <div
+                            v-if="selected"
+                            class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                            <CheckIcon class="h-5 w-5" aria-hidden="true"/>
+                          </div>
+                        </li>
+                      </ListboxOption>
+                    </ListboxOptions>
+                  </transition>
+                </div>
+              </Listbox>
             </div>
           </div>
         </template>
@@ -230,64 +280,93 @@
   <modal @close="isShowingTask = false"
          v-show="isShowingTask">
     <template v-slot:header>
-      <span class="text-3xl font-bold">Task</span>
+      <div class="h-4"></div>
     </template>
     <template v-slot:body>
-      <div class="w-full sm:w-[540px] bg-neutral-900 p-2 rounded">
-        <Markdown class="p_markdown font-bold text-neutral-300 w-full"
-                  :source="showingTask.t"
-                  :plugins="plugins"></Markdown>
-        <Markdown class="p_markdown text-neutral-400 w-full"
-                  :source="showingTask.desc"
-                  :plugins="plugins"></Markdown>
+      <div class="w-full sm:w-[540px] flex h-full">
+        <div class="w-full h-full">
+          <div class="w-full bg-neutral-900 p-2 rounded">
+            <div class="flex mb-2 items-center">
+              <template v-if="showingTask.categories">
+                <template v-for="cat in showingTask.categories" :key="cat">
+                  <div v-if="JSON.parse(cat).category != null"
+                       class="text-white bg-orange-900 flex items-center px-0.5 px-1 rounded mr-1 pointer-events-none text-xs">
+                    {{ JSON.parse(cat).category }}
+                  </div>
+                </template>
+              </template>
+            </div>
+            <Markdown class="p_markdown font-bold text-neutral-300 w-full"
+                      :source="showingTask.t"
+                      :plugins="plugins"></Markdown>
+            <Markdown class="p_markdown text-neutral-400 w-full"
+                      :source="showingTask.desc"
+                      :plugins="plugins"></Markdown>
+          </div>
+          <div id="wisdomComments" class="w-full mt-6 bg-neutral-900 p-2 rounded">
+            <div class="w-full relative">
+              <div
+                class="p-2 rounded-full hover:bg-neutral-700 text-neutral-300 hover:text-white absolute right-1 sidebar_button cursor-pointer">
+                <Squares2X2Icon class="h-6 w-6"></Squares2X2Icon>
+              </div>
+              <textarea type="text" id="input_comment" v-model="showingTaskComment" rows="1"
+                        placeholder="Write a comment"
+                        class="w-[calc(100%-50px)] border-b border-neutral-400 text-neutral-300 bg-neutral-600 bg-opacity-20 focus:outline-none px-2 py-1"
+                        v-on:keyup="auto_grow('input_comment')">
+            </textarea>
+            </div>
+            <template v-if="showingTaskRelated.comments == null">
+              <div class="flex w-full items-center justify-content-center py-4">
+                <div class="w-full text-neutral-400 pointer-events-none">
+                  <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
+                  <p class="text-md font-bold italic w-fit mx-auto">No Comments</p>
+                </div>
+              </div>
+            </template>
+            <template v-else>
+              <div class="flex items-center mt-4 mb-3 pointer-events-none">
+                <ChatBubbleLeftEllipsisIcon class="w-6 h-6 mr-2 text-neutral-300"></ChatBubbleLeftEllipsisIcon>
+                <p class="text-neutral-300 font-bold">
+                  {{ showingTaskRelated.comments.length }} {{ commentsText }}:
+                </p>
+              </div>
+              <div v-for="comment in showingTaskRelated.comments" :key="comment.uID"
+                   class="mb-2 w-full bg-neutral-800 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2 border-r-2 border-b-neutral-700 border-r-neutral-700">
+                <Markdown :source="comment.desc"
+                          class="text-neutral-300 w-full markedView py-1 px-2"
+                          :plugins="plugins"></Markdown>
+                <div class="flex w-full">
+                  <div
+                    class="text-neutral-400 ml-auto bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
+                    <p class="text-neutral-500 text-xs mr-2">{{ comment.cdate }}</p>
+                    <p class="">{{ comment.author }}</p>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="w-30 mx-2">
+          <button v-on:click="finishTask(showingTask)"
+                  class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
+            <CheckIcon
+              class="mr-2 h-6 w-6"
+              aria-hidden="true"
+            />
+            Finish
+          </button>
+          <button v-on:click="finishTask(showingTask, true)"
+                  class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
+            <TrashIcon
+              class="mr-2 h-6 w-6"
+              aria-hidden="true"
+            />
+            Delete
+          </button>
+        </div>
       </div>
     </template>
     <template v-slot:footer>
-      <div id="wisdomComments" class="w-full mt-6">
-        <div class="w-full relative">
-          <div
-            class="p-2 rounded-full hover:bg-neutral-700 text-neutral-300 hover:text-white absolute right-0 sidebar_button cursor-pointer -translate-y-1">
-            <Squares2X2Icon class="h-6 w-6"></Squares2X2Icon>
-            <div class="-translate-x-5 translate-y-2.5">
-              <div class="sidebar_tooltip text-neutral-400">Preview</div>
-            </div>
-          </div>
-          <textarea type="text" id="input_comment" v-model="showingTaskComment" rows="1"
-                    placeholder="Write a comment"
-                    class="w-[calc(100%-50px)] border-b border-neutral-400 text-neutral-300 bg-neutral-600 bg-opacity-20 focus:outline-none px-2 py-1"
-                    v-on:keyup="auto_grow('input_comment')">
-            </textarea>
-        </div>
-        <template v-if="showingTaskRelated.comments == null">
-          <div class="flex w-full items-center justify-content-center py-4">
-            <div class="w-full text-neutral-600 pointer-events-none">
-              <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
-              <p class="text-md font-bold italic w-fit mx-auto">No Comments</p>
-            </div>
-          </div>
-        </template>
-        <template v-else>
-          <div class="flex items-center mt-4 mb-2 pointer-events-none">
-            <ChatBubbleLeftEllipsisIcon class="w-6 h-6 mr-2 text-neutral-300"></ChatBubbleLeftEllipsisIcon>
-            <p class="text-neutral-300 font-bold">
-              {{ showingTaskRelated.comments.length }} {{ commentsText }}:
-            </p>
-          </div>
-          <div v-for="comment in showingTaskRelated.comments" :key="comment.uID"
-               class="mb-2 w-full bg-neutral-800 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2 border-r-2 border-b-neutral-700 border-r-neutral-700">
-            <Markdown :source="comment.desc"
-                      class="text-neutral-300 w-full markedView py-1 px-2"
-                      :plugins="plugins"></Markdown>
-            <div class="flex w-full">
-              <div
-                class="text-neutral-400 ml-auto bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
-                <p class="text-neutral-500 text-xs mr-2">{{ comment.cdate }}</p>
-                <p class="">{{ comment.author }}</p>
-              </div>
-            </div>
-          </div>
-        </template>
-      </div>
     </template>
   </modal>
 </template>
@@ -307,9 +386,19 @@ import {
   TrashIcon,
   CheckIcon,
   ArrowsPointingOutIcon,
-  Squares2X2Icon
+  Squares2X2Icon,
+  ArrowsUpDownIcon
 } from '@heroicons/vue/24/solid'
-import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
+import {
+  Menu,
+  MenuButton,
+  MenuItems,
+  MenuItem,
+  Listbox,
+  ListboxButton,
+  ListboxOptions,
+  ListboxOption
+} from '@headlessui/vue'
 import { Base64 } from 'js-base64'
 import Markdown from 'vue3-markdown-it'
 import markdownItMermaid from 'markdown-it-mermaid'
@@ -336,7 +425,12 @@ export default {
     EllipsisVerticalIcon,
     CubeTransparentIcon,
     ChatBubbleLeftEllipsisIcon,
-    Squares2X2Icon
+    Squares2X2Icon,
+    Listbox,
+    ListboxButton,
+    ListboxOptions,
+    ListboxOption,
+    ArrowsUpDownIcon
   },
   data () {
     return {
@@ -349,7 +443,8 @@ export default {
       },
       newTask: {
         name: '',
-        description: ''
+        description: '',
+        categories: []
       },
       inputComment: null,
       isShowingTask: false,
@@ -552,8 +647,11 @@ export default {
     },
     createTask: async function (box) {
       await this.serverLogin()
-      const categories = []
       const boxColumn = box.columnIndex
+      const categories = []
+      for (let i = 0; i < this.newTask.categories.length; i++) {
+        categories.push(JSON.stringify(this.newTask.categories[i]))
+      }
       const payload = {
         title: '## ' + this.newTask.name,
         description: this.newTask.description,
@@ -584,6 +682,7 @@ export default {
             this.getBoxes()
             this.newTask.name = ''
             this.newTask.description = ''
+            this.newTask.categories = []
             this.hideNewTaskInputs()
           })
           .then(() => resolve)
@@ -607,6 +706,7 @@ export default {
       const input = document.getElementById(id + '_input')
       if (elem.style.display !== 'hidden') {
         input.focus()
+        input.scrollIntoView({ behavior: 'smooth' })
       } else {
         input.blur()
       }
@@ -633,6 +733,7 @@ export default {
         )
           .then(res => res)
           .then(() => {
+            if (this.isShowingTask) this.isShowingTask = false
             this.getBoxes()
           })
           .then(() => resolve)
