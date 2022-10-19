@@ -1,7 +1,7 @@
 <template>
   <div class="flex w-screen h-screen pt-[60px]">
     <div id="sidebar"
-         class="h-full min-w-[265px] bg-slate-700 border-r border-neutral-600">
+         class="active h-full p_sidebar_left bg-slate-700 border-r border-neutral-600 relative">
       <div class="py-1 shadow rounded-none min-h-[80px] flex items-center">
         <div class="flex items-center">
           <div v-on:click="$router.push(
@@ -30,6 +30,10 @@
         <div class="font-bold text-neutral-300">
           Reload Tasks
         </div>
+      </div>
+      <div
+        class="p_sidebar_toggler absolute w-6 right-0 top-0 bottom-0 hover:bg-slate-600 cursor-pointer flex items-center justify-center overflow-hidden"
+        v-on:click="toggleSidebar">
       </div>
     </div>
     <div id="board"
@@ -205,13 +209,13 @@
                      style="padding-left: 2rem"
                      placeholder="Title"
                      v-model="newTask.name"
-                     v-on:keydown="newTaskKeyUp(box.box)">
+                     v-on:keydown="newTaskKeyUp(box.box, 'taskname_' + box.box.uID)">
               <textarea :id="'taskname_' + box.box.uID + '_desc'"
                         type="text" v-model="newTask.description"
                         rows="1"
                         class="p_input w-full mt-2"
                         placeholder="Description"
-                        v-on:keydown="newTaskKeyUp(box.box)"
+                        v-on:keydown="newTaskKeyUp(box.box, 'taskname_' + box.box.uID)"
                         v-on:keyup="auto_grow('taskname_' + box.box.uID + '_desc')"></textarea>
               <Listbox v-model="newTask.categories" multiple id="newtaskcategories">
                 <div class="relative mt-1">
@@ -280,7 +284,15 @@
   <modal @close="isShowingTask = false"
          v-show="isShowingTask">
     <template v-slot:header>
-      <div class="h-4"></div>
+      <div class="h-4 flex items-center text-neutral-400 text-xs">
+        <p class="mr-1">uID {{ showingTask.uID }}</p>
+        <i class="bi bi-dot mr-1"></i>
+        <p class="mr-1">
+          {{ new Date(showingTask.cdate).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+        </p>
+        <i class="bi bi-dot mr-1"></i>
+        <p class="mr-1">{{ showingTask.author }}</p>
+      </div>
     </template>
     <template v-slot:body>
       <div class="w-full sm:w-[540px] flex h-full">
@@ -303,7 +315,25 @@
                       :source="showingTask.desc"
                       :plugins="plugins"></Markdown>
           </div>
-          <div id="wisdomComments" class="w-full mt-6 bg-neutral-900 p-2 rounded">
+          <div class="w-full my-2">
+            <div class="mr-2 flex items-center justify-between">
+              <label for="task_view_datetime" class="text-neutral-400 text-sm font-bold">Due Date</label>
+              <input id="task_view_datetime" type="datetime-local" class="p_input">
+            </div>
+          </div>
+          <div class="w-full my-2">
+            <div class="mr-2 flex items-center justify-between">
+              <div class="text-neutral-400 text-sm font-bold">Collaborators</div>
+              <template v-if="showingTask.collaborators && showingTask.collaborators.length > 0">
+              </template>
+              <template v-else>
+                <div class="text-neutral-400 text-sm pointer-events-none">
+                  No Collaborators
+                </div>
+              </template>
+            </div>
+          </div>
+          <div id="wisdomComments" class="w-full mt-4 bg-neutral-900 p-2 rounded">
             <div class="w-full relative">
               <div
                 class="p-2 rounded-full hover:bg-neutral-700 text-neutral-300 hover:text-white absolute right-1 sidebar_button cursor-pointer">
@@ -346,23 +376,45 @@
             </template>
           </div>
         </div>
-        <div class="w-30 mx-2">
-          <button v-on:click="finishTask(showingTask)"
-                  class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
-            <CheckIcon
-              class="mr-2 h-6 w-6"
-              aria-hidden="true"
-            />
-            Finish
-          </button>
-          <button v-on:click="finishTask(showingTask, true)"
-                  class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
-            <TrashIcon
-              class="mr-2 h-6 w-6"
-              aria-hidden="true"
-            />
-            Delete
-          </button>
+        <div class="w-30 mx-2 divide-y divide-neutral-500">
+          <div class="p-1">
+            <button v-on:click="finishTask(showingTask)"
+                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
+              <CheckIcon
+                class="mr-2 h-6 w-6"
+                aria-hidden="true"
+              />
+              Finish
+            </button>
+            <button v-on:click="finishTask(showingTask, true)"
+                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
+              <TrashIcon
+                class="mr-2 h-6 w-6"
+                aria-hidden="true"
+              />
+              Delete
+            </button>
+          </div>
+          <div class="p-1">
+            <button v-on:click="gotoWisdom(showingTask.gUID)"
+                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
+              <WindowIcon
+                class="mr-2 h-6 w-6"
+                aria-hidden="true"
+              />
+              Go To
+            </button>
+          </div>
+          <div class="p-1">
+            <button disabled
+                    class="group p_card_menu_item text-lg text-neutral-500">
+              <ClockIcon
+                class="mr-2 h-6 w-6"
+                aria-hidden="true"
+              />
+              History
+            </button>
+          </div>
         </div>
       </div>
     </template>
@@ -387,7 +439,9 @@ import {
   CheckIcon,
   ArrowsPointingOutIcon,
   Squares2X2Icon,
-  ArrowsUpDownIcon
+  ArrowsUpDownIcon,
+  WindowIcon,
+  ClockIcon
 } from '@heroicons/vue/24/solid'
 import {
   Menu,
@@ -430,7 +484,9 @@ export default {
     ListboxButton,
     ListboxOptions,
     ListboxOption,
-    ArrowsUpDownIcon
+    ArrowsUpDownIcon,
+    WindowIcon,
+    ClockIcon
   },
   data () {
     return {
@@ -451,6 +507,7 @@ export default {
       showingTask: {},
       showingTaskRelated: [],
       showingTaskComment: '',
+      sidebarActive: true,
       plugins: [
         {
           plugin: markdownItMermaid
@@ -474,8 +531,27 @@ export default {
   mounted () {
     this.renderMermaidInit()
     this.initFunction()
+    window.addEventListener('keypress', this.handleDocumentKeypress, false)
+    window.addEventListener('keyup', this.handleDocumentKeyUp, false)
+  },
+  beforeUnmount () {
+    window.removeEventListener('keypress', this.handleDocumentKeypress, false)
+    window.removeEventListener('keyup', this.handleDocumentKeyUp, false)
   },
   methods: {
+    handleDocumentKeypress: function (event) {
+      if (event.key === '[') {
+        if (document.activeElement.classList.contains('p_input')) return
+        event.preventDefault()
+        this.toggleSidebar()
+      }
+    },
+    handleDocumentKeyUp: function (event) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        this.hideNewTaskInputs()
+      }
+    },
     initFunction: async function () {
       await this.serverLogin()
       const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -595,11 +671,14 @@ export default {
         }
       }
     },
-    newTaskKeyUp: function (box) {
+    newTaskKeyUp: async function (box, id = '') {
       if (event.key === 'Enter') {
         if (event.shiftKey) return
         if (this.newTask.name.trim() !== '') {
-          this.createTask(box)
+          await this.createTask(box)
+          if (event.ctrlKey && id !== '') {
+            this.toggleAndFocusNewTask(id)
+          }
         }
       }
     },
@@ -701,6 +780,7 @@ export default {
       }
     },
     toggleAndFocusNewTask: function (id, display = 'block') {
+      this.hideNewTaskInputs()
       this.toggleElement(id, display)
       const elem = document.getElementById(id)
       const input = document.getElementById(id + '_input')
@@ -850,6 +930,15 @@ export default {
     },
     resetValues: function () {
       this.showingTaskComment = ''
+    },
+    toggleSidebar: function () {
+      const sidebarElem = document.getElementById('sidebar')
+      if (!sidebarElem) return
+      if (!sidebarElem.classList.contains('active')) {
+        sidebarElem.classList.add('active')
+      } else {
+        sidebarElem.classList.remove('active')
+      }
     }
   }
 }
@@ -977,6 +1066,23 @@ export default {
 
 .sidebar_button:hover .sidebar_tooltip {
   @apply opacity-100;
+}
+
+.p_sidebar_left {
+  @apply w-7 overflow-x-hidden;
+}
+
+.p_sidebar_left > .p_sidebar_toggler {
+  @apply bg-slate-700 hover:bg-slate-600;
+}
+
+.p_sidebar_left.active {
+  @apply min-w-[265px] max-w-[265px];
+}
+
+.p_sidebar_left.active > .p_sidebar_toggler {
+  background-color: unset;
+  @apply hover:bg-slate-600;
 }
 
 </style>

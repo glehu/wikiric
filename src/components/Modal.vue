@@ -119,7 +119,7 @@ export default {
 .modal {
   @apply rounded-lg;
   box-shadow: black 2px 2px 10px 1px;
-  overflow-y: scroll;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   height: fit-content;
