@@ -103,9 +103,9 @@
             </div>
             <div v-if="box.tasks" class="mb-4">
               <template v-for="task in box.tasks" :key="task.uID">
-                <div class="p_task bg-neutral-900 bg-opacity-75 rounded mb-2 flex items-center relative w-full">
-                  <div class="w-full h-full cursor-pointer hover:border rounded py-1 px-1"
-                       v-on:click="openTask(task)">
+                <div :id="'task_' + task.uID"
+                     class="p_task bg-neutral-900 bg-opacity-75 rounded mb-2 flex items-center relative w-full hover:border cursor-pointer">
+                  <div class="w-full h-full rounded py-1 px-1" v-on:click="openTask(task)">
                     <div class="flex mb-2 items-center">
                       <template v-if="task.categories">
                         <template v-for="cat in task.categories" :key="cat">
@@ -508,6 +508,10 @@ export default {
       showingTaskRelated: [],
       showingTaskComment: '',
       sidebarActive: true,
+      selection: {
+        row: -1,
+        col: -1
+      },
       plugins: [
         {
           plugin: markdownItMermaid
@@ -533,25 +537,14 @@ export default {
     this.initFunction()
     window.addEventListener('keypress', this.handleDocumentKeypress, false)
     window.addEventListener('keyup', this.handleDocumentKeyUp, false)
+    window.addEventListener('keydown', this.handleDocumentKeyDown, false)
   },
   beforeUnmount () {
     window.removeEventListener('keypress', this.handleDocumentKeypress, false)
     window.removeEventListener('keyup', this.handleDocumentKeyUp, false)
+    window.removeEventListener('keydown', this.handleDocumentKeyDown, false)
   },
   methods: {
-    handleDocumentKeypress: function (event) {
-      if (event.key === '[') {
-        if (document.activeElement.classList.contains('p_input')) return
-        event.preventDefault()
-        this.toggleSidebar()
-      }
-    },
-    handleDocumentKeyUp: function (event) {
-      if (event.key === 'Escape') {
-        event.preventDefault()
-        this.hideNewTaskInputs()
-      }
-    },
     initFunction: async function () {
       await this.serverLogin()
       const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -672,11 +665,12 @@ export default {
       }
     },
     newTaskKeyUp: async function (box, id = '') {
-      if (event.key === 'Enter') {
-        if (event.shiftKey) return
+      const ev = event
+      if (ev.key === 'Enter') {
+        if (ev.shiftKey) return
         if (this.newTask.name.trim() !== '') {
           await this.createTask(box)
-          if (event.ctrlKey && id !== '') {
+          if (ev.ctrlKey && id !== '') {
             this.toggleAndFocusNewTask(id)
           }
         }
@@ -764,7 +758,7 @@ export default {
             this.newTask.categories = []
             this.hideNewTaskInputs()
           })
-          .then(() => resolve)
+          .then(() => resolve())
           .catch((err) => {
             console.error(err.message)
             this.noResults = true
@@ -939,6 +933,114 @@ export default {
       } else {
         sidebarElem.classList.remove('active')
       }
+    },
+    handleDocumentKeypress: function (event) {
+      if (event.key === '[') {
+        if (document.activeElement.classList.contains('p_input')) return
+        event.preventDefault()
+        this.toggleSidebar()
+      }
+    },
+    handleDocumentKeyUp: function (event) {
+      const ev = event
+      if (ev.key === 'Escape') {
+        ev.preventDefault()
+        this.hideNewTaskInputs()
+        this.isShowingTask = false
+      } else if (ev.key === 't') {
+        if (!this.isTaskSelectionInitial()) {
+          if (!this.boxes[this.selection.row]) return
+          ev.preventDefault()
+          this.toggleAndFocusNewTask('taskname_' + this.boxes[this.selection.row].box.uID)
+        }
+      } else if (ev.key === 'c') {
+        if (!this.isShowingTask) return
+        const elem = document.getElementById('input_comment')
+        if (elem) elem.focus()
+      }
+    },
+    handleDocumentKeyDown: function (event) {
+      const ev = event
+      if (ev.key === 'Enter') {
+        ev.preventDefault()
+        if (document.activeElement.classList.contains('p_input')) return
+        if (!this.isTaskSelectionInitial()) {
+          if (!this.boxes[this.selection.row] ||
+            !this.boxes[this.selection.row].tasks ||
+            !this.boxes[this.selection.row].tasks[this.selection.col]) {
+            return
+          }
+          this.openTask(this.boxes[this.selection.row].tasks[this.selection.col])
+        }
+      } else if (ev.key === 'ArrowUp' || ev.key === 'ArrowRight' || ev.key === 'ArrowDown' || ev.key === 'ArrowLeft') {
+        // Prevent scrolling with arrow keys
+        ev.preventDefault()
+        this.hideNewTaskInputs()
+        if (ev.key === 'ArrowUp') {
+          this.moveTaskSelection('up')
+        } else if (ev.key === 'ArrowRight') {
+          this.moveTaskSelection('right')
+        } else if (ev.key === 'ArrowDown') {
+          this.moveTaskSelection('down')
+        } else if (ev.key === 'ArrowLeft') {
+          this.moveTaskSelection('left')
+        }
+      }
+    },
+    moveTaskSelection: function (direction) {
+      if (this.boxes.length < 1 || !this.boxes[0].tasks) {
+        this.selection.row = -1
+        this.selection.col = -1
+        return
+      }
+      if (direction === 'up') {
+        this.moveAndMarkTask(0, -1)
+      } else if (direction === 'right') {
+        this.moveAndMarkTask(1, 0)
+      } else if (direction === 'down') {
+        this.moveAndMarkTask(0, 1)
+      } else if (direction === 'left') {
+        this.moveAndMarkTask(-1, 0)
+      }
+    },
+    moveAndMarkTask: function (xPlus, yPlus) {
+      if (this.isTaskSelectionInitial()) {
+        this.selection.row = 0
+        this.selection.col = 0
+      } else {
+        // Check if what we're going to move to exists
+        let colOverride = -1
+        if (!this.boxes[this.selection.row + xPlus] || !this.boxes[this.selection.row + xPlus].tasks) {
+          return
+        }
+        if (!this.boxes[this.selection.row + xPlus].tasks[this.selection.col + yPlus]) {
+          if (this.boxes[this.selection.row + xPlus].tasks) {
+            colOverride = this.boxes[this.selection.row + xPlus].tasks.length - 1
+          } else {
+            return
+          }
+        }
+        // Reset previous task's active class
+        const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
+        const elemOld = document.getElementById(id)
+        elemOld.classList.remove('active')
+        // Now change to new position
+        this.selection.row += xPlus
+        if (colOverride === -1) {
+          this.selection.col += yPlus
+        } else {
+          this.selection.col = colOverride
+        }
+      }
+      // Set active class for currently selected tasks
+      const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
+      const elem = document.getElementById(id)
+      elem.focus()
+      elem.scrollIntoView({ behavior: 'smooth' })
+      elem.classList.add('active')
+    },
+    isTaskSelectionInitial: function () {
+      return (this.selection.row === -1 && this.selection.col === -1)
     }
   }
 }
@@ -1085,4 +1187,7 @@ export default {
   @apply hover:bg-slate-600;
 }
 
+.p_task.active {
+  @apply border;
+}
 </style>
