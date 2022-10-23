@@ -22,13 +22,22 @@
           </div>
         </div>
       </div>
-      <div class="flex items-center mt-8 cursor-pointer hover:bg-neutral-800 bg-opacity-50 py-2"
+      <div class="flex items-center mt-8 cursor-pointer hover:bg-neutral-800 hover:bg-opacity-50 py-2"
            v-on:click="getBoxes(false)">
         <div class="h-full ml-4 mr-2 px-1 rounded-xl text-neutral-300">
           <ArrowPathIcon class="h-6 w-6"></ArrowPathIcon>
         </div>
         <div class="font-bold text-neutral-300">
           Reload Tasks
+        </div>
+      </div>
+      <div class="flex items-center cursor-pointer hover:bg-neutral-800 hover:bg-opacity-50 py-2"
+           v-on:click="openSearch()">
+        <div class="h-full ml-4 mr-2 px-1 rounded-xl text-neutral-300">
+          <FunnelIcon class="h-6 w-6"></FunnelIcon>
+        </div>
+        <div class="font-bold text-neutral-300">
+          Filter
         </div>
       </div>
       <div
@@ -41,7 +50,7 @@
       <template v-if="boxes.length > 0">
         <template v-for="box in boxes" :key="box.uID">
           <div class="p_card" style="margin-bottom: 42px !important">
-            <div class="p_card_header_section relative text-neutral-300 flex items-center pb-1">
+            <div class="p_card_header_section relative text-neutral-300 flex items-center p-2">
               <Markdown class="p_markdown p_markdown_xl_only font-bold"
                         :source="box.box.t"
                         :plugins="plugins"></Markdown>
@@ -102,9 +111,10 @@
               </div>
             </div>
             <div v-if="box.tasks" class="mb-4">
-              <template v-for="task in box.tasks" :key="task.uID">
+              <div v-for="task in box.tasks" :key="task.uID" class="p-1 task_container"
+                   :id="'taskcontainer_' + task.uID">
                 <div :id="'task_' + task.uID"
-                     class="p_task bg-neutral-900 bg-opacity-75 rounded mb-2 flex items-center relative w-full hover:border cursor-pointer">
+                     class="p_task bg-neutral-900 bg-opacity-75 rounded flex items-center relative cursor-pointer">
                   <div class="w-full h-full rounded py-1 px-1" v-on:click="openTask(task)">
                     <div class="flex mb-2 items-center">
                       <template v-if="task.categories">
@@ -124,8 +134,21 @@
                               :plugins="plugins"></Markdown>
                     <div class="flex mt-2">
                       <div class="ml-auto flex items-center">
-                        <div class="text-xs text-neutral-500 ml-1">
-                          {{ task.author }}
+                        <div>
+                          <template v-if="task.dueDate && task.dueDate !== ''">
+                            <div class="ml-auto flex items-center text-neutral-500 py-0.5">
+                              <p class="m-0 text-xs font-bold">
+                                {{ getTaskDueDate(task).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+                              </p>
+                              <CalendarIcon class="w-4 h-4 ml-1"></CalendarIcon>
+                            </div>
+                          </template>
+                          <div class="ml-auto flex items-center text-neutral-500 py-0.5 justify-end">
+                            <p class="text-xs ml-1">
+                              {{ task.author }}
+                            </p>
+                            <UserIcon class="w-4 h-4 ml-1"></UserIcon>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -191,9 +214,9 @@
                     </Menu>
                   </div>
                 </div>
-              </template>
+              </div>
             </div>
-            <div class="relative flex items-center cursor-pointer">
+            <div class="relative flex items-center cursor-pointer p-2">
               <PlusCircleIcon class="h-6 w-6 mx-1 absolute text-neutral-400"></PlusCircleIcon>
               <div class="p_input p_input_icon text-neutral-400"
                    v-on:click="toggleAndFocusNewTask('taskname_' + box.box.uID)">
@@ -201,7 +224,7 @@
               </div>
             </div>
             <div :id="'taskname_' + box.box.uID"
-                 class="w-full hidden mt-4 p_new_task_disclosure relative">
+                 class="w-full hidden mt-4 p_new_task_disclosure relative p-2">
               <p class="absolute pt-1 pl-2 text-neutral-400">##</p>
               <input :id="'taskname_' + box.box.uID + '_input'"
                      type="text"
@@ -272,7 +295,7 @@
         </template>
       </template>
       <div id="new_box" class="p_card">
-        <div class="p_card_header_section flex relative items-center">
+        <div class="p_card_header_section flex relative items-center p-2">
           <PlusCircleIcon class="h-6 w-6 mx-1 absolute"></PlusCircleIcon>
           <input type="text" class="p_input p_input_icon w-full" placeholder="New Box..."
                  v-model="newBox.name"
@@ -316,13 +339,22 @@
                       :plugins="plugins"></Markdown>
           </div>
           <div class="w-full my-2">
-            <div class="mr-2 flex items-center justify-between">
-              <label for="task_view_datetime" class="text-neutral-400 text-sm font-bold">Due Date</label>
-              <input id="task_view_datetime" type="datetime-local" class="p_input">
+            <div class="flex items-center justify-between">
+              <label for="task_view_datetime" class="text-neutral-400 text-sm font-bold hidden sm:block">
+                Due Date
+              </label>
+              <input id="task_view_datetime" type="datetime-local" class="p_input ml-auto"
+                     v-model="showingTask.dueDate">
+            </div>
+            <div class="mt-1 flex items-center">
+              <button class="rounded-lg bg-neutral-800 hover:bg-neutral-900 py-1 px-2 ml-auto text-sm text-neutral-400"
+                      v-on:click="setTaskDueDate()">
+                Update
+              </button>
             </div>
           </div>
           <div class="w-full my-2">
-            <div class="mr-2 flex items-center justify-between">
+            <div class="flex items-center justify-between">
               <div class="text-neutral-400 text-sm font-bold">Collaborators</div>
               <template v-if="showingTask.collaborators && showingTask.collaborators.length > 0">
               </template>
@@ -421,6 +453,27 @@
     <template v-slot:footer>
     </template>
   </modal>
+  <template v-if="isSearching">
+    <div class="absolute top-[60px] right-1 p_card mt-2"
+         style="box-shadow: 0 0 0 4px rgb(23 23 23 / 1)">
+      <div class="p_card_header_section relative text-neutral-300 flex items-center p-2 font-bold">
+        Filter
+      </div>
+      <div class="p_card_header_section flex relative items-center p-2">
+        <FunnelIcon class="h-6 w-6 mx-1 absolute"></FunnelIcon>
+        <input id="search_input"
+               type="text" class="p_input p_input_icon w-full" placeholder="Search..."
+               v-model="searchQuery"
+               v-on:keyup="handleEnter()">
+      </div>
+      <div class="flex w-full mb-1">
+        <button class="rounded-lg bg-neutral-800 hover:bg-neutral-900 py-1 px-2 ml-auto mr-2 text-sm text-neutral-400"
+                v-on:click="resetSearchResults()">
+          Reset
+        </button>
+      </div>
+    </div>
+  </template>
 </template>
 
 <script>
@@ -431,7 +484,8 @@ import {
   ArrowPathIcon,
   EllipsisVerticalIcon,
   CubeTransparentIcon,
-  ChatBubbleLeftEllipsisIcon
+  ChatBubbleLeftEllipsisIcon,
+  FunnelIcon
 } from '@heroicons/vue/24/outline'
 import {
   InboxIcon,
@@ -441,7 +495,9 @@ import {
   Squares2X2Icon,
   ArrowsUpDownIcon,
   WindowIcon,
-  ClockIcon
+  ClockIcon,
+  CalendarIcon,
+  UserIcon
 } from '@heroicons/vue/24/solid'
 import {
   Menu,
@@ -486,7 +542,10 @@ export default {
     ListboxOption,
     ArrowsUpDownIcon,
     WindowIcon,
-    ClockIcon
+    ClockIcon,
+    CalendarIcon,
+    UserIcon,
+    FunnelIcon
   },
   data () {
     return {
@@ -512,11 +571,14 @@ export default {
         row: -1,
         col: -1
       },
+      isSearching: false,
+      searchQuery: '',
       plugins: [
         {
           plugin: markdownItMermaid
         }
-      ]
+      ],
+      results: []
     }
   },
   computed: {
@@ -556,9 +618,8 @@ export default {
         return
       }
       this.srcGUID = srcGUID
-      const input = document.getElementById('input_comment')
-      input.addEventListener('keydown', this.handleEnter, false)
       this.inputComment = document.getElementById('input_comment')
+      this.inputComment.addEventListener('keydown', this.handleEnter, false)
       await this.getKnowledge(srcGUID)
       await this.getBoxes()
     },
@@ -718,33 +779,63 @@ export default {
           })
       })
     },
-    createTask: async function (box) {
+    createTask: async function (box, taskUpdate = false) {
       await this.serverLogin()
-      const boxColumn = box.columnIndex
-      const categories = []
-      for (let i = 0; i < this.newTask.categories.length; i++) {
-        categories.push(JSON.stringify(this.newTask.categories[i]))
-      }
-      const payload = {
-        title: '## ' + this.newTask.name,
-        description: this.newTask.description,
-        knowledgeGUID: this.knowledge.gUID,
-        keywords: '',
-        copyContent: '',
-        categories: categories,
-        isTask: true,
-        taskType: 'task',
-        columnIndex: boxColumn,
-        rowIndex: 0,
-        inBox: true,
-        boxGUID: box.gUID
+      let categories = []
+      let payload = {}
+      let extension = ''
+      if (!taskUpdate) {
+        const boxColumn = box.columnIndex
+        for (let i = 0; i < this.newTask.categories.length; i++) {
+          categories.push(JSON.stringify(this.newTask.categories[i]))
+        }
+        payload = {
+          title: '## ' + this.newTask.name,
+          description: this.newTask.description,
+          knowledgeGUID: this.knowledge.gUID,
+          keywords: this.newTask.name,
+          copyContent: '',
+          categories: categories,
+          isTask: true,
+          taskType: 'task',
+          columnIndex: boxColumn,
+          rowIndex: 0,
+          inBox: true,
+          boxGUID: box.gUID
+        }
+      } else if (taskUpdate) {
+        extension = '?guid=' + this.showingTask.gUID
+        categories = []
+        if (this.showingTask.categories) {
+          for (let i = 0; i < this.showingTask.categories.length; i++) {
+            categories.push(JSON.stringify(this.newTask.categories[i]))
+          }
+        }
+        console.log(this.showingTask.dueDate)
+        const dateTimeElem = document.getElementById('task_view_datetime')
+        console.log(dateTimeElem.value)
+        payload = {
+          title: this.showingTask.t,
+          description: this.showingTask.desc,
+          knowledgeGUID: this.knowledge.gUID,
+          keywords: this.newTask.name,
+          copyContent: '',
+          categories: categories,
+          isTask: true,
+          taskType: 'task',
+          columnIndex: this.showingTask.columnIndex,
+          rowIndex: 0,
+          inBox: true,
+          boxGUID: this.showingTask.boxGUID,
+          dueDate: this.showingTask.dueDate
+        }
       }
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
         const headers = new Headers()
         headers.set('Authorization', 'Bearer ' + this.$store.state.token)
         fetch(
-          this.$store.state.serverIP + '/api/m7/teach',
+          this.$store.state.serverIP + '/api/m7/teach' + extension,
           {
             method: 'post',
             headers: headers,
@@ -851,7 +942,9 @@ export default {
     openTask: async function (task) {
       if (!task.gUID) return
       this.showingTask = task
+      this.showingTask.comments = []
       this.isShowingTask = true
+      this.renderMermaid()
       await this.getRelated(task)
       this.renderMermaid()
     },
@@ -878,11 +971,15 @@ export default {
           })
       })
     },
-    handleEnter: function () {
+    handleEnter: async function () {
       if (event.key === 'Enter') {
         if (event.shiftKey) return
         event.preventDefault()
-        this.submitComment()
+        if (this.isShowingTask) {
+          this.submitComment()
+        } else if (this.isSearching) {
+          await this.searchWisdom()
+        }
       }
     },
     submitComment: function () {
@@ -941,13 +1038,19 @@ export default {
         this.toggleSidebar()
       }
     },
-    handleDocumentKeyUp: function (event) {
+    handleDocumentKeyUp: async function (event) {
       const ev = event
       if (ev.key === 'Escape') {
         ev.preventDefault()
         this.hideNewTaskInputs()
+        if (!this.isShowingTask) {
+          this.isSearching = false
+          this.resetSearchResults()
+        }
         this.isShowingTask = false
       } else if (ev.key === 't') {
+        if (this.isShowingTask) return
+        if (document.activeElement.classList.contains('p_input')) return
         if (!this.isTaskSelectionInitial()) {
           if (!this.boxes[this.selection.row]) return
           ev.preventDefault()
@@ -955,15 +1058,28 @@ export default {
         }
       } else if (ev.key === 'c') {
         if (!this.isShowingTask) return
+        ev.preventDefault()
         const elem = document.getElementById('input_comment')
         if (elem) elem.focus()
+      } else if (ev.key === 'r') {
+        if (this.isShowingTask) return
+        if (document.activeElement.classList.contains('p_input')) return
+        ev.preventDefault()
+        await this.getBoxes(false)
+        this.renderMermaid()
+      } else if (ev.key === 'f') {
+        if (this.isShowingTask) return
+        if (document.activeElement.classList.contains('p_input')) return
+        ev.preventDefault()
+        this.openSearch()
       }
     },
     handleDocumentKeyDown: function (event) {
       const ev = event
       if (ev.key === 'Enter') {
-        ev.preventDefault()
+        if (this.isShowingTask) return
         if (document.activeElement.classList.contains('p_input')) return
+        ev.preventDefault()
         if (!this.isTaskSelectionInitial()) {
           if (!this.boxes[this.selection.row] ||
             !this.boxes[this.selection.row].tasks ||
@@ -973,6 +1089,8 @@ export default {
           this.openTask(this.boxes[this.selection.row].tasks[this.selection.col])
         }
       } else if (ev.key === 'ArrowUp' || ev.key === 'ArrowRight' || ev.key === 'ArrowDown' || ev.key === 'ArrowLeft') {
+        if (this.isShowingTask) return
+        if (document.activeElement.classList.contains('p_input')) return
         // Prevent scrolling with arrow keys
         ev.preventDefault()
         this.hideNewTaskInputs()
@@ -1033,14 +1151,106 @@ export default {
         }
       }
       // Set active class for currently selected tasks
+      const idContainer = 'taskcontainer_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
       const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
+      const elemContainer = document.getElementById(idContainer)
       const elem = document.getElementById(id)
-      elem.focus()
-      elem.scrollIntoView({ behavior: 'smooth' })
+      elemContainer.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end'
+      })
       elem.classList.add('active')
     },
     isTaskSelectionInitial: function () {
       return (this.selection.row === -1 && this.selection.col === -1)
+    },
+    setTaskDueDate: function () {
+      this.createTask(null, true)
+    },
+    getTaskDueDate: function (task) {
+      if (task.dueDate && task.dueDate !== '') {
+        return new Date(task.dueDate)
+      } else {
+        return ''
+      }
+    },
+    searchWisdom: async function () {
+      this.results = []
+      const payload = {
+        query: this.searchQuery,
+        type: 'task'
+      }
+      return new Promise((resolve) => {
+        const elements = document.getElementsByClassName('task_container')
+        for (let i = 0; i < elements.length; i++) {
+          elements[i].style.display = 'none'
+        }
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m7/search/' + this.knowledge.gUID,
+          {
+            method: 'post',
+            headers: headers,
+            body: JSON.stringify(payload)
+          }
+        )
+          .then(res => res.json())
+          .then((data) => {
+            const parsedData = data
+            if (parsedData.first != null) {
+              for (let i = 0; i < parsedData.first.length; i++) {
+                this.results.push({
+                  priority: 'high',
+                  result: parsedData.first[i].wisdom
+                })
+              }
+            }
+            if (parsedData.second != null) {
+              for (let i = 0; i < parsedData.second.length; i++) {
+                this.results.push({
+                  priority: 'medium',
+                  result: parsedData.second[i].wisdom
+                })
+              }
+            }
+            if (parsedData.third != null) {
+              for (let i = 0; i < parsedData.third.length; i++) {
+                this.results.push({
+                  priority: 'low',
+                  result: parsedData.third[i].wisdom
+                })
+              }
+            }
+          })
+          .then(() => {
+            let elem
+            for (let i = 0; i < this.results.length; i++) {
+              elem = document.getElementById('taskcontainer_' + this.results[i].result.uID)
+              if (elem) {
+                elem.style.display = 'block'
+              }
+            }
+          })
+          .then(() => resolve)
+          .catch((err) => {
+            console.error(err.message)
+          })
+      })
+    },
+    openSearch: function () {
+      this.isSearching = true
+      setTimeout(() => {
+        const elem = document.getElementById('search_input')
+        elem.focus()
+      }, 0)
+    },
+    resetSearchResults: function () {
+      this.searchQuery = ''
+      const elements = document.getElementsByClassName('task_container')
+      for (let i = 0; i < elements.length; i++) {
+        elements[i].style.display = 'block'
+      }
     }
   }
 }
@@ -1050,12 +1260,12 @@ export default {
 
 /* Coloring / Shape */
 .p_card {
-  @apply bg-slate-700 rounded-lg p-2 text-neutral-300;
+  @apply bg-slate-700 rounded-lg text-neutral-300;
 }
 
 /* Sizing */
 .p_card {
-  @apply min-w-[256px] max-w-[256px] h-fit m-1
+  @apply min-w-[256px] max-w-[256px] h-fit m-1;
 }
 
 .p_input {
@@ -1188,6 +1398,24 @@ export default {
 }
 
 .p_task.active {
-  @apply border;
+  box-shadow: 0 0 0 2px white;
 }
+
+.p_task:hover {
+  box-shadow: 0 0 0 2px white;
+}
+
+.p_task {
+  @apply mb-1 mx-1 w-[calc(100%-0.5rem)]
+}
+
+#board {
+  scrollbar-width: none;
+}
+
+/* Works on Chrome, Edge, and Safari */
+#board::-webkit-scrollbar {
+  display: none;
+}
+
 </style>
