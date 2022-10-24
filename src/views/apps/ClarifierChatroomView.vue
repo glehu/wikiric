@@ -1697,6 +1697,15 @@ export default {
       if (distanceToBottom < 50) {
         this.scrollToBottom(false)
       }
+      if (this.userActivity.length > 0) {
+        // Check if activity was previously shared already
+        for (let i = 0; i < this.userActivity.length; i++) {
+          if (this.userActivity[i].user === message.src) {
+            this.userActivity.splice(i, 1)
+            break
+          }
+        }
+      }
       this.messages.unshift(message)
       this.extraSkipCount++
       if (message.mType === 'RegistrationNotification') {
