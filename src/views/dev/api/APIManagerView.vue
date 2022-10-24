@@ -190,7 +190,8 @@ export default {
         return_redirect: '',
         return_delay: 0,
         return_delay_unit: 'Seconds'
-      }
+      },
+      timer: null
     }
   },
   mounted () {
@@ -204,7 +205,10 @@ export default {
     })
     this.loadConfig()
     this.getTime()
-    setInterval(this.getTime, 1000)
+    this.timer = setInterval(this.getTime, 1000)
+  },
+  beforeUnmount () {
+    clearInterval(this.timer)
   },
   methods: {
     setCodeMode: function () {

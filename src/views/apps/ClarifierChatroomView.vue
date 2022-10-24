@@ -158,10 +158,9 @@
       <div class="clarifier_chatroom"
            style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip"
            v-on:click="closeModals">
-        <div id="chat_section" class="chat_section" style="width: 100%; height: 100%">
-          <div class="header-margin" style="box-shadow: none"></div>
+        <div id="chat_section" class="chat_section h-full w-full mt-[60px] overflow-hidden bg-neutral-900">
           <!-- #### CHAT HEADER #### -->
-          <div class="chat_header bg-neutral-900 bg-opacity-60">
+          <div class="chat_header bg-neutral-900">
             <div
               style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%; align-items: center">
               <div style="margin-left: 10px"
@@ -515,6 +514,23 @@
                     {{ reaction.src.length }}
                   </div>
                 </div>
+                <div :id="'edit_' + msg.gUID" class="hidden w-full justify-center">
+                  <div class="text-sm p-2 bg-neutral-900 rounded mt-4 text-center">
+                    <div class="mb-2 text-neutral-400">
+                      Edit your message
+                    </div>
+                    <div class="flex py-1 px-2 bg-blue-600 bg-opacity-20 rounded">
+                      <div v-on:click="this.addMessage()" class="text-white cursor-pointer mr-1 font-bold">
+                        Enter
+                      </div>
+                      <div class="mr-1 text-neutral-300">to save,</div>
+                      <div v-on:click="this.resetEditing()" class="text-white cursor-pointer mr-1 font-bold">
+                        Esc
+                      </div>
+                      <span class="text-neutral-300">to cancel.</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </template>
           </div>
@@ -534,25 +550,15 @@
               Click to jump to the newest messages
               <i class="bi bi-arrow-down"></i>
             </button>
-            <div v-if="isEditingMessage"
+            <div v-if="userActivity.length > 0"
                  style="bottom: 0; left: 10px; opacity: 1"
-                 class="c_lightgray text-center scroll_to_bottom">
-            <span class="c_orange"
-                  style="cursor: pointer"
-                  v-on:click="this.addMessage()">
-              Enter
-            </span>
-              <span style="pointer-events: none">
-              to save,
-            </span>
-              <span class="c_orange"
-                    style="cursor: pointer"
-                    v-on:click="this.resetEditing()">
-              Esc
-            </span>
-              <span style="pointer-events: none">
-              to cancel.
-            </span>
+                 class="scroll_to_bottom flex">
+              <template v-for="user in userActivity" :key="user">
+                <div>
+                  <span class="text-neutral-400 mr-1">{{ user.user }}</span>
+                </div>
+              </template>
+              <div class="text-neutral-500">is typing...</div>
             </div>
             <div v-if="isTaggingUser"
                  class="user_tagger b_gray c_lightgray"
@@ -1316,6 +1322,8 @@ export default {
         usr: '',
         roles: []
       },
+      userActivity: [],
+      timer: null,
       plugins: [
         {
           plugin: markdownItMermaid
@@ -1327,6 +1335,9 @@ export default {
   },
   mounted () {
     setTimeout(() => this.initFunction(), 0)
+  },
+  beforeUnmount () {
+    clearInterval(this.timer)
   },
   methods: {
     closeModal: function () {
@@ -1410,6 +1421,7 @@ export default {
           }
         }
       }
+      this.timer = setInterval(this.clearActivity, 1000)
     },
     setUpWRTC: function () {
       // Initialize wRTC.js
@@ -1462,13 +1474,19 @@ export default {
       })
     },
     handleGlobalKeyEvents: function (event) {
-      if (event.key === 'Escape') {
+      const ev = event
+      if (ev.key === 'Escape') {
         if (this.isEditingMessage === true) {
           this.resetEditing()
         } else {
           this.hideAllWindows()
         }
         this.focusComment()
+      } else {
+        if (document.activeElement.id === 'new_comment') {
+          // User has pressed a key whilst being in the input field
+          this.shareActivity(ev)
+        }
       }
     },
     handleFirebaseEvent: function (event) {
@@ -2043,7 +2061,7 @@ export default {
     },
     processRawMessage: async function (msg) {
       if (msg.substr(0, 6) === '[c:SC]') {
-        // Incoming Screen Share Payload
+        // Incoming ActionTrigger message (former Screen Share Payload)
         const tmp = msg.substr(6)
         if (tmp.substring(0, 3) === '[A]') {
           // Offer
@@ -2106,6 +2124,8 @@ export default {
               this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
             }
           }
+        } else if (tmp.substring(0, 10) === '[activity]') {
+          this.receiveActivity(tmp.substring(10))
         }
         return new Promise((resolve) => {
           resolve('')
@@ -2533,6 +2553,11 @@ export default {
     auto_grow: function () {
       this.inputField.style.height = '40px' // Default
       this.inputField.style.height = (this.inputField.scrollHeight) + 'px' // Grow if scrollHeight > 0
+      if (this.inputField.style.height !== '40px') {
+        this.inputField.style.borderRadius = '6px 6px 0 6px'
+      } else {
+        this.inputField.style.borderRadius = '6px 0 0 6px'
+      }
       this.message_section.style.bottom = (this.inputField.scrollHeight - 40) + 'px'
     },
     resizeCanvas: function () {
@@ -2771,6 +2796,8 @@ export default {
       }
       const msg = document.getElementById(this.messageEditing.gUID)
       if (msg != null) msg.style.backgroundColor = ''
+      const editElem = document.getElementById('edit_' + this.messageEditing.gUID)
+      if (editElem != null) editElem.style.display = 'none'
       this.isEditingMessage = false
       this.messageEditing = {}
       this.new_message = ''
@@ -3084,6 +3111,8 @@ export default {
         setTimeout(() => {
           this.auto_grow()
           document.getElementById(msg.gUID).style.backgroundColor = '#192129'
+          const editElem = document.getElementById('edit_' + this.messageEditing.gUID)
+          if (editElem != null) editElem.style.display = 'flex'
         }, 0)
       }
     },
@@ -3714,6 +3743,60 @@ export default {
           console.debug(qrCode)
         }
       }, 0)
+    },
+    shareActivity (ev) {
+      let found = false
+      if (this.userActivity.length > 0) {
+        // Check if activity was previously shared already
+        for (let i = 0; i < this.userActivity.length; i++) {
+          if (this.userActivity[i].user === this.$store.state.username) {
+            // How long ago did we share?
+            const dateThen = this.userActivity[i].date
+            const dateNow = new Date()
+            const seconds = (dateNow.getTime() - dateThen.getTime()) / 1000
+            if (seconds < 5) return
+            // Update if it was more than 10 seconds ago
+            this.userActivity[i].date = new Date()
+            found = true
+          }
+        }
+      }
+      this.addMessagePar('[c:SC]' + '[activity]' + this.$store.state.username)
+      if (!found) {
+        this.userActivity.unshift({
+          user: this.$store.state.username,
+          date: new Date()
+        })
+      }
+    },
+    receiveActivity (username) {
+      let found = false
+      if (this.userActivity.length > 0) {
+        // Check if activity was previously shared
+        for (let i = 0; i < this.userActivity.length; i++) {
+          if (this.userActivity[i].user === username) {
+            // Update
+            this.userActivity[i].date = new Date()
+            found = true
+          }
+        }
+      }
+      if (!found) {
+        this.userActivity.unshift({
+          user: username,
+          date: new Date()
+        })
+      }
+    },
+    clearActivity () {
+      for (let i = this.userActivity.length; i > 0; i--) {
+        const dateThen = this.userActivity[i - 1].date
+        const dateNow = new Date()
+        const seconds = (dateNow.getTime() - dateThen.getTime()) / 1000
+        if (seconds > 10) {
+          this.userActivity.splice(i - 1, 1)
+        }
+      }
     }
   }
 }
