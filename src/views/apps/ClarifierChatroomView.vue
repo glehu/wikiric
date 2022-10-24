@@ -552,13 +552,16 @@
             </button>
             <div v-if="userActivity.length > 0"
                  style="bottom: 0; left: 10px; opacity: 1"
-                 class="scroll_to_bottom flex">
+                 class="scroll_to_bottom flex items-center">
+              <ChartBarIcon class="h-3 w-3 text-neutral-500 mr-1"></ChartBarIcon>
               <template v-for="user in userActivity" :key="user">
                 <div>
-                  <span class="text-neutral-400 mr-1">{{ user.user }}</span>
+                  <span class="text-neutral-400 mr-1 cursor-pointer hover:text-white"
+                        @click.stop="showUserProfileFromName(user.user)">
+                    {{ user.user }}
+                  </span>
                 </div>
               </template>
-              <div class="text-neutral-500">is typing...</div>
             </div>
             <div v-if="isTaggingUser"
                  class="user_tagger b_gray c_lightgray"
@@ -1231,7 +1234,8 @@ import {
   PhoneIcon,
   VideoCameraIcon,
   GifIcon,
-  QrCodeIcon
+  QrCodeIcon,
+  ChartBarIcon
 } from '@heroicons/vue/24/solid'
 import {
   DocumentArrowUpIcon,
@@ -1254,7 +1258,8 @@ export default {
     QrCodeIcon,
     ViewColumnsIcon,
     TrophyIcon,
-    BookOpenIcon
+    BookOpenIcon,
+    ChartBarIcon
   },
   data () {
     return {
