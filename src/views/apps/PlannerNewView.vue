@@ -294,7 +294,7 @@
           </div>
         </template>
       </template>
-      <div id="new_box" class="p_card">
+      <div id="new_box" class="p_card" style="margin-right: 312px">
         <div class="p_card_header_section flex relative items-center p-2">
           <PlusCircleIcon class="h-6 w-6 mx-1 absolute"></PlusCircleIcon>
           <input type="text" class="p_input p_input_icon w-full" placeholder="New Box..."
@@ -455,7 +455,7 @@
   </modal>
   <template v-if="isSearching">
     <div class="absolute top-[60px] right-1 p_card mt-2"
-         style="box-shadow: 0 0 0 4px rgb(23 23 23 / 1)">
+         style="box-shadow: 0 0 6px 4px rgb(23 23 23 / 1)">
       <div class="p_card_header_section relative text-neutral-300 flex items-center p-2 font-bold">
         Filter
       </div>
@@ -471,6 +471,28 @@
                 v-on:click="resetSearchResults()">
           Reset
         </button>
+      </div>
+      <div class="px-10 py-4 mt-2 bg-neutral-800 rounded-b">
+        <div class="flex items-center justify-between mb-2">
+          <label for="filterTitle" class="text-sm text-neutral-400 font-bold">Title</label>
+          <input id="filterTitle" type="checkbox" v-model="filters.filterTitle"
+                 class="w-6 h-6 accent-neutral-400">
+        </div>
+        <div class="flex items-center justify-between mb-2">
+          <label for="filterKeywords" class="text-sm text-neutral-400 font-bold">Keywords</label>
+          <input id="filterKeywords" type="checkbox" v-model="filters.filterKeywords"
+                 class="w-6 h-6 accent-neutral-400">
+        </div>
+        <div class="flex items-center justify-between mb-2">
+          <label for="filterDescription" class="text-sm text-neutral-400 font-bold">Description</label>
+          <input id="filterDescription" type="checkbox" v-model="filters.filterDescription"
+                 class="w-6 h-6 accent-neutral-400">
+        </div>
+        <div class="flex items-center justify-between mb-2">
+          <label for="filterAuthor" class="text-sm text-neutral-400 font-bold">Author</label>
+          <input id="filterAuthor" type="checkbox" v-model="filters.filterAuthor"
+                 class="w-6 h-6 accent-neutral-400">
+        </div>
       </div>
     </div>
   </template>
@@ -573,6 +595,12 @@ export default {
       },
       isSearching: false,
       searchQuery: '',
+      filters: {
+        filterTitle: true,
+        filterKeywords: true,
+        filterDescription: true,
+        filterAuthor: true
+      },
       plugins: [
         {
           plugin: markdownItMermaid
@@ -1045,7 +1073,6 @@ export default {
         this.hideNewTaskInputs()
         if (!this.isShowingTask) {
           this.isSearching = false
-          this.resetSearchResults()
         }
         this.isShowingTask = false
       } else if (ev.key === 't') {
@@ -1176,9 +1203,15 @@ export default {
     },
     searchWisdom: async function () {
       this.results = []
+      let filterOverrideArgs = ''
+      if (this.filters.filterTitle) filterOverrideArgs += 'title,'
+      if (this.filters.filterKeywords) filterOverrideArgs += 'keywords,'
+      if (this.filters.filterDescription) filterOverrideArgs += 'description,'
+      if (this.filters.filterAuthor) filterOverrideArgs += 'author,'
       const payload = {
         query: this.searchQuery,
-        type: 'task'
+        type: 'task',
+        filterOverride: filterOverrideArgs
       }
       return new Promise((resolve) => {
         const elements = document.getElementsByClassName('task_container')
@@ -1247,6 +1280,10 @@ export default {
     },
     resetSearchResults: function () {
       this.searchQuery = ''
+      this.filters.filterTitle = true
+      this.filters.filterKeywords = true
+      this.filters.filterDescription = true
+      this.filters.filterAuthor = true
       const elements = document.getElementsByClassName('task_container')
       for (let i = 0; i < elements.length; i++) {
         elements[i].style.display = 'block'
