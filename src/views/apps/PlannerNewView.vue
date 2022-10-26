@@ -49,7 +49,7 @@
          class="h-full w-full flex p-1 bg-neutral-900 overflow-x-auto overflow-y-auto">
       <template v-if="boxes.length > 0">
         <template v-for="box in boxes" :key="box.uID">
-          <div class="p_card" style="margin-bottom: 42px !important">
+          <div class="p_card" style="margin-bottom: 312px !important">
             <div class="p_card_header_section relative text-neutral-300 flex items-center p-2">
               <Markdown class="p_markdown p_markdown_xl_only font-bold"
                         :source="box.box.t"
@@ -456,8 +456,10 @@
   <template v-if="isSearching">
     <div class="absolute top-[60px] right-1 p_card mt-2"
          style="box-shadow: 0 0 6px 4px rgb(23 23 23 / 1)">
-      <div class="p_card_header_section relative text-neutral-300 flex items-center p-2 font-bold">
-        Filter
+      <div class="p_card_header_section relative text-neutral-300 flex items-center p-2 font-bold w-full">
+        <span>Filter</span>
+        <i class="bi bi-x-lg ml-auto mr-2 pl-2 hover:text-orange-600 cursor-pointer"
+           v-on:click="this.isSearching = false"></i>
       </div>
       <div class="p_card_header_section flex relative items-center p-2">
         <FunnelIcon class="h-6 w-6 mx-1 absolute"></FunnelIcon>
@@ -488,7 +490,7 @@
           <input id="filterDescription" type="checkbox" v-model="filters.filterDescription"
                  class="w-6 h-6 accent-neutral-400">
         </div>
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between">
           <label for="filterAuthor" class="text-sm text-neutral-400 font-bold">Author</label>
           <input id="filterAuthor" type="checkbox" v-model="filters.filterAuthor"
                  class="w-6 h-6 accent-neutral-400">
@@ -1075,6 +1077,9 @@ export default {
           this.isSearching = false
         }
         this.isShowingTask = false
+        document.activeElement.blur()
+        document.body.focus()
+        this.moveToSelectedTask()
       } else if (ev.key === 't') {
         if (this.isShowingTask) return
         if (document.activeElement.classList.contains('p_input')) return
@@ -1177,16 +1182,7 @@ export default {
           this.selection.col = colOverride
         }
       }
-      // Set active class for currently selected tasks
-      const idContainer = 'taskcontainer_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
-      const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
-      const elemContainer = document.getElementById(idContainer)
-      const elem = document.getElementById(id)
-      elemContainer.scrollIntoView({
-        behavior: 'smooth',
-        block: 'end'
-      })
-      elem.classList.add('active')
+      this.moveToSelectedTask(true)
     },
     isTaskSelectionInitial: function () {
       return (this.selection.row === -1 && this.selection.col === -1)
@@ -1287,6 +1283,21 @@ export default {
       const elements = document.getElementsByClassName('task_container')
       for (let i = 0; i < elements.length; i++) {
         elements[i].style.display = 'block'
+      }
+    },
+    moveToSelectedTask (setActive = false) {
+      if (this.selection.row === -1 || this.selection.col === -1) return
+      // Set active class for currently selected tasks
+      const idContainer = 'taskcontainer_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
+      const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
+      const elemContainer = document.getElementById(idContainer)
+      const elem = document.getElementById(id)
+      elemContainer.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end'
+      })
+      if (setActive) {
+        elem.classList.add('active')
       }
     }
   }

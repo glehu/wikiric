@@ -517,7 +517,7 @@
                 <div :id="'edit_' + msg.gUID" class="hidden w-full justify-center">
                   <div class="text-sm p-2 bg-neutral-900 rounded mt-2 mb-1 text-center flex items-center">
                     <div class="ml-2 mr-4 text-neutral-400 pointer-events-none">
-                      Edit your message
+                      Edit
                     </div>
                     <div class="flex py-1 px-2 bg-blue-600 bg-opacity-20 rounded">
                       <div v-on:click="this.addMessage()" class="text-white cursor-pointer mr-1 font-bold">
@@ -550,20 +550,34 @@
               Click to jump to the newest messages
               <i class="bi bi-arrow-down"></i>
             </button>
-            <div v-if="userActivity.length > 0"
-                 style="bottom: 0; left: 10px; opacity: 1"
+            <div style="bottom: 0; left: 10px; opacity: 1"
                  class="scroll_to_bottom flex items-center px-1 overflow-hidden">
-              <ChartBarIcon class="h-3 w-3 text-neutral-400"></ChartBarIcon>
-              <div class="flex items-center divide-x divide-neutral-600">
-                <template v-for="user in userActivity" :key="user">
-                  <div class="px-2">
+              <template v-if="userActivity.length > 0">
+                <ChartBarIcon class="h-3 w-3 text-neutral-400"></ChartBarIcon>
+                <div class="flex items-center divide-x divide-neutral-600">
+                  <template v-for="user in userActivity" :key="user">
+                    <div class="px-2">
                   <span class="text-neutral-400 cursor-pointer hover:text-white font-normal"
                         @click.stop="showUserProfileFromName(user.user)">
                     {{ user.user }}
                   </span>
-                  </div>
-                </template>
-              </div>
+                    </div>
+                  </template>
+                </div>
+              </template>
+              <template v-if="userActivityIdle.length > 0">
+                <EyeIcon class="h-3 w-3 text-neutral-500"></EyeIcon>
+                <div class="flex items-center divide-x divide-neutral-600">
+                  <template v-for="user in userActivityIdle" :key="user">
+                    <div class="px-2">
+                  <span class="text-neutral-500 cursor-pointer hover:text-white font-normal"
+                        @click.stop="showUserProfileFromName(user.user)">
+                    {{ user.user }}
+                  </span>
+                    </div>
+                  </template>
+                </div>
+              </template>
             </div>
             <div v-if="isTaggingUser"
                  class="user_tagger b_gray c_lightgray"
@@ -1237,7 +1251,8 @@ import {
   VideoCameraIcon,
   GifIcon,
   QrCodeIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  EyeIcon
 } from '@heroicons/vue/24/solid'
 import {
   DocumentArrowUpIcon,
@@ -1261,7 +1276,8 @@ export default {
     ViewColumnsIcon,
     TrophyIcon,
     BookOpenIcon,
-    ChartBarIcon
+    ChartBarIcon,
+    EyeIcon
   },
   data () {
     return {
@@ -1330,7 +1346,9 @@ export default {
         roles: []
       },
       userActivity: [],
+      userActivityIdle: [],
       timer: null,
+      timerIdle: null,
       plugins: [
         {
           plugin: markdownItMermaid
@@ -1345,6 +1363,7 @@ export default {
   },
   beforeUnmount () {
     clearInterval(this.timer)
+    clearInterval(this.timerIdle)
   },
   methods: {
     closeModal: function () {
@@ -1429,6 +1448,7 @@ export default {
         }
       }
       this.timer = setInterval(this.clearActivity, 1000)
+      this.timerIdle = setInterval(this.clearActivityIdle, 1000)
     },
     setUpWRTC: function () {
       // Initialize wRTC.js
@@ -1626,6 +1646,7 @@ export default {
             this.messages[index].msg = await this.decryptPayload(
               JSON.parse(response.newContent.substring(12))
             )
+            this.removeUserFromActivity(this.messages[index].src)
             setTimeout(() => {
               mermaid.init()
             }, 0)
@@ -1704,15 +1725,7 @@ export default {
       if (distanceToBottom < 50) {
         this.scrollToBottom(false)
       }
-      if (this.userActivity.length > 0) {
-        // Check if activity was previously shared already
-        for (let i = 0; i < this.userActivity.length; i++) {
-          if (this.userActivity[i].user === message.src) {
-            this.userActivity.splice(i, 1)
-            break
-          }
-        }
-      }
+      this.removeUserFromActivity(message.src)
       this.messages.unshift(message)
       this.extraSkipCount++
       if (message.mType === 'RegistrationNotification') {
@@ -3779,6 +3792,7 @@ export default {
       }
       this.addMessagePar('[c:SC]' + '[activity]' + this.$store.state.username)
       if (!found) {
+        this.removeUserFromIdle(this.$store.state.username)
         this.userActivity.unshift({
           user: this.$store.state.username,
           date: new Date()
@@ -3798,7 +3812,27 @@ export default {
         }
       }
       if (!found) {
+        this.removeUserFromIdle(username)
         this.userActivity.unshift({
+          user: username,
+          date: new Date()
+        })
+      }
+    },
+    receiveIdle (username) {
+      let found = false
+      if (this.userActivityIdle.length > 0) {
+        // Check if activity was previously shared
+        for (let i = 0; i < this.userActivityIdle.length; i++) {
+          if (this.userActivityIdle[i].user === username) {
+            // Update
+            this.userActivityIdle[i].date = new Date()
+            found = true
+          }
+        }
+      }
+      if (!found) {
+        this.userActivityIdle.unshift({
           user: username,
           date: new Date()
         })
@@ -3810,7 +3844,38 @@ export default {
         const dateNow = new Date()
         const seconds = (dateNow.getTime() - dateThen.getTime()) / 1000
         if (seconds > 10) {
+          this.receiveIdle(this.userActivity[i - 1].user)
           this.userActivity.splice(i - 1, 1)
+        }
+      }
+    },
+    clearActivityIdle () {
+      for (let i = this.userActivityIdle.length; i > 0; i--) {
+        const dateThen = this.userActivityIdle[i - 1].date
+        const dateNow = new Date()
+        const seconds = (dateNow.getTime() - dateThen.getTime()) / 1000
+        if (seconds > (60 * 5)) {
+          this.userActivityIdle.splice(i - 1, 1)
+        }
+      }
+    },
+    removeUserFromActivity: function (username) {
+      if (this.userActivity.length < 1) return
+      // Check if activity was previously shared already
+      for (let i = 0; i < this.userActivity.length; i++) {
+        if (this.userActivity[i].user === username) {
+          this.userActivity.splice(i, 1)
+          break
+        }
+      }
+    },
+    removeUserFromIdle: function (username) {
+      if (this.userActivityIdle.length < 1) return
+      // Check if activity was previously shared already
+      for (let i = 0; i < this.userActivityIdle.length; i++) {
+        if (this.userActivityIdle[i].user === username) {
+          this.userActivityIdle.splice(i, 1)
+          break
         }
       }
     }
