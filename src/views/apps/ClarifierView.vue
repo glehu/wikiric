@@ -38,14 +38,13 @@
                     Your current Clarifier Groups. Click on one of them to quickly enter.
                   </p>
                 </div>
-                <div v-for="group in $store.state.clarifierSessions" :key="group"
+                <div v-for="group in this.$store.state.clarifierSessions" :key="group"
                      class="justify-content-center"
                      style="padding-bottom: 15px; display: flex">
-                  <div class="text-neutral-400 hover:text-white hover:bg-slate-700 cursor-pointer"
-                       style="display: flex; align-items: center;
-                              justify-items: center;
-                              width: 75%; border-radius: 15px; padding: 5px"
-                       v-on:click="joinActive(group.id)">
+                  <div
+                    class="text-neutral-400 hover:text-white hover:bg-slate-700 hover:bg-opacity-50 cursor-pointer rounded-xl p-2 w-4/5"
+                    style="display: flex; align-items: center; justify-items: center"
+                    v-on:click="joinActive(group.id)">
                     <img class="b_darkergray"
                          style="width: 40px; height: 40px; border-radius: 10px"
                          v-bind:src="getImg(group.img,true)"
@@ -58,9 +57,8 @@
                        title="End-to-End Encrypted Group"
                        style="margin-left: auto; margin-right: 4px"></i>
                   </div>
-                  <button class="btn"
+                  <button class="text-red-700 p-2 rounded-xl hover:bg-red-900 hover:bg-opacity-50 ml-2"
                           title="Remove Group"
-                          style="color: red; opacity: 0.8"
                           v-on:click="this.removeGroup(group)">
                     <i class="bi bi-x-lg"></i>
                   </button>

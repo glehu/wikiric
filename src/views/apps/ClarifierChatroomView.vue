@@ -538,7 +538,7 @@
           <div style="display: inline-flex;
                       width: 100%;
                       min-height: 80px;
-                      position: absolute;
+                      position: relative;
                       bottom: 0;
                       padding-bottom: 20px;
                       flex-direction: column-reverse"
@@ -3864,6 +3864,7 @@ export default {
       // Check if activity was previously shared already
       for (let i = 0; i < this.userActivity.length; i++) {
         if (this.userActivity[i].user === username) {
+          this.receiveIdle(this.userActivity[i].user)
           this.userActivity.splice(i, 1)
           break
         }
