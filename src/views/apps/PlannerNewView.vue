@@ -409,7 +409,7 @@
           </div>
         </div>
         <div class="w-30 mx-2 divide-y divide-neutral-500">
-          <div class="p-1">
+          <div class="px-1 pb-1">
             <button v-on:click="finishTask(showingTask)"
                     class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
               <CheckIcon
@@ -503,35 +503,35 @@
 <script>
 
 import {
-  PlusCircleIcon,
-  SquaresPlusIcon,
   ArrowPathIcon,
-  EllipsisVerticalIcon,
-  CubeTransparentIcon,
   ChatBubbleLeftEllipsisIcon,
-  FunnelIcon
+  CubeTransparentIcon,
+  EllipsisVerticalIcon,
+  FunnelIcon,
+  PlusCircleIcon,
+  SquaresPlusIcon
 } from '@heroicons/vue/24/outline'
 import {
-  InboxIcon,
-  TrashIcon,
-  CheckIcon,
   ArrowsPointingOutIcon,
-  Squares2X2Icon,
   ArrowsUpDownIcon,
-  WindowIcon,
-  ClockIcon,
   CalendarIcon,
-  UserIcon
+  CheckIcon,
+  ClockIcon,
+  InboxIcon,
+  Squares2X2Icon,
+  TrashIcon,
+  UserIcon,
+  WindowIcon
 } from '@heroicons/vue/24/solid'
 import {
-  Menu,
-  MenuButton,
-  MenuItems,
-  MenuItem,
   Listbox,
   ListboxButton,
+  ListboxOption,
   ListboxOptions,
-  ListboxOption
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems
 } from '@headlessui/vue'
 import { Base64 } from 'js-base64'
 import Markdown from 'vue3-markdown-it'
@@ -725,12 +725,14 @@ export default {
         )
           .then((res) => res.json())
           .then((data) => {
+            // Retrieve all boxes and tasks from server response
             this.boxes = data.boxes.reverse()
             for (let i = 0; i < this.boxes.length; i++) {
               if (this.boxes[i].tasks) {
                 this.boxes[i].tasks = this.boxes[i].tasks.reverse()
               }
             }
+            // Draw Mermaid content in tasks
             this.renderMermaid()
             if (!silent) {
               this.$notify(
@@ -841,9 +843,6 @@ export default {
             categories.push(JSON.stringify(this.newTask.categories[i]))
           }
         }
-        console.log(this.showingTask.dueDate)
-        const dateTimeElem = document.getElementById('task_view_datetime')
-        console.log(dateTimeElem.value)
         payload = {
           title: this.showingTask.t,
           description: this.showingTask.desc,
@@ -901,7 +900,10 @@ export default {
       const input = document.getElementById(id + '_input')
       if (elem.style.display !== 'hidden') {
         input.focus()
-        input.scrollIntoView({ behavior: 'smooth' })
+        input.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        })
       } else {
         input.blur()
       }
@@ -1157,31 +1159,75 @@ export default {
       if (this.isTaskSelectionInitial()) {
         this.selection.row = 0
         this.selection.col = 0
-      } else {
-        // Check if what we're going to move to exists
-        let colOverride = -1
-        if (!this.boxes[this.selection.row + xPlus] || !this.boxes[this.selection.row + xPlus].tasks) {
-          return
-        }
-        if (!this.boxes[this.selection.row + xPlus].tasks[this.selection.col + yPlus]) {
-          if (this.boxes[this.selection.row + xPlus].tasks) {
-            colOverride = this.boxes[this.selection.row + xPlus].tasks.length - 1
-          } else {
-            return
+        xPlus = 0
+        yPlus = 0
+      }
+      let xPos = this.selection.row + xPlus
+      let yPos = this.selection.col + yPlus
+      // Check if what we're going to move to exists
+      let tBox = this.boxes[xPos]
+      // Return if the box does not exist
+      if (!tBox) return
+      if (!tBox.tasks) {
+        tBox = null
+        let xPosTemp = xPos
+        while (!tBox) {
+          xPosTemp += xPlus
+          tBox = this.boxes[xPosTemp]
+          // Return if there are no other boxes available
+          if (!tBox) return
+          if (!tBox.tasks) {
+            tBox = null
+            continue
           }
-        }
-        // Reset previous task's active class
-        const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
-        const elemOld = document.getElementById(id)
-        elemOld.classList.remove('active')
-        // Now change to new position
-        this.selection.row += xPlus
-        if (colOverride === -1) {
-          this.selection.col += yPlus
-        } else {
-          this.selection.col = colOverride
+          xPos = xPosTemp
         }
       }
+      let tTask = tBox.tasks[yPos]
+      // Check if there is a task at the specified coordinates
+      if (!tTask) {
+        if (yPos < 0) return
+        // If there are tasks but the specified Y position was too high, set it to the highest possible
+        yPos = tBox.tasks.length - 1
+        tTask = tBox.tasks[yPos]
+      }
+      // Now check if the task is visible
+      let taskElem = document.getElementById('taskcontainer_' + tTask.uID)
+      if (!taskElem || taskElem.style.display === 'none') {
+        // Task is invisible or does not exist -> Check for others in this column
+        tTask = null
+        let yPosTemp = yPos
+        let yIncrease = yPlus
+        if (yIncrease === 0) {
+          if (yPosTemp > 0) {
+            yIncrease = -1
+          } else {
+            yIncrease = 1
+          }
+        }
+        while (!tTask) {
+          yPosTemp += yIncrease
+          tTask = tBox.tasks[yPosTemp]
+          // Return if there are no other tasks available
+          if (!tTask) {
+            if (xPlus !== 0) this.moveAndMarkTask(xPlus + xPlus, yPlus)
+            return
+          }
+          taskElem = document.getElementById('taskcontainer_' + tTask.uID)
+          if (taskElem.style.display === 'none') {
+            tTask = null
+            continue
+          }
+          yPos = yPosTemp
+        }
+      }
+      // Reset previous task's active class
+      const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
+      const elemOld = document.getElementById(id)
+      elemOld.classList.remove('active')
+      // Now change to new position
+      this.selection.row = xPos
+      this.selection.col = yPos
       this.moveToSelectedTask(true)
     },
     isTaskSelectionInitial: function () {
@@ -1198,6 +1244,13 @@ export default {
       }
     },
     searchWisdom: async function () {
+      if (!this.isTaskSelectionInitial()) {
+        const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
+        const elemOld = document.getElementById(id)
+        elemOld.classList.remove('active')
+      }
+      this.selection.row = -1
+      this.selection.col = -1
       this.results = []
       let filterOverrideArgs = ''
       if (this.filters.filterTitle) filterOverrideArgs += 'title,'
@@ -1253,6 +1306,7 @@ export default {
             }
           })
           .then(() => {
+            // Make tasks visible if they are part of the search results
             let elem
             for (let i = 0; i < this.results.length; i++) {
               elem = document.getElementById('taskcontainer_' + this.results[i].result.uID)
@@ -1294,7 +1348,7 @@ export default {
       const elem = document.getElementById(id)
       elemContainer.scrollIntoView({
         behavior: 'smooth',
-        block: 'end'
+        block: 'center'
       })
       if (setActive) {
         elem.classList.add('active')
