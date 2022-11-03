@@ -164,8 +164,9 @@
               <div class="flex w-full">
                 <div
                   class="text-neutral-400 ml-auto bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
-                  <p class="text-neutral-500 text-xs mr-2">{{ comment.cdate }}</p>
-                  <p class="text-xl">{{ comment.author }}</p>
+                  <p class="text-neutral-500 text-xs mr-2">
+                    {{ comment.cdate.toLocaleString('de-DE').replace(' ', '&nbsp;') }}</p>
+                  <p class="">{{ comment.author }}</p>
                 </div>
               </div>
             </div>
@@ -339,27 +340,18 @@ import markdownItMermaid from 'markdown-it-mermaid'
 import 'highlight.js/styles/hybrid.css'
 import mermaid from 'mermaid'
 import {
+  ChatBubbleLeftEllipsisIcon,
+  ClipboardIcon,
+  CubeTransparentIcon,
   HandThumbDownIcon,
   HandThumbUpIcon,
-  StarIcon,
-  XMarkIcon,
-  ClipboardIcon,
-  TagIcon,
   PencilSquareIcon,
-  CubeTransparentIcon,
-  ChatBubbleLeftEllipsisIcon
+  StarIcon,
+  TagIcon,
+  XMarkIcon
 } from '@heroicons/vue/24/outline'
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOptions,
-  ListboxOption
-} from '@headlessui/vue'
-import {
-  CheckIcon,
-  ArrowsUpDownIcon,
-  Squares2X2Icon
-} from '@heroicons/vue/24/solid'
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
+import { ArrowsUpDownIcon, CheckIcon, Squares2X2Icon } from '@heroicons/vue/24/solid'
 
 export default {
   name: 'KnowledgeView',
@@ -529,6 +521,12 @@ export default {
           .then((res) => res.json())
           .then((data) => {
             this.related = data
+            if (this.related.comments) {
+              for (let i = 0; i < this.related.comments.length; i++) {
+                this.related.comments[i].cdate = new Date(
+                  parseInt(this.related.comments[i].cdate, 16) * 1000)
+              }
+            }
           })
           .then(() => {
             this.renderMermaid()

@@ -319,7 +319,7 @@
     </template>
     <template v-slot:body>
       <div class="w-full sm:w-[540px] flex h-full">
-        <div class="w-full h-full">
+        <div class="w-full h-full" v-if="!isShowingTaskHistory">
           <div class="w-full bg-neutral-900 p-2 rounded">
             <div class="flex mb-2 items-center">
               <template v-if="showingTask.categories">
@@ -343,7 +343,7 @@
               <label for="task_view_datetime" class="text-neutral-400 text-sm font-bold hidden sm:block">
                 Due Date
               </label>
-              <input id="task_view_datetime" type="datetime-local" class="p_input ml-auto"
+              <input id="task_view_datetime" type="datetime-local" class="p_input ml-auto" style="color-scheme: dark;"
                      v-model="showingTask.dueDate">
             </div>
             <div class="mt-1 flex items-center">
@@ -373,8 +373,8 @@
               </div>
               <textarea type="text" id="input_comment" v-model="showingTaskComment" rows="1"
                         placeholder="Write a comment"
-                        class="w-[calc(100%-50px)] border-b border-neutral-400 text-neutral-300 bg-neutral-600 bg-opacity-20 focus:outline-none px-2 py-1"
-                        v-on:keyup="auto_grow('input_comment')">
+                        class="w-[calc(100%-50px)] border-b border-neutral-400 text-neutral-300 bg-neutral-600 bg-opacity-20 focus:outline-none px-2 py-1 p_input"
+                        v-on:keyup="showingTaskKeyup()">
             </textarea>
             </div>
             <template v-if="showingTaskRelated.comments == null">
@@ -400,7 +400,8 @@
                 <div class="flex w-full">
                   <div
                     class="text-neutral-400 ml-auto bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
-                    <p class="text-neutral-500 text-xs mr-2">{{ comment.cdate }}</p>
+                    <p class="text-neutral-500 text-xs mr-2">
+                      {{ comment.cdate.toLocaleString('de-DE').replace(' ', '&nbsp;') }}</p>
                     <p class="">{{ comment.author }}</p>
                   </div>
                 </div>
@@ -408,7 +409,29 @@
             </template>
           </div>
         </div>
-        <div class="w-30 mx-2 divide-y divide-neutral-500">
+        <div v-else class="w-full h-full">
+          <table class="w-full h-full divide-y">
+            <tr>
+              <th>Type</th>
+              <th>Author</th>
+              <th>Date</th>
+            </tr>
+            <template v-for="entry in showingTaskHistory" :key="entry">
+              <tr class="py-1 mb-1">
+                <td class="text-neutral-300">
+                  {{ capitalizeFirstLetter(entry.type) }}
+                </td>
+                <td>
+                  {{ entry.author }}
+                </td>
+                <td class="text-neutral-400">
+                  {{ entry.date.toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+                </td>
+              </tr>
+            </template>
+          </table>
+        </div>
+        <div class="w-30 mx-2 divide-y divide-neutral-500 ml-auto">
           <div class="px-1 pb-1">
             <button v-on:click="finishTask(showingTask)"
                     class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
@@ -438,13 +461,22 @@
             </button>
           </div>
           <div class="p-1">
-            <button disabled
-                    class="group p_card_menu_item text-lg text-neutral-500">
-              <ClockIcon
-                class="mr-2 h-6 w-6"
-                aria-hidden="true"
-              />
-              History
+            <button v-on:click="showTaskHistory()"
+                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
+              <template v-if="!isShowingTaskHistory">
+                <ClockIcon
+                  class="mr-2 h-6 w-6"
+                  aria-hidden="true"
+                />
+                History
+              </template>
+              <template v-else>
+                <DocumentTextIcon
+                  class="mr-2 h-6 w-6"
+                  aria-hidden="true"
+                />
+                Task
+              </template>
             </button>
           </div>
         </div>
@@ -517,6 +549,7 @@ import {
   CalendarIcon,
   CheckIcon,
   ClockIcon,
+  DocumentTextIcon,
   InboxIcon,
   Squares2X2Icon,
   TrashIcon,
@@ -569,7 +602,8 @@ export default {
     ClockIcon,
     CalendarIcon,
     UserIcon,
-    FunnelIcon
+    FunnelIcon,
+    DocumentTextIcon
   },
   data () {
     return {
@@ -587,9 +621,11 @@ export default {
       },
       inputComment: null,
       isShowingTask: false,
+      isShowingTaskHistory: false,
       showingTask: {},
       showingTaskRelated: [],
       showingTaskComment: '',
+      showingTaskHistory: [],
       sidebarActive: true,
       selection: {
         row: -1,
@@ -976,6 +1012,7 @@ export default {
       this.showingTask = task
       this.showingTask.comments = []
       this.isShowingTask = true
+      this.isShowingTaskHistory = false
       this.renderMermaid()
       await this.getRelated(task)
       this.renderMermaid()
@@ -994,6 +1031,12 @@ export default {
           .then((res) => res.json())
           .then((data) => {
             this.showingTaskRelated = data
+            if (this.showingTaskRelated.comments) {
+              for (let i = 0; i < this.showingTaskRelated.comments.length; i++) {
+                this.showingTaskRelated.comments[i].cdate = new Date(
+                  parseInt(this.showingTaskRelated.comments[i].cdate, 16) * 1000)
+              }
+            }
           })
           .then(() => {
             resolve()
@@ -1004,9 +1047,10 @@ export default {
       })
     },
     handleEnter: async function () {
-      if (event.key === 'Enter') {
-        if (event.shiftKey) return
-        event.preventDefault()
+      const ev = event
+      if (ev.key === 'Enter') {
+        if (ev.shiftKey) return
+        ev.preventDefault()
         if (this.isShowingTask) {
           this.submitComment()
         } else if (this.isSearching) {
@@ -1106,6 +1150,11 @@ export default {
         if (document.activeElement.classList.contains('p_input')) return
         ev.preventDefault()
         this.openSearch()
+      } else if (ev.key === 'h') {
+        if (!this.isShowingTask) return
+        if (document.activeElement.classList.contains('p_input')) return
+        ev.preventDefault()
+        this.showTaskHistory()
       }
     },
     handleDocumentKeyDown: function (event) {
@@ -1156,7 +1205,9 @@ export default {
       }
     },
     moveAndMarkTask: function (xPlus, yPlus) {
+      let isInitial = false
       if (this.isTaskSelectionInitial()) {
+        isInitial = true
         this.selection.row = 0
         this.selection.col = 0
         xPlus = 0
@@ -1210,6 +1261,8 @@ export default {
           tTask = tBox.tasks[yPosTemp]
           // Return if there are no other tasks available
           if (!tTask) {
+            // If we're moving sideways anyway try to skip to the next box
+            if (isInitial) xPlus = 1
             if (xPlus !== 0) this.moveAndMarkTask(xPlus + xPlus, yPlus)
             return
           }
@@ -1353,6 +1406,23 @@ export default {
       if (setActive) {
         elem.classList.add('active')
       }
+    },
+    showTaskHistory: function () {
+      this.isShowingTaskHistory = !this.isShowingTaskHistory
+      this.showingTaskHistory = []
+      let elem
+      for (let i = 0; i < this.showingTask.history.length; i++) {
+        elem = JSON.parse(this.showingTask.history[i])
+        elem.date = new Date(parseInt(elem.date, 16) * 1000)
+        this.showingTaskHistory.unshift(elem)
+      }
+    },
+    capitalizeFirstLetter: function ([first, ...rest], locale = navigator.language) {
+      return first === undefined ? '' : first.toLocaleUpperCase(locale) + rest.join('')
+    },
+    showingTaskKeyup: function () {
+      this.handleEnter()
+      this.auto_grow('input_comment')
     }
   }
 }
