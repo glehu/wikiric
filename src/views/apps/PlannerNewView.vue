@@ -840,7 +840,7 @@ export default {
         categories = []
         if (this.showingTask.categories) {
           for (let i = 0; i < this.showingTask.categories.length; i++) {
-            categories.push(JSON.stringify(this.newTask.categories[i]))
+            categories.push(this.showingTask.categories[i])
           }
         }
         payload = {
