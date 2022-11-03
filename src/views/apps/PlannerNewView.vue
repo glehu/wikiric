@@ -318,7 +318,7 @@
       </div>
     </template>
     <template v-slot:body>
-      <div class="w-full sm:w-[540px] flex h-full">
+      <div class="w-full sm:w-[540px] flex h-full relative">
         <div class="w-full h-full" v-if="!isShowingTaskHistory">
           <div class="w-full bg-neutral-900 p-2 rounded">
             <div class="flex mb-2 items-center">
@@ -431,7 +431,7 @@
             </template>
           </table>
         </div>
-        <div class="w-30 mx-2 divide-y divide-neutral-500 ml-auto">
+        <div class="ml-2 divide-y divide-neutral-500 relative right-0">
           <div class="px-1 pb-1">
             <button v-on:click="finishTask(showingTask)"
                     class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
@@ -801,6 +801,8 @@ export default {
           await this.createTask(box)
           if (ev.ctrlKey && id !== '') {
             this.toggleAndFocusNewTask(id)
+          } else {
+            document.activeElement.blur()
           }
         }
       }
@@ -913,6 +915,7 @@ export default {
             this.newTask.description = ''
             this.newTask.categories = []
             this.hideNewTaskInputs()
+            this.moveToSelectedTask()
           })
           .then(() => resolve())
           .catch((err) => {
@@ -968,6 +971,7 @@ export default {
           .then(() => {
             if (this.isShowingTask) this.isShowingTask = false
             this.getBoxes()
+            this.resetLastSelection()
           })
           .then(() => resolve)
           .catch((err) => {
@@ -1297,11 +1301,7 @@ export default {
       }
     },
     searchWisdom: async function () {
-      if (!this.isTaskSelectionInitial()) {
-        const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
-        const elemOld = document.getElementById(id)
-        elemOld.classList.remove('active')
-      }
+      this.resetLastSelection()
       this.selection.row = -1
       this.selection.col = -1
       this.results = []
@@ -1423,6 +1423,15 @@ export default {
     showingTaskKeyup: function () {
       this.handleEnter()
       this.auto_grow('input_comment')
+    },
+    resetLastSelection: function () {
+      if (!this.isTaskSelectionInitial()) {
+        const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
+        const elemOld = document.getElementById(id)
+        elemOld.classList.remove('active')
+        this.selection.row = -1
+        this.selection.col = -1
+      }
     }
   }
 }
@@ -1465,7 +1474,7 @@ export default {
 }
 
 .p_card_menu_item {
-  @apply flex w-full items-center rounded-md px-2 py-2 text-sm;
+  @apply flex w-full items-center rounded-md p-1 text-sm;
 }
 
 .p_card_menu_list {

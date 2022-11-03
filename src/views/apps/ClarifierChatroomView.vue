@@ -1246,20 +1246,8 @@ import mermaid from 'mermaid'
 import 'highlight.js/styles/base16/google-dark.css'
 import * as QRCode from 'easyqrcodejs'
 // Icons
-import {
-  PhoneIcon,
-  VideoCameraIcon,
-  GifIcon,
-  QrCodeIcon,
-  ChartBarIcon,
-  EyeIcon
-} from '@heroicons/vue/24/solid'
-import {
-  DocumentArrowUpIcon,
-  ViewColumnsIcon,
-  TrophyIcon,
-  BookOpenIcon
-} from '@heroicons/vue/24/outline'
+import { ChartBarIcon, EyeIcon, GifIcon, PhoneIcon, QrCodeIcon, VideoCameraIcon } from '@heroicons/vue/24/solid'
+import { BookOpenIcon, DocumentArrowUpIcon, TrophyIcon, ViewColumnsIcon } from '@heroicons/vue/24/outline'
 
 export default {
   props: {
@@ -3931,11 +3919,8 @@ export default {
 }
 
 .user_badge:hover {
-  transition: 0.2s ease-in-out;
-  border-radius: 1em;
-  background-color: #ff5d37;
-  color: white;
-  cursor: pointer;
+  transition: 0.1s ease;
+  @apply text-white cursor-pointer rounded-xl bg-neutral-300 bg-opacity-20;
 }
 
 .tooltip-mock-destination.show {
@@ -4135,7 +4120,7 @@ export default {
 .member_count,
 .user_badge {
   opacity: 0;
-  transition: ease-in-out opacity 0.3s;
+  transition: 0.1s ease opacity;
 }
 
 .member_section.active .member_count,
