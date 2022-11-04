@@ -138,7 +138,7 @@
                           <template v-if="task.dueDate && task.dueDate !== ''">
                             <div class="ml-auto flex items-center text-neutral-500 py-0.5">
                               <p class="m-0 text-xs font-bold">
-                                {{ getTaskDueDate(task).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+                                {{ getTaskDueDate(task).replace(' ', '&nbsp;') }}
                               </p>
                               <CalendarIcon class="w-4 h-4 ml-1"></CalendarIcon>
                             </div>
@@ -343,8 +343,10 @@
               <label for="task_view_datetime" class="text-neutral-400 text-sm font-bold hidden sm:block">
                 Due Date
               </label>
-              <input id="task_view_datetime" type="datetime-local" class="p_input ml-auto" style="color-scheme: dark;"
+              <input id="task_view_datetime" type="date" class="p_input ml-auto" style="color-scheme: dark;"
                      v-model="showingTask.dueDate">
+              <input id="task_view_time" type="time" class="p_input ml-1" style="color-scheme: dark;"
+                     v-model="showingTask.dueTime">
             </div>
             <div class="mt-1 flex items-center">
               <button class="rounded-lg bg-neutral-800 hover:bg-neutral-900 py-1 px-2 ml-auto text-sm text-neutral-400"
@@ -881,6 +883,22 @@ export default {
             categories.push(this.showingTask.categories[i])
           }
         }
+        let combinedDateTime = ''
+        if (this.showingTask.dueDate) {
+          combinedDateTime = this.showingTask.dueDate
+        }
+        if (this.showingTask.dueTime) {
+          if (combinedDateTime === '') {
+            combinedDateTime = new Date().toISOString().split('T')[0]
+            this.showingTask.dueDate = combinedDateTime
+          }
+          combinedDateTime += 'T' + this.showingTask.dueTime
+        } else {
+          if (combinedDateTime !== '') {
+            combinedDateTime += 'T00:00'
+            this.showingTask.dueTime = '00:00'
+          }
+        }
         payload = {
           title: this.showingTask.t,
           description: this.showingTask.desc,
@@ -894,7 +912,7 @@ export default {
           rowIndex: 0,
           inBox: true,
           boxGUID: this.showingTask.boxGUID,
-          dueDate: this.showingTask.dueDate
+          dueDate: combinedDateTime
         }
       }
       const bodyPayload = JSON.stringify(payload)
@@ -1013,7 +1031,13 @@ export default {
     },
     openTask: async function (task) {
       if (!task.gUID) return
-      this.showingTask = task
+      const tTask = task
+      if (tTask.dueDate) {
+        const dateSplit = tTask.dueDate.split('T')
+        tTask.dueDate = dateSplit[0]
+        tTask.dueTime = dateSplit[1]
+      }
+      this.showingTask = tTask
       this.showingTask.comments = []
       this.isShowingTask = true
       this.isShowingTaskHistory = false
@@ -1295,7 +1319,9 @@ export default {
     },
     getTaskDueDate: function (task) {
       if (task.dueDate && task.dueDate !== '') {
-        return new Date(task.dueDate)
+        let dateString = new Date(task.dueDate).toLocaleString('de-DE')
+        dateString = dateString.substring(0, dateString.length - 3)
+        return dateString
       } else {
         return ''
       }
