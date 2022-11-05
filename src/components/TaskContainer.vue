@@ -1,24 +1,44 @@
 <template>
-  <div>
+  <div class="pb-2">
     <template v-if="showingTask">
       <div class="w-full sm:w-[412px] bg-slate-700 p-2 rounded">
         <div class="w-full bg-neutral-900 p-2 rounded">
-          <div class="flex mb-2 items-center">
-            <template v-if="showingTask.categories">
+          <template v-if="showingTask.categories">
+            <div class="flex mb-2 items-center">
               <template v-for="cat in showingTask.categories" :key="cat">
                 <div v-if="JSON.parse(cat).category != null"
                      class="text-white bg-orange-900 flex items-center px-0.5 px-1 rounded mr-1 pointer-events-none text-xs">
                   {{ JSON.parse(cat).category }}
                 </div>
               </template>
-            </template>
-          </div>
+            </div>
+          </template>
           <Markdown class="p_markdown font-bold text-neutral-300 w-full"
                     :source="showingTask.t"
                     :plugins="plugins"></Markdown>
           <Markdown class="p_markdown text-neutral-400 w-full"
                     :source="showingTask.desc"
                     :plugins="plugins"></Markdown>
+          <div class="flex mt-2">
+            <div class="ml-auto flex items-center">
+              <div>
+                <template v-if="showingTask.dueDate && showingTask.dueDate !== ''">
+                  <div class="ml-auto flex items-center text-neutral-500 py-0.5">
+                    <div class="m-0 text-xs font-bold">
+                      {{ getTaskDueDate(showingTask).replace(' ', '&nbsp;') }}
+                    </div>
+                    <CalendarIcon class="w-4 h-4 ml-1"></CalendarIcon>
+                  </div>
+                </template>
+                <div class="ml-auto flex items-center text-neutral-500 py-0.5 justify-end">
+                  <div class="text-xs ml-1">
+                    {{ showingTask.author }}
+                  </div>
+                  <UserIcon class="w-4 h-4 ml-1"></UserIcon>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="mt-2 text-neutral-300">
@@ -47,6 +67,7 @@ import mermaid from 'mermaid'
 import Markdown from 'vue3-markdown-it'
 import markdownItMermaid from 'markdown-it-mermaid'
 import 'highlight.js/styles/hybrid.css'
+import { CalendarIcon, UserIcon } from '@heroicons/vue/24/solid'
 
 export default {
   name: 'TaskContainer',
@@ -54,7 +75,9 @@ export default {
     message: String
   },
   components: {
-    Markdown
+    Markdown,
+    CalendarIcon,
+    UserIcon
   },
   mounted () {
     if (!this.message || this.message === '') return
@@ -105,6 +128,15 @@ export default {
             console.error(err.message)
           })
       })
+    },
+    getTaskDueDate: function (task) {
+      if (task.dueDate && task.dueDate !== '') {
+        let dateString = new Date(task.dueDate).toLocaleString('de-DE')
+        dateString = dateString.substring(0, dateString.length - 3)
+        return dateString
+      } else {
+        return ''
+      }
     }
   }
 }

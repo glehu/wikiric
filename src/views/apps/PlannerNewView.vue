@@ -195,6 +195,55 @@
                                 Delete
                               </button>
                             </MenuItem>
+                            <Menu as="div" class="relative inline-block text-left w-full">
+                              <MenuButton
+                                title="Options"
+                                class="items-center cursor-pointer group p_card_menu_item text-gray-900 hover:text-white hover:bg-neutral-800 hover:bg-opacity-60">
+                                <ShareIcon
+                                  class="mr-2 h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                                Share
+                              </MenuButton>
+                              <transition
+                                enter-active-class="transition duration-100 ease-out"
+                                enter-from-class="transform scale-95 opacity-0"
+                                enter-to-class="transform scale-100 opacity-100"
+                                leave-active-class="transition duration-75 ease-in"
+                                leave-from-class="transform scale-100 opacity-100"
+                                leave-to-class="transform scale-95 opacity-0"
+                              >
+                                <MenuItems class="p_card_menu_list bg-slate-800">
+                                  <div class="px-1 py-1">
+                                    <div class="pointer-events-none">
+                                      <div class="text-neutral-300 group p_card_menu_item font-bold">
+                                        <ChatBubbleLeftRightIcon
+                                          class="mr-2 h-5 w-5"
+                                          aria-hidden="true"
+                                        />
+                                        Clarifier
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="px-1 py-1">
+                                    <template v-for="group in this.$store.state.clarifierSessions" :key="group">
+                                      <MenuItem v-slot="{ active }" class="mb-1">
+                                        <button v-on:click="showShareTask(group, task)"
+                                                :class="[active ? 'p_card_menu_active' : 'text-neutral-300','group p_card_menu_item p-1']">
+                                          <img class="bg-neutral-900 mr-2"
+                                               style="width: 32px; height: 32px; border-radius: 10px"
+                                               v-bind:src="getImg(group.img,true)"
+                                               :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
+                                          <div class="text-md">
+                                            {{ group.title }}
+                                          </div>
+                                        </button>
+                                      </MenuItem>
+                                    </template>
+                                  </div>
+                                </MenuItems>
+                              </transition>
+                            </Menu>
                           </div>
                           <div class="px-1 py-1">
                             <MenuItem v-slot="{ active }">
@@ -321,16 +370,16 @@
       <div class="w-[80vw] sm:w-[540px] flex h-full relative">
         <div class="w-full h-full" v-if="!isShowingTaskHistory">
           <div class="w-full bg-neutral-900 p-2 rounded">
-            <div class="flex mb-2 items-center">
-              <template v-if="showingTask.categories">
+            <template v-if="showingTask.categories">
+              <div class="flex mb-2 items-center">
                 <template v-for="cat in showingTask.categories" :key="cat">
                   <div v-if="JSON.parse(cat).category != null"
                        class="text-white bg-orange-900 flex items-center px-0.5 px-1 rounded mr-1 pointer-events-none text-xs">
                     {{ JSON.parse(cat).category }}
                   </div>
                 </template>
-              </template>
-            </div>
+              </div>
+            </template>
             <Markdown class="p_markdown font-bold text-neutral-300 w-full"
                       :source="showingTask.t"
                       :plugins="plugins"></Markdown>
@@ -1656,7 +1705,10 @@ export default {
         return ret
       }
     },
-    showShareTask: function (group) {
+    showShareTask: function (group, taskOverride = null) {
+      if (taskOverride) {
+        this.showingTask = taskOverride
+      }
       this.sharing.chatroom = null
       this.sharing.group = group
       this.isSharingTask = true
