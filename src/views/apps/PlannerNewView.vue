@@ -77,7 +77,7 @@
                     leave-to-class="transform scale-95 opacity-0"
                   >
                     <MenuItems
-                      class="p_card_menu_list"
+                      class="p_card_menu_list bg-neutral-100"
                     >
                       <div class="px-1 py-1">
                         <MenuItem v-slot="{ active }">
@@ -170,7 +170,7 @@
                         leave-to-class="transform scale-95 opacity-0"
                       >
                         <MenuItems
-                          class="p_card_menu_list"
+                          class="p_card_menu_list bg-neutral-100"
                         >
                           <div class="px-1 py-1">
                             <MenuItem v-slot="{ active }">
@@ -318,7 +318,7 @@
       </div>
     </template>
     <template v-slot:body>
-      <div class="w-full sm:w-[540px] flex h-full relative">
+      <div class="w-[80vw] sm:w-[540px] flex h-full relative">
         <div class="w-full h-full" v-if="!isShowingTaskHistory">
           <div class="w-full bg-neutral-900 p-2 rounded">
             <div class="flex mb-2 items-center">
@@ -347,9 +347,7 @@
                      v-model="showingTask.dueDate">
               <input id="task_view_time" type="time" class="p_input ml-1" style="color-scheme: dark;"
                      v-model="showingTask.dueTime">
-            </div>
-            <div class="mt-1 flex items-center">
-              <button class="rounded-lg bg-neutral-800 hover:bg-neutral-900 py-1 px-2 ml-auto text-sm text-neutral-400"
+              <button class="rounded-lg bg-neutral-800 hover:bg-neutral-900 py-2 px-2 ml-1 text-xs text-neutral-400"
                       v-on:click="setTaskDueDate()">
                 Update
               </button>
@@ -376,8 +374,7 @@
               <textarea type="text" id="input_comment" v-model="showingTaskComment" rows="1"
                         placeholder="Write a comment"
                         class="w-[calc(100%-50px)] border-b border-neutral-400 text-neutral-300 bg-neutral-600 bg-opacity-20 focus:outline-none px-2 py-1 p_input"
-                        v-on:keyup="showingTaskKeyup()">
-            </textarea>
+                        v-on:keyup="showingTaskKeyup()"></textarea>
             </div>
             <template v-if="showingTaskRelated.comments == null">
               <div class="flex w-full items-center justify-content-center py-4">
@@ -433,51 +430,112 @@
             </template>
           </table>
         </div>
-        <div class="ml-2 divide-y divide-neutral-500 relative right-0">
+        <div class="mx-1 divide-y divide-neutral-500 relative right-0">
           <div class="px-1 pb-1">
             <button v-on:click="finishTask(showingTask)"
-                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
+                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800">
               <CheckIcon
-                class="mr-2 h-6 w-6"
+                class="mr-2 h-5 w-5"
                 aria-hidden="true"
               />
-              Finish
+              <template class="hidden sm:block">
+                Finish
+              </template>
             </button>
             <button v-on:click="finishTask(showingTask, true)"
-                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
+                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800">
               <TrashIcon
-                class="mr-2 h-6 w-6"
+                class="mr-2 h-5 w-5"
                 aria-hidden="true"
               />
-              Delete
+              <template class="hidden sm:block">
+                Delete
+              </template>
             </button>
           </div>
           <div class="p-1">
+            <Menu as="div" class="relative inline-block text-left w-full">
+              <MenuButton
+                title="Options"
+                class="items-center cursor-pointer group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800">
+                <ShareIcon
+                  class="mr-2 h-5 w-5"
+                  aria-hidden="true"
+                />
+                <template class="hidden sm:block">
+                  Share
+                </template>
+              </MenuButton>
+              <transition
+                enter-active-class="transition duration-100 ease-out"
+                enter-from-class="transform scale-95 opacity-0"
+                enter-to-class="transform scale-100 opacity-100"
+                leave-active-class="transition duration-75 ease-in"
+                leave-from-class="transform scale-100 opacity-100"
+                leave-to-class="transform scale-95 opacity-0"
+              >
+                <MenuItems class="p_card_menu_list bg-slate-800">
+                  <div class="px-1 py-1">
+                    <div class="pointer-events-none">
+                      <div class="text-neutral-300 group p_card_menu_item font-bold">
+                        <ChatBubbleLeftRightIcon
+                          class="mr-2 h-5 w-5"
+                          aria-hidden="true"
+                        />
+                        Clarifier
+                      </div>
+                    </div>
+                  </div>
+                  <div class="px-1 py-1">
+                    <template v-for="group in this.$store.state.clarifierSessions" :key="group">
+                      <MenuItem v-slot="{ active }" class="mb-1">
+                        <button v-on:click="showShareTask(group)"
+                                :class="[active ? 'p_card_menu_active' : 'text-neutral-300','group p_card_menu_item p-1']">
+                          <img class="bg-neutral-900 mr-2"
+                               style="width: 32px; height: 32px; border-radius: 10px"
+                               v-bind:src="getImg(group.img,true)"
+                               :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
+                          <div class="text-md">
+                            {{ group.title }}
+                          </div>
+                        </button>
+                      </MenuItem>
+                    </template>
+                  </div>
+                </MenuItems>
+              </transition>
+            </Menu>
             <button v-on:click="gotoWisdom(showingTask.gUID)"
-                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
+                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800">
               <WindowIcon
-                class="mr-2 h-6 w-6"
+                class="mr-2 h-5 w-5"
                 aria-hidden="true"
               />
-              Go To
+              <template class="hidden sm:block">
+                Go To
+              </template>
             </button>
           </div>
           <div class="p-1">
             <button v-on:click="showTaskHistory()"
-                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800 text-lg">
+                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800">
               <template v-if="!isShowingTaskHistory">
                 <ClockIcon
-                  class="mr-2 h-6 w-6"
+                  class="mr-2 h-5 w-5"
                   aria-hidden="true"
                 />
-                History
+                <template class="hidden sm:block">
+                  History
+                </template>
               </template>
               <template v-else>
                 <DocumentTextIcon
-                  class="mr-2 h-6 w-6"
+                  class="mr-2 h-5 w-5"
                   aria-hidden="true"
                 />
-                Task
+                <template class="hidden sm:block">
+                  Task
+                </template>
               </template>
             </button>
           </div>
@@ -532,6 +590,117 @@
       </div>
     </div>
   </template>
+  <modal
+    v-show="isSharingTask"
+    @close="isSharingTask = false">
+    <template v-slot:header>
+      <div class="font-bold text-xl pointer-events-none">
+        Share with
+        <template v-if="sharing.group">{{ sharing.group.title }}</template>
+      </div>
+    </template>
+    <template v-slot:body>
+      <div class="w-[80vw] sm:w-[412px] h-full relative">
+        <div class="p-2 bg-neutral-900 rounded-md">
+          <div class="text-neutral-400 bg-neutral-800 w-full rounded py-1 px-2 mb-2 pointer-events-none">
+            Subchatrooms
+          </div>
+          <template v-if="sharing.chatroom && sharing.chatroom.subChatrooms">
+            <div class="ml-3">
+              <RadioGroup v-model="sharing.selectedSubchat">
+                <RadioGroupLabel class="sr-only">Subchatrooms</RadioGroupLabel>
+                <div class="space-y-2">
+                  <RadioGroupOption
+                    as="template"
+                    v-for="subchat in sharing.chatroom.subChatrooms"
+                    :key="subchat"
+                    :value="subchat.guid"
+                    v-slot="{ active, checked }">
+                    <div
+                      :class="[active ? 'ring-2 ring-white ring-opacity-20' : '',
+                               checked ? 'bg-neutral-300 bg-opacity-20 text-white ' : '']"
+                      class="relative flex cursor-pointer rounded-lg px-2 py-1 shadow-md focus:outline-none
+                             hover:bg-neutral-500 hover:bg-opacity-20 border-l border-neutral-600">
+                      <div class="flex w-full items-center justify-between">
+                        <div class="flex items-center">
+                          <div class="text-sm">
+                            <RadioGroupLabel
+                              as="p"
+                              class="font-medium flex items-center">
+                              <div :class="[checked ? 'text-neutral-300' : 'text-neutral-400']"
+                                   class="text-lg">
+                                {{ subchat.t }}
+                              </div>
+                            </RadioGroupLabel>
+                            <RadioGroupDescription
+                              as="span"
+                              class="inline"
+                            >
+                              <div :class="[checked ? 'text-neutral-500' : 'text-neutral-600']"
+                                   class="text-xs">
+                                <template v-if="subchat.type">
+                                  {{ capitalizeFirstLetter(subchat.type) }}
+                                </template>
+                                <template v-else>
+                                  Text
+                                </template>
+                              </div>
+                            </RadioGroupDescription>
+                          </div>
+                        </div>
+                        <div v-show="checked" class="shrink-0 text-white">
+                          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                            <circle
+                              cx="12"
+                              cy="12"
+                              r="12"
+                              fill="#fff"
+                              fill-opacity="0.2"
+                            />
+                            <path
+                              d="M7 13l3 3 7-7"
+                              stroke="#fff"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </RadioGroupOption>
+                </div>
+              </RadioGroup>
+            </div>
+          </template>
+          <template v-else>
+            <div class="ml-3 text-neutral-500 animate-bounce">Loading...</div>
+          </template>
+        </div>
+        <textarea type="text" id="share_message" v-model="sharing.message" rows="1"
+                  placeholder="Add a message"
+                  class="w-full border-b border-neutral-400 text-neutral-300 bg-neutral-600 bg-opacity-20 focus:outline-none px-2 py-1 p_input mt-2"
+                  v-on:keyup="auto_grow('share_message')"></textarea>
+        <div class="mt-2 flex w-full relative">
+          <div class="ml-auto">
+            <template v-if="sharing.selectedSubchat !== ''">
+              <button v-on:click="shareTask()"
+                      class="py-2 px-3 rounded bg-neutral-800 hover:bg-neutral-900">
+                <span class="font-bold text-sm text-neutral-400">Share Task</span>
+              </button>
+            </template>
+            <template v-else>
+              <div class="py-2 px-3 text-neutral-400 text-sm pointer-events-none">
+                Choose a Subchat
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
 </template>
 
 <script>
@@ -549,10 +718,12 @@ import {
   ArrowsPointingOutIcon,
   ArrowsUpDownIcon,
   CalendarIcon,
+  ChatBubbleLeftRightIcon,
   CheckIcon,
   ClockIcon,
   DocumentTextIcon,
   InboxIcon,
+  ShareIcon,
   Squares2X2Icon,
   TrashIcon,
   UserIcon,
@@ -566,7 +737,11 @@ import {
   Menu,
   MenuButton,
   MenuItem,
-  MenuItems
+  MenuItems,
+  RadioGroup,
+  RadioGroupDescription,
+  RadioGroupLabel,
+  RadioGroupOption
 } from '@headlessui/vue'
 import { Base64 } from 'js-base64'
 import Markdown from 'vue3-markdown-it'
@@ -588,6 +763,10 @@ export default {
     MenuButton,
     MenuItems,
     MenuItem,
+    RadioGroup,
+    RadioGroupLabel,
+    RadioGroupDescription,
+    RadioGroupOption,
     TrashIcon,
     CheckIcon,
     ArrowsPointingOutIcon,
@@ -605,7 +784,9 @@ export default {
     CalendarIcon,
     UserIcon,
     FunnelIcon,
-    DocumentTextIcon
+    DocumentTextIcon,
+    ShareIcon,
+    ChatBubbleLeftRightIcon
   },
   data () {
     return {
@@ -624,10 +805,17 @@ export default {
       inputComment: null,
       isShowingTask: false,
       isShowingTaskHistory: false,
+      isSharingTask: false,
       showingTask: {},
       showingTaskRelated: [],
       showingTaskComment: '',
       showingTaskHistory: [],
+      sharing: {
+        group: null,
+        chatroom: null,
+        selectedSubchat: '',
+        message: ''
+      },
       sidebarActive: true,
       selection: {
         row: -1,
@@ -1458,6 +1646,89 @@ export default {
         this.selection.row = -1
         this.selection.col = -1
       }
+    },
+    getImg: function (imgGUID, get = false) {
+      if (imgGUID === '') {
+        return ''
+      } else {
+        let ret = imgGUID
+        if (get) ret = this.$store.state.serverIP + '/m6/get/' + imgGUID
+        return ret
+      }
+    },
+    showShareTask: function (group) {
+      this.sharing.chatroom = null
+      this.sharing.group = group
+      this.isSharingTask = true
+      this.getClarifierMetaData(group.id)
+    },
+    getClarifierMetaData: function (sessionID) {
+      if (sessionID == null || sessionID === 'undefined') {
+        this.$notify(
+          {
+            title: 'Invalid Group GUID',
+            text: '',
+            type: 'error'
+          })
+        return
+      }
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m5/getchatroom/' + sessionID,
+          {
+            method: 'get',
+            headers: headers
+          }
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            this.sharing.chatroom = data
+            if (this.sharing.chatroom.subChatrooms != null) {
+              // Parse JSON serialized subchats for performance
+              for (let i = 0; i < this.sharing.chatroom.subChatrooms.length; i++) {
+                this.sharing.chatroom.subChatrooms[i] = JSON.parse(this.sharing.chatroom.subChatrooms[i])
+              }
+            }
+          })
+          .then(resolve)
+          .catch((err) => console.error(err.message))
+      })
+    },
+    shareTask: async function () {
+      const message = {
+        message: this.sharing.message,
+        guid: this.showingTask.gUID
+      }
+      const prefix = '[c:TASK]'
+      const bodyPayload = {
+        uniChatroomGUID: this.sharing.selectedSubchat,
+        text: prefix + JSON.stringify(message)
+      }
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m5/addmessage',
+          {
+            method: 'post',
+            headers: headers,
+            body: JSON.stringify(bodyPayload)
+          }
+        )
+          .then(() => {
+            this.sharing.message = ''
+            this.sharing.selectedSubchat = ''
+            this.sharing.chatroom = null
+            this.sharing.group = null
+            this.isSharingTask = false
+          })
+          .then(() => resolve)
+          .catch((err) => {
+            console.error(err.message)
+          })
+      })
     }
   }
 }
@@ -1496,7 +1767,7 @@ export default {
 }
 
 .p_card_menu_active {
-  @apply bg-orange-600 text-white font-bold;
+  @apply bg-neutral-900 bg-opacity-60 text-white font-bold;
 }
 
 .p_card_menu_item {
@@ -1504,7 +1775,7 @@ export default {
 }
 
 .p_card_menu_list {
-  @apply absolute right-0 mt-2 w-56 origin-top-right divide-y divide-neutral-400 rounded-md bg-neutral-100 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10;
+  @apply absolute right-0 mt-2 w-56 origin-top-right divide-y divide-neutral-400 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10;
 }
 
 .p_markdown p {

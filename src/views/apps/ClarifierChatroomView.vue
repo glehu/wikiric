@@ -90,9 +90,9 @@
           <div style="height: calc(100% - 120px); overflow-y: auto; overflow-x: clip"
                class="c_lightgray">
             <div style="height: 50px; align-items: center; display: flex">
-              <div :id="this.getSession() + '_subc'" class="subchat orange-hover"
-                   v-on:click="gotoSubchat(this.getSession(), false)">
-                <i v-show="hasUnread(this.getSession())" :id="this.getSession() + '_notify'"
+              <div :id="getSession() + '_subc'" class="subchat orange-hover"
+                   v-on:click="gotoSubchat(getSession(), false)">
+                <i v-show="hasUnread(getSession())" :id="getSession() + '_notify'"
                    class="bi bi-chat-quote-fill" style="position: absolute; left: 20px"></i>
                 <span style="font-size: 150%"><i class="bi bi-hash"></i></span>
                 <span style="padding-left: 10px">General</span>
@@ -108,7 +108,7 @@
                 <i class="bi bi-plus lead orange-hover c_lightgray" style="font-size: 150%"></i>
               </button>
             </div>
-            <div v-for="subchat in this.chatroom.subChatrooms" :key="subchat"
+            <div v-for="subchat in chatroom.subChatrooms" :key="subchat"
                  :id="subchat.guid + '_subc'"
                  class="subchat orange-hover"
                  style="display: flex"
@@ -352,8 +352,14 @@
                       <template v-if="msg.apiResponse === true">
                         <i class="bi bi-gear ms-1 c_orange" title="API Response"></i>
                         <span style="pointer-events: none" class="ms-1">
-                        {{ msg.mType }}
-                      </span>
+                          {{ msg.mType }}
+                        </span>
+                      </template>
+                      <template v-if="msg.mType === 'Task'">
+                        <div class="ms-1 translate-y-1 c_orange h-4 w-4 inline-flex items-center justify-center"
+                             title="Planner Task">
+                          <ViewColumnsIcon class="h-full w-full"/>
+                        </div>
                       </template>
                     </div>
                   </div>
@@ -488,6 +494,10 @@
                     <p class="clientMessage">
                       {{ msg.msg }}
                     </p>
+                  </template>
+                  <template v-else-if="msg.mType === 'Task'">
+                    <taskcontainer :message="msg.msg"
+                                   class="clientMessage"/>
                   </template>
                   <!-- #### CLIENT MESSAGE #### -->
                   <template v-else>
@@ -1237,6 +1247,7 @@
 <script>
 // Own
 import modal from '../../components/Modal.vue'
+import taskcontainer from '../../components/TaskContainer.vue'
 import WRTC from '@/webrtc/wRTC'
 // External
 import { Base64 } from 'js-base64'
@@ -1255,6 +1266,7 @@ export default {
   },
   components: {
     modal,
+    taskcontainer,
     Markdown,
     PhoneIcon,
     VideoCameraIcon,
@@ -2180,6 +2192,9 @@ export default {
       } else if (message.msg.includes('[c:AUD]') === true) {
         message.mType = 'Audio'
         message.msg = message.msg.substring(7)
+      } else if (message.msg.includes('[c:TASK]') === true) {
+        message.mType = 'Task'
+        message.msg = message.msg.substring(8)
       }
       // Reactions
       if (message.reacts != null) {
