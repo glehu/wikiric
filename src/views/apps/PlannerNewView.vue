@@ -367,8 +367,8 @@
       </div>
     </template>
     <template v-slot:body>
-      <div class="w-[80vw] sm:w-[540px] flex h-full relative">
-        <div class="w-full h-full" v-if="!isShowingTaskHistory">
+      <div class="w-full sm:w-[540px] flex h-full relative">
+        <div class="w-full h-full mr-1" v-if="!isShowingTaskHistory">
           <div class="w-full bg-neutral-900 p-2 rounded">
             <template v-if="showingTask.categories">
               <div class="flex mb-2 items-center">
@@ -457,7 +457,7 @@
             </template>
           </div>
         </div>
-        <div v-else class="w-full h-full">
+        <div v-else class="w-full h-full mr-1">
           <table class="w-full h-full divide-y">
             <tr>
               <th>Type</th>
@@ -479,7 +479,7 @@
             </template>
           </table>
         </div>
-        <div class="mx-1 divide-y divide-neutral-500 relative right-0">
+        <div class="min-w-[50px] sm:min-w-[100px] h-full ml-auto divide-y divide-neutral-500 relative">
           <div class="px-1 pb-1">
             <button v-on:click="finishTask(showingTask)"
                     class="group p_card_menu_item text-neutral-300 hover:text-white hover:bg-neutral-800">
@@ -561,7 +561,7 @@
                 aria-hidden="true"
               />
               <template class="hidden sm:block">
-                Go To
+                Go&nbsp;To
               </template>
             </button>
           </div>
@@ -1401,6 +1401,7 @@ export default {
         }
       } else if (ev.key === 'c') {
         if (!this.isShowingTask) return
+        if (document.activeElement.classList.contains('p_input')) return
         ev.preventDefault()
         const elem = document.getElementById('input_comment')
         if (elem) elem.focus()
@@ -1823,7 +1824,7 @@ export default {
 }
 
 .p_card_menu_item {
-  @apply flex w-full items-center rounded-md p-1 text-sm;
+  @apply flex w-full items-center rounded-md px-1 py-2 text-sm;
 }
 
 .p_card_menu_list {

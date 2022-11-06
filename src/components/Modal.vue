@@ -123,9 +123,9 @@ export default {
   display: flex;
   flex-direction: column;
   height: fit-content;
-  max-height: 90vh;
+  max-height: 95vh;
   width: fit-content;
-  max-width: 90vw;
+  max-width: 95vw;
   top: unset;
   left: unset;
 }
