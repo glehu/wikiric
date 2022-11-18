@@ -345,12 +345,12 @@ export default {
         },
         {
           name: 'Planner',
-          href: '/apps/planner/_user',
+          href: '/apps/plannernew',
           current: false,
-          main: true
+          main: false
         },
         {
-          name: 'Planner New',
+          name: 'Tasks',
           href: '/apps/plannernew',
           current: false,
           main: false

@@ -1,18 +1,19 @@
 <template>
-  <div class="header-margin shadow-xl"/>
+  <template v-if="!isoverlay">
+    <div class="header-margin shadow-xl"/>
+  </template>
   <template v-if="knowledgeExists">
-    <div class=""
-         style="min-height: calc(100vh - 60px)">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full bg-neutral-900 h-full">
-        <div class="border-r border-neutral-700 h-full sm:h-[calc(100vh-60px)]"
+    <div class="h-full">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full bg-neutral-900 h-full">
+        <div class="border-r border-neutral-700 h-full"
              :style="{
                 backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
                 backgroundPosition: 'top left', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
           <div class="bg-neutral-900 bg-opacity-40 h-full relative">
-            <div class="py-1 shadow rounded-none">
+            <div class="py-1 shadow rounded-none hidden">
               <div class="flex items-center">
                 <div v-on:click="$router.push(
-                  '/apps/clarifier/wss/' + srcGUID
+                  '/apps/clarifier/wss/' + srcguid
                 )"
                      class="h-full ml-4 mr-2 px-2 py-4 rounded-xl text-center text-gray-300 hover:text-orange-500 cursor-pointer">
                   <i class="sb_link_icon bi bi-x-square text-xl"></i>
@@ -30,31 +31,35 @@
               </div>
             </div>
             <div class="shadow py-2 backdrop-brightness-75">
-              <div class="px-4 py-2 rounded-lg flex items-center relative">
-                <MagnifyingGlassIcon class="w-8 h-8 mx-1 text-neutral-300 absolute translate-x-1">
-                </MagnifyingGlassIcon>
+              <div class="px-3 py-2 rounded-lg flex items-center relative">
+                <MagnifyingGlassIcon class="w-8 h-8 mx-1 text-neutral-300 absolute translate-x-1"/>
                 <input id="search-field" type="text"
                        class="search-field py-4 pl-12 pr-4 bg-neutral-900 h-8 text-lg border-2 border-neutral-800"
                        placeholder="Search..."
                        v-on:keyup.enter="searchWisdom()"
                        v-model="queryText">
               </div>
-              <div class="px-4 pb-2 flex items-center">
-                <div class="flex overflow-x-auto overflow-y-hidden py-2">
-                  <template v-for="category in this.knowledge.categories" :key="category">
+              <div style="width: 100%; height: 35px; padding-top: 5px;
+                      display: flex; position: relative; align-items: center">
+                <span class="font-bold text-neutral-300 pointer-events-none ml-5">Categories</span>
+                <button class="text-white btn-no-outline"
+                        style="position: absolute; right: 15px"
+                        title="New Subchat"
+                        v-on:click="isAddingCategory = true">
+                  <i class="bi bi-plus lead orange-hover text-neutral-300" style="font-size: 150%"></i>
+                </button>
+              </div>
+              <div class="px-3 pb-2 flex items-center w-full">
+                <div class="overflow-x-auto overflow-y-hidden py-2 w-full">
+                  <template v-for="category in knowledge.categories" :key="category">
                     <div
-                      class="font-bold text-sm text-neutral-400 backdrop-brightness-75 cursor-pointer mr-2 flex items-center justify-center text-center px-3 border-2 border-gray-500 rounded-full hover:border-gray-100 hover:text-gray-100 h-10">
+                      class="kf_category">
                       <p>{{ category.category.replace(' ', '&nbsp;') }}</p>
+                      <template v-if="category.count > 0">
+                        <p class="ml-auto">{{ category.count }}</p>
+                      </template>
                     </div>
                   </template>
-                  <div
-                    class="font-bold text-sm text-neutral-400 backdrop-brightness-75 cursor-pointer mr-2 flex items-center justify-center text-center px-3 border-2 border-gray-500 rounded-full hover:border-gray-100 hover:text-gray-100 h-10"
-                    style="min-width: 150px; max-width: 150px"
-                    v-on:click="this.isAddingCategory = true">
-                    <div class="text-center w-full">
-                      <i class="bi bi-plus-circle-dotted lead"></i>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -62,12 +67,12 @@
             <div class="px-4 py-2 sm:absolute sm:bottom-0 sm:w-full">
               <div class="flex">
                 <button
-                  class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-xl text-gray-200 hover:text-gray-200 mr-3 w-1/2 backdrop-brightness-75">
+                  class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 mr-3 w-1/2 backdrop-brightness-75">
                   <i class="bi bi-question-lg mr-2"></i>
                   Ask
                 </button>
                 <button v-on:click="writeLesson()"
-                        class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-xl text-gray-200 hover:text-gray-200 w-1/2 backdrop-brightness-75">
+                        class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 w-1/2 backdrop-brightness-75">
                   <i class="bi bi-lightbulb small mr-2"></i>
                   Teach
                 </button>
@@ -75,50 +80,49 @@
             </div>
           </div>
         </div>
-        <div class="lg:col-span-2 pt-2 overflow-y-scroll overflow-x-hidden sm:max-h-[calc(100vh-120px)]">
+        <div class="lg:col-span-2 pt-3 overflow-y-scroll overflow-x-hidden h-full">
           <template v-if="emptyState">
-            <div class="text-neutral-400 px-4">
-              <p class="text-3xl font-bold mb-2 pointer-events-none">Top Contributors</p>
+            <div class="text-neutral-400 px-2 ml-2">
+              <p class="text-2xl font-bold mb-2 pointer-events-none">Top Contributors</p>
               <div class="flex w-full overflow-x-auto py-2">
                 <div v-for="author in topWriters.contributors" :key="author.username"
                      class="mr-4 text-neutral-400 shadow shadow-black rounded-xl">
                   <div class="bg-neutral-800 rounded-t-xl py-2 px-3 pointer-events-none">
-                    <p class="text-3xl">{{ author.username }}</p>
+                    <p class="text-2xl">{{ author.username }}</p>
                   </div>
                   <div class="bg-slate-700 rounded-b-xl py-1 px-3 pointer-events-none">
                     <div class="flex items-center">
                       <BookOpenIcon class="h-6 w-6 mr-2"></BookOpenIcon>
-                      <p class="text-2xl">{{ author.lessons }}</p>
+                      <p class="text-xl">{{ author.lessons }}</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             <div
-              class="flex w-full justify-content-center items-center text-neutral-400 pointer-events-none p-3 mt-4 border-t border-t-neutral-800">
-              <MagnifyingGlassIcon class="h-12 w-12 mr-4"></MagnifyingGlassIcon>
+              class="flex w-full justify-content-center items-center text-neutral-400 pointer-events-none p-2 my-3 border-t border-t-neutral-800 border-b border-b-neutral-800">
+              <MagnifyingGlassIcon class="h-8 w-8 mr-4"></MagnifyingGlassIcon>
               <p>Search to get some results!</p>
             </div>
+            <div id="d3wordcloud"></div>
           </template>
           <template v-if="noResults">
             <div class="flex w-full justify-content-center items-center text-gray-300 p-3 md:mt-10">
               <div>
                 <p class="pointer-events-none text-center">No Results for...</p>
-                <p class="text-gray-400 text-center"> {{ this.querySubmission }} </p>
+                <p class="text-gray-400 text-center"> {{ querySubmission }} </p>
                 <p class="text-gray-400 pointer-events-none mt-3 text-center border-t border-t-gray-400 pt-3">
                   Ask a question or teach people!
                 </p>
                 <div class="mt-2">
                   <div class="flex">
                     <button
-                      class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-xl text-gray-300 hover:text-gray-200 w-1/2">
-                      <i class="bi bi-question-lg mr-2"></i>
-                      Ask
+                      class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-gray-300 hover:text-gray-200 w-1/2">
+                      <i class="bi bi-question-lg mr-2"></i> <span class="text-sm">Ask</span>
                     </button>
                     <button v-on:click="writeLesson()"
-                            class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-xl text-gray-300 hover:text-gray-200 ml-1 w-1/2">
-                      <i class="bi bi-lightbulb small mr-2"></i>
-                      Teach
+                            class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-gray-300 hover:text-gray-200 ml-1 w-1/2">
+                      <i class="bi bi-lightbulb small mr-2"></i> <span class="text-sm">Teach</span>
                     </button>
                   </div>
                 </div>
@@ -135,7 +139,7 @@
                    class="result relative text-gray-300 hover:bg-neutral-800 hover:bg-opacity-25 hover:border-l-2 hover:border-l-neutral-500 px-3 py-3 border-b border-neutral-800">
                 <template v-if="result.priority === 'low'">
                   <div
-                    class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0 hover:hidden"></div>
+                    class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
                 </template>
                 <div class="text-neutral-400 mb-2 flex items-center">
                   <template v-if="result.priority === 'high'">
@@ -149,7 +153,7 @@
                   <div v-if="result.result.reacts != null" class="flex ml-4">
                     <div v-for="reaction in result.result.reacts" :key="reaction.src"
                          style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                         class="c_lightgray gray-hover"
+                         class="text-neutral-300 gray-hover"
                          :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
                          v-on:click="reactToMessage(result.result, JSON.parse(reaction).t)"
                          :id="'react_' + result.result.gUID + '_' + JSON.parse(reaction).t">
@@ -376,29 +380,26 @@ import Markdown from 'vue3-markdown-it'
 import markdownItMermaid from 'markdown-it-mermaid'
 import 'highlight.js/styles/hybrid.css'
 import {
-  MagnifyingGlassIcon,
+  BookOpenIcon,
   ClipboardIcon,
-  HandThumbUpIcon,
   HandThumbDownIcon,
-  StarIcon,
-  BookOpenIcon
+  HandThumbUpIcon,
+  MagnifyingGlassIcon,
+  StarIcon
 } from '@heroicons/vue/24/outline'
-import {
-  CheckIcon,
-  ArrowsUpDownIcon,
-  SparklesIcon
-} from '@heroicons/vue/24/solid'
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOptions,
-  ListboxOption
-} from '@headlessui/vue'
+import { ArrowsUpDownIcon, CheckIcon, SparklesIcon } from '@heroicons/vue/24/solid'
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { Base64 } from 'js-base64'
 import mermaid from 'mermaid'
+import * as d3 from 'd3'
+import * as d3Cloud from 'd3-cloud'
 
 export default {
   name: 'KnowledgeFinderView',
+  props: {
+    isoverlay: Boolean,
+    srcguid: String
+  },
   components: {
     modal,
     Markdown,
@@ -418,8 +419,8 @@ export default {
   },
   data () {
     return {
-      srcGUID: '',
       source: '',
+      swords: [],
       knowledgeExists: true,
       knowledge: {},
       // Knowledge Creation
@@ -462,29 +463,28 @@ export default {
       await this.serverLogin()
       const input = document.getElementById('search-field')
       input.focus()
-      const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop)
-      })
       // Whose knowledge are we trying to see?
-      const srcGUID = params.src
-      if (srcGUID != null) {
-        const chatroom = await this.getClarifierChatroom(srcGUID)
+      if (this.srcguid != null) {
+        const chatroom = await this.getClarifierChatroom(this.srcguid)
         if (chatroom != null) {
-          this.srcGUID = srcGUID
           this.source = chatroom.t
         }
-        const knowledge = await this.getKnowledge(srcGUID)
+        const knowledge = await this.getKnowledge(this.srcguid)
         if (knowledge != null) {
           this.knowledge = knowledge
         }
         // Did we already search for something?
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+          get: (searchParams, prop) => searchParams.get(prop)
+        })
         const queryText = params.query
         if (queryText != null) {
           this.queryText = queryText
           await this.searchWisdom()
-        } else {
-          await this.getTopContributors(srcGUID)
         }
+        await this.getTopContributors(this.srcguid)
+        await this.getRecentKeywords()
+        await this.getRecentCategories()
       }
     },
     getClarifierChatroom: async function (sessionID) {
@@ -520,6 +520,7 @@ export default {
             if (this.knowledge.categories != null) {
               for (let i = 0; i < this.knowledge.categories.length; i++) {
                 this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
+                this.knowledge.categories[i].count = 0
               }
             }
             resolve()
@@ -532,7 +533,7 @@ export default {
     },
     createKnowledge: async function () {
       const payload = {
-        mainChatroomGUID: this.srcGUID,
+        mainChatroomGUID: this.srcguid,
         title: this.titleCreation,
         description: this.descriptionCreation,
         keywords: this.keywordsCreation,
@@ -577,18 +578,26 @@ export default {
             this.newCategory = ''
             this.knowledgeExists = true
             this.isAddingCategory = false
-            this.getKnowledge(this.srcGUID)
+            this.getKnowledge(this.srcguid)
           })
           .then(() => resolve)
           .catch((err) => console.error(err.message))
       })
     },
-    searchWisdom: async function () {
+    searchWisdom: async function (substitute = null) {
       this.results = []
       this.emptyState = false
-      this.querySubmission = this.queryText
+      this.querySubmission = substitute ?? this.queryText
+      if (this.querySubmission == null || this.querySubmission === '') {
+        this.emptyState = true
+        this.noResults = false
+        await this.getTopContributors()
+        await this.getRecentKeywords()
+        await this.getRecentCategories()
+        return
+      }
       const payload = {
-        query: this.queryText
+        query: this.querySubmission
       }
       return new Promise((resolve) => {
         const headers = new Headers()
@@ -649,10 +658,8 @@ export default {
           })
           .finally(() => {
             this.$router.push({
-              path: 'knowledge',
               query: {
-                src: this.srcGUID,
-                query: this.queryText
+                query: this.querySubmission
               }
             })
           })
@@ -846,7 +853,140 @@ export default {
     },
     gotoWisdom: function (id) {
       if (id == null) return
-      this.$router.push('/apps/knowledge/' + id + '?src=' + this.srcGUID)
+      this.$router.push('/apps/knowledge/' + id + '?src=' + this.srcguid)
+    },
+    wordCloud: function (text, {
+      size = group => group.length, // Given a grouping of words, returns the size factor for that word
+      word = d => d, // Given an item of the data array, returns the word
+      marginTop = 0, // top margin, in pixels
+      marginRight = 0, // right margin, in pixels
+      marginBottom = 0, // bottom margin, in pixels
+      marginLeft = 0, // left margin, in pixels
+      width = 640, // outer width, in pixels
+      height = 400, // outer height, in pixels
+      maxWords = 50, // maximum number of words to extract from the text
+      fontFamily = 'Lato', // font family
+      fontScale = 12, // base font size
+      padding = 4, // amount of padding between the words (in pixels)
+      rotate = 0, // a constant or function to rotate the words
+      invalidation // when this promise resolves, stop the simulation
+    } = {}) {
+      const words = typeof text === 'string' ? text.split(/\W+/g) : Array.from(text)
+
+      const data = d3.rollups(words, size, w => w)
+        .sort(([, a], [, b]) => d3.descending(a, b))
+        .slice(0, maxWords)
+        .map(([key, size]) => ({
+          text: word(key),
+          size: Math.exp(size)
+        }))
+
+      const svg = d3.create('svg')
+        .attr('viewBox', [0, 0, width, height])
+        .attr('width', width)
+        .attr('font-family', fontFamily)
+        .attr('text-anchor', 'middle')
+        .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
+
+      const g = svg.append('g').attr('transform', `translate(${marginLeft},${marginTop})`)
+      const vueInstance = this
+      const cloud = d3Cloud()
+        .size([width - marginLeft - marginRight, height - marginTop - marginBottom])
+        .words(data)
+        .padding(padding)
+        .rotate(rotate)
+        .font(fontFamily)
+        .fontSize(d => (Math.sqrt(d.size) * fontScale))
+        .on('word', ({
+          size,
+          x,
+          y,
+          rotate,
+          text
+        }) => {
+          g.append('text')
+            .attr('font-size', Math.min(Math.max(size, 0), 100)) // caps size at 100
+            .attr('fill', '#AFAFAF')
+            .attr('transform', `translate(${x},${y}) rotate(${rotate})`)
+            .text(text)
+            .on('click', function () {
+              vueInstance.searchWisdom(text)
+            })
+            .attr('class', 'cursor-pointer')
+            .on('mouseover', function () {
+              d3.select(this).transition()
+                .duration('100')
+                .attr('fill', '#da6c0e')
+            })
+            .on('mouseout', function () {
+              d3.select(this).transition()
+                .duration('200')
+                .attr('fill', '#AFAFAF')
+            })
+        })
+
+      cloud.start()
+      invalidation && invalidation.then(() => cloud.stop())
+      return svg.node()
+    },
+    getRecentKeywords: async function () {
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m7/keywordlist/' + this.knowledge.gUID,
+          {
+            method: 'get',
+            headers: headers
+          }
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            let keywords = []
+            if (data.keywords) keywords = data.keywords
+            const svg = this.wordCloud(keywords)
+            const myNode = document.getElementById('d3wordcloud')
+            while (myNode.lastElementChild) {
+              myNode.removeChild(myNode.lastElementChild)
+            }
+            myNode.appendChild(svg)
+            resolve()
+          })
+          .catch((err) => {
+            console.error(err.message)
+          })
+      })
+    },
+    getRecentCategories: async function () {
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m7/categorylist/' + this.knowledge.gUID,
+          {
+            method: 'get',
+            headers: headers
+          }
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            if (!data.categories) return
+            if (this.knowledge && this.knowledge.categories) {
+              for (let i = 0; i < data.categories.length; i++) {
+                const category = data.categories[i]
+                for (let j = 0; j < this.knowledge.categories.length; j++) {
+                  if (this.knowledge.categories[j].category === category.category) {
+                    this.knowledge.categories[j].count = category.count
+                  }
+                }
+              }
+            }
+            resolve()
+          })
+          .catch((err) => {
+            console.error(err.message)
+          })
+      })
     }
   }
 }
@@ -930,6 +1070,10 @@ export default {
   @apply bg-neutral-700 text-neutral-200;
   cursor: pointer;
   border-radius: 10px;
+}
+
+.kf_category {
+  @apply font-bold text-xs text-neutral-400 bg-black bg-opacity-40 cursor-pointer mb-1 flex items-center text-center px-3 rounded-full hover:border-gray-100 hover:text-gray-100 h-8;
 }
 
 </style>

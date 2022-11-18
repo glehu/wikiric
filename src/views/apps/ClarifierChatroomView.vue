@@ -139,7 +139,7 @@
                 <template v-if="this.chatroom.rank > 2">
                   <div style="height: 40px"
                        class="subchat w-full flex items-center orange-hover"
-                       v-on:click="this.$router.push('/apps/knowledge?src=' + this.getSession())">
+                       v-on:click="setOverlay('knowledgefinder')"> <!-- this.$router.push('/apps/knowledge?src=' + this.getSession()) -->
                     <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
                     <span style="padding-left: 10px">Knowledge</span>
                   </div>
@@ -314,234 +314,242 @@
               <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
               <span class="ms-2 fw-bold c_lightgray">Connecting...</span>
             </div>
-            <template v-for="msg in messages" :key="msg.gUID">
-              <div class="message" :id="msg.gUID">
-                <!-- Chat Avatar and Date-->
-                <template v-if="msg.header === true">
-                  <div style="position: relative;
+            <template v-if="overlayType === 'msg'">
+              <template v-for="msg in messages" :key="msg.gUID">
+                <div class="message" :id="msg.gUID">
+                  <!-- Chat Avatar and Date-->
+                  <template v-if="msg.header === true">
+                    <div style="position: relative;
                             display: flex;
                             height: 30px;
                             align-items: center"
-                       class="mt-2">
-                    <i v-if="msg.src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
-                    <i v-else class="sender_avatar bi bi-person-circle"></i>
-                    <template v-if="msg.iurl !== ''">
-                      <img :src="getImg(msg.iurl, true)" alt="?"
-                           class="b_darkergray"
-                           style="width: 42px; height: 42px; border-radius: 100%;
+                         class="mt-2">
+                      <i v-if="msg.src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
+                      <i v-else class="sender_avatar bi bi-person-circle"></i>
+                      <template v-if="msg.iurl !== ''">
+                        <img :src="getImg(msg.iurl, true)" alt="?"
+                             class="b_darkergray"
+                             style="width: 42px; height: 42px; border-radius: 100%;
                                 position: absolute; top: 8px; left: -7px">
-                    </template>
-                    <span class="orange-hover text-neutral-200"
-                          style="font-weight: bold"
-                          @click.stop="showUserProfileFromName(msg.src)">
+                      </template>
+                      <span class="orange-hover text-neutral-200"
+                            style="font-weight: bold"
+                            @click.stop="showUserProfileFromName(msg.src)">
                     {{ msg.src }}
                   </span>
-                    <div style="color: gray; font-size: 80%; padding-left: 10px">
+                      <div style="color: gray; font-size: 80%; padding-left: 10px">
                     <span style="pointer-events: none">
                       {{ msg.time.toLocaleString('de-DE').replace(' ', '&nbsp;') }}
                     </span>
-                      <template v-if="msg.isEncrypted === true">
-                        <i v-if="msg.decryptionFailed === false" class="bi bi-shield-lock ms-1"
-                           title="Decrypted Message"></i>
-                        <i v-else class="bi bi-exclamation-triangle-fill ms-1"
-                           title="Decryption Error Occurred"></i>
-                      </template>
-                      <template v-if="msg.tagActive === true">
-                        <i class="bi bi-at ms-1 c_orange" title="You got tagged!"></i>
-                      </template>
-                      <template v-if="msg.apiResponse === true">
-                        <i class="bi bi-gear ms-1 c_orange" title="API Response"></i>
-                        <span style="pointer-events: none" class="ms-1">
+                        <template v-if="msg.isEncrypted === true">
+                          <i v-if="msg.decryptionFailed === false" class="bi bi-shield-lock ms-1"
+                             title="Decrypted Message"></i>
+                          <i v-else class="bi bi-exclamation-triangle-fill ms-1"
+                             title="Decryption Error Occurred"></i>
+                        </template>
+                        <template v-if="msg.tagActive === true">
+                          <i class="bi bi-at ms-1 c_orange" title="You got tagged!"></i>
+                        </template>
+                        <template v-if="msg.apiResponse === true">
+                          <i class="bi bi-gear ms-1 c_orange" title="API Response"></i>
+                          <span style="pointer-events: none" class="ms-1">
                           {{ msg.mType }}
                         </span>
-                      </template>
-                      <template v-if="msg.mType === 'Task'">
-                        <div class="ms-1 translate-y-1 c_orange h-4 w-4 inline-flex items-center justify-center"
-                             title="Planner Task">
-                          <ViewColumnsIcon class="h-full w-full"/>
+                        </template>
+                        <template v-if="msg.mType === 'Task'">
+                          <div class="ms-1 translate-y-1 c_orange h-4 w-4 inline-flex items-center justify-center"
+                               title="Planner Task">
+                            <ViewColumnsIcon class="h-full w-full"/>
+                          </div>
+                        </template>
+                      </div>
+                    </div>
+                  </template>
+                  <div class="message_body" style="width: 100%; display: flex; position: relative">
+                    <div style="min-width: 42px; max-width: 42px">
+                      <template v-if="msg.header === false">
+                        <div class="msg_time" style="pointer-events: none">
+                          {{ msg.time.toLocaleTimeString('de-DE').substring(0, 5).replace(' ', '&nbsp;') }}
                         </div>
                       </template>
                     </div>
-                  </div>
-                </template>
-                <div class="message_body" style="width: 100%; display: flex; position: relative">
-                  <div style="min-width: 42px; max-width: 42px">
-                    <template v-if="msg.header === false">
-                      <div class="msg_time" style="pointer-events: none">
-                        {{ msg.time.toLocaleTimeString('de-DE').substring(0, 5).replace(' ', '&nbsp;') }}
+                    <template v-if="msg.tagActive === true">
+                      <div style="position: absolute; height: 100%; width: 5px; left: -15px;
+                       border-radius: 5px; z-index: 5; box-shadow: 0 0 15px 0 #ff5d37"
+                           class="b_orange">
                       </div>
                     </template>
-                  </div>
-                  <template v-if="msg.tagActive === true">
-                    <div style="position: absolute; height: 100%; width: 5px; left: -15px;
-                       border-radius: 5px; z-index: 5; box-shadow: 0 0 15px 0 #ff5d37"
-                         class="b_orange">
-                    </div>
-                  </template>
-                  <!-- #### MESSAGE OPTIONS #### -->
-                  <div v-if="msg.mType !== 'CryptError' && !msg.src.startsWith('_server')" class="msg_options">
-                    <div class="b_darkgray rounded mr-1">
-                      <!--
-                      <button title="Reply" class="btn btn-sm c_lightgray orange-hover">
-                        <i class="bi bi-reply-fill"></i>
-                      </button>
-                      -->
-                      <template v-if="msg.editable === true">
-                        <button title="Edit" class="btn btn-sm c_lightgray orange-hover"
-                                v-on:click="editMessage(msg)">
-                          <i class="bi bi-pencil-fill"></i>
+                    <!-- #### MESSAGE OPTIONS #### -->
+                    <div v-if="msg.mType !== 'CryptError' && !msg.src.startsWith('_server')" class="msg_options">
+                      <div class="b_darkgray rounded mr-1">
+                        <!--
+                        <button title="Reply" class="btn btn-sm c_lightgray orange-hover">
+                          <i class="bi bi-reply-fill"></i>
                         </button>
-                        <button title="Remove" class="btn btn-sm c_lightgray orange-hover"
-                                v-on:click="editMessage(msg, true)">
-                          <i class="bi bi-trash-fill"></i>
+                        -->
+                        <template v-if="msg.editable === true">
+                          <button title="Edit" class="btn btn-sm c_lightgray orange-hover"
+                                  v-on:click="editMessage(msg)">
+                            <i class="bi bi-pencil-fill"></i>
+                          </button>
+                          <button title="Remove" class="btn btn-sm c_lightgray orange-hover"
+                                  v-on:click="editMessage(msg, true)">
+                            <i class="bi bi-trash-fill"></i>
+                          </button>
+                        </template>
+                      </div>
+                      <div class="b_darkgray rounded mr-1">
+                        <button title="Upvote" class="btn btn-sm c_lightgray orange-hover"
+                                v-on:click="reactToMessage(msg, '+')">
+                          <i class="bi bi-hand-thumbs-up"></i>
                         </button>
-                      </template>
+                        <button title="Downvote" class="btn btn-sm c_lightgray orange-hover"
+                                v-on:click="reactToMessage(msg, '-')">
+                          <i class="bi bi-hand-thumbs-down"></i>
+                        </button>
+                      </div>
+                      <div class="b_darkgray rounded mr-1">
+                        <button title="Awesome!" class="btn btn-sm c_lightgray orange-hover"
+                                v-on:click="reactToMessage(msg, '⭐')">
+                          <i class="bi bi-star-fill"></i>
+                        </button>
+                      </div>
                     </div>
-                    <div class="b_darkgray rounded mr-1">
-                      <button title="Upvote" class="btn btn-sm c_lightgray orange-hover"
-                              v-on:click="reactToMessage(msg, '+')">
-                        <i class="bi bi-hand-thumbs-up"></i>
-                      </button>
-                      <button title="Downvote" class="btn btn-sm c_lightgray orange-hover"
-                              v-on:click="reactToMessage(msg, '-')">
-                        <i class="bi bi-hand-thumbs-down"></i>
-                      </button>
-                    </div>
-                    <div class="b_darkgray rounded mr-1">
-                      <button title="Awesome!" class="btn btn-sm c_lightgray orange-hover"
-                              v-on:click="reactToMessage(msg, '⭐')">
-                        <i class="bi bi-star-fill"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
-                  <template v-if="msg.mType === 'RegistrationNotification'">
-                    <div class="serverMessage">
-                      {{ msg.msg.trim() }}
-                    </div>
-                  </template>
-                  <template v-else-if="msg.mType === 'CryptError'">
-                    <div class="serverMessage">
-                      {{ msg.msg.trim() }}
-                    </div>
-                  </template>
-                  <template v-else-if="msg.mType === 'Leaderboard'">
-                    <div class="serverMessage" style="height: fit-content">
-                      <h4 style="font-weight: normal; border-radius: 15px; padding: 5px; margin-bottom: 10px"
-                          class="b_darkergray nopointer">
-                        <i class="bi bi-award"></i>
-                        Leaderboard
-                        <i class="bi bi-award"></i>
-                      </h4>
-                      <table class="table-borderless leaderboard-table text-start"
-                             style="width: 100%; height: 100%; padding: 5px">
-                        <tr style="pointer-events: none;
+                    <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
+                    <template v-if="msg.mType === 'RegistrationNotification'">
+                      <div class="serverMessage">
+                        {{ msg.msg.trim() }}
+                      </div>
+                    </template>
+                    <template v-else-if="msg.mType === 'CryptError'">
+                      <div class="serverMessage">
+                        {{ msg.msg.trim() }}
+                      </div>
+                    </template>
+                    <template v-else-if="msg.mType === 'Leaderboard'">
+                      <div class="serverMessage" style="height: fit-content">
+                        <h4 style="font-weight: normal; border-radius: 15px; padding: 5px; margin-bottom: 10px"
+                            class="b_darkergray nopointer">
+                          <i class="bi bi-award"></i>
+                          Leaderboard
+                          <i class="bi bi-award"></i>
+                        </h4>
+                        <table class="table-borderless leaderboard-table text-start"
+                               style="width: 100%; height: 100%; padding: 5px">
+                          <tr style="pointer-events: none;
                                  height: 2ch;
                                  border-bottom: 1px solid #7e7d7d">
-                          <th>Username</th>
-                          <th>Messages</th>
-                          <th>Rating</th>
-                        </tr>
-                        <tr v-for="member in JSON.parse(msg.msg)" :key="member"
-                            style="font-weight: normal">
-                          <td>{{ member.username }}</td>
-                          <td>{{ member.messages }}</td>
-                          <td>{{ member.totalRating }}</td>
-                        </tr>
-                      </table>
-                      <div style="font-size: 75%; margin: 20px 10px 10px 10px;
+                            <th>Username</th>
+                            <th>Messages</th>
+                            <th>Rating</th>
+                          </tr>
+                          <tr v-for="member in JSON.parse(msg.msg)" :key="member"
+                              style="font-weight: normal">
+                            <td>{{ member.username }}</td>
+                            <td>{{ member.messages }}</td>
+                            <td>{{ member.totalRating }}</td>
+                          </tr>
+                        </table>
+                        <div style="font-size: 75%; margin: 20px 10px 10px 10px;
                                 font-style: italic; opacity: 0.5"
-                           class="nopointer">
-                        - Thank you for participating -
+                             class="nopointer">
+                          - Thank you for participating -
+                        </div>
                       </div>
-                    </div>
-                  </template>
-                  <!-- #### CLIENT GIF MESSAGE #### -->
-                  <template v-else-if="msg.mType === 'GIF'">
-                    <div class="clientMessage">
-                      <img :src="msg.msg" :alt="msg.msg"
-                           :style="{maxWidth: mediaMaxWidth}">
-                      <br>
-                      <div>
-                        <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png"
-                             alt="Powered By GIPHY"
-                             style="width: 100px"/>
+                    </template>
+                    <!-- #### CLIENT GIF MESSAGE #### -->
+                    <template v-else-if="msg.mType === 'GIF'">
+                      <div class="clientMessage">
+                        <img :src="msg.msg" :alt="msg.msg"
+                             :style="{maxWidth: mediaMaxWidth}">
+                        <br>
+                        <div>
+                          <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png"
+                               alt="Powered By GIPHY"
+                               style="width: 100px"/>
+                        </div>
                       </div>
-                    </div>
-                  </template>
-                  <!-- #### CLIENT IMAGE (SnippetBase) #### -->
-                  <template v-else-if="msg.mType === 'Image'">
-                    <div class="clientMessage">
-                      <img :src="msg.msg"
-                           :alt="msg.msg"
-                           style="cursor: zoom-in"
-                           :style="{maxWidth: mediaMaxWidth}"
-                           v-on:click="openURL(msg.msg)">
-                    </div>
-                  </template>
-                  <!-- #### CLIENT AUDIO (SnippetBase) #### -->
-                  <template v-else-if="msg.mType === 'Audio'">
-                    <div class="clientMessage">
-                      <audio controls preload="auto"
-                             class="uploadFileSnippet">
-                        <source :src="msg.msg">
-                        Your browser does not support playing audio.
-                      </audio>
-                    </div>
-                  </template>
-                  <!-- #### CLIENT MESSAGE #### -->
-                  <template v-else-if="msg.mType === 'Joke'">
-                    <p class="clientMessage">
-                      {{ msg.msg }}
-                    </p>
-                  </template>
-                  <template v-else-if="msg.mType === 'Task'">
-                    <taskcontainer :message="msg.msg"
-                                   class="clientMessage"/>
-                  </template>
-                  <!-- #### CLIENT MESSAGE #### -->
-                  <template v-else>
-                    <Markdown :id="'msg_' + msg.gUID"
-                              class="clientMessage"
-                              :source="msg.msg"
-                              :breaks="true"
-                              :plugins="plugins"/>
-                  </template>
-                </div>
-                <div v-if="msg.reacts.length > 0"
-                     style="display: flex; margin: 10px 0 0 42px">
-                  <div v-for="reaction in msg.reacts" :key="reaction.src"
-                       style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                       class="b_darkgray c_lightgray gray-hover"
-                       :title="reaction.src.toString() + ' reacted to this message.'"
-                       v-on:click="reactToMessage(msg, reaction.t)"
-                       :id="'react_' + msg.gUID + '_' + reaction.t">
-                    <i v-if="reaction.t === '+'"
-                       class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
-                    <i v-else-if="reaction.t === '-'"
-                       class="bi bi-hand-thumbs-down" style="margin-right: 2px"></i>
-                    <span v-else> {{ reaction.t }} </span>
-                    {{ reaction.src.length }}
+                    </template>
+                    <!-- #### CLIENT IMAGE (SnippetBase) #### -->
+                    <template v-else-if="msg.mType === 'Image'">
+                      <div class="clientMessage">
+                        <img :src="msg.msg"
+                             :alt="msg.msg"
+                             style="cursor: zoom-in"
+                             :style="{maxWidth: mediaMaxWidth}"
+                             v-on:click="openURL(msg.msg)">
+                      </div>
+                    </template>
+                    <!-- #### CLIENT AUDIO (SnippetBase) #### -->
+                    <template v-else-if="msg.mType === 'Audio'">
+                      <div class="clientMessage">
+                        <audio controls preload="auto"
+                               class="uploadFileSnippet">
+                          <source :src="msg.msg">
+                          Your browser does not support playing audio.
+                        </audio>
+                      </div>
+                    </template>
+                    <!-- #### CLIENT MESSAGE #### -->
+                    <template v-else-if="msg.mType === 'Joke'">
+                      <p class="clientMessage">
+                        {{ msg.msg }}
+                      </p>
+                    </template>
+                    <template v-else-if="msg.mType === 'Task'">
+                      <taskcontainer :message="msg.msg"
+                                     class="clientMessage"/>
+                    </template>
+                    <!-- #### CLIENT MESSAGE #### -->
+                    <template v-else>
+                      <Markdown :id="'msg_' + msg.gUID"
+                                class="clientMessage"
+                                :source="msg.msg"
+                                :breaks="true"
+                                :plugins="plugins"/>
+                    </template>
                   </div>
-                </div>
-                <div :id="'edit_' + msg.gUID" class="hidden w-full justify-center">
-                  <div class="text-sm p-2 bg-neutral-900 rounded mt-2 mb-1 text-center flex items-center">
-                    <div class="ml-2 mr-4 text-neutral-400 pointer-events-none">
-                      Edit
-                    </div>
-                    <div class="flex py-1 px-2 bg-blue-600 bg-opacity-20 rounded">
-                      <div v-on:click="this.addMessage()" class="text-white cursor-pointer mr-1 font-bold">
-                        [Enter]
-                      </div>
-                      <div class="mr-1 text-neutral-300 pointer-events-none">to save,</div>
-                      <div v-on:click="this.resetEditing()" class="text-white cursor-pointer mr-1 font-bold">
-                        [Esc]
-                      </div>
-                      <span class="text-neutral-300 pointer-events-none">to cancel.</span>
+                  <div v-if="msg.reacts.length > 0"
+                       style="display: flex; margin: 10px 0 0 42px">
+                    <div v-for="reaction in msg.reacts" :key="reaction.src"
+                         style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
+                         class="b_darkgray c_lightgray gray-hover"
+                         :title="reaction.src.toString() + ' reacted to this message.'"
+                         v-on:click="reactToMessage(msg, reaction.t)"
+                         :id="'react_' + msg.gUID + '_' + reaction.t">
+                      <i v-if="reaction.t === '+'"
+                         class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
+                      <i v-else-if="reaction.t === '-'"
+                         class="bi bi-hand-thumbs-down" style="margin-right: 2px"></i>
+                      <span v-else> {{ reaction.t }} </span>
+                      {{ reaction.src.length }}
                     </div>
                   </div>
+                  <div :id="'edit_' + msg.gUID" class="hidden w-full justify-center">
+                    <div class="text-sm p-2 bg-neutral-900 rounded mt-2 mb-1 text-center flex items-center">
+                      <div class="ml-2 mr-4 text-neutral-400 pointer-events-none">
+                        Edit
+                      </div>
+                      <div class="flex py-1 px-2 bg-blue-600 bg-opacity-20 rounded">
+                        <div v-on:click="this.addMessage()" class="text-white cursor-pointer mr-1 font-bold">
+                          [Enter]
+                        </div>
+                        <div class="mr-1 text-neutral-300 pointer-events-none">to save,</div>
+                        <div v-on:click="this.resetEditing()" class="text-white cursor-pointer mr-1 font-bold">
+                          [Esc]
+                        </div>
+                        <span class="text-neutral-300 pointer-events-none">to cancel.</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </template>
+            </template>
+            <template v-else-if="overlayType === 'knowledgefinder'">
+              <knowledgefinder :isoverlay="true" :srcguid="this.getSession()"/>
+            </template>
+            <template v-else-if="overlayType === 'wisdom'">
+              <wisdomviewer :isoverlay="true" :srcguid="this.getSession()"/>
             </template>
           </div>
           <!-- #### USER INPUT FIELD #### -->
@@ -758,7 +766,12 @@
                                 position: absolute; top: 4px; left: 6px">
             </template>
             <span style="font-weight: bold; margin-left: 14px">
-            {{ usr.usr }}
+              <template v-if="usr.online">
+                <span class="text-neutral-300">{{ usr.usr }}</span>
+              </template>
+              <template v-else>
+                <span class="text-neutral-500">{{ usr.usr }}</span>
+              </template>
           </span>
           </div>
           <div style="padding-left: 15px; display: flex">
@@ -1248,6 +1261,7 @@
 // Own
 import modal from '../../components/Modal.vue'
 import taskcontainer from '../../components/TaskContainer.vue'
+import knowledgefinder from '../../views/apps/KnowledgeFinderView'
 import WRTC from '@/webrtc/wRTC'
 // External
 import { Base64 } from 'js-base64'
@@ -1267,6 +1281,7 @@ export default {
   components: {
     modal,
     taskcontainer,
+    knowledgefinder,
     Markdown,
     PhoneIcon,
     VideoCameraIcon,
@@ -1338,6 +1353,7 @@ export default {
       isStreamingVideo: false,
       isEditingProfile: false,
       isTransferring: false,
+      overlayType: 'msg',
       //
       lastKeyPressed: '',
       viewedUserProfile: {
@@ -1582,6 +1598,7 @@ export default {
         this.getClarifierMetaData(sessionID, isSubchat)
           .then(() => this.getClarifierMessages(false, sessionID))
           .then(() => this.toggleElement('loading', 'flex'))
+          .then(() => this.getActiveMembers(sessionID))
           .then(resolve)
       })
     },
@@ -1974,6 +1991,7 @@ export default {
             // Main Members
             this.mainMembers[i] = JSON.parse(this.chatroom.members[i])
             this.mainMembers[i].taggable = true
+            this.mainMembers[i].online = this.mainMembers[i].usr === this.$store.state.username
             // Current Members
             this.members[i] = this.mainMembers[i]
             this.members[i].taggable = true
@@ -3057,6 +3075,8 @@ export default {
       this.extraSkipCount = 0
       this.lazyLoadingStatus = 'idle'
       this.last_message = {}
+      this.userActivity = []
+      this.userActivityIdle = []
     },
     uploadSnippet: function () {
       this.toggleElement('confirm_snippet_loading', 'flex')
@@ -3882,6 +3902,40 @@ export default {
           break
         }
       }
+    },
+    getActiveMembers: function (uniChatroomGUID) {
+      if (!uniChatroomGUID) return
+      const headers = new Headers()
+      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      fetch(
+        this.$store.state.serverIP + '/api/m5/activemembers/' + uniChatroomGUID,
+        {
+          method: 'get',
+          headers: headers
+        }
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          this.setActiveMembers(data.members)
+        })
+    },
+    setActiveMembers: function (members) {
+      if (!members) return
+      for (let i = 0; i < members.length; i++) {
+        for (let j = 0; j < this.mainMembers.length; j++) {
+          if (this.mainMembers[j].usr === members[i]) {
+            this.mainMembers[j].online = true
+            break
+          }
+        }
+      }
+    },
+    setOverlay: function (type) {
+      if (this.overlayType === type) {
+        this.overlayType = 'msg'
+      } else {
+        this.overlayType = type
+      }
     }
   }
 }
@@ -4309,7 +4363,8 @@ export default {
 .subchat {
   display: flex;
   align-items: center;
-  padding-left: 20px;
+  margin-left: 10px;
+  padding-left: 5px;
   width: 90%;
   border-radius: 10px;
   cursor: pointer;

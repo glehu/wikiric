@@ -18,6 +18,8 @@
     "chunk": "0.0.3",
     "codemirror": "^5.65.2",
     "core-js": "^3.25.2",
+    "d3": "^7.6.1",
+    "d3-cloud": "^1.2.5",
     "easyqrcodejs": "^4.4.13",
     "firebase": "^8.10.1",
     "highlight.js": "^11.6.0",
