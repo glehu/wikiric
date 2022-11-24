@@ -355,6 +355,10 @@ import { ArrowsUpDownIcon, CheckIcon, Squares2X2Icon } from '@heroicons/vue/24/s
 
 export default {
   name: 'KnowledgeView',
+  props: {
+    isoverlay: Boolean,
+    srcguid: String
+  },
   components: {
     modal,
     Markdown,

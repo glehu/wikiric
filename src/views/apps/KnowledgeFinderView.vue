@@ -12,9 +12,7 @@
           <div class="bg-neutral-900 bg-opacity-40 h-full relative">
             <div class="py-1 shadow rounded-none hidden">
               <div class="flex items-center">
-                <div v-on:click="$router.push(
-                  '/apps/clarifier/wss/' + srcguid
-                )"
+                <div v-on:click="$router.go(-1)"
                      class="h-full ml-4 mr-2 px-2 py-4 rounded-xl text-center text-gray-300 hover:text-orange-500 cursor-pointer">
                   <i class="sb_link_icon bi bi-x-square text-xl"></i>
                 </div>
@@ -905,7 +903,7 @@ export default {
           text
         }) => {
           g.append('text')
-            .attr('font-size', Math.min(Math.max(size, 0), 100)) // caps size at 100
+            .attr('font-size', size)
             .attr('fill', '#AFAFAF')
             .attr('transform', `translate(${x},${y}) rotate(${rotate})`)
             .text(text)

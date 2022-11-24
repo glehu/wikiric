@@ -4,7 +4,7 @@
                 backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
                 backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <div class="bg-neutral-900 bg-opacity-70 fixed top-0 left-0 w-full h-full">
-      <div id="sidebar" class="sidebar"
+      <div id="sidebar" class="sidebar darkergray-on-small"
            style="height: 100vh; z-index: 1000">
         <div class="header-margin" style="box-shadow: none"></div>
         <div style="height: calc(100vh - 60px)"
@@ -83,7 +83,7 @@
           </div>
         </div>
       </div>
-      <div id="sidebar2" style="margin-top: 60px"
+      <div id="sidebar2" style="margin-top: 60px" v-if="this.chatroom.type !== 'direct'"
            class="sidebar2 border-l border-l-[rgba(174,174,183,0.25)] bg-neutral-900 bg-opacity-60">
         <div style="height: calc(100vh - 60px); position: relative; padding-left: 23px">
           <!-- #### SUBCHATS #### -->
@@ -139,7 +139,8 @@
                 <template v-if="this.chatroom.rank > 2">
                   <div style="height: 40px"
                        class="subchat w-full flex items-center orange-hover"
-                       v-on:click="setOverlay('knowledgefinder')"> <!-- this.$router.push('/apps/knowledge?src=' + this.getSession()) -->
+                       v-on:click="setOverlay('knowledgefinder')">
+                    <!-- this.$router.push('/apps/knowledge?src=' + this.getSession()) -->
                     <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
                     <span style="padding-left: 10px">Knowledge</span>
                   </div>
@@ -155,7 +156,8 @@
           </div>
         </div>
       </div>
-      <div class="clarifier_chatroom"
+      <div id="clarifier_chatroom"
+           class="clarifier_chatroom"
            style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip"
            v-on:click="closeModals">
         <div id="chat_section" class="chat_section h-full w-full mt-[60px] overflow-hidden bg-neutral-900">
@@ -546,10 +548,10 @@
               </template>
             </template>
             <template v-else-if="overlayType === 'knowledgefinder'">
-              <knowledgefinder :isoverlay="true" :srcguid="this.getSession()"/>
+              <knowledgefinder :isoverlay="true" :srcguid="getSession()"/>
             </template>
             <template v-else-if="overlayType === 'wisdom'">
-              <wisdomviewer :isoverlay="true" :srcguid="this.getSession()"/>
+              <wisdomviewer :isoverlay="true" :srcguid="viewingWisdomGUID"/>
             </template>
           </div>
           <!-- #### USER INPUT FIELD #### -->
@@ -826,6 +828,10 @@
           </button>
         </template>
         <template v-else>
+          <button class="c_lightgray gray-hover py-1 px-2"
+                  v-on:click="gotoDirectMessages(viewedUserProfile.usr)">
+            <i class="bi bi-send mr-2"></i>Direct Message
+          </button>
           <button class="c_lightgray gray-hover py-1 px-2">
             <i class="bi bi-arrow-bar-left mr-2"></i>Kick
           </button>
@@ -1262,6 +1268,7 @@
 import modal from '../../components/Modal.vue'
 import taskcontainer from '../../components/TaskContainer.vue'
 import knowledgefinder from '../../views/apps/KnowledgeFinderView'
+import wisdomviewer from '../../views/apps/KnowledgeView'
 import WRTC from '@/webrtc/wRTC'
 // External
 import { Base64 } from 'js-base64'
@@ -1282,6 +1289,7 @@ export default {
     modal,
     taskcontainer,
     knowledgefinder,
+    wisdomviewer,
     Markdown,
     PhoneIcon,
     VideoCameraIcon,
@@ -1361,6 +1369,7 @@ export default {
         usr: '',
         roles: []
       },
+      viewingWisdomGUID: '',
       userActivity: [],
       userActivityIdle: [],
       timer: null,
@@ -1565,12 +1574,13 @@ export default {
         }
       }
     },
-    connect: async function (sessionID = this.getSession(), isSubchat = false) {
+    connect: async function (sessionID = this.getSession(), isSubchat = false, novisual = false) {
       console.debug('connect', sessionID, isSubchat)
       this.toggleElement('loading', 'flex')
       this.resetStats()
       // Generate Key Pair
-      await this.generateRSAKeyPair(this.getChatGUID())
+      const gTmp = this.getChatGUID()
+      await this.generateRSAKeyPair(gTmp)
       return new Promise((resolve) => {
         this.isSubchat = isSubchat
         // Connect to the chat
@@ -1595,7 +1605,7 @@ export default {
         }
         // Get metadata and messages
         console.debug('connect->getClarifierMetaData', sessionID, isSubchat)
-        this.getClarifierMetaData(sessionID, isSubchat)
+        this.getClarifierMetaData(sessionID, isSubchat, novisual)
           .then(() => this.getClarifierMessages(false, sessionID))
           .then(() => this.toggleElement('loading', 'flex'))
           .then(() => this.getActiveMembers(sessionID))
@@ -1931,7 +1941,7 @@ export default {
           .then((res) => res.json())
           .then((data) => {
             // Remove active flag
-            if (!novisual) {
+            if (!novisual && this.chatroom.type !== 'direct') {
               if (this.chatroom.guid != null) {
                 document.getElementById(this.chatroom.guid + '_subc')
                   .classList.remove('active')
@@ -1950,13 +1960,13 @@ export default {
                   this.chatroom.subChatrooms[i] = JSON.parse(this.chatroom.subChatrooms[i])
                 }
               }
-              if (!novisual) {
+              if (!novisual && this.chatroom.type !== 'direct') {
                 document.getElementById(this.chatroom.guid + '_subc')
                   .classList.toggle('active')
               }
             } else {
               this.currentSubchat = data
-              if (!novisual) {
+              if (!novisual && this.chatroom.type !== 'direct') {
                 document.getElementById(this.currentSubchat.guid + '_subc')
                   .classList.toggle('active')
               }
@@ -1968,6 +1978,15 @@ export default {
       })
     },
     processMetaDataResponse: async function (isSubchat = false) {
+      const chatElem = document.getElementById('clarifier_chatroom')
+      if (this.chatroom.type === 'direct') {
+        chatElem.classList.add('clarifier_chatroom_big')
+        this.chatroom.t = this.chatroom.directMessageUsername
+          .replaceAll('|' + this.$store.state.username + '|', '||')
+          .replaceAll('|', ' ').replaceAll('  ', ' ').trim()
+      } else {
+        chatElem.classList.remove('clarifier_chatroom_big')
+      }
       if (isSubchat === false) {
         this.currentSubchat.type = 'text'
         this.$store.commit('addClarifierSession', {
@@ -3054,7 +3073,7 @@ export default {
         this.$store.commit('setLastClarifierSubGUID', 'none')
         console.debug('gotoSubchat->connect as GENERAL', subchatGUID, subchatMode)
         await this.$router.replace({
-          path: '/apps/clarifier/wss/' + this.getSession()
+          path: '/apps/clarifier/wss/' + subchatGUID // Previously getSession()
         })
       }
       this.disconnect()
@@ -3071,6 +3090,7 @@ export default {
     },
     resetStats: function () {
       // Reset session specific stats
+      this.isSubchat = false
       this.currentPage = 0
       this.extraSkipCount = 0
       this.lazyLoadingStatus = 'idle'
@@ -3110,7 +3130,7 @@ export default {
     },
     getChatGUID: function () {
       let chatGUID = this.getSessionSub()
-      if (chatGUID === 'none') {
+      if (this.chatroom.type === 'direct' || chatGUID === 'none') {
         chatGUID = this.getSession()
       }
       return chatGUID
@@ -3936,6 +3956,75 @@ export default {
       } else {
         this.overlayType = type
       }
+    },
+    gotoDirectMessages: async function (username) {
+      const users = [this.$store.state.username, username]
+      const content = JSON.stringify({
+        title: this.new_subchat_name.trim(),
+        type: 'direct',
+        directMessageUsernames: users
+      })
+      this.hideAllWindows()
+      const headers = new Headers()
+      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+      // First check if there is already a direct message server
+      let foundDirect = false
+      let newId = ''
+      fetch(
+        this.$store.state.serverIP + '/api/m5/direct/' + username,
+        {
+          method: 'get',
+          headers: headers
+        }
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.chatrooms.length > 0) {
+            foundDirect = true
+            newId = data.chatrooms[0]
+            this.connectToDirectMessages(newId)
+          }
+        })
+        .then(() => {
+          if (foundDirect) return
+          // Create new one
+          fetch(
+            this.$store.state.serverIP + '/api/m5/createchatroom',
+            {
+              method: 'post',
+              headers: headers,
+              body: content
+            }
+          )
+        })
+        .catch((err) => {
+          console.error(err.message)
+          if (foundDirect) return
+          // Create new one
+          fetch(
+            this.$store.state.serverIP + '/api/m5/createchatroom',
+            {
+              method: 'post',
+              headers: headers,
+              body: content
+            }
+          )
+            .then((res) => res.json())
+            .then((data) => {
+              this.connectToDirectMessages(data.guid)
+            })
+        })
+    },
+    connectToDirectMessages: function (chatroomId) {
+      this.$store.commit('setLastClarifierGUID', chatroomId)
+      this.$store.commit('setLastClarifierSubGUID', '')
+      this.$router.push({
+        path: '/apps/clarifier/wss/' + chatroomId
+      })
+      this.mainMembers = []
+      this.members = []
+      this.disconnect()
+      this.connect(chatroomId, false, true)
     }
   }
 }
@@ -4213,6 +4302,10 @@ export default {
   pointer-events: none;
 }
 
+.darkergray-on-small {
+  @apply bg-none;
+}
+
 @media only screen and (max-width: 1099px) {
   .clarifier_chatroom {
     width: calc(100% - 55px);
@@ -4234,6 +4327,10 @@ export default {
 
   .sidebar.active, .sidebar2.active, .member_section.active {
     @apply backdrop-blur-xl bg-neutral-900 bg-opacity-75;
+  }
+
+  .darkergray-on-small {
+    @apply bg-neutral-900 border-r border-r-neutral-700;
   }
 }
 
@@ -4262,6 +4359,12 @@ export default {
   .clarifier_chatroom {
     width: calc(100% - 750px);
     left: 500px;
+  }
+
+  .clarifier_chatroom_big {
+    width: calc(100% - 500px);
+    left: 250px;
+    border-left: 1px solid rgba(174, 174, 183, 0.25);
   }
 
   .sidebar.active .sidebar_bg {
