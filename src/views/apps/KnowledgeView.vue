@@ -110,9 +110,14 @@
           </template>
         </div>
         <div class="flex">
-          <Markdown class="markedView text-neutral-300 font-bold"
-                    :source="'# ' + wisdom.t"
-                    :plugins="plugins"></Markdown>
+          <template v-if="this.wisdom.t">
+            <Markdown class="markedView text-neutral-300 font-bold"
+                      :source="'# ' + wisdom.t"
+                      :plugins="plugins"></Markdown>
+          </template>
+          <template v-else>
+            <div class="text-neutral-500">(No Title)</div>
+          </template>
           <div v-on:click="editWisdom(wisdom)"
                class="p-2 cursor-pointer flex items-center text-neutral-400 w-fit ml-auto mr-1 hover:text-white">
             <PencilSquareIcon class="h-6 w-6"></PencilSquareIcon>
@@ -517,7 +522,7 @@ export default {
           .then((data) => {
             this.wisdom = data
             // Cut away all hashtags and whitespace at the front
-            if (this.wisdom.t.startsWith('#')) {
+            if (this.wisdom.t && this.wisdom.t.startsWith('#')) {
               let cutUntil = 0
               for (let i = 0; i < this.wisdom.t.length; i++) {
                 if (this.wisdom.t.substring(i, i + 1) === '#') {

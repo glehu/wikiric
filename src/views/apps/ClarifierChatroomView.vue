@@ -1936,15 +1936,16 @@ export default {
         )
           .then((res) => res.json())
           .then((data) => {
+            let tmpElem
             // Remove active flag
             if (!novisual && this.chatroom.type !== 'direct') {
               if (this.chatroom.guid != null) {
-                document.getElementById(this.chatroom.guid + '_subc')
-                  .classList.remove('active')
+                tmpElem = document.getElementById(this.chatroom.guid + '_subc')
+                if (tmpElem) tmpElem.classList.remove('active')
               }
               if (this.currentSubchat.guid != null) {
-                document.getElementById(this.currentSubchat.guid + '_subc')
-                  .classList.remove('active')
+                tmpElem = document.getElementById(this.currentSubchat.guid + '_subc')
+                if (tmpElem) tmpElem.classList.remove('active')
               }
             }
             // Set new chatroom or subchat + active flag
@@ -1956,15 +1957,17 @@ export default {
                   this.chatroom.subChatrooms[i] = JSON.parse(this.chatroom.subChatrooms[i])
                 }
               }
-              if (!novisual && this.chatroom.type !== 'direct') {
-                document.getElementById(this.chatroom.guid + '_subc')
-                  .classList.toggle('active')
+              if (!novisual && (this.chatroom.type === undefined || this.chatroom.type !== 'direct')) {
+                tmpElem = document.getElementById(this.chatroom.guid + '_subc')
+                if (tmpElem) {
+                  tmpElem.classList.toggle('active', true)
+                }
               }
             } else {
               this.currentSubchat = data
               if (!novisual && this.chatroom.type !== 'direct') {
-                document.getElementById(this.currentSubchat.guid + '_subc')
-                  .classList.toggle('active')
+                tmpElem = document.getElementById(this.currentSubchat.guid + '_subc')
+                if (tmpElem) tmpElem.classList.toggle('active', true)
               }
             }
           })
@@ -3985,7 +3988,7 @@ export default {
           if (data.chatrooms.length > 0) {
             foundDirect = true
             newId = data.chatrooms[0]
-            this.connectToGroup(newId)
+            this.connectToGroup(newId, true)
           }
         })
         .then(() => {
@@ -4014,11 +4017,11 @@ export default {
           )
             .then((res) => res.json())
             .then((data) => {
-              this.connectToGroup(data.guid)
+              this.connectToGroup(data.guid, true)
             })
         })
     },
-    connectToGroup: function (chatroomId) {
+    connectToGroup: function (chatroomId, novisual = false) {
       this.$store.commit('setLastClarifierGUID', chatroomId)
       this.$store.commit('setLastClarifierSubGUID', 'none')
       this.$router.push({
@@ -4027,7 +4030,7 @@ export default {
       this.mainMembers = []
       this.members = []
       this.disconnect()
-      this.connect(chatroomId, false, true)
+      this.connect(chatroomId, false, novisual)
     }
   }
 }
