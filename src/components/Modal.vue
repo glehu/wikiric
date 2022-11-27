@@ -123,7 +123,7 @@ export default {
   display: flex;
   flex-direction: column;
   height: fit-content;
-  max-height: 95vh;
+  max-height: calc(100vh - 120px);
   width: fit-content;
   max-width: 95vw;
   top: unset;

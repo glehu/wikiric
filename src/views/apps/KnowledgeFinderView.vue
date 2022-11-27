@@ -4,194 +4,202 @@
   </template>
   <template v-if="knowledgeExists">
     <div class="h-full">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full bg-neutral-900 h-full">
-        <div class="border-r border-neutral-700 h-full"
-             :style="{
+      <template v-if="!isViewingWisdom">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full bg-neutral-900 h-full">
+          <div class="border-r border-neutral-700 h-full"
+               :style="{
                 backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
                 backgroundPosition: 'top left', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-          <div class="bg-neutral-900 bg-opacity-40 h-full relative">
-            <div class="py-1 shadow rounded-none hidden">
-              <div class="flex items-center">
-                <div v-on:click="$router.go(-1)"
-                     class="h-full ml-4 mr-2 px-2 py-4 rounded-xl text-center text-gray-300 hover:text-orange-500 cursor-pointer">
-                  <i class="sb_link_icon bi bi-x-square text-xl"></i>
-                </div>
-                <div class="font-bold w-full overflow-x-hidden pr-2">
-                  <div class="py-2 px-2 text-gray-100 pointer-events-none">
-                    <div class="text-5xl border-l border-gray-300 pl-5">
-                      {{ this.knowledge.t }}
-                    </div>
-                    <div class="border-l border-gray-300 pl-5 text-gray-300">
-                      {{ this.knowledge.desc }}
+            <div class="bg-neutral-900 bg-opacity-40 h-full relative">
+              <div class="py-1 shadow rounded-none hidden">
+                <div class="flex items-center">
+                  <div v-on:click="$router.go(-1)"
+                       class="h-full ml-4 mr-2 px-2 py-4 rounded-xl text-center text-gray-300 hover:text-orange-500 cursor-pointer">
+                    <i class="sb_link_icon bi bi-x-square text-xl"></i>
+                  </div>
+                  <div class="font-bold w-full overflow-x-hidden pr-2">
+                    <div class="py-2 px-2 text-gray-100 pointer-events-none">
+                      <div class="text-5xl border-l border-gray-300 pl-5">
+                        {{ this.knowledge.t }}
+                      </div>
+                      <div class="border-l border-gray-300 pl-5 text-gray-300">
+                        {{ this.knowledge.desc }}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="shadow py-2 backdrop-brightness-75">
-              <div class="px-3 py-2 rounded-lg flex items-center relative">
-                <MagnifyingGlassIcon class="w-8 h-8 mx-1 text-neutral-300 absolute translate-x-1"/>
-                <input id="search-field" type="text"
-                       class="search-field py-4 pl-12 pr-4 bg-neutral-900 h-8 text-lg border-2 border-neutral-800"
-                       placeholder="Search..."
-                       v-on:keyup.enter="searchWisdom()"
-                       v-model="queryText">
-              </div>
-              <div style="width: 100%; height: 35px; padding-top: 5px;
+              <div class="shadow py-2 backdrop-brightness-75">
+                <div class="px-3 py-2 rounded-lg flex items-center relative">
+                  <MagnifyingGlassIcon class="w-8 h-8 mx-1 text-neutral-300 absolute translate-x-1"/>
+                  <input id="search-field" type="text"
+                         class="search-field py-4 pl-12 pr-4 bg-neutral-900 h-8 text-lg border-2 border-neutral-800"
+                         placeholder="Search..."
+                         v-on:keyup.enter="searchWisdom()"
+                         v-model="queryText">
+                </div>
+                <div style="width: 100%; height: 35px; padding-top: 5px;
                       display: flex; position: relative; align-items: center">
-                <span class="font-bold text-neutral-300 pointer-events-none ml-5">Categories</span>
-                <button class="text-white btn-no-outline"
-                        style="position: absolute; right: 15px"
-                        title="New Subchat"
-                        v-on:click="isAddingCategory = true">
-                  <i class="bi bi-plus lead orange-hover text-neutral-300" style="font-size: 150%"></i>
-                </button>
-              </div>
-              <div class="px-3 pb-2 flex items-center w-full">
-                <div class="overflow-x-auto overflow-y-hidden py-2 w-full">
-                  <template v-for="category in knowledge.categories" :key="category">
-                    <div
-                      class="kf_category">
-                      <p>{{ category.category.replace(' ', '&nbsp;') }}</p>
-                      <template v-if="category.count > 0">
-                        <p class="ml-auto">{{ category.count }}</p>
-                      </template>
-                    </div>
-                  </template>
+                  <span class="font-bold text-neutral-300 pointer-events-none ml-5">Categories</span>
+                  <button class="text-white btn-no-outline"
+                          style="position: absolute; right: 15px"
+                          title="New Subchat"
+                          v-on:click="isAddingCategory = true">
+                    <i class="bi bi-plus lead orange-hover text-neutral-300" style="font-size: 150%"></i>
+                  </button>
+                </div>
+                <div class="px-3 pb-2 flex items-center w-full">
+                  <div class="overflow-x-auto overflow-y-hidden py-2 w-full">
+                    <template v-for="category in knowledge.categories" :key="category">
+                      <div
+                        class="kf_category">
+                        <p>{{ category.category.replace(' ', '&nbsp;') }}</p>
+                        <template v-if="category.count > 0">
+                          <p class="ml-auto">{{ category.count }}</p>
+                        </template>
+                      </div>
+                    </template>
+                  </div>
                 </div>
               </div>
-            </div>
-            <!-- QUICK VIEW -->
-            <div class="px-4 py-2 sm:absolute sm:bottom-0 sm:w-full">
-              <div class="flex">
-                <button
-                  class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 mr-3 w-1/2 backdrop-brightness-75">
-                  <i class="bi bi-question-lg mr-2"></i>
-                  Ask
-                </button>
-                <button v-on:click="writeLesson()"
-                        class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 w-1/2 backdrop-brightness-75">
-                  <i class="bi bi-lightbulb small mr-2"></i>
-                  Teach
-                </button>
+              <!-- QUICK VIEW -->
+              <div class="px-4 py-2 sm:absolute sm:bottom-0 sm:w-full">
+                <div class="flex">
+                  <button
+                    class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 mr-3 w-1/2 backdrop-brightness-75">
+                    <i class="bi bi-question-lg mr-2"></i>
+                    Ask
+                  </button>
+                  <button v-on:click="writeLesson()"
+                          class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 w-1/2 backdrop-brightness-75">
+                    <i class="bi bi-lightbulb small mr-2"></i>
+                    Teach
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="lg:col-span-2 pt-3 overflow-y-scroll overflow-x-hidden h-full">
-          <template v-if="emptyState">
-            <div class="text-neutral-400 px-2 ml-2">
-              <p class="text-2xl font-bold mb-2 pointer-events-none">Top Contributors</p>
-              <div class="flex w-full overflow-x-auto py-2">
-                <div v-for="author in topWriters.contributors" :key="author.username"
-                     class="mr-4 text-neutral-400 shadow shadow-black rounded-xl">
-                  <div class="bg-neutral-800 rounded-t-xl py-2 px-3 pointer-events-none">
-                    <p class="text-2xl">{{ author.username }}</p>
-                  </div>
-                  <div class="bg-slate-700 rounded-b-xl py-1 px-3 pointer-events-none">
-                    <div class="flex items-center">
-                      <BookOpenIcon class="h-6 w-6 mr-2"></BookOpenIcon>
-                      <p class="text-xl">{{ author.lessons }}</p>
+          <div class="lg:col-span-2 pt-3 overflow-y-scroll overflow-x-hidden h-full">
+            <template v-if="emptyState">
+              <div class="text-neutral-400 px-2 ml-2">
+                <p class="text-2xl font-bold mb-2 pointer-events-none">Top Contributors</p>
+                <div class="flex w-full overflow-x-auto py-2">
+                  <div v-for="author in topWriters.contributors" :key="author.username"
+                       class="mr-4 text-neutral-400 shadow shadow-black rounded-xl">
+                    <div class="bg-neutral-800 rounded-t-xl py-2 px-3 pointer-events-none">
+                      <p class="text-2xl">{{ author.username }}</p>
+                    </div>
+                    <div class="bg-slate-700 rounded-b-xl py-1 px-3 pointer-events-none">
+                      <div class="flex items-center">
+                        <BookOpenIcon class="h-6 w-6 mr-2"></BookOpenIcon>
+                        <p class="text-xl">{{ author.lessons }}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div
-              class="flex w-full justify-content-center items-center text-neutral-400 pointer-events-none p-2 my-3 border-t border-t-neutral-800 border-b border-b-neutral-800">
-              <MagnifyingGlassIcon class="h-8 w-8 mr-4"></MagnifyingGlassIcon>
-              <p>Search to get some results!</p>
-            </div>
-            <div id="d3wordcloud"></div>
-          </template>
-          <template v-if="noResults">
-            <div class="flex w-full justify-content-center items-center text-gray-300 p-3 md:mt-10">
-              <div>
-                <p class="pointer-events-none text-center">No Results for...</p>
-                <p class="text-gray-400 text-center"> {{ querySubmission }} </p>
-                <p class="text-gray-400 pointer-events-none mt-3 text-center border-t border-t-gray-400 pt-3">
-                  Ask a question or teach people!
-                </p>
-                <div class="mt-2">
-                  <div class="flex">
-                    <button
-                      class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-gray-300 hover:text-gray-200 w-1/2">
-                      <i class="bi bi-question-lg mr-2"></i> <span class="text-sm">Ask</span>
-                    </button>
-                    <button v-on:click="writeLesson()"
-                            class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-gray-300 hover:text-gray-200 ml-1 w-1/2">
-                      <i class="bi bi-lightbulb small mr-2"></i> <span class="text-sm">Teach</span>
-                    </button>
-                  </div>
-                </div>
+              <div
+                class="flex w-full justify-content-center items-center text-neutral-400 pointer-events-none p-2 my-3 border-t border-t-neutral-800 border-b border-b-neutral-800">
+                <MagnifyingGlassIcon class="h-8 w-8 mr-4"></MagnifyingGlassIcon>
+                <p>Search to get some results!</p>
               </div>
-            </div>
-          </template>
-          <!-- RESULTS -->
-          <template v-if="results.length > 0">
-            <div class="text-neutral-400 pointer-events-none px-3 pb-2">
-              {{ results.length }} results in {{ results.time }} seconds
-            </div>
-            <template v-for="result in results" :key="result">
-              <div v-on:click="gotoWisdom(result.result.gUID)"
-                   class="result relative text-gray-300 hover:bg-neutral-800 hover:bg-opacity-25 hover:border-l-2 hover:border-l-neutral-500 px-3 py-3 border-b border-neutral-800">
-                <template v-if="result.priority === 'low'">
-                  <div
-                    class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
-                </template>
-                <div class="text-neutral-400 mb-2 flex items-center">
-                  <template v-if="result.priority === 'high'">
-                    <SparklesIcon class="w-6 h-6 mr-2"></SparklesIcon>
-                  </template>
-                  <div class="pointer-events-none">
-                    {{ capitalizeFirstLetter(result.result.type) }}
-                    from
-                    {{ result.result.author }}
-                  </div>
-                  <div v-if="result.result.reacts != null" class="flex ml-4">
-                    <div v-for="reaction in result.result.reacts" :key="reaction.src"
-                         style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                         class="text-neutral-300 gray-hover"
-                         :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
-                         v-on:click="reactToMessage(result.result, JSON.parse(reaction).t)"
-                         :id="'react_' + result.result.gUID + '_' + JSON.parse(reaction).t">
-                      <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
-                                       class="w-6 h-6 mr-1"></HandThumbUpIcon>
-                      <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
-                                         class="w-6 h-6 mr-1"></HandThumbDownIcon>
-                      <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
-                                class="w-6 h-6 mr-1"></StarIcon>
-                      <span v-else> {{ JSON.parse(reaction).t }} </span>
-                      {{ JSON.parse(reaction).src.length }}
+              <div id="d3wordcloud"></div>
+            </template>
+            <template v-if="noResults">
+              <div class="flex w-full justify-content-center items-center text-gray-300 p-3 md:mt-10">
+                <div>
+                  <p class="pointer-events-none text-center">No Results for...</p>
+                  <p class="text-gray-400 text-center"> {{ querySubmission }} </p>
+                  <p class="text-gray-400 pointer-events-none mt-3 text-center border-t border-t-gray-400 pt-3">
+                    Ask a question or teach people!
+                  </p>
+                  <div class="mt-2">
+                    <div class="flex">
+                      <button
+                        class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-gray-300 hover:text-gray-200 w-1/2">
+                        <i class="bi bi-question-lg mr-2"></i> <span class="text-sm">Ask</span>
+                      </button>
+                      <button v-on:click="writeLesson()"
+                              class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-gray-300 hover:text-gray-200 ml-1 w-1/2">
+                        <i class="bi bi-lightbulb small mr-2"></i> <span class="text-sm">Teach</span>
+                      </button>
                     </div>
                   </div>
-                </div>
-                <div class="flex">
-                  <Markdown class="text-lg markedFinder hover:text-orange-500 cursor-pointer"
-                            :source="result.result.t"
-                            :plugins="plugins"></Markdown>
-                </div>
-                <Markdown class="text-gray-400 markedFinder lg:w-3/4"
-                          :source="result.result.desc"
-                          :plugins="plugins"></Markdown>
-                <div class="flex mt-3">
-                  <template v-if="result.result.copyContent != null">
-                    <ClipboardIcon
-                      class="w-10 h-8 text-yellow-500 flex items-center px-2 border-2 border-yellow-500 rounded-lg mr-1">
-                    </ClipboardIcon>
-                  </template>
-                  <template v-for="cat in result.result.categories" :key="cat">
-                    <div v-if="JSON.parse(cat).category != null"
-                         class="h-8 text-gray-400 flex items-center px-2 border-2 border-gray-500 rounded-lg w-fit mr-1 pointer-events-none">
-                      {{ JSON.parse(cat).category }}
-                    </div>
-                  </template>
                 </div>
               </div>
             </template>
-          </template>
+            <!-- RESULTS -->
+            <template v-if="results.length > 0">
+              <div class="text-neutral-400 pointer-events-none px-3 pb-2">
+                {{ results.length }} results in {{ results.time }} seconds
+              </div>
+              <template v-for="result in results" :key="result">
+                <div v-on:click="gotoWisdom(result.result.gUID)"
+                     class="result">
+                  <template v-if="result.priority === 'low'">
+                    <div
+                      class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
+                  </template>
+                  <div class="text-neutral-400 mb-2 flex items-center">
+                    <template v-if="result.priority === 'high'">
+                      <SparklesIcon class="w-6 h-6 mr-2"></SparklesIcon>
+                    </template>
+                    <div class="pointer-events-none">
+                      {{ capitalizeFirstLetter(result.result.type) }}
+                      from
+                      {{ result.result.author }}
+                    </div>
+                    <div v-if="result.result.reacts != null" class="flex ml-4">
+                      <div v-for="reaction in result.result.reacts" :key="reaction.src"
+                           style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
+                           class="text-neutral-300 gray-hover"
+                           :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
+                           v-on:click="reactToMessage(result.result, JSON.parse(reaction).t)"
+                           :id="'react_' + result.result.gUID + '_' + JSON.parse(reaction).t">
+                        <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
+                                         class="w-6 h-6 mr-1"></HandThumbUpIcon>
+                        <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
+                                           class="w-6 h-6 mr-1"></HandThumbDownIcon>
+                        <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
+                                  class="w-6 h-6 mr-1"></StarIcon>
+                        <span v-else> {{ JSON.parse(reaction).t }} </span>
+                        {{ JSON.parse(reaction).src.length }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex">
+                    <Markdown class="markedFinder hover:text-orange-500 cursor-pointer text-2xl font-bold"
+                              :source="result.result.t"
+                              :plugins="plugins"></Markdown>
+                  </div>
+                  <Markdown class="text-gray-400 markedFinder text-base"
+                            :source="result.result.desc"
+                            :plugins="plugins"></Markdown>
+                  <div class="flex mt-3">
+                    <template v-if="result.result.copyContent != null">
+                      <ClipboardIcon
+                        class="w-10 h-8 text-yellow-500 flex items-center px-2 border-2 border-yellow-500 rounded-lg mr-1">
+                      </ClipboardIcon>
+                    </template>
+                    <template v-for="cat in result.result.categories" :key="cat">
+                      <div v-if="JSON.parse(cat).category != null"
+                           class="h-8 text-gray-400 flex items-center px-2 border-2 border-gray-500 rounded-lg w-fit mr-1 pointer-events-none">
+                        {{ JSON.parse(cat).category }}
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </template>
+            </template>
+          </div>
         </div>
-      </div>
+      </template>
+      <template v-else>
+        <template v-if="wisdomGUID != null">
+          <wisdomviewer :isoverlay="true" :srcguid="wisdomGUID" :chatguid="srcguid"
+                        @close="wisdomGUID = undefined; isViewingWisdom = false"/>
+        </template>
+      </template>
     </div>
     <modal @close="isAddingCategory = false"
            v-show="isAddingCategory">
@@ -315,7 +323,7 @@
           <div class="hidden md:block w-[46%] ml-2">
             <p class="text-xl font-bold pointer-events-none">Preview:</p>
             <div class="bg-neutral-900 rounded-xl p-2 cursor-not-allowed">
-              <Markdown :source="wisTitle" class="w-full markedFinder" :plugins="plugins"></Markdown>
+              <Markdown :source="'# ' + wisTitle" class="w-full markedFinder" :plugins="plugins"></Markdown>
               <Markdown :source="wisDescription" class="w-full mt-4 markedFinder" :plugins="plugins"></Markdown>
             </div>
             <template v-if="wisCopyContent != null">
@@ -374,6 +382,7 @@
 
 <script>
 import modal from '../../components/Modal.vue'
+import wisdomviewer from '../../views/apps/KnowledgeView'
 import Markdown from 'vue3-markdown-it'
 import markdownItMermaid from 'markdown-it-mermaid'
 import 'highlight.js/styles/hybrid.css'
@@ -400,6 +409,7 @@ export default {
   },
   components: {
     modal,
+    wisdomviewer,
     Markdown,
     Listbox,
     ListboxButton,
@@ -426,7 +436,7 @@ export default {
       descriptionCreation: '',
       keywordsCreation: '',
       // Wisdom Creation
-      wisTitle: '## ',
+      wisTitle: '',
       wisDescription: '',
       wisKeywords: '',
       wisCopyContent: '',
@@ -444,6 +454,8 @@ export default {
       noResults: false,
       results: [],
       topWriters: [],
+      isViewingWisdom: false,
+      wisdomGUID: '',
       plugins: [
         {
           plugin: markdownItMermaid
@@ -479,9 +491,10 @@ export default {
         if (queryText != null) {
           this.queryText = queryText
           await this.searchWisdom()
+        } else {
+          await this.getRecentKeywords()
         }
         await this.getTopContributors(this.srcguid)
-        await this.getRecentKeywords()
         await this.getRecentCategories()
       }
     },
@@ -649,7 +662,7 @@ export default {
               mermaid.init()
             }, 0)
           })
-          .then(() => resolve)
+          .then(() => resolve())
           .catch((err) => {
             console.error(err.message)
             this.noResults = true
@@ -690,7 +703,7 @@ export default {
           }
         )
           .then(() => {
-            this.wisTitle = '## '
+            this.wisTitle = ''
             this.wisDescription = ''
             this.wisKeywords = ''
             this.wisCopyContent = ''
@@ -722,7 +735,7 @@ export default {
         )
           .then(res => res)
           .then(() => {
-            this.wisTitle = '## '
+            this.wisTitle = ''
             this.wisDescription = ''
             this.wisKeywords = ''
             this.wisCopyContent = ''
@@ -761,7 +774,7 @@ export default {
       this.isWritingLesson = true
       this.isEditingWisdom = false
       // Defaults
-      this.wisTitle = '## ' + this.capitalizeFirstLetter(this.queryText).trim()
+      this.wisTitle = this.capitalizeFirstLetter(this.queryText).trim()
     },
     capitalizeFirstLetter: function ([first, ...rest], locale = navigator.language) {
       return first === undefined ? '' : first.toLocaleUpperCase(locale) + rest.join('')
@@ -851,7 +864,12 @@ export default {
     },
     gotoWisdom: function (id) {
       if (id == null) return
-      this.$router.push('/apps/knowledge/' + id + '?src=' + this.srcguid)
+      if (!this.isoverlay) {
+        this.$router.push('/apps/knowledge/' + id + '?src=' + this.srcguid)
+      } else {
+        this.isViewingWisdom = true
+        this.wisdomGUID = id
+      }
     },
     wordCloud: function (text, {
       size = group => group.length, // Given a grouping of words, returns the size factor for that word
@@ -1008,10 +1026,6 @@ export default {
   @apply mb-4;
 }
 
-.markedFinder p:last-child {
-  @apply m-0;
-}
-
 .markedFinder a {
   @apply underline;
 }
@@ -1041,27 +1055,39 @@ export default {
 }
 
 .markedFinder h1 {
-  @apply text-4xl mb-2;
+  @apply text-3xl mb-2 mt-3 font-bold;
 }
 
 .markedFinder h2 {
-  @apply text-3xl mb-2;
+  @apply text-base mb-2 mt-3 font-bold;
 }
 
 .markedFinder h3 {
-  @apply text-2xl mb-2;
+  @apply text-base mb-2 mt-3 font-bold;
 }
 
 .markedFinder h4 {
-  @apply text-xl mb-2;
+  @apply text-base mb-2 mt-3 font-bold;
 }
 
 .markedFinder h5 {
-  @apply text-lg mb-2;
+  @apply text-base mb-2 mt-3 font-bold;
 }
 
 .markedFinder h6 {
-  @apply text-lg;
+  @apply text-base font-bold;
+}
+
+.markedFinder p code {
+  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-neutral-700 text-neutral-400;
+}
+
+.markedFinder hr {
+  @apply my-4 h-[4px] w-3/4 mx-auto;
+}
+
+.markedFinder:last-child {
+  @apply mb-0;
 }
 
 .gray-hover:hover {
@@ -1072,6 +1098,15 @@ export default {
 
 .kf_category {
   @apply font-bold text-xs text-neutral-400 bg-black bg-opacity-40 cursor-pointer mb-1 flex items-center text-center px-3 rounded-full hover:border-gray-100 hover:text-gray-100 h-8;
+}
+
+.result {
+  @apply my-1 relative text-gray-300 px-3 py-3 border-y border-y-neutral-800;
+}
+
+.result:hover {
+  @apply bg-neutral-800 bg-opacity-25;
+  box-shadow: 0 0 0 1px #696969;
 }
 
 </style>

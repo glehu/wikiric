@@ -56,7 +56,7 @@
                  class="channel_link"
                  style="position: relative; font-weight: bold; font-size: 125%">
               <a class="fw-bold text-white orange-hover" style="text-decoration: none"
-                 :href="'/apps/clarifier/wss/' + group.id">
+                 v-on:click="connectToGroup(group.id)">
                 <div class="c_lightgray orange-hover"
                      style="height: 50px; display: flex; align-items: center;">
                   <div style="width: 50px; height: 100%; position: relative;
@@ -83,7 +83,7 @@
           </div>
         </div>
       </div>
-      <div id="sidebar2" style="margin-top: 60px" v-if="this.chatroom.type !== 'direct'"
+      <div id="sidebar2" style="margin-top: 60px" v-show="canShowSidebar"
            class="sidebar2 border-l border-l-[rgba(174,174,183,0.25)] bg-neutral-900 bg-opacity-60">
         <div style="height: calc(100vh - 60px); position: relative; padding-left: 23px">
           <!-- #### SUBCHATS #### -->
@@ -550,9 +550,6 @@
             <template v-else-if="overlayType === 'knowledgefinder'">
               <knowledgefinder :isoverlay="true" :srcguid="getSession()"/>
             </template>
-            <template v-else-if="overlayType === 'wisdom'">
-              <wisdomviewer :isoverlay="true" :srcguid="viewingWisdomGUID"/>
-            </template>
           </div>
           <!-- #### USER INPUT FIELD #### -->
           <div style="display: inline-flex;
@@ -562,7 +559,8 @@
                       bottom: 0;
                       padding-bottom: 20px;
                       flex-direction: column-reverse"
-               class="bg-neutral-900">
+               class="bg-neutral-900"
+               v-if="overlayType === 'msg'">
             <button class="c_lightgray text-center scroll_to_bottom orange-hover"
                     id="scroll_to_bottom"
                     v-on:click="scrollToBottom">
@@ -1268,7 +1266,6 @@
 import modal from '../../components/Modal.vue'
 import taskcontainer from '../../components/TaskContainer.vue'
 import knowledgefinder from '../../views/apps/KnowledgeFinderView'
-import wisdomviewer from '../../views/apps/KnowledgeView'
 import WRTC from '@/webrtc/wRTC'
 // External
 import { Base64 } from 'js-base64'
@@ -1289,7 +1286,6 @@ export default {
     modal,
     taskcontainer,
     knowledgefinder,
-    wisdomviewer,
     Markdown,
     PhoneIcon,
     VideoCameraIcon,
@@ -1361,6 +1357,7 @@ export default {
       isStreamingVideo: false,
       isEditingProfile: false,
       isTransferring: false,
+      canShowSidebar: true,
       overlayType: 'msg',
       //
       lastKeyPressed: '',
@@ -1369,7 +1366,6 @@ export default {
         usr: '',
         roles: []
       },
-      viewingWisdomGUID: '',
       userActivity: [],
       userActivityIdle: [],
       timer: null,
@@ -1986,6 +1982,10 @@ export default {
           .replaceAll('|', ' ').replaceAll('  ', ' ').trim()
       } else {
         chatElem.classList.remove('clarifier_chatroom_big')
+      }
+      this.canShowSidebar = true
+      if (this.chatroom.type === 'direct') {
+        this.canShowSidebar = false
       }
       if (isSubchat === false) {
         this.currentSubchat.type = 'text'
@@ -3097,6 +3097,7 @@ export default {
       this.last_message = {}
       this.userActivity = []
       this.userActivityIdle = []
+      this.overlayType = 'msg'
     },
     uploadSnippet: function () {
       this.toggleElement('confirm_snippet_loading', 'flex')
@@ -3951,6 +3952,8 @@ export default {
       }
     },
     setOverlay: function (type) {
+      this.hideAllWindows()
+      this.hideAllSidebars()
       if (this.overlayType === type) {
         this.overlayType = 'msg'
       } else {
@@ -3982,7 +3985,7 @@ export default {
           if (data.chatrooms.length > 0) {
             foundDirect = true
             newId = data.chatrooms[0]
-            this.connectToDirectMessages(newId)
+            this.connectToGroup(newId)
           }
         })
         .then(() => {
@@ -4011,11 +4014,11 @@ export default {
           )
             .then((res) => res.json())
             .then((data) => {
-              this.connectToDirectMessages(data.guid)
+              this.connectToGroup(data.guid)
             })
         })
     },
-    connectToDirectMessages: function (chatroomId) {
+    connectToGroup: function (chatroomId) {
       this.$store.commit('setLastClarifierGUID', chatroomId)
       this.$store.commit('setLastClarifierSubGUID', '')
       this.$router.push({

@@ -1,50 +1,53 @@
 <template>
-  <div class="flex mx-2 pt-[60px] h-screen overflow-hidden">
+  <template v-if="!isoverlay">
+    <div class="pt-[60px]"></div>
+  </template>
+  <div class="flex h-screen overflow-hidden">
     <div id="sidebar"
-         class="h-full min-w-[60px] max-w-[60px] border-r border-neutral-700 flex flex-col items-center overflow-y-auto">
-      <div class="text-neutral-400 mr-2 pt-2">
-        <div class="sidebar_button rounded-full">
-          <div v-on:click="$router.back()"
-               class="cursor-pointer hover:text-neutral-200 p-2">
-            <XMarkIcon class="h-8 w-8"></XMarkIcon>
+         class="h-full min-w-[40px] max-w-[40px] flex flex-col items-center overflow-y-auto">
+      <div class="text-neutral-400 h-full">
+        <div class="sidebar_button rounded-xl">
+          <div v-on:click="clickedBack()"
+               class="cursor-pointer text-red-600 hover:text-red-500 p-2 my-2">
+            <XMarkIcon class="h-6 w-6"></XMarkIcon>
           </div>
           <div class="sidebar_tooltip">Exit</div>
         </div>
-        <div class="my-2 py-2 border-y border-neutral-700">
-          <div class="sidebar_button rounded-full">
+        <div class="my-2 border-y border-neutral-700">
+          <div class="sidebar_button rounded-xl">
             <div v-on:click="reactToMessage(wisdom, '+')"
-                 class="cursor-pointer hover:text-neutral-200 p-2">
-              <HandThumbUpIcon class="h-8 w-8"></HandThumbUpIcon>
+                 class="cursor-pointer hover:text-neutral-200 p-2 my-2">
+              <HandThumbUpIcon class="h-6 w-6"></HandThumbUpIcon>
             </div>
             <div class="sidebar_tooltip">Upvote</div>
           </div>
-          <div class="sidebar_button rounded-full">
+          <div class="sidebar_button rounded-xl">
             <div v-on:click="reactToMessage(wisdom, '-')"
-                 class="cursor-pointer hover:text-neutral-200 p-2">
-              <HandThumbDownIcon class="h-8 w-8"></HandThumbDownIcon>
+                 class="cursor-pointer hover:text-neutral-200 p-2 my-2">
+              <HandThumbDownIcon class="h-6 w-6"></HandThumbDownIcon>
             </div>
             <div class="sidebar_tooltip">Downvote</div>
           </div>
-          <div class="sidebar_button rounded-full">
+          <div class="sidebar_button rounded-xl">
             <div v-on:click="reactToMessage(wisdom, '⭐')"
-                 class="cursor-pointer hover:text-neutral-200 p-2">
-              <StarIcon class="h-8 w-8"></StarIcon>
+                 class="cursor-pointer hover:text-neutral-200 p-2 my-2">
+              <StarIcon class="h-6 w-6"></StarIcon>
             </div>
             <div class="sidebar_tooltip">Wow!</div>
           </div>
         </div>
         <div v-if="wisdom.copyContent != null"
-             class="sidebar_button rounded-full">
+             class="sidebar_button rounded-xl">
           <div v-on:click="copy(wisdom.copyContent)"
-               class="cursor-pointer hover:text-neutral-200 p-2">
-            <ClipboardIcon class="h-8 w-8"></ClipboardIcon>
+               class="cursor-pointer hover:text-neutral-200 p-2 my-2">
+            <ClipboardIcon class="h-6 w-6"></ClipboardIcon>
           </div>
           <div class="sidebar_tooltip">QuickCopy</div>
         </div>
       </div>
     </div>
-    <div id="main" class="h-full w-full lg:px-[10vw] flex justify-center overflow-y-auto pb-10">
-      <div class="h-fit w-full pt-4 px-4">
+    <div id="main" class="h-full w-full flex justify-center overflow-y-auto pb-56">
+      <div class="h-fit w-full pt-3 pl-3">
         <div class="flex mb-2 items-center">
           <TagIcon class="text-neutral-400 h-5 w-5 mr-2"></TagIcon>
           <template v-if="wisdom.categories">
@@ -108,12 +111,11 @@
         </div>
         <div class="flex">
           <Markdown class="markedView text-neutral-300 font-bold"
-                    :source="wisdom.t"
+                    :source="'# ' + wisdom.t"
                     :plugins="plugins"></Markdown>
           <div v-on:click="editWisdom(wisdom)"
-               class="cursor-pointer flex items-center text-neutral-400 w-fit ml-auto hover:text-white">
-            <PencilSquareIcon class="h-6 w-6 mr-1"></PencilSquareIcon>
-            Edit
+               class="p-2 cursor-pointer flex items-center text-neutral-400 w-fit ml-auto mr-1 hover:text-white">
+            <PencilSquareIcon class="h-6 w-6"></PencilSquareIcon>
           </div>
         </div>
         <hr class="text-neutral-700 opacity-100 mb-3">
@@ -125,10 +127,10 @@
         <div id="wisdomComments" class="w-full mt-10 pt-10">
           <div class="w-full relative">
             <div
-              class="p-2 rounded-full hover:bg-neutral-700 text-neutral-500 hover:text-neutral-200 absolute right-0 sidebar_button cursor-pointer -translate-y-1">
+              class="p-2 rounded-full hover:bg-neutral-700 text-neutral-500 hover:text-neutral-200 absolute right-0 sidebar_button cursor-pointer -translate-y-1 flex mx-1">
               <Squares2X2Icon
                 class="h-6 w-6"></Squares2X2Icon>
-              <div class="-translate-x-5 translate-y-2.5">
+              <div class="ml-auto translate-y-2.5">
                 <div class="sidebar_tooltip text-neutral-400">Preview</div>
               </div>
             </div>
@@ -175,8 +177,8 @@
       </div>
     </div>
     <div id="rightbar"
-         class="h-full w-[400px] border-l border-neutral-700 overflow-y-auto hidden lg:block">
-      <div class="ml-2 mt-2 rounded-xl text-neutral-300 py-2 px-3">
+         class="h-full w-[350px] border-l border-neutral-700 overflow-y-auto hidden lg:block">
+      <div class="rounded-xl text-neutral-300 pt-3 px-3">
         <table class="border-none mb-2 pointer-events-none">
           <tr>
             <th class="text-neutral-400 text-xs pr-2">Author</th>
@@ -315,7 +317,7 @@
         <div class="hidden md:block w-[46%] ml-2">
           <p class="text-xl font-bold pointer-events-none">Preview:</p>
           <div class="bg-neutral-900 rounded-xl p-2 cursor-not-allowed">
-            <Markdown :source="wisTitle" class="w-full markedView" :plugins="plugins"></Markdown>
+            <Markdown :source="'# ' + wisTitle" class="w-full markedView" :plugins="plugins"></Markdown>
             <Markdown :source="wisDescription" class="w-full mt-4 markedView" :plugins="plugins"></Markdown>
           </div>
           <template v-if="wisCopyContent != null">
@@ -357,7 +359,8 @@ export default {
   name: 'KnowledgeView',
   props: {
     isoverlay: Boolean,
-    srcguid: String
+    srcguid: String,
+    chatguid: String
   },
   components: {
     modal,
@@ -382,7 +385,7 @@ export default {
   data () {
     return {
       // Wisdom Creation
-      wisTitle: '## ',
+      wisTitle: '',
       wisDescription: '',
       wisKeywords: '',
       wisCopyContent: '',
@@ -410,12 +413,11 @@ export default {
       ]
     }
   },
-  created () {
-    this.fetchData()
-  },
   mounted () {
+    this.fetchData()
     this.initFunction()
   },
+  emits: ['close'],
   computed: {
     commentsText: function () {
       if (this.related.comments != null) {
@@ -435,10 +437,15 @@ export default {
       await this.getWisdom()
       await this.getRelated()
       // Whose knowledge are we trying to see?
-      const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop)
-      })
-      const srcGUID = params.src
+      let srcGUID
+      if (!this.isoverlay) {
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+          get: (searchParams, prop) => searchParams.get(prop)
+        })
+        srcGUID = params.src
+      } else {
+        srcGUID = this.chatguid
+      }
       if (srcGUID != null) {
         const knowledge = await this.getKnowledge(srcGUID)
         if (knowledge != null) {
@@ -492,9 +499,15 @@ export default {
     getWisdom: async function () {
       return new Promise((resolve) => {
         const headers = new Headers()
+        let guid
+        if (!this.isoverlay) {
+          guid = this.$route.params.id
+        } else {
+          guid = this.srcguid
+        }
         headers.set('Authorization', 'Bearer ' + this.$store.state.token)
         fetch(
-          this.$store.state.serverIP + '/api/m7/learn/' + this.$route.params.id,
+          this.$store.state.serverIP + '/api/m7/learn/' + guid,
           {
             method: 'get',
             headers: headers
@@ -503,6 +516,16 @@ export default {
           .then((res) => res.json())
           .then((data) => {
             this.wisdom = data
+            // Cut away all hashtags and whitespace at the front
+            if (this.wisdom.t.startsWith('#')) {
+              let cutUntil = 0
+              for (let i = 0; i < this.wisdom.t.length; i++) {
+                if (this.wisdom.t.substring(i, i + 1) === '#') {
+                  cutUntil++
+                }
+              }
+              this.wisdom.t = this.wisdom.t.substring(cutUntil).trim()
+            }
             this.wisGUID = data.gUID
             resolve()
           })
@@ -513,10 +536,16 @@ export default {
     },
     getRelated: async function () {
       return new Promise((resolve) => {
+        let guid
+        if (!this.isoverlay) {
+          guid = this.$route.params.id
+        } else {
+          guid = this.srcguid
+        }
         const headers = new Headers()
         headers.set('Authorization', 'Bearer ' + this.$store.state.token)
         fetch(
-          this.$store.state.serverIP + '/api/m7/investigate/' + this.$route.params.id,
+          this.$store.state.serverIP + '/api/m7/investigate/' + guid,
           {
             method: 'get',
             headers: headers
@@ -787,7 +816,7 @@ export default {
       })
     },
     resetValues: function () {
-      this.wisTitle = '## '
+      this.wisTitle = ''
       this.wisDescription = ''
       this.wisKeywords = ''
       this.wisCopyContent = ''
@@ -804,6 +833,13 @@ export default {
     },
     gotoComments: function () {
       document.getElementById('wisdomComments').scrollIntoView({ behavior: 'smooth' })
+    },
+    clickedBack: function () {
+      if (!this.isoverlay) {
+        this.$router.back()
+      } else {
+        this.$emit('close')
+      }
     }
   }
 }
@@ -813,10 +849,6 @@ export default {
 
 .markedView p {
   @apply mb-4;
-}
-
-.markedView p:last-child {
-  @apply m-0;
 }
 
 .markedView a {
@@ -848,31 +880,43 @@ export default {
 }
 
 .markedView h1 {
-  @apply text-5xl mb-2;
+  @apply text-3xl mb-2 mt-4 font-bold;
 }
 
 .markedView h2 {
-  @apply text-4xl mb-2;
+  @apply text-2xl mb-2 mt-4 font-bold;
 }
 
 .markedView h3 {
-  @apply text-3xl mb-2;
+  @apply text-xl mb-2 mt-4 font-bold;
 }
 
 .markedView h4 {
-  @apply text-2xl mb-2;
+  @apply text-xl mb-2 mt-4 font-bold;
 }
 
 .markedView h5 {
-  @apply text-xl mb-2;
+  @apply text-lg mb-2 mt-4 font-bold;
 }
 
 .markedView h6 {
-  @apply text-lg;
+  @apply text-lg font-bold;
+}
+
+.markedView p code {
+  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-neutral-700 text-neutral-400;
+}
+
+.markedView hr {
+  @apply my-4 h-[4px] w-3/4 mx-auto;
+}
+
+.markedView:last-child {
+  @apply mb-0;
 }
 
 .sidebar_tooltip {
-  @apply absolute translate-x-16 -translate-y-9 opacity-0 font-bold pointer-events-none hidden lg:block;
+  @apply absolute translate-x-12 -translate-y-12 opacity-0 font-bold pointer-events-none;
 }
 
 .sidebar_button:hover {
@@ -880,7 +924,7 @@ export default {
 }
 
 .sidebar_button:hover .sidebar_tooltip {
-  @apply opacity-100;
+  @apply opacity-100 py-2 px-3 rounded bg-neutral-800;
 }
 
 </style>
