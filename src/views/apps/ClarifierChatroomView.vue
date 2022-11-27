@@ -4020,7 +4020,7 @@ export default {
     },
     connectToGroup: function (chatroomId) {
       this.$store.commit('setLastClarifierGUID', chatroomId)
-      this.$store.commit('setLastClarifierSubGUID', '')
+      this.$store.commit('setLastClarifierSubGUID', 'none')
       this.$router.push({
         path: '/apps/clarifier/wss/' + chatroomId
       })

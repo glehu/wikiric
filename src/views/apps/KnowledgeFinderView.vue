@@ -44,7 +44,7 @@
                   <button class="text-white btn-no-outline"
                           style="position: absolute; right: 15px"
                           title="New Subchat"
-                          v-on:click="isAddingCategory = true">
+                          v-on:click="startAddingCategory()">
                     <i class="bi bi-plus lead orange-hover text-neutral-300" style="font-size: 150%"></i>
                   </button>
                 </div>
@@ -103,7 +103,10 @@
                 <MagnifyingGlassIcon class="h-8 w-8 mr-4"></MagnifyingGlassIcon>
                 <p>Search to get some results!</p>
               </div>
-              <div id="d3wordcloud"></div>
+              <div
+                class="flex w-full justify-content-center items-center p-2">
+                <div id="d3wordcloud"></div>
+              </div>
             </template>
             <template v-if="noResults">
               <div class="flex w-full justify-content-center items-center text-gray-300 p-3 md:mt-10">
@@ -211,7 +214,7 @@
           <label for="new_category" class="text-2xl mb-2">Category:</label>
           <br>
           <input type="text" id="new_category" v-model="newCategory"
-                 class="search-field bg-neutral-900 text-2xl"
+                 class="search-field py-1 px-2 bg-neutral-900 text-lg border-2 border-neutral-800"
                  v-on:keyup.enter="addCategory()">
           <br>
           <button v-on:click="addCategory()"
@@ -1003,6 +1006,13 @@ export default {
             console.error(err.message)
           })
       })
+    },
+    startAddingCategory: function () {
+      this.isAddingCategory = true
+      setTimeout(() => {
+        const input = document.getElementById('new_category')
+        input.focus()
+      }, 0)
     }
   }
 }
