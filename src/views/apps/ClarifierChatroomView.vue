@@ -84,8 +84,8 @@
         </div>
       </div>
       <div id="sidebar2" style="margin-top: 60px" v-show="canShowSidebar"
-           class="sidebar2 border-l border-l-[rgba(174,174,183,0.25)] bg-neutral-900 bg-opacity-60">
-        <div style="height: calc(100vh - 60px); position: relative; padding-left: 23px">
+           class="sidebar2">
+        <div style="height: calc(100vh - 60px); position: relative; padding-left: 10px">
           <!-- #### SUBCHATS #### -->
           <div style="height: calc(100% - 120px); overflow-y: auto; overflow-x: clip"
                class="c_lightgray">
@@ -124,7 +124,7 @@
             </div>
             <!-- #### Clarifier Rank Benefits ####-->
             <template v-if="this.chatroom.rank > 1">
-              <div style="width: calc(100% - 20px);
+              <div style="width: 100%;
                         position: absolute; bottom: 20px;
                         border: 1px solid rgba(174, 174, 183, 0.25);
                         border-radius: 20px 0 0 20px">
@@ -160,163 +160,163 @@
            class="clarifier_chatroom"
            style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip"
            v-on:click="closeModals">
-        <div id="chat_section" class="chat_section h-full w-full mt-[60px] overflow-hidden bg-neutral-900">
-          <!-- #### CHAT HEADER #### -->
-          <div class="chat_header bg-neutral-900">
-            <div
-              style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%; align-items: center">
-              <div style="margin-left: 10px"
-                   class="orange-hover"
-                   v-on:click="gotoSubchat(this.getSession(), false)">
-                {{ chatroom.t }}
-              </div>
-              <div v-if="isSubchat === true" class="nopointer">
-                <span style="margin-left: 10px"><i class="bi bi-caret-right"></i></span>
-                <span v-if="currentSubchat.type === 'screenshare'"
-                      style="margin-left: 10px">
+        <template v-if="overlayType === 'msg'">
+          <div id="chat_section" class="chat_section h-full w-full mt-[60px] overflow-hidden bg-neutral-900">
+            <!-- #### CHAT HEADER #### -->
+            <div class="chat_header bg-neutral-900">
+              <div
+                style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%; align-items: center">
+                <div style="margin-left: 10px"
+                     class="orange-hover"
+                     v-on:click="gotoSubchat(this.getSession(), false)">
+                  {{ chatroom.t }}
+                </div>
+                <div v-if="isSubchat === true" class="nopointer">
+                  <span style="margin-left: 10px"><i class="bi bi-caret-right"></i></span>
+                  <span v-if="currentSubchat.type === 'screenshare'"
+                        style="margin-left: 10px">
                 <i class="bi bi-window-fullscreen"></i>
               </span>
-                <span v-else-if="currentSubchat.type === 'webcam'"
-                      style="margin-left: 10px">
+                  <span v-else-if="currentSubchat.type === 'webcam'"
+                        style="margin-left: 10px">
                 <i class="bi bi-camera-video"></i>
               </span>
-                <span v-else style="margin-left: 10px">
+                  <span v-else style="margin-left: 10px">
                 <i class="bi bi-hash"></i>
               </span>
-                <span style="margin-left: 10px">{{ currentSubchat.t }}</span>
-              </div>
-              <div v-if="isStreamingVideo"
-                   id="stream_nav"
-                   class="text-xl flex items-center ml-6">
-                <h2 class="fw-bold text-neutral-300">
-                  {{ streamDuration }}
-                </h2>
-                <button v-on:click="stopScreenshare"
-                        class="btn btn-sm gray-hover c_lightgray ml-6"
-                        style="border: 1px solid rgba(255,0,0,0.5);
+                  <span style="margin-left: 10px">{{ currentSubchat.t }}</span>
+                </div>
+                <div v-if="isStreamingVideo"
+                     id="stream_nav"
+                     class="text-xl flex items-center ml-6">
+                  <h2 class="fw-bold text-neutral-300">
+                    {{ streamDuration }}
+                  </h2>
+                  <button v-on:click="stopScreenshare"
+                          class="btn btn-sm gray-hover c_lightgray ml-6"
+                          style="border: 1px solid rgba(255,0,0,0.5);
                              border-radius: 10px;">
-                  <span style="font-weight: bold">Hang Up</span>
-                </button>
+                    <span style="font-weight: bold">Hang Up</span>
+                  </button>
+                </div>
               </div>
+              <button class="btn-no-outline c_lightgray"
+                      style="position: absolute; right: 90px"
+                      title="Show Settings"
+                      v-on:click="toggleSessionSettings">
+                <i class="sb_link_icon bi bi-wrench orange-hover" style="height: 25px; width: 25px"></i>
+              </button>
+              <button class="btn-no-outline c_lightgray member_section_toggler"
+                      style="position: absolute; right: 50px"
+                      title="Show Subchats"
+                      v-on:click="toggleSidebar2">
+                <i class="sb_link_icon bi bi-chat-square-dots orange-hover"
+                   style="height: 25px; width: 25px"></i>
+              </button>
+              <button class="btn-no-outline c_lightgray member_section_toggler"
+                      style="position: absolute; right: 10px"
+                      title="Show Members"
+                      v-on:click="toggleMemberSidebar">
+                <i class="bi bi-people orange-hover" style="height: 25px; width: 25px"></i>
+              </button>
             </div>
-            <button class="btn-no-outline c_lightgray"
-                    style="position: absolute; right: 90px"
-                    title="Show Settings"
-                    v-on:click="toggleSessionSettings">
-              <i class="sb_link_icon bi bi-wrench orange-hover" style="height: 25px; width: 25px"></i>
-            </button>
-            <button class="btn-no-outline c_lightgray member_section_toggler"
-                    style="position: absolute; right: 50px"
-                    title="Show Subchats"
-                    v-on:click="toggleSidebar2">
-              <i class="sb_link_icon bi bi-chat-square-dots orange-hover"
-                 style="height: 25px; width: 25px"></i>
-            </button>
-            <button class="btn-no-outline c_lightgray member_section_toggler"
-                    style="position: absolute; right: 10px"
-                    title="Show Members"
-                    v-on:click="toggleMemberSidebar">
-              <i class="bi bi-people orange-hover" style="height: 25px; width: 25px"></i>
-            </button>
-          </div>
-          <div v-if="this.isSubchat === true &&
+            <div v-if="this.isSubchat === true &&
                      (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam')"
-               style="width: calc(100% - 350px);
+                 style="width: calc(100% - 350px);
                       height: calc(100vh - 60px - 50px - 80px);
                       position: absolute; left: 350px;
                       border-bottom: 1px solid rgba(174, 174, 183, 0.25);
                       padding: 0;
                       display: flex"
-               class="c_lightgray">
-            <div style="position: relative; top: 0; left: 0;
+                 class="c_lightgray">
+              <div style="position: relative; top: 0; left: 0;
                         width: 100%;
                         aspect-ratio: 16 / 9"
-                 class="b_darkergray flex">
-              <div v-if="!isStreamingVideo"
-                   class="d-flex"
-                   style="pointer-events: none;
+                   class="b_darkergray flex">
+                <div v-if="!isStreamingVideo"
+                     class="d-flex"
+                     style="pointer-events: none;
                           position: absolute;
                           width: 100%; height: 100%;
                           align-items: center; justify-content: center;
                           background-color: rgba(19,19,19,0.75)">
-                <i class="bi bi-camera-video-off lead"></i>
-                <p style="margin: 0 0 0 10px;
+                  <i class="bi bi-camera-video-off lead"></i>
+                  <p style="margin: 0 0 0 10px;
                         padding-left: 10px;
                         border-left: 1px solid rgba(174, 174, 183, 0.25)">
-                  OFFLINE
-                  <br>
-                  <span style="font-size: 75%">
+                    OFFLINE
+                    <br>
+                    <span style="font-size: 75%">
                   Start sharing or wait for
                   <br>somebody to start the stream.
                 </span>
-                </p>
+                  </p>
+                </div>
+                <template v-if="currentSubchat.type === 'screenshare'">
+                  <video id="screenshare_video" muted autoplay playsinline
+                         style="width: 100%; height: 100%"></video>
+                </template>
+                <template v-else-if="currentSubchat.type === 'webcam'">
+                  <video id="screenshare_video" muted autoplay playsinline
+                         style="width: 50%; height: 100%"></video>
+                  <video id="screenshare_video_remote" muted autoplay playsinline
+                         style="width: 50%; height: 100%"></video>
+                </template>
               </div>
-              <template v-if="currentSubchat.type === 'screenshare'">
-                <video id="screenshare_video" muted autoplay playsinline
-                       style="width: 100%; height: 100%"></video>
-              </template>
-              <template v-else-if="currentSubchat.type === 'webcam'">
-                <video id="screenshare_video" muted autoplay playsinline
-                       style="width: 50%; height: 100%"></video>
-                <video id="screenshare_video_remote" muted autoplay playsinline
-                       style="width: 50%; height: 100%"></video>
-              </template>
-            </div>
-            <div v-if="!isStreamingVideo && (this.currentSubchat.type === 'webcam')"
-                 style="position: absolute; bottom: 10px; left: 0"
-                 class="text-end flex items-center justify-center w-full text-neutral-400">
-              <div class="p-2 text-neutral-400 gray-hover"
-                   v-on:click="startScreenshare(undefined, {video: false, audio: true})">
-                <PhoneIcon class="h-8 w-8"></PhoneIcon>
+              <div v-if="!isStreamingVideo && (this.currentSubchat.type === 'webcam')"
+                   style="position: absolute; bottom: 10px; left: 0"
+                   class="text-end flex items-center justify-center w-full text-neutral-400">
+                <div class="p-2 text-neutral-400 gray-hover"
+                     v-on:click="startScreenshare(undefined, {video: false, audio: true})">
+                  <PhoneIcon class="h-8 w-8"></PhoneIcon>
+                </div>
+                <div class="p-2 text-neutral-400 gray-hover"
+                     v-on:click="startScreenshare(undefined, {video: true, audio: false})">
+                  <VideoCameraIcon class="h-8 w-8"></VideoCameraIcon>
+                </div>
               </div>
-              <div class="p-2 text-neutral-400 gray-hover"
-                   v-on:click="startScreenshare(undefined, {video: true, audio: false})">
-                <VideoCameraIcon class="h-8 w-8"></VideoCameraIcon>
-              </div>
-            </div>
-            <div v-if="!isStreamingVideo && (this.currentSubchat.type === 'screenshare')"
-                 style="position: absolute; top: 10px; right: 10px" class="text-end">
-              <button v-on:click="startScreenshare()"
-                      class="btn btn-sm gray-hover
+              <div v-if="!isStreamingVideo && (this.currentSubchat.type === 'screenshare')"
+                   style="position: absolute; top: 10px; right: 10px" class="text-end">
+                <button v-on:click="startScreenshare()"
+                        class="btn btn-sm gray-hover
                            c_lightgray"
-                      style="position: relative;
+                        style="position: relative;
                              margin-left: 20px; margin-top: 10px;
                              border: 1px solid #ff5d37;
                              border-radius: 10px;">
-                Group Meeting
-              </button>
-              <br>
-              <template v-for="user in this.members" :key="user">
-                <template v-if="user.id !== userId">
-                  <button v-on:click="startScreenshare(user.id)"
-                          class="btn btn-sm gray-hover
+                  Group Meeting
+                </button>
+                <br>
+                <template v-for="user in this.members" :key="user">
+                  <template v-if="user.id !== userId">
+                    <button v-on:click="startScreenshare(user.id)"
+                            class="btn btn-sm gray-hover
                            c_lightgray"
-                          style="position: relative;
+                            style="position: relative;
                            margin-left: 20px; margin-top: 10px;
                            border: 1px solid rgba(174, 174, 183, 0.25);
                            border-radius: 10px;">
-                    Call {{ user.usr }}
-                  </button>
-                  <br>
+                      Call {{ user.usr }}
+                    </button>
+                    <br>
+                  </template>
                 </template>
-              </template>
+              </div>
             </div>
-          </div>
-          <!-- #### MESSAGES #### -->
-          <div id="messages_section"
-               class="messages_section bg-neutral-900 relative"
-               style="overflow-y: auto; overflow-x: clip;
+            <!-- #### MESSAGES #### -->
+            <div id="messages_section"
+                 class="messages_section bg-neutral-900 relative"
+                 style="overflow-y: auto; overflow-x: clip;
                     height: calc(100vh - 60px - 50px - 80px);
                     display: flex; flex-direction: column-reverse">
-            <div id="init_loading" style="display: none">
-              <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
-              <span class="ms-2 fw-bold c_lightgray">Initializing...</span>
-            </div>
-            <div id="loading" style="display: none">
-              <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
-              <span class="ms-2 fw-bold c_lightgray">Connecting...</span>
-            </div>
-            <template v-if="overlayType === 'msg'">
+              <div id="init_loading" style="display: none">
+                <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
+                <span class="ms-2 fw-bold c_lightgray">Initializing...</span>
+              </div>
+              <div id="loading" style="display: none">
+                <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
+                <span class="ms-2 fw-bold c_lightgray">Connecting...</span>
+              </div>
               <template v-for="msg in messages" :key="msg.gUID">
                 <div class="message" :id="msg.gUID">
                   <!-- Chat Avatar and Date-->
@@ -546,193 +546,194 @@
                   </div>
                 </div>
               </template>
-            </template>
-            <template v-else-if="overlayType === 'knowledgefinder'">
-              <knowledgefinder :isoverlay="true" :srcguid="getSession()"/>
-            </template>
-          </div>
-          <!-- #### USER INPUT FIELD #### -->
-          <div style="display: inline-flex;
+            </div>
+            <!-- #### USER INPUT FIELD #### -->
+            <div style="display: inline-flex;
                       width: 100%;
                       min-height: 80px;
                       position: relative;
                       bottom: 0;
                       padding-bottom: 20px;
                       flex-direction: column-reverse"
-               class="bg-neutral-900"
-               v-if="overlayType === 'msg'">
-            <button class="c_lightgray text-center scroll_to_bottom orange-hover"
-                    id="scroll_to_bottom"
-                    v-on:click="scrollToBottom">
-              <i class="bi bi-arrow-down"></i>
-              Click to jump to the newest messages
-              <i class="bi bi-arrow-down"></i>
-            </button>
-            <div style="bottom: 0; left: 10px; opacity: 1"
-                 class="scroll_to_bottom flex items-center px-1 overflow-hidden">
-              <template v-if="userActivity.length > 0">
-                <ChartBarIcon class="h-3 w-3 text-neutral-400"></ChartBarIcon>
-                <div class="flex items-center divide-x divide-neutral-600">
-                  <template v-for="user in userActivity" :key="user">
-                    <div class="px-2">
+                 class="bg-neutral-900"
+                 v-if="overlayType === 'msg'">
+              <button class="c_lightgray text-center scroll_to_bottom orange-hover"
+                      id="scroll_to_bottom"
+                      v-on:click="scrollToBottom">
+                <i class="bi bi-arrow-down"></i>
+                Click to jump to the newest messages
+                <i class="bi bi-arrow-down"></i>
+              </button>
+              <div style="bottom: 0; left: 10px; opacity: 1"
+                   class="scroll_to_bottom flex items-center px-1 overflow-hidden">
+                <template v-if="userActivity.length > 0">
+                  <ChartBarIcon class="h-3 w-3 text-neutral-400"></ChartBarIcon>
+                  <div class="flex items-center divide-x divide-neutral-600">
+                    <template v-for="user in userActivity" :key="user">
+                      <div class="px-2">
                   <span class="text-neutral-400 cursor-pointer hover:text-white font-normal"
                         @click.stop="showUserProfileFromName(user.user)">
                     {{ user.user }}
                   </span>
-                    </div>
-                  </template>
-                </div>
-              </template>
-              <template v-if="userActivityIdle.length > 0">
-                <EyeIcon class="h-3 w-3 text-neutral-500"></EyeIcon>
-                <div class="flex items-center divide-x divide-neutral-600">
-                  <template v-for="user in userActivityIdle" :key="user">
-                    <div class="px-2">
+                      </div>
+                    </template>
+                  </div>
+                </template>
+                <template v-if="userActivityIdle.length > 0">
+                  <EyeIcon class="h-3 w-3 text-neutral-500"></EyeIcon>
+                  <div class="flex items-center divide-x divide-neutral-600">
+                    <template v-for="user in userActivityIdle" :key="user">
+                      <div class="px-2">
                   <span class="text-neutral-500 cursor-pointer hover:text-white font-normal"
                         @click.stop="showUserProfileFromName(user.user)">
                     {{ user.user }}
                   </span>
-                    </div>
-                  </template>
-                </div>
-              </template>
-            </div>
-            <div v-if="isTaggingUser"
-                 class="user_tagger b_gray c_lightgray"
-                 style="padding: 10px; position: relative; z-index: 100">
-              <h6 style="pointer-events: none">Tag a member:</h6>
-              <div v-for="(usr, index) in this.members" :key="usr"
-                   class="gray-hover"
-                   :class="{'active_gray': index === this.tagIndex}"
-                   style="position: relative; display: flex; align-items: center"
-                   v-on:click="tagUserProfile(usr)">
-                <template v-if="usr.taggable === true">
-                  <i class="bi bi-at"
-                     style="font-size: 200%">
-                  </i>
-                  <span style="font-weight: bold; margin-left: 5px"> {{ usr.usr }} </span>
+                      </div>
+                    </template>
+                  </div>
                 </template>
               </div>
-            </div>
-            <div v-if="isSelectingImgflipTemplate"
-                 class="imgflip_selector b_gray c_lightgray"
-                 style="padding: 10px; position: relative; z-index: 100">
-              <h6 style="pointer-events: none">Select an Imgflip meme template:</h6>
-              <template v-for="(template, index) in this.imgflipSelection" :key="template">
-                <div v-if="template.selectable !== false"
-                     class="gray-hover mb-3"
+              <div v-if="isTaggingUser"
+                   class="user_tagger b_gray c_lightgray"
+                   style="padding: 10px; position: relative; z-index: 100">
+                <h6 style="pointer-events: none">Tag a member:</h6>
+                <div v-for="(usr, index) in this.members" :key="usr"
+                     class="gray-hover"
                      :class="{'active_gray': index === this.tagIndex}"
                      style="position: relative; display: flex; align-items: center"
-                     v-on:click="selectImgflipTemplate(template)">
-                  <img :src="template.url" alt="Loading" class="selectableGIF"
-                       style="width: 100px; max-height: 100px">
-                  <p style="margin-left: 10px; font-size: 75%">
-                    {{ template.name }}
-                  </p>
-                </div>
-              </template>
-            </div>
-            <div v-if="isFillingImgflipTemplate.active"
-                 class="imgflip_selector b_gray c_lightgray"
-                 style="padding: 10px; position: relative; z-index: 100; overflow: hidden">
-              <div class="imgflip_toolbar b_darkergray"
-                   style="display: flex; width: fit-content; align-items: center; padding: 5px;
-                        border-radius: 12px">
-                <button id="imgflip_toolbar_boxtools_toggler"
-                        title="Box Mode"
-                        class="btn b_darkgray gray-hover c_lightgray"
-                        style="border-radius: 10px"
-                        v-on:click="toggleImgflipBoxMode">
-                  <i class="bi bi-pencil" style="font-size: 125%;"></i>
-                </button>
-                <div id="imgflip_toolbar_boxtools"
-                     style="display: flex; opacity: 0; transition: 0.5s ease opacity">
-                  <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
-                    <div class="c_darkgray ms-2 fw-bold"
-                         style="font-size: 150%; pointer-events: none">
-                      |
-                    </div>
-                    <button title="Add Text Box"
-                            class="btn b_darkgray gray-hover c_lightgray ms-2"
-                            style="border-radius: 10px"
-                            v-on:click="addImgflipTextBox()">
-                      <i class="bi bi-plus-lg" style="font-size: 125%;"></i>
-                    </button>
-                    <button title="Reset"
-                            class="btn b_darkgray gray-hover c_lightgray ms-2"
-                            style="border-radius: 10px"
-                            disabled>
-                      <i class="bi bi-arrow-counterclockwise" style="font-size: 125%;"></i>
-                    </button>
-                    <button title="Send"
-                            class="btn golden-hover golden-hover c_lightgray ms-2"
-                            style="border-radius: 10px"
-                            v-on:click="sendImgflipBoxes()">
-                      <i class="bi bi-send text-black"
-                         style="font-size: 125%;">
-                      </i>
-                    </button>
-                    <p style="margin: 0"></p>
+                     v-on:click="tagUserProfile(usr)">
+                  <template v-if="usr.taggable === true">
+                    <i class="bi bi-at"
+                       style="font-size: 200%">
+                    </i>
+                    <span style="font-weight: bold; margin-left: 5px"> {{ usr.usr }} </span>
                   </template>
                 </div>
               </div>
-              <br>
-              <img id="imgflip_meme"
-                   :src="this.imgflip_template.url" alt="Loading" class="selectableGIF"
-                   style="width: auto; height: calc(90vh - 70px - 80px); border-radius: 10px;
-                        transition: 0.3s ease all;">
-              <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
-                <div id="meme_boxes_container"
-                     style="width: auto; height: calc(90vh - 70px - 80px); position: absolute; top: 60px; left: 0">
-                  <div v-for="box in this.isFillingImgflipTemplate.boxes" :key="box.id"
-                       :id="'imgflip_draggableText_' + box.id + '_div'"
-                       class="imgflip_text"
-                       style="top: 100px; left: 10px; font-size: 100%; height: 50px; width: 150px">
-                    <div :id="'imgflip_draggableText_' + box.id + '_div_anchor'"
-                         class="draggable_meme_text_anchor"
-                         style="font-family: Arial, sans-serif; text-shadow: none">
-                      <i class="bi bi-arrows-move" style="font-size: 75%; color: black"></i>
-                    </div>
-                    <textarea :id="'imgflip_draggableText_' + box.id" rows="1" cols="8"
-                              class="fw-bold draggable_meme_text border-2 border-black"></textarea>
+              <div v-if="isSelectingImgflipTemplate"
+                   class="imgflip_selector b_gray c_lightgray"
+                   style="padding: 10px; position: relative; z-index: 100">
+                <h6 style="pointer-events: none">Select an Imgflip meme template:</h6>
+                <template v-for="(template, index) in this.imgflipSelection" :key="template">
+                  <div v-if="template.selectable !== false"
+                       class="gray-hover mb-3"
+                       :class="{'active_gray': index === this.tagIndex}"
+                       style="position: relative; display: flex; align-items: center"
+                       v-on:click="selectImgflipTemplate(template)">
+                    <img :src="template.url" alt="Loading" class="selectableGIF"
+                         style="width: 100px; max-height: 100px">
+                    <p style="margin-left: 10px; font-size: 75%">
+                      {{ template.name }}
+                    </p>
+                  </div>
+                </template>
+              </div>
+              <div v-if="isFillingImgflipTemplate.active"
+                   class="imgflip_selector b_gray c_lightgray"
+                   style="padding: 10px; position: relative; z-index: 100; overflow: hidden">
+                <div class="imgflip_toolbar b_darkergray"
+                     style="display: flex; width: fit-content; align-items: center; padding: 5px;
+                        border-radius: 12px">
+                  <button id="imgflip_toolbar_boxtools_toggler"
+                          title="Box Mode"
+                          class="btn b_darkgray gray-hover c_lightgray"
+                          style="border-radius: 10px"
+                          v-on:click="toggleImgflipBoxMode">
+                    <i class="bi bi-pencil" style="font-size: 125%;"></i>
+                  </button>
+                  <div id="imgflip_toolbar_boxtools"
+                       style="display: flex; opacity: 0; transition: 0.5s ease opacity">
+                    <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
+                      <div class="c_darkgray ms-2 fw-bold"
+                           style="font-size: 150%; pointer-events: none">
+                        |
+                      </div>
+                      <button title="Add Text Box"
+                              class="btn b_darkgray gray-hover c_lightgray ms-2"
+                              style="border-radius: 10px"
+                              v-on:click="addImgflipTextBox()">
+                        <i class="bi bi-plus-lg" style="font-size: 125%;"></i>
+                      </button>
+                      <button title="Reset"
+                              class="btn b_darkgray gray-hover c_lightgray ms-2"
+                              style="border-radius: 10px"
+                              disabled>
+                        <i class="bi bi-arrow-counterclockwise" style="font-size: 125%;"></i>
+                      </button>
+                      <button title="Send"
+                              class="btn golden-hover golden-hover c_lightgray ms-2"
+                              style="border-radius: 10px"
+                              v-on:click="sendImgflipBoxes()">
+                        <i class="bi bi-send text-black"
+                           style="font-size: 125%;">
+                        </i>
+                      </button>
+                      <p style="margin: 0"></p>
+                    </template>
                   </div>
                 </div>
-              </template>
-              <template v-else-if="isFillingImgflipTemplate.mode === 'top-bottom'">
-                <input id="imgflip_topText"
-                       style="bottom: 80px; background-color: rgba(255, 255, 255, 0.5);"
-                       class="text-center fw-bold imgflip_text"
-                       placeholder="Top Text">
-                <input id="imgflip_bottomText"
-                       style="bottom: 10px; background-color: rgba(255, 255, 255, 0.5);"
-                       class="text-center fw-bold imgflip_text"
-                       placeholder="Bottom Text"
-                       v-on:keyup.enter="submitImgflipMeme">
-              </template>
+                <br>
+                <img id="imgflip_meme"
+                     :src="this.imgflip_template.url" alt="Loading" class="selectableGIF"
+                     style="width: auto; height: calc(90vh - 70px - 80px); border-radius: 10px;
+                        transition: 0.3s ease all;">
+                <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
+                  <div id="meme_boxes_container"
+                       style="width: auto; height: calc(90vh - 70px - 80px); position: absolute; top: 60px; left: 0">
+                    <div v-for="box in this.isFillingImgflipTemplate.boxes" :key="box.id"
+                         :id="'imgflip_draggableText_' + box.id + '_div'"
+                         class="imgflip_text"
+                         style="top: 100px; left: 10px; font-size: 100%; height: 50px; width: 150px">
+                      <div :id="'imgflip_draggableText_' + box.id + '_div_anchor'"
+                           class="draggable_meme_text_anchor"
+                           style="font-family: Arial, sans-serif; text-shadow: none">
+                        <i class="bi bi-arrows-move" style="font-size: 75%; color: black"></i>
+                      </div>
+                      <textarea :id="'imgflip_draggableText_' + box.id" rows="1" cols="8"
+                                class="fw-bold draggable_meme_text border-2 border-black"></textarea>
+                    </div>
+                  </div>
+                </template>
+                <template v-else-if="isFillingImgflipTemplate.mode === 'top-bottom'">
+                  <input id="imgflip_topText"
+                         style="bottom: 80px; background-color: rgba(255, 255, 255, 0.5);"
+                         class="text-center fw-bold imgflip_text"
+                         placeholder="Top Text">
+                  <input id="imgflip_bottomText"
+                         style="bottom: 10px; background-color: rgba(255, 255, 255, 0.5);"
+                         class="text-center fw-bold imgflip_text"
+                         placeholder="Bottom Text"
+                         v-on:keyup.enter="submitImgflipMeme">
+                </template>
+              </div>
+              <textarea id="new_comment"
+                        class="new_comment b_darkgray py-2 px-3"
+                        type="text"
+                        v-model="new_message"
+                        maxlength="5000"
+                        :placeholder="'Message to ' + chatroom.t"
+                        v-on:keyup="auto_grow"
+                        v-on:click="hideAllSidebars"></textarea>
+              <button id="send_image_button"
+                      class="message_button send_image_button b_darkgray hover:brightness-200 flex justify-center items-center"
+                      style="position: absolute; right: 50px; border-radius: 0"
+                      title="Send Files"
+                      v-on:click="toggleUploadingSnippet">
+                <DocumentArrowUpIcon class="text-neutral-300 h-6 w-6"></DocumentArrowUpIcon>
+              </button>
+              <button class="message_button b_darkgray hover:brightness-200 flex justify-center items-center"
+                      style="position: absolute; right: 10px; border-radius: 0 6px 6px 0"
+                      title="Search on GIPHY"
+                      v-on:click="toggleSelectingGIF">
+                <GifIcon class="text-neutral-300 h-8 w-6"></GifIcon>
+              </button>
             </div>
-            <textarea id="new_comment"
-                      class="new_comment b_darkgray py-2 px-3"
-                      type="text"
-                      v-model="new_message"
-                      maxlength="5000"
-                      :placeholder="'Message to ' + chatroom.t"
-                      v-on:keyup="auto_grow"
-                      v-on:click="hideAllSidebars"></textarea>
-            <button id="send_image_button"
-                    class="message_button send_image_button b_darkgray hover:brightness-200 flex justify-center items-center"
-                    style="position: absolute; right: 50px; border-radius: 0"
-                    title="Send Files"
-                    v-on:click="toggleUploadingSnippet">
-              <DocumentArrowUpIcon class="text-neutral-300 h-6 w-6"></DocumentArrowUpIcon>
-            </button>
-            <button class="message_button b_darkgray hover:brightness-200 flex justify-center items-center"
-                    style="position: absolute; right: 10px; border-radius: 0 6px 6px 0"
-                    title="Search on GIPHY"
-                    v-on:click="toggleSelectingGIF">
-              <GifIcon class="text-neutral-300 h-8 w-6"></GifIcon>
-            </button>
           </div>
-        </div>
+        </template>
+        <template v-else-if="overlayType === 'knowledgefinder'">
+          <knowledgefinder :isoverlay="true" :srcguid="getSession()"
+                           @close="setOverlay('msg')"/>
+        </template>
       </div>
       <!-- #### MEMBERS #### -->
       <div id="member_section" style="margin-top: 60px"
@@ -1572,7 +1573,6 @@ export default {
     },
     connect: async function (sessionID = this.getSession(), isSubchat = false, novisual = false) {
       console.debug('connect', sessionID, isSubchat)
-      this.toggleElement('loading', 'flex')
       this.resetStats()
       // Generate Key Pair
       const gTmp = this.getChatGUID()
@@ -1603,7 +1603,6 @@ export default {
         console.debug('connect->getClarifierMetaData', sessionID, isSubchat)
         this.getClarifierMetaData(sessionID, isSubchat, novisual)
           .then(() => this.getClarifierMessages(false, sessionID))
-          .then(() => this.toggleElement('loading', 'flex'))
           .then(() => this.getActiveMembers(sessionID))
           .then(resolve)
       })
@@ -2618,7 +2617,7 @@ export default {
       if (element.classList.contains('active')) {
         element.classList.remove('active')
       } else {
-        this.hideAllSidebars(true)
+        if (window.innerWidth < 1100) this.hideSidebar2()
         element.classList.add('active')
       }
     },
@@ -2634,7 +2633,6 @@ export default {
     },
     resizeCanvas: function () {
       if (window.innerWidth >= 1100) {
-        this.showSidebar()
         this.showSidebar2()
         this.showMemberSidebar()
       } else {
@@ -3002,6 +3000,7 @@ export default {
     },
     toggleElement: function (id, display = 'block') {
       const elem = document.getElementById(id)
+      if (!elem) return
       if (elem.style.display === display) {
         elem.style.display = 'none'
       } else {
@@ -4239,7 +4238,7 @@ export default {
   position: fixed;
   z-index: 999;
   top: 0;
-  left: 50px;
+  left: 55px;
   overflow-x: clip;
   transition: ease-in-out all 0.2s;
 }
@@ -4312,6 +4311,14 @@ export default {
   @apply bg-none;
 }
 
+.sb_link:hover .sidebar_tooltip,
+.channel_link:hover .channel_tooltip {
+  opacity: 1;
+  background-color: #192129;
+  padding: 5px 10px 5px 10px;
+  border-radius: 10px;
+}
+
 @media only screen and (max-width: 1099px) {
   .clarifier_chatroom {
     width: calc(100% - 55px);
@@ -4321,14 +4328,6 @@ export default {
   .sidebar.active .clarifier_chatroom {
     width: calc(100% - 250px);
     left: 250px;
-  }
-
-  .sb_link:hover .sidebar_tooltip,
-  .channel_link:hover .channel_tooltip {
-    opacity: 1;
-    background-color: #192129;
-    padding: 5px 10px 5px 10px;
-    border-radius: 10px;
   }
 
   .sidebar.active, .sidebar2.active, .member_section.active {
@@ -4353,23 +4352,19 @@ export default {
 }
 
 @media only screen and (min-width: 1100px) {
-  .sb_toggler {
-    display: none;
-  }
-
   .member_section_toggler {
     pointer-events: none;
     opacity: 0.5;
   }
 
   .clarifier_chatroom {
-    width: calc(100% - 750px);
-    left: 500px;
+    width: calc(100% - 555px);
+    left: 305px;
   }
 
   .clarifier_chatroom_big {
-    width: calc(100% - 500px);
-    left: 250px;
+    width: calc(100% - 555px);
+    left: 305px;
     border-left: 1px solid rgba(174, 174, 183, 0.25);
   }
 

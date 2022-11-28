@@ -1,223 +1,225 @@
 <template>
-  <template v-if="!isoverlay">
-    <div class="pt-[60px]"></div>
-  </template>
-  <div class="flex h-screen overflow-hidden">
-    <div id="sidebar"
-         class="h-full min-w-[40px] max-w-[40px] flex flex-col items-center overflow-y-auto">
-      <div class="text-neutral-400 h-full">
-        <div class="sidebar_button rounded-xl">
-          <div v-on:click="clickedBack()"
-               class="cursor-pointer text-red-600 hover:text-red-500 p-2 my-2">
-            <XMarkIcon class="h-6 w-6"></XMarkIcon>
-          </div>
-          <div class="sidebar_tooltip">Exit</div>
-        </div>
-        <div class="my-2 border-y border-neutral-700">
+  <div class="bg-neutral-900">
+    <template v-if="!isoverlay">
+      <div class="pt-[60px]"></div>
+    </template>
+    <div class="flex h-screen w-full overflow-hidden">
+      <div id="sidebar"
+           class="h-full min-w-[40px] max-w-[40px] flex flex-col items-center overflow-y-auto ml-2">
+        <div class="text-neutral-400 h-full">
           <div class="sidebar_button rounded-xl">
-            <div v-on:click="reactToMessage(wisdom, '+')"
-                 class="cursor-pointer hover:text-neutral-200 p-2 my-2">
-              <HandThumbUpIcon class="h-6 w-6"></HandThumbUpIcon>
+            <div v-on:click="clickedBack()"
+                 class="cursor-pointer text-red-600 hover:text-red-500 p-2 my-2">
+              <XMarkIcon class="h-6 w-6"></XMarkIcon>
             </div>
-            <div class="sidebar_tooltip">Upvote</div>
+            <div class="sidebar_tooltip">Exit</div>
           </div>
-          <div class="sidebar_button rounded-xl">
-            <div v-on:click="reactToMessage(wisdom, '-')"
-                 class="cursor-pointer hover:text-neutral-200 p-2 my-2">
-              <HandThumbDownIcon class="h-6 w-6"></HandThumbDownIcon>
+          <div class="my-2 border-y border-neutral-700">
+            <div class="sidebar_button rounded-xl">
+              <div v-on:click="reactToMessage(wisdom, '+')"
+                   class="cursor-pointer hover:text-neutral-200 p-2 my-2">
+                <HandThumbUpIcon class="h-6 w-6"></HandThumbUpIcon>
+              </div>
+              <div class="sidebar_tooltip">Upvote</div>
             </div>
-            <div class="sidebar_tooltip">Downvote</div>
-          </div>
-          <div class="sidebar_button rounded-xl">
-            <div v-on:click="reactToMessage(wisdom, '⭐')"
-                 class="cursor-pointer hover:text-neutral-200 p-2 my-2">
-              <StarIcon class="h-6 w-6"></StarIcon>
+            <div class="sidebar_button rounded-xl">
+              <div v-on:click="reactToMessage(wisdom, '-')"
+                   class="cursor-pointer hover:text-neutral-200 p-2 my-2">
+                <HandThumbDownIcon class="h-6 w-6"></HandThumbDownIcon>
+              </div>
+              <div class="sidebar_tooltip">Downvote</div>
             </div>
-            <div class="sidebar_tooltip">Wow!</div>
+            <div class="sidebar_button rounded-xl">
+              <div v-on:click="reactToMessage(wisdom, '⭐')"
+                   class="cursor-pointer hover:text-neutral-200 p-2 my-2">
+                <StarIcon class="h-6 w-6"></StarIcon>
+              </div>
+              <div class="sidebar_tooltip">Wow!</div>
+            </div>
           </div>
-        </div>
-        <div v-if="wisdom.copyContent != null"
-             class="sidebar_button rounded-xl">
-          <div v-on:click="copy(wisdom.copyContent)"
-               class="cursor-pointer hover:text-neutral-200 p-2 my-2">
-            <ClipboardIcon class="h-6 w-6"></ClipboardIcon>
+          <div v-if="wisdom.copyContent != null"
+               class="sidebar_button rounded-xl">
+            <div v-on:click="copy(wisdom.copyContent)"
+                 class="cursor-pointer hover:text-neutral-200 p-2 my-2">
+              <ClipboardIcon class="h-6 w-6"></ClipboardIcon>
+            </div>
+            <div class="sidebar_tooltip">QuickCopy</div>
           </div>
-          <div class="sidebar_tooltip">QuickCopy</div>
         </div>
       </div>
-    </div>
-    <div id="main" class="h-full w-full flex justify-center overflow-y-auto pb-56">
-      <div class="h-fit w-full pt-3 pl-3">
-        <div class="flex mb-2 items-center">
-          <TagIcon class="text-neutral-400 h-5 w-5 mr-2"></TagIcon>
-          <template v-if="wisdom.categories">
-            <template v-for="cat in wisdom.categories" :key="cat">
-              <div v-if="JSON.parse(cat).category != null"
-                   class="text-neutral-400 flex items-center py-0.5 px-1.5 rounded mr-1 pointer-events-none text-sm font-bold"
-                   style="border: 1px solid #424242">
-                {{ JSON.parse(cat).category }}
+      <div id="main" class="h-full w-full flex justify-center overflow-y-auto pb-56 overflow-x-hidden">
+        <div class="h-fit w-full pt-3 px-3">
+          <div class="flex mb-2 items-center">
+            <TagIcon class="text-neutral-400 h-5 w-5 mr-2"></TagIcon>
+            <template v-if="wisdom.categories">
+              <template v-for="cat in wisdom.categories" :key="cat">
+                <div v-if="JSON.parse(cat).category != null"
+                     class="text-neutral-400 flex items-center py-0.5 px-1.5 rounded mr-1 pointer-events-none text-sm font-bold"
+                     style="border: 1px solid #424242">
+                  {{ JSON.parse(cat).category }}
+                </div>
+              </template>
+            </template>
+            <template v-else>
+              <div class="text-neutral-600 text-xs pointer-events-none">
+                (No Categories)
               </div>
             </template>
-          </template>
-          <template v-else>
-            <div class="text-neutral-600 text-xs pointer-events-none">
-              (No Categories)
-            </div>
-          </template>
-        </div>
-        <div class="text-neutral-400 mb-4 flex items-center">
-          <div class="flex pointer-events-none items-center">
-            <p class="mr-2 pr-2 border-r border-neutral-700 font-bold">
-              {{ capitalizeFirstLetter(wisdom.type) }}
-            </p>
-            <p> {{ wisdom.author }} </p>
           </div>
-          <template v-if="wisdom.reacts != null">
-            <div class="flex ml-5">
-              <div v-for="reaction in wisdom.reacts" :key="reaction.src"
-                   class="flex items-center p-1 mr-1 text-neutral-400 cursor-pointer hover:text-white"
-                   :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
-                   v-on:click="reactToMessage(wisdom, JSON.parse(reaction).t)"
-                   :id="'react_' + wisdom.gUID + '_' + JSON.parse(reaction).t">
-                <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
-                                 class="w-6 h-6 mr-1"></HandThumbUpIcon>
-                <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
-                                   class="w-6 h-6 mr-1"></HandThumbDownIcon>
-                <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
-                          class="w-6 h-6 mr-1"></StarIcon>
-                <span v-else> {{ JSON.parse(reaction).t }} </span>
-                {{ JSON.parse(reaction).src.length }}
-              </div>
-            </div>
-          </template>
-          <template v-else>
-            <div class="text-neutral-600 text-xs ml-5 pointer-events-none">
-              (Unrated)
-            </div>
-          </template>
-          <template v-if="related.comments != null">
-            <div class="flex ml-4 items-center p-1 text-neutral-400 cursor-pointer hover:text-white"
-                 v-on:click="gotoComments()"
-                 title="Go to Comments">
-              <ChatBubbleLeftEllipsisIcon class="h-6 w-6 mr-1"></ChatBubbleLeftEllipsisIcon>
-              {{ related.comments.length }}
-            </div>
-          </template>
-          <template v-else>
-            <div class="text-neutral-600 text-xs ml-5 pointer-events-none">
-              (No Comments)
-            </div>
-          </template>
-        </div>
-        <div class="flex">
-          <template v-if="this.wisdom.t">
-            <Markdown class="markedView text-neutral-300 font-bold"
-                      :source="'# ' + wisdom.t"
-                      :plugins="plugins"></Markdown>
-          </template>
-          <template v-else>
-            <div class="text-neutral-500">(No Title)</div>
-          </template>
-          <div v-on:click="editWisdom(wisdom)"
-               class="p-2 cursor-pointer flex items-center text-neutral-400 w-fit ml-auto mr-1 hover:text-white">
-            <PencilSquareIcon class="h-6 w-6"></PencilSquareIcon>
-          </div>
-        </div>
-        <hr class="text-neutral-700 opacity-100 mb-3">
-        <!-- Main Content -->
-        <Markdown class="markedView text-neutral-400"
-                  :source="wisdom.desc"
-                  :plugins="plugins"></Markdown>
-        <!-- Comments/Answers -->
-        <div id="wisdomComments" class="w-full mt-10 pt-10">
-          <div class="w-full relative">
-            <div
-              class="p-2 rounded-full hover:bg-neutral-700 text-neutral-500 hover:text-neutral-200 absolute right-0 sidebar_button cursor-pointer -translate-y-1 flex mx-1">
-              <Squares2X2Icon
-                class="h-6 w-6"></Squares2X2Icon>
-              <div class="ml-auto translate-y-2.5">
-                <div class="sidebar_tooltip text-neutral-400">Preview</div>
-              </div>
-            </div>
-            <textarea type="text" id="input_comment" v-model="wisComment" rows="1"
-                      class="w-[calc(100%-50px)] border-b border-neutral-500 text-neutral-300 bg-neutral-600 bg-opacity-20 focus:outline-none px-2 py-1"
-                      v-on:keyup="auto_grow">
-            </textarea>
-          </div>
-          <label for="input_comment"
-                 class="text-neutral-600">
-            Write a comment
-          </label>
-          <template v-if="related.comments == null">
-            <div class="flex w-full items-center justify-content-center py-4">
-              <div class="w-full text-neutral-600 pointer-events-none">
-                <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
-                <p class="text-md font-bold italic w-fit mx-auto">No Comments</p>
-              </div>
-            </div>
-          </template>
-          <template v-else>
-            <div class="flex items-center mt-4 mb-2 pointer-events-none">
-              <ChatBubbleLeftEllipsisIcon class="w-6 h-6 mr-2 text-neutral-500"></ChatBubbleLeftEllipsisIcon>
-              <p class="text-neutral-400 text-2xl italic">
-                {{ related.comments.length }} {{ commentsText }}:
+          <div class="text-neutral-400 mb-4 flex items-center">
+            <div class="flex pointer-events-none items-center">
+              <p class="mr-2 pr-2 border-r border-neutral-700 font-bold">
+                {{ capitalizeFirstLetter(wisdom.type) }}
               </p>
+              <p> {{ wisdom.author }} </p>
             </div>
-            <div v-for="comment in related.comments" :key="comment.uID"
-                 class="mb-2 w-full bg-neutral-800 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2 border-r-2 border-b-neutral-700 border-r-neutral-700">
-              <Markdown :source="comment.desc"
-                        class="text-neutral-300 w-full markedView py-3 px-3"
-                        :plugins="plugins"></Markdown>
-              <div class="flex w-full">
-                <div
-                  class="text-neutral-400 ml-auto bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
-                  <p class="text-neutral-500 text-xs mr-2">
-                    {{ comment.cdate.toLocaleString('de-DE').replace(' ', '&nbsp;') }}</p>
-                  <p class="">{{ comment.author }}</p>
+            <template v-if="wisdom.reacts != null">
+              <div class="flex ml-5">
+                <div v-for="reaction in wisdom.reacts" :key="reaction.src"
+                     class="flex items-center p-1 mr-1 text-neutral-400 cursor-pointer hover:text-white"
+                     :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
+                     v-on:click="reactToMessage(wisdom, JSON.parse(reaction).t)"
+                     :id="'react_' + wisdom.gUID + '_' + JSON.parse(reaction).t">
+                  <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
+                                   class="w-6 h-6 mr-1"></HandThumbUpIcon>
+                  <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
+                                     class="w-6 h-6 mr-1"></HandThumbDownIcon>
+                  <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
+                            class="w-6 h-6 mr-1"></StarIcon>
+                  <span v-else> {{ JSON.parse(reaction).t }} </span>
+                  {{ JSON.parse(reaction).src.length }}
                 </div>
               </div>
+            </template>
+            <template v-else>
+              <div class="text-neutral-600 text-xs ml-5 pointer-events-none">
+                (Unrated)
+              </div>
+            </template>
+            <template v-if="related.comments != null">
+              <div class="flex ml-4 items-center p-1 text-neutral-400 cursor-pointer hover:text-white"
+                   v-on:click="gotoComments()"
+                   title="Go to Comments">
+                <ChatBubbleLeftEllipsisIcon class="h-6 w-6 mr-1"></ChatBubbleLeftEllipsisIcon>
+                {{ related.comments.length }}
+              </div>
+            </template>
+            <template v-else>
+              <div class="text-neutral-600 text-xs ml-5 pointer-events-none">
+                (No Comments)
+              </div>
+            </template>
+          </div>
+          <div class="flex">
+            <template v-if="this.wisdom.t">
+              <Markdown class="markedView text-neutral-300 font-bold"
+                        :source="'# ' + wisdom.t"
+                        :plugins="plugins"></Markdown>
+            </template>
+            <template v-else>
+              <div class="text-neutral-500">(No Title)</div>
+            </template>
+            <div v-on:click="editWisdom(wisdom)"
+                 class="p-2 cursor-pointer flex items-center text-neutral-400 w-fit ml-auto mr-1 hover:text-white">
+              <PencilSquareIcon class="h-6 w-6"></PencilSquareIcon>
+            </div>
+          </div>
+          <hr class="text-neutral-700 opacity-100 mb-3">
+          <!-- Main Content -->
+          <Markdown class="markedView text-neutral-400"
+                    :source="wisdom.desc"
+                    :plugins="plugins"></Markdown>
+          <!-- Comments/Answers -->
+          <div id="wisdomComments" class="w-full mt-10 pt-10">
+            <div class="w-full relative">
+              <div
+                class="p-2 rounded-full hover:bg-neutral-700 text-neutral-500 hover:text-neutral-200 absolute right-0 sidebar_button cursor-pointer -translate-y-1 flex mx-1">
+                <Squares2X2Icon
+                  class="h-6 w-6"></Squares2X2Icon>
+                <div class="ml-auto translate-y-2.5">
+                  <div class="sidebar_tooltip text-neutral-400">Preview</div>
+                </div>
+              </div>
+              <textarea type="text" id="input_comment" v-model="wisComment" rows="1"
+                        class="w-[calc(100%-50px)] border-b border-neutral-500 text-neutral-300 bg-neutral-600 bg-opacity-20 focus:outline-none px-2 py-1"
+                        v-on:keyup="auto_grow">
+            </textarea>
+            </div>
+            <label for="input_comment"
+                   class="text-neutral-600">
+              Write a comment
+            </label>
+            <template v-if="related.comments == null">
+              <div class="flex w-full items-center justify-content-center py-4">
+                <div class="w-full text-neutral-600 pointer-events-none">
+                  <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
+                  <p class="text-md font-bold italic w-fit mx-auto">No Comments</p>
+                </div>
+              </div>
+            </template>
+            <template v-else>
+              <div class="flex items-center mt-4 mb-2 pointer-events-none">
+                <ChatBubbleLeftEllipsisIcon class="w-6 h-6 mr-2 text-neutral-500"></ChatBubbleLeftEllipsisIcon>
+                <p class="text-neutral-400">
+                  {{ related.comments.length }} {{ commentsText }}:
+                </p>
+              </div>
+              <div v-for="comment in related.comments" :key="comment.uID"
+                   class="mb-2 w-full bg-neutral-800 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2 border-r-2 border-b-neutral-700 border-r-neutral-700">
+                <Markdown :source="comment.desc"
+                          class="text-neutral-300 w-full markedView py-3 px-3"
+                          :plugins="plugins"></Markdown>
+                <div class="flex w-full">
+                  <div
+                    class="text-neutral-400 ml-auto bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
+                    <p class="text-neutral-500 text-xs mr-2">
+                      {{ comment.cdate.toLocaleString('de-DE').replace(' ', '&nbsp;') }}</p>
+                    <p class="">{{ comment.author }}</p>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+      <div id="rightbar"
+           class="h-full w-[350px] border-l border-neutral-700 overflow-y-auto hidden lg:block">
+        <div class="rounded-xl text-neutral-300 pt-3 px-3">
+          <table class="border-none mb-2 pointer-events-none">
+            <tr>
+              <th class="text-neutral-400 text-xs pr-2">Author</th>
+              <td class="text-sm">{{ wisdom.author }}</td>
+            </tr>
+            <tr>
+              <th class="text-neutral-400 text-xs pr-2">Source</th>
+              <td class="text-sm">{{ knowledge.t }}</td>
+            </tr>
+            <tr>
+              <th class="text-neutral-400 text-xs pr-2">Date</th>
+              <td class="text-sm">{{ new Date(wisdom.cdate).toLocaleString('de-DE') }}</td>
+            </tr>
+          </table>
+          <template v-if="!this.$store.getters.hasSeenWisdomTutorial()">
+            <div id="wisdomTutorial"
+                 class="rounded-xl relative my-4 text-neutral-300">
+              <div class="bg-slate-700 rounded-t-xl p-2">
+                <XMarkIcon v-on:click="dismissTutorial()"
+                           class="h-6 w-6 absolute top-2 right-2 hover:text-white cursor-pointer hover:bg-neutral-600 rounded-xl">
+                </XMarkIcon>
+                <div class="font-bold ml-1">Hey!</div>
+              </div>
+              <div class="bg-slate-800 rounded-b-xl p-3 text-sm text-justify">
+                Welcome to the the new Wisdom Viewer, now with less distraction!
+                <br><br>
+                Find out about how things work, rate articles and enjoy the power of
+                <span class="font-bold">QuickCopy</span>.
+                <br><br>
+                By the way... you can now collaborate with others! Comment on their wisdom to share your experiences
+                and/or opinions!
+              </div>
             </div>
           </template>
         </div>
-      </div>
-    </div>
-    <div id="rightbar"
-         class="h-full w-[350px] border-l border-neutral-700 overflow-y-auto hidden lg:block">
-      <div class="rounded-xl text-neutral-300 pt-3 px-3">
-        <table class="border-none mb-2 pointer-events-none">
-          <tr>
-            <th class="text-neutral-400 text-xs pr-2">Author</th>
-            <td class="text-sm">{{ wisdom.author }}</td>
-          </tr>
-          <tr>
-            <th class="text-neutral-400 text-xs pr-2">Source</th>
-            <td class="text-sm">{{ knowledge.t }}</td>
-          </tr>
-          <tr>
-            <th class="text-neutral-400 text-xs pr-2">Date</th>
-            <td class="text-sm">{{ new Date(wisdom.cdate).toLocaleString('de-DE').replace(' ', '&nbsp;') }}</td>
-          </tr>
-        </table>
-        <template v-if="!this.$store.getters.hasSeenWisdomTutorial()">
-          <div id="wisdomTutorial"
-               class="rounded-xl relative my-4 text-neutral-300">
-            <div class="bg-slate-700 rounded-t-xl p-2">
-              <XMarkIcon v-on:click="dismissTutorial()"
-                         class="h-6 w-6 absolute top-2 right-2 hover:text-white cursor-pointer hover:bg-neutral-600 rounded-xl">
-              </XMarkIcon>
-              <div class="font-bold ml-1">Hey!</div>
-            </div>
-            <div class="bg-slate-800 rounded-b-xl p-3 text-sm text-justify">
-              Welcome to the the new Wisdom Viewer, now with less distraction!
-              <br><br>
-              Find out about how things work, rate articles and enjoy the power of
-              <span class="font-bold">QuickCopy</span>.
-              <br><br>
-              By the way... you can now collaborate with others! Comment on their wisdom to share your experiences
-              and/or opinions!
-            </div>
-          </div>
-        </template>
       </div>
     </div>
   </div>
