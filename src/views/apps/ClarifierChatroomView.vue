@@ -383,11 +383,10 @@
                     <!-- #### MESSAGE OPTIONS #### -->
                     <div v-if="msg.mType !== 'CryptError' && !msg.src.startsWith('_server')" class="msg_options">
                       <div class="b_darkgray rounded mr-1">
-                        <!--
-                        <button title="Reply" class="btn btn-sm c_lightgray orange-hover">
+                        <button title="Reply" class="btn btn-sm c_lightgray orange-hover"
+                                v-on:click="replyToMessage(msg)">
                           <i class="bi bi-reply-fill"></i>
                         </button>
-                        -->
                         <template v-if="msg.editable === true">
                           <button title="Edit" class="btn btn-sm c_lightgray orange-hover"
                                   v-on:click="editMessage(msg)">
@@ -501,6 +500,28 @@
                       <taskcontainer :message="msg.msg"
                                      class="clientMessage"/>
                     </template>
+                    <template v-else-if="msg.mType === 'Reply'">
+                      <div class="w-full h-full">
+                        <div class="mb-3 mt-2 pl-2 text-neutral-400 border-l-4 border-l-slate-800">
+                          <p class="mb-2 text-sm">
+                            Reply to {{ JSON.parse(msg.msg).src.src }}:
+                          </p>
+                          <Markdown :id="'rsr_' + msg.gUID"
+                                    class="py-1 px-2 bg-neutral-900 border-4 border-slate-800 rounded-md w-fit mb-1"
+                                    :source="JSON.parse(msg.msg).src.msg"
+                                    :breaks="true"
+                                    :plugins="plugins"/>
+                          <p class="text-xs text-neutral-500">
+                            {{ new Date(JSON.parse(msg.msg).src.time).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+                          </p>
+                        </div>
+                        <Markdown :id="'msg_' + msg.gUID"
+                                  class="clientMessage"
+                                  :source="JSON.parse(msg.msg).reply"
+                                  :breaks="true"
+                                  :plugins="plugins"/>
+                      </div>
+                    </template>
                     <!-- #### CLIENT MESSAGE #### -->
                     <template v-else>
                       <Markdown :id="'msg_' + msg.gUID"
@@ -529,7 +550,8 @@
                   <div :id="'edit_' + msg.gUID" class="hidden w-full justify-center">
                     <div class="text-sm p-2 bg-neutral-900 rounded mt-2 mb-1 text-center flex items-center">
                       <div class="ml-2 mr-4 text-neutral-400 pointer-events-none">
-                        Edit
+                        <template v-if="isEditingMessage">Edit</template>
+                        <template v-else-if="isReplyingToMessage">Reply</template>
                       </div>
                       <div class="flex py-1 px-2 bg-blue-600 bg-opacity-20 rounded">
                         <div v-on:click="this.addMessage()" class="text-white cursor-pointer mr-1 font-bold">
@@ -734,7 +756,7 @@
         </template>
         <template v-else-if="overlayType === 'knowledgefinder'">
           <knowledgefinder :isoverlay="true" :srcguid="getSession()"
-                           @close="setOverlay('msg')"/>
+                           @close="setOverlay('msg'); prepareInputField()"/>
         </template>
       </div>
       <!-- #### MEMBERS #### -->
@@ -1337,6 +1359,7 @@ export default {
       uploadFileBase64: '',
       uploadFileType: '',
       messageEditing: {},
+      messageReplyingTo: {},
       imgflip_template: {},
       mediaMaxWidth: '300px',
       // Conditions
@@ -1349,6 +1372,7 @@ export default {
       isViewingNewSubchat: false,
       isUploadingSnippet: false,
       isEditingMessage: false,
+      isReplyingToMessage: false,
       isTaggingUser: false,
       isSelectingImgflipTemplate: false,
       isFillingImgflipTemplate: {
@@ -1402,7 +1426,6 @@ export default {
       window.addEventListener('resize', this.resizeCanvas, false)
       this.resizeCanvas()
       // Save elements to gain performance boost by avoiding too many lookups
-      this.inputField = document.getElementById('new_comment')
       this.message_section = document.getElementById('messages_section')
       // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
       // Generate new token just in case
@@ -1428,13 +1451,11 @@ export default {
         await this.connect()
       }
       // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
+      document.addEventListener('keydown', this.handleGlobalKeyEvents, false)
       // Set message section with its scroll event
       this.message_section.addEventListener('scroll', this.checkScroll, false)
       // Add message input field events
-      this.inputField.addEventListener('keydown', this.handleEnter, false)
-      document.addEventListener('keydown', this.handleGlobalKeyEvents, false)
-      this.inputField.addEventListener('input', this.handleCommentInput, false)
-      this.inputField.focus()
+      this.prepareInputField()
       // Add dropzone events (settings -> image upload)
       const dropZone = document.getElementById('drop_zone')
       dropZone.addEventListener('dragover', this.handleDragOver, false)
@@ -1529,6 +1550,8 @@ export default {
       if (ev.key === 'Escape') {
         if (this.isEditingMessage === true) {
           this.resetEditing()
+        } else if (this.isReplyingToMessage === true) {
+          this.resetReplying()
         } else {
           this.hideAllWindows()
         }
@@ -1835,10 +1858,17 @@ export default {
         setTimeout(() => this.auto_grow(), 0)
         return
       }
-      // Help?
+      // Leaderboard?
       if (this.new_message.toLowerCase().startsWith('/leaderboard')) {
         this.addMessagePar('[c:CMD]/leaderboard')
         this.new_message = ''
+        this.focusComment(true)
+        setTimeout(() => this.auto_grow(), 0)
+        return
+      }
+      // Reply?
+      if (this.isReplyingToMessage) {
+        await this.sendReply()
         this.focusComment(true)
         setTimeout(() => this.auto_grow(), 0)
         return
@@ -2236,6 +2266,9 @@ export default {
       } else if (message.msg.includes('[c:TASK]') === true) {
         message.mType = 'Task'
         message.msg = message.msg.substring(8)
+      } else if (message.msg.includes('[c:REPLY]') === true) {
+        message.mType = 'Reply'
+        message.msg = message.msg.substring(9)
       }
       // Reactions
       if (message.reacts != null) {
@@ -2906,6 +2939,21 @@ export default {
         this.focusComment(true)
       }, 0)
     },
+    resetReplying: function () {
+      if (this.isReplyingToMessage !== true) {
+        return
+      }
+      const msg = document.getElementById(this.messageReplyingTo.gUID)
+      if (msg != null) msg.style.backgroundColor = ''
+      const editElem = document.getElementById('edit_' + this.messageReplyingTo.gUID)
+      if (editElem != null) editElem.style.display = 'none'
+      this.isReplyingToMessage = false
+      this.messageReplyingTo = {}
+      setTimeout(() => {
+        this.auto_grow()
+        this.focusComment(true)
+      }, 0)
+    },
     editOwnLastMessage: function () {
       for (let i = 0; i < this.messages.length; i++) {
         if (this.messages[i].editable === true) {
@@ -3209,6 +3257,8 @@ export default {
         })
         this.addMessagePar('[c:EDIT<JSON]' + payload)
       } else {
+        this.resetEditing()
+        this.resetReplying()
         this.isEditingMessage = true
         this.messageEditing = msg
         this.new_message = msg.msg
@@ -3221,18 +3271,35 @@ export default {
         }, 0)
       }
     },
+    replyToMessage: function (msg) {
+      this.resetReplying()
+      this.resetEditing()
+      this.isReplyingToMessage = true
+      this.messageReplyingTo = msg
+      this.focusComment(true)
+      setTimeout(() => {
+        this.auto_grow()
+        document.getElementById(msg.gUID).style.backgroundColor = '#192129'
+        const editElem = document.getElementById('edit_' + this.messageReplyingTo.gUID)
+        if (editElem != null) editElem.style.display = 'flex'
+      }, 0)
+    },
+    sendReply: async function () {
+      if (!this.isReplyingToMessage || this.messageReplyingTo === {}) return
+      const payload = await this.encryptPayload(
+        JSON.stringify({
+          src: this.messageReplyingTo,
+          reply: this.new_message
+        }))
+      this.resetReplying()
+      this.addMessagePar('[c:REPLY][c:MSG<ENCR]' + payload)
+      this.new_message = ''
+    },
     getMemberCount: function () {
       if (this.mainMembers != null) {
         return this.mainMembers.length
       } else {
         return 0
-      }
-    },
-    getAddMessageTitle: function () {
-      if (this.isEditingMessage === true) {
-        return 'Edit Message'
-      } else {
-        return 'Send Message'
       }
     },
     scrollToBottom: function (focusInput = true) {
@@ -4060,6 +4127,19 @@ export default {
       this.members = []
       this.disconnect()
       this.connect(chatroomId, false, novisual)
+    },
+    prepareInputField: function () {
+      setTimeout(() => {
+        this.inputField = document.getElementById('new_comment')
+        // Remove event listeners first to avoid having multiple
+        this.inputField.removeEventListener('keydown', this.handleEnter, false)
+        this.inputField.removeEventListener('input', this.handleCommentInput, false)
+        // Add event listeners
+        this.inputField.addEventListener('keydown', this.handleEnter, false)
+        this.inputField.addEventListener('input', this.handleCommentInput, false)
+        // Focus
+        this.focusComment()
+      }, 0)
     }
   }
 }
