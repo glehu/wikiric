@@ -305,10 +305,9 @@
             </div>
             <!-- #### MESSAGES #### -->
             <div id="messages_section"
-                 class="messages_section bg-neutral-900 relative"
-                 style="overflow-y: auto; overflow-x: clip;
-                    height: calc(100vh - 60px - 50px - 80px);
-                    display: flex; flex-direction: column-reverse">
+                 class="messages_section bg-neutral-900 relative flex overflow-y-auto overflow-x-clip"
+                 style="height: calc(100vh - 60px - 50px - 80px);
+                        flex-direction: column-reverse">
               <div id="init_loading" style="display: none">
                 <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
                 <span class="ms-2 fw-bold c_lightgray">Initializing...</span>
@@ -547,6 +546,122 @@
                 </div>
               </template>
             </div>
+            <div v-if="isTaggingUser"
+                 class="user_tagger b_gray c_lightgray"
+                 style="padding: 10px; position: absolute; z-index: 100">
+              <p class="pointer-events-none mb-2">Tag a member:</p>
+              <div v-for="(usr, index) in this.members" :key="usr"
+                   :id="'usertagger_' + index"
+                   class="gray-hover relative flex items-center mb-1"
+                   :class="{'active_gray': index === this.tagIndex}"
+                   v-on:click="tagUserProfile(usr)">
+                <template v-if="usr.taggable === true">
+                  <div class="px-1 flex items-center">
+                    <i class="bi bi-at"
+                       style="font-size: 200%">
+                    </i>
+                    <span style="font-weight: bold; margin-left: 5px"> {{ usr.usr }} </span>
+                  </div>
+                </template>
+              </div>
+            </div>
+            <div v-if="isSelectingImgflipTemplate"
+                 class="imgflip_selector b_gray c_lightgray"
+                 style="padding: 10px; position: absolute; z-index: 100">
+              <p class="pointer-events-none mb-2">Select an Imgflip meme template:</p>
+              <template v-for="(template, index) in this.imgflipSelection" :key="template">
+                <div v-if="template.selectable !== false"
+                     :id="'templateselector_' + index"
+                     class="gray-hover mb-3"
+                     :class="{'active_gray': index === this.tagIndex}"
+                     style="position: relative; display: flex; align-items: center"
+                     v-on:click="selectImgflipTemplate(template)">
+                  <img :src="template.url" alt="Loading" class="selectableGIF"
+                       style="width: 100px; max-height: 100px">
+                  <p style="margin-left: 10px; font-size: 75%">
+                    {{ template.name }}
+                  </p>
+                </div>
+              </template>
+            </div>
+            <div v-if="isFillingImgflipTemplate.active"
+                 class="imgflip_selector b_gray c_lightgray"
+                 style="padding: 10px; position: absolute; z-index: 100; overflow: hidden">
+              <div class="imgflip_toolbar b_darkergray"
+                   style="display: flex; width: fit-content; align-items: center; padding: 5px;
+                        border-radius: 12px">
+                <button id="imgflip_toolbar_boxtools_toggler"
+                        title="Box Mode"
+                        class="btn b_darkgray gray-hover c_lightgray"
+                        style="border-radius: 10px"
+                        v-on:click="toggleImgflipBoxMode">
+                  <i class="bi bi-pencil" style="font-size: 125%;"></i>
+                </button>
+                <div id="imgflip_toolbar_boxtools"
+                     style="display: flex; opacity: 0; transition: 0.5s ease opacity">
+                  <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
+                    <div class="c_darkgray ms-2 fw-bold"
+                         style="font-size: 150%; pointer-events: none">
+                      |
+                    </div>
+                    <button title="Add Text Box"
+                            class="btn b_darkgray gray-hover c_lightgray ms-2"
+                            style="border-radius: 10px"
+                            v-on:click="addImgflipTextBox()">
+                      <i class="bi bi-plus-lg" style="font-size: 125%;"></i>
+                    </button>
+                    <button title="Reset"
+                            class="btn b_darkgray gray-hover c_lightgray ms-2"
+                            style="border-radius: 10px"
+                            disabled>
+                      <i class="bi bi-arrow-counterclockwise" style="font-size: 125%;"></i>
+                    </button>
+                    <button title="Send"
+                            class="btn golden-hover golden-hover c_lightgray ms-2"
+                            style="border-radius: 10px"
+                            v-on:click="sendImgflipBoxes()">
+                      <i class="bi bi-send text-black"
+                         style="font-size: 125%;">
+                      </i>
+                    </button>
+                    <p style="margin: 0"></p>
+                  </template>
+                </div>
+              </div>
+              <br>
+              <img id="imgflip_meme"
+                   :src="this.imgflip_template.url" alt="Loading" class="selectableGIF"
+                   style="width: auto; height: calc(90vh - 70px - 80px); border-radius: 10px;
+                        transition: 0.3s ease all;">
+              <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
+                <div id="meme_boxes_container"
+                     style="width: auto; height: calc(90vh - 70px - 80px); position: absolute; top: 60px; left: 0">
+                  <div v-for="box in this.isFillingImgflipTemplate.boxes" :key="box.id"
+                       :id="'imgflip_draggableText_' + box.id + '_div'"
+                       class="imgflip_text"
+                       style="top: 100px; left: 10px; font-size: 100%; height: 50px; width: 150px">
+                    <div :id="'imgflip_draggableText_' + box.id + '_div_anchor'"
+                         class="draggable_meme_text_anchor"
+                         style="font-family: Arial, sans-serif; text-shadow: none">
+                      <i class="bi bi-arrows-move" style="font-size: 75%; color: black"></i>
+                    </div>
+                    <textarea :id="'imgflip_draggableText_' + box.id" rows="1" cols="8"
+                              class="fw-bold draggable_meme_text border-2 border-black"></textarea>
+                  </div>
+                </div>
+              </template>
+              <template v-else-if="isFillingImgflipTemplate.mode === 'top-bottom'">
+                <input id="imgflip_topText"
+                       style="bottom: 80px; background-color: rgba(255, 255, 255, 0.5);"
+                       class="text-center fw-bold imgflip_text"
+                       placeholder="Top Text">
+                <input id="imgflip_bottomText"
+                       style="bottom: 10px; background-color: rgba(255, 255, 255, 0.5);"
+                       class="text-center fw-bold imgflip_text"
+                       placeholder="Bottom Text"
+                       v-on:keyup.enter="submitImgflipMeme">
+              </template>
+            </div>
             <!-- #### USER INPUT FIELD #### -->
             <div style="display: inline-flex;
                       width: 100%;
@@ -591,119 +706,6 @@
                       </div>
                     </template>
                   </div>
-                </template>
-              </div>
-              <div v-if="isTaggingUser"
-                   class="user_tagger b_gray c_lightgray"
-                   style="padding: 10px; position: relative; z-index: 100">
-                <h6 style="pointer-events: none">Tag a member:</h6>
-                <div v-for="(usr, index) in this.members" :key="usr"
-                     class="gray-hover"
-                     :class="{'active_gray': index === this.tagIndex}"
-                     style="position: relative; display: flex; align-items: center"
-                     v-on:click="tagUserProfile(usr)">
-                  <template v-if="usr.taggable === true">
-                    <i class="bi bi-at"
-                       style="font-size: 200%">
-                    </i>
-                    <span style="font-weight: bold; margin-left: 5px"> {{ usr.usr }} </span>
-                  </template>
-                </div>
-              </div>
-              <div v-if="isSelectingImgflipTemplate"
-                   class="imgflip_selector b_gray c_lightgray"
-                   style="padding: 10px; position: relative; z-index: 100">
-                <h6 style="pointer-events: none">Select an Imgflip meme template:</h6>
-                <template v-for="(template, index) in this.imgflipSelection" :key="template">
-                  <div v-if="template.selectable !== false"
-                       class="gray-hover mb-3"
-                       :class="{'active_gray': index === this.tagIndex}"
-                       style="position: relative; display: flex; align-items: center"
-                       v-on:click="selectImgflipTemplate(template)">
-                    <img :src="template.url" alt="Loading" class="selectableGIF"
-                         style="width: 100px; max-height: 100px">
-                    <p style="margin-left: 10px; font-size: 75%">
-                      {{ template.name }}
-                    </p>
-                  </div>
-                </template>
-              </div>
-              <div v-if="isFillingImgflipTemplate.active"
-                   class="imgflip_selector b_gray c_lightgray"
-                   style="padding: 10px; position: relative; z-index: 100; overflow: hidden">
-                <div class="imgflip_toolbar b_darkergray"
-                     style="display: flex; width: fit-content; align-items: center; padding: 5px;
-                        border-radius: 12px">
-                  <button id="imgflip_toolbar_boxtools_toggler"
-                          title="Box Mode"
-                          class="btn b_darkgray gray-hover c_lightgray"
-                          style="border-radius: 10px"
-                          v-on:click="toggleImgflipBoxMode">
-                    <i class="bi bi-pencil" style="font-size: 125%;"></i>
-                  </button>
-                  <div id="imgflip_toolbar_boxtools"
-                       style="display: flex; opacity: 0; transition: 0.5s ease opacity">
-                    <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
-                      <div class="c_darkgray ms-2 fw-bold"
-                           style="font-size: 150%; pointer-events: none">
-                        |
-                      </div>
-                      <button title="Add Text Box"
-                              class="btn b_darkgray gray-hover c_lightgray ms-2"
-                              style="border-radius: 10px"
-                              v-on:click="addImgflipTextBox()">
-                        <i class="bi bi-plus-lg" style="font-size: 125%;"></i>
-                      </button>
-                      <button title="Reset"
-                              class="btn b_darkgray gray-hover c_lightgray ms-2"
-                              style="border-radius: 10px"
-                              disabled>
-                        <i class="bi bi-arrow-counterclockwise" style="font-size: 125%;"></i>
-                      </button>
-                      <button title="Send"
-                              class="btn golden-hover golden-hover c_lightgray ms-2"
-                              style="border-radius: 10px"
-                              v-on:click="sendImgflipBoxes()">
-                        <i class="bi bi-send text-black"
-                           style="font-size: 125%;">
-                        </i>
-                      </button>
-                      <p style="margin: 0"></p>
-                    </template>
-                  </div>
-                </div>
-                <br>
-                <img id="imgflip_meme"
-                     :src="this.imgflip_template.url" alt="Loading" class="selectableGIF"
-                     style="width: auto; height: calc(90vh - 70px - 80px); border-radius: 10px;
-                        transition: 0.3s ease all;">
-                <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
-                  <div id="meme_boxes_container"
-                       style="width: auto; height: calc(90vh - 70px - 80px); position: absolute; top: 60px; left: 0">
-                    <div v-for="box in this.isFillingImgflipTemplate.boxes" :key="box.id"
-                         :id="'imgflip_draggableText_' + box.id + '_div'"
-                         class="imgflip_text"
-                         style="top: 100px; left: 10px; font-size: 100%; height: 50px; width: 150px">
-                      <div :id="'imgflip_draggableText_' + box.id + '_div_anchor'"
-                           class="draggable_meme_text_anchor"
-                           style="font-family: Arial, sans-serif; text-shadow: none">
-                        <i class="bi bi-arrows-move" style="font-size: 75%; color: black"></i>
-                      </div>
-                      <textarea :id="'imgflip_draggableText_' + box.id" rows="1" cols="8"
-                                class="fw-bold draggable_meme_text border-2 border-black"></textarea>
-                    </div>
-                  </div>
-                </template>
-                <template v-else-if="isFillingImgflipTemplate.mode === 'top-bottom'">
-                  <input id="imgflip_topText"
-                         style="bottom: 80px; background-color: rgba(255, 255, 255, 0.5);"
-                         class="text-center fw-bold imgflip_text"
-                         placeholder="Top Text">
-                  <input id="imgflip_bottomText"
-                         style="bottom: 10px; background-color: rgba(255, 255, 255, 0.5);"
-                         class="text-center fw-bold imgflip_text"
-                         placeholder="Bottom Text"
-                         v-on:keyup.enter="submitImgflipMeme">
                 </template>
               </div>
               <textarea id="new_comment"
@@ -2718,6 +2720,13 @@ export default {
             } else {
               this.tagIndex = 0
             }
+            const tmpElem = document.getElementById('usertagger_' + this.tagIndex)
+            if (tmpElem) {
+              tmpElem.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+              })
+            }
           } else if (this.isSelectingImgflipTemplate === true) {
             event.preventDefault()
             if (this.tagIndex > 0) {
@@ -2738,6 +2747,13 @@ export default {
               }
             } else {
               this.tagIndex = 0
+            }
+            const tmpElem = document.getElementById('templateselector_' + this.tagIndex)
+            if (tmpElem) {
+              tmpElem.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+              })
             }
           }
         } else {
@@ -2767,6 +2783,13 @@ export default {
           } else {
             this.tagIndex = this.members.length - 1
           }
+          const tmpElem = document.getElementById('usertagger_' + this.tagIndex)
+          if (tmpElem) {
+            tmpElem.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            })
+          }
         } else if (this.isSelectingImgflipTemplate === true) {
           event.preventDefault()
           if (this.tagIndex < this.imgflipSelection.length - 1) {
@@ -2787,6 +2810,13 @@ export default {
             }
           } else {
             this.tagIndex = this.imgflipSelection.length - 1
+          }
+          const tmpElem = document.getElementById('templateselector_' + this.tagIndex)
+          if (tmpElem) {
+            tmpElem.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            })
           }
         }
       }
@@ -4119,9 +4149,8 @@ export default {
 
 .gray-hover:hover,
 .active_gray {
-  @apply bg-gray-800;
+  @apply bg-gray-800 rounded-md;
   cursor: pointer;
-  border-radius: 10px;
 }
 
 .golden-hover {
@@ -4581,15 +4610,14 @@ export default {
 
 .user_tagger,
 .imgflip_selector {
+  @apply rounded-md p-0;
   position: absolute;
-  bottom: 60px;
+  bottom: 80px;
   left: 10px;
   width: calc(100% - 20px);
-  border-radius: 20px;
-  padding: 0;
   font-weight: bold;
   transition: 0.3s opacity;
-  max-height: calc(90vh - 70px);
+  max-height: calc(100vh - 60px - 50px - 80px - 10px);
   overflow-y: auto;
   overflow-x: hidden;
 }
