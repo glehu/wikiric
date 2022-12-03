@@ -460,7 +460,8 @@
                     <!-- #### CLIENT GIF MESSAGE #### -->
                     <template v-else-if="msg.mType === 'GIF'">
                       <div class="clientMessage">
-                        <img :src="msg.msg" :alt="msg.msg"
+                        <img :src="msg.msgURL"
+                             :alt="msg.msg"
                              :style="{maxWidth: mediaMaxWidth}">
                         <br>
                         <div>
@@ -473,11 +474,11 @@
                     <!-- #### CLIENT IMAGE (SnippetBase) #### -->
                     <template v-else-if="msg.mType === 'Image'">
                       <div class="clientMessage">
-                        <img :src="msg.msg"
+                        <img :src="msg.msgURL"
                              :alt="msg.msg"
                              style="cursor: zoom-in"
                              :style="{maxWidth: mediaMaxWidth}"
-                             v-on:click="openURL(msg.msg)">
+                             v-on:click="openURL(msg.msgURL)">
                       </div>
                     </template>
                     <!-- #### CLIENT AUDIO (SnippetBase) #### -->
@@ -504,20 +505,21 @@
                       <div class="w-full h-full">
                         <div class="mb-3 mt-2 pl-2 text-neutral-400 border-l-4 border-l-slate-800">
                           <p class="mb-2 text-sm">
-                            Reply to {{ JSON.parse(msg.msg).src.src }}:
+                            Reply to {{ msg.source.src }}:
                           </p>
                           <Markdown :id="'rsr_' + msg.gUID"
                                     class="py-1 px-2 bg-neutral-900 border-4 border-slate-800 rounded-md w-fit mb-1"
-                                    :source="JSON.parse(msg.msg).src.msg"
+                                    :source="msg.source.msg"
                                     :breaks="true"
-                                    :plugins="plugins"/>
+                                    :plugins="plugins"
+                                    :style="{maxWidth: mediaMaxWidth}"/>
                           <p class="text-xs text-neutral-500">
-                            {{ new Date(JSON.parse(msg.msg).src.time).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+                            {{ new Date(msg.source.time).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
                           </p>
                         </div>
                         <Markdown :id="'msg_' + msg.gUID"
                                   class="clientMessage"
-                                  :source="JSON.parse(msg.msg).reply"
+                                  :source="msg.msg"
                                   :breaks="true"
                                   :plugins="plugins"/>
                       </div>
@@ -1427,30 +1429,6 @@ export default {
       this.resizeCanvas()
       // Save elements to gain performance boost by avoiding too many lookups
       this.message_section = document.getElementById('messages_section')
-      // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-      // Generate new token just in case
-      await this.serverLogin()
-      console.debug('initFunction->getClarifierMetaData (INIT)', this.getSession())
-      await this.getClarifierMetaData(this.getSession(), false, true)
-      // Are we connecting to a subchat?
-      const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop)
-      })
-      const subchatGUID = params.sub
-      this.toggleElement('init_loading', 'flex')
-      if (subchatGUID != null) {
-        this.$store.commit('setLastClarifierSubGUID', subchatGUID)
-        console.debug('initFunction->getClarifierMetaData (SUB PREP)', this.getSession())
-        await this.getClarifierMetaData(this.getSession(), false, true)
-        console.debug('initFunction->gotoSubchat', subchatGUID)
-        await this.gotoSubchat(subchatGUID)
-      } else {
-        this.$store.commit('setLastClarifierSubGUID', 'none')
-        // Connect to the session
-        console.debug('initFunction->connect', this.getSession())
-        await this.connect()
-      }
-      // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
       document.addEventListener('keydown', this.handleGlobalKeyEvents, false)
       // Set message section with its scroll event
       this.message_section.addEventListener('scroll', this.checkScroll, false)
@@ -1494,6 +1472,30 @@ export default {
       }
       this.timer = setInterval(this.clearActivity, 1000)
       this.timerIdle = setInterval(this.clearActivityIdle, 1000)
+      // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
+      // Generate new token just in case
+      await this.serverLogin()
+      console.debug('initFunction->getClarifierMetaData (INIT)', this.getSession())
+      await this.getClarifierMetaData(this.getSession(), false, true)
+      // Are we connecting to a subchat?
+      const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop)
+      })
+      const subchatGUID = params.sub
+      this.toggleElement('init_loading', 'flex')
+      if (subchatGUID != null) {
+        this.$store.commit('setLastClarifierSubGUID', subchatGUID)
+        console.debug('initFunction->getClarifierMetaData (SUB PREP)', this.getSession())
+        await this.getClarifierMetaData(this.getSession(), false, true)
+        console.debug('initFunction->gotoSubchat', subchatGUID)
+        await this.gotoSubchat(subchatGUID)
+      } else {
+        this.$store.commit('setLastClarifierSubGUID', 'none')
+        // Connect to the session
+        console.debug('initFunction->connect', this.getSession())
+        await this.connect()
+      }
+      // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
     },
     setUpWRTC: function () {
       // Initialize wRTC.js
@@ -1559,7 +1561,7 @@ export default {
       } else {
         if (document.activeElement.id === 'new_comment') {
           // User has pressed a key whilst being in the input field
-          this.shareActivity(ev)
+          this.shareActivity()
         }
       }
     },
@@ -1629,6 +1631,7 @@ export default {
         this.getClarifierMetaData(sessionID, isSubchat, novisual)
           .then(() => this.getClarifierMessages(false, sessionID))
           .then(() => this.getActiveMembers(sessionID))
+          .then(() => this.prepareInputField())
           .then(resolve)
       })
     },
@@ -2044,7 +2047,6 @@ export default {
             // Main Members
             this.mainMembers[i] = JSON.parse(this.chatroom.members[i])
             this.mainMembers[i].taggable = true
-            this.mainMembers[i].online = this.mainMembers[i].usr === this.$store.state.username
             // Current Members
             this.members[i] = this.mainMembers[i]
             this.members[i].taggable = true
@@ -2226,6 +2228,10 @@ export default {
           }
         } else if (tmp.substring(0, 10) === '[activity]') {
           this.receiveActivity(tmp.substring(10))
+        } else if (tmp.substring(0, 8) === '[online]') {
+          this.setActiveMembers([tmp.substring(8)])
+        } else if (tmp.substring(0, 9) === '[offline]') {
+          this.setActiveMembers([tmp.substring(9)], false)
         }
         return new Promise((resolve) => {
           resolve('')
@@ -2259,6 +2265,7 @@ export default {
         message.msg = message.msg.substring(8)
       } else if (message.msg.includes('[c:IMG]') === true) {
         message.mType = 'Image'
+        message.apiResponse = true
         message.msg = message.msg.substring(7)
       } else if (message.msg.includes('[c:AUD]') === true) {
         message.mType = 'Audio'
@@ -2329,6 +2336,23 @@ export default {
           message.reacts = []
         }
       }
+      if (message.mType === 'Image' || message.mType === 'GIF') {
+        try {
+          const tmp = JSON.parse(message.msg)
+          message.msg = tmp.msg
+          message.msgURL = tmp.url
+        } catch (e) {
+          console.error('Image Message Parsing Error')
+        }
+      } else if (message.mType === 'Reply') {
+        try {
+          const tmp = JSON.parse(message.msg)
+          message.msg = tmp.reply
+          message.source = tmp.src
+        } catch (e) {
+          console.error('Image Message Parsing Error')
+        }
+      }
       message.tagActive = message.msg.includes('@' + this.$store.state.username) === true
       this.last_message = message
       return new Promise((resolve) => {
@@ -2369,11 +2393,16 @@ export default {
         }
       )
         .then((res) => res.json())
-        .then(async (data) => (
+        .then(async (data) => {
+          const imgURL = data.data.images.fixed_height.url
+          const payload = {
+            msg: '![Giphy GIF](' + imgURL + ')',
+            url: imgURL
+          }
           this.addMessagePar('[c:GIF][c:MSG<ENCR]' +
-            await this.encryptPayload(data.data.images.fixed_height.url)
-          ))
-        )
+            await this.encryptPayload(JSON.stringify(payload))
+          )
+        })
         .catch((err) => console.error(err.message))
     },
     getRandomJoke: function (text) {
@@ -2505,7 +2534,11 @@ export default {
       if (response.success !== true) {
         return
       }
-      this.addMessagePar('[c:IMG][c:MSG<ENCR]' + await this.encryptPayload(response.data.url))
+      const payload = {
+        msg: '![Imgflip](' + response.data.url + ')',
+        url: response.data.url
+      }
+      this.addMessagePar('[c:IMG][c:MSG<ENCR]' + await this.encryptPayload(JSON.stringify(payload)))
     },
     toggleSelectingGIF: function () {
       const wasShowing = this.isViewingGIFSelection
@@ -2650,9 +2683,10 @@ export default {
     },
     handleSidebarToggle: function (element) {
       if (element.classList.contains('active')) {
+        if (window.innerWidth >= 1100) this.showSidebar2()
         element.classList.remove('active')
       } else {
-        if (window.innerWidth < 1100) this.hideSidebar2()
+        this.hideSidebar2()
         element.classList.add('active')
       }
     },
@@ -3163,9 +3197,13 @@ export default {
       await this.connect(subchatGUID, subchatMode)
       this.lazyLoadingStatus = 'idle'
       this.inputField.focus()
+      return new Promise((resolve) => {
+        resolve()
+      })
     },
     disconnect: function () {
       if (this.connection == null) return
+      this.addMessagePar('[c:SC]' + '[offline]' + this.$store.state.username)
       this.connection.close()
     },
     resetStats: function () {
@@ -3216,7 +3254,7 @@ export default {
       }
       return chatGUID
     },
-    processUploadSnippetResponse: function (response) {
+    processUploadSnippetResponse: async function (response) {
       if (response.httpCode !== 201) {
         this.handleUploadSnippetError()
         return
@@ -3224,7 +3262,14 @@ export default {
       let prefix = '[c:IMG]'
       if (this.uploadFileType.includes('audio')) prefix = '[c:AUD]'
       // Add the link as a message, so it shows up in the chat
-      this.addMessagePar(prefix + this.$store.state.serverIP + '/m6/get/' + response.guid)
+      const imgURL = this.$store.state.serverIP + '/m6/get/' + response.guid
+      const payload = {
+        msg: '![Snippet](' + imgURL + ')',
+        url: imgURL
+      }
+      this.addMessagePar(prefix + '[c:MSG<ENCR]' +
+        await this.encryptPayload(JSON.stringify(payload))
+      )
       // Post the new_message content in case the user has written a comment
       this.addMessagePar(this.new_message)
       this.uploadFileBase64 = ''
@@ -3916,7 +3961,7 @@ export default {
         }
       }, 0)
     },
-    shareActivity (ev) {
+    shareActivity: function () {
       let found = false
       if (this.userActivity.length > 0) {
         // Check if activity was previously shared already
@@ -3942,7 +3987,9 @@ export default {
         })
       }
     },
-    receiveActivity (username) {
+    receiveActivity: function (username) {
+      // Check and set online status
+      this.setActiveMembers([username])
       let found = false
       if (this.userActivity.length > 0) {
         // Check if activity was previously shared
@@ -3962,7 +4009,7 @@ export default {
         })
       }
     },
-    receiveIdle (username) {
+    receiveIdle: function (username) {
       let found = false
       if (this.userActivityIdle.length > 0) {
         // Check if activity was previously shared
@@ -3981,7 +4028,7 @@ export default {
         })
       }
     },
-    clearActivity () {
+    clearActivity: function () {
       for (let i = this.userActivity.length; i > 0; i--) {
         const dateThen = this.userActivity[i - 1].date
         const dateNow = new Date()
@@ -3992,7 +4039,7 @@ export default {
         }
       }
     },
-    clearActivityIdle () {
+    clearActivityIdle: function () {
       for (let i = this.userActivityIdle.length; i > 0; i--) {
         const dateThen = this.userActivityIdle[i - 1].date
         const dateNow = new Date()
@@ -4038,13 +4085,18 @@ export default {
         .then((data) => {
           this.setActiveMembers(data.members)
         })
+        .finally(() => {
+          setTimeout(() => {
+            this.addMessagePar('[c:SC]' + '[online]' + this.$store.state.username)
+          }, 0)
+        })
     },
-    setActiveMembers: function (members) {
+    setActiveMembers: function (members, override = true) {
       if (!members) return
       for (let i = 0; i < members.length; i++) {
         for (let j = 0; j < this.mainMembers.length; j++) {
           if (this.mainMembers[j].usr === members[i]) {
-            this.mainMembers[j].online = true
+            this.mainMembers[j].online = override
             break
           }
         }
