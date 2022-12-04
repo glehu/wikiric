@@ -565,7 +565,8 @@
                           [Enter]
                         </div>
                         <div class="mr-1 text-neutral-300 pointer-events-none">to save,</div>
-                        <div v-on:click="this.resetEditing()" class="text-white cursor-pointer mr-1 font-bold">
+                        <div v-on:click="this.resetEditing(); this.resetReplying()"
+                             class="text-white cursor-pointer mr-1 font-bold">
                           [Esc]
                         </div>
                         <span class="text-neutral-300 pointer-events-none">to cancel.</span>
@@ -2458,8 +2459,12 @@ export default {
         .catch((err) => console.error(err.message))
     },
     sendSelectedGIF: async function (url) {
+      const payload = {
+        msg: '![Giphy GIF](' + url + ')',
+        url: url
+      }
       this.addMessagePar('[c:GIF][c:MSG<ENCR]' +
-        await this.encryptPayload(url), true
+        await this.encryptPayload(JSON.stringify(payload)), true
       )
     },
     getGIFSelection: function (text) {
