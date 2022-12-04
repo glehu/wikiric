@@ -1101,8 +1101,8 @@ export default {
   @apply my-4 h-[4px] w-3/4 mx-auto;
 }
 
-.markedFinder:last-child {
-  @apply mb-0;
+.markedFinder > :last-child {
+  @apply mb-0 !important;
 }
 
 .gray-hover:hover {

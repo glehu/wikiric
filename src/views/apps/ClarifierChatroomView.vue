@@ -318,7 +318,12 @@
               </div>
               <template v-for="msg in messages" :key="msg.gUID">
                 <div class="message" :id="msg.gUID">
-                  <!-- Chat Avatar and Date-->
+                  <template v-if="msg.separator === true">
+                    <div class="headerline pointer-events-none text-xs text-neutral-500">
+                      {{ msg.time.toLocaleDateString('de-DE').replace(' ', '&nbsp;') }}
+                    </div>
+                  </template>
+                  <!-- Chat Avatar and Date -->
                   <template v-if="msg.header === true">
                     <div style="position: relative;
                             display: flex;
@@ -2201,10 +2206,8 @@ export default {
           }
         } else if (tmp.substring(0, 3) === '[B]') {
           // Answer
-          // if (this.peerType === 'caller') {
           const rtcAnswer = JSON.parse(tmp.substring(3))
           await this.acceptWebRTCAnswer(rtcAnswer)
-          // }
         } else if (tmp.substring(0, 3) === '[C]') {
           // ICE Candidates
           const rtcCandidatePayload = JSON.parse(tmp.substring(3))
@@ -2231,7 +2234,10 @@ export default {
         } else if (tmp.substring(0, 8) === '[online]') {
           this.setActiveMembers([tmp.substring(8)])
         } else if (tmp.substring(0, 9) === '[offline]') {
+          // Set offline user status and remove him from all activity
           this.setActiveMembers([tmp.substring(9)], false)
+          this.removeUserFromActivity(tmp.substring(9))
+          this.removeUserFromIdle(tmp.substring(9))
         }
         return new Promise((resolve) => {
           resolve('')
@@ -2243,6 +2249,7 @@ export default {
       message.apiResponse = false
       // Process timestamp
       message.time = new Date(message.ts)
+      // Process reserved keywords
       if (message.msg.includes('[s:EditNotification]') === true && message.src === '_server') {
         message.mType = 'EditNotification'
         message.msg = message.msg.substring(20)
@@ -2308,6 +2315,19 @@ export default {
           }
         }
       }
+      // Do we need to add a separator since a new day began?
+      message.seperator = false
+      const msgDay = message.time.getDate()
+      const msgMonth = message.time.getMonth()
+      const msgYear = message.time.getFullYear()
+      if (this.last_message) {
+        if (msgYear > this.last_message.msgYear ||
+          msgMonth > this.last_message.msgMonth ||
+          msgDay > this.last_message.msgDay) {
+          // Put the separator!
+          message.separator = true
+        }
+      }
       /* Are we allowed to edit this message?
       Only allow the user to edit his own messages, not the ones of others
        */
@@ -2354,7 +2374,11 @@ export default {
         }
       }
       message.tagActive = message.msg.includes('@' + this.$store.state.username) === true
+      // Set this message as the last that was processed
       this.last_message = message
+      this.last_message.msgDay = msgDay
+      this.last_message.msgMonth = msgMonth
+      this.last_message.msgYear = msgYear
       return new Promise((resolve) => {
         resolve(message)
       })
@@ -4838,8 +4862,8 @@ export default {
   @apply mb-4;
 }
 
-.clientMessage p:last-child {
-  @apply m-0;
+.clientMessage > :last-child {
+  @apply mb-0 !important;
 }
 
 .clientMessage table {
@@ -4866,6 +4890,14 @@ export default {
   @apply mb-2;
 }
 
+.clientMessage p code {
+  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-neutral-700 text-neutral-400;
+}
+
+.clientMessage hr {
+  @apply my-4 h-[4px] w-3/4 mx-auto;
+}
+
 .clientMessage a {
   @apply underline;
 }
@@ -4888,6 +4920,33 @@ export default {
 
 .clientMessage h5 {
   @apply text-lg mb-2;
+}
+
+.headerline {
+  overflow: hidden;
+  text-align: center;
+}
+
+.headerline:before,
+.headerline:after {
+  background-color: #424242;
+  content: "";
+  display: inline-block;
+  height: 2px;
+  position: relative;
+  vertical-align: middle;
+  width: 50%;
+  border-radius: 10px;
+}
+
+.headerline:before {
+  right: 0.5em;
+  margin-left: -50%;
+}
+
+.headerline:after {
+  left: 0.5em;
+  margin-right: -50%;
 }
 
 </style>

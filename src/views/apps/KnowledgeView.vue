@@ -918,8 +918,8 @@ export default {
   @apply my-4 h-[4px] w-3/4 mx-auto;
 }
 
-.markedView:last-child {
-  @apply mb-0;
+.markedView > :last-child {
+  @apply mb-0 !important;
 }
 
 .sidebar_tooltip {
