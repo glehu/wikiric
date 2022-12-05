@@ -320,7 +320,7 @@
                 <div class="message" :id="msg.gUID">
                   <template v-if="msg.separator === true">
                     <div class="headerline pointer-events-none text-xs text-neutral-500">
-                      {{ msg.time.toLocaleDateString('de-DE').replace(' ', '&nbsp;') }}
+                      {{ getHumanReadableDateText(msg.time) }}
                     </div>
                   </template>
                   <!-- Chat Avatar and Date -->
@@ -345,7 +345,7 @@
                   </span>
                       <div style="color: gray; font-size: 80%; padding-left: 10px">
                     <span style="pointer-events: none">
-                      {{ msg.time.toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+                      {{ getHumanReadableDateText(msg.time, true) }}
                     </span>
                         <template v-if="msg.isEncrypted === true">
                           <i v-if="msg.decryptionFailed === false" class="bi bi-shield-lock ms-1"
@@ -519,7 +519,7 @@
                                     :plugins="plugins"
                                     :style="{maxWidth: mediaMaxWidth}"/>
                           <p class="text-xs text-neutral-500">
-                            {{ new Date(msg.source.time).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+                            {{ getHumanReadableDateText(new Date(msg.source.time), true) }}
                           </p>
                         </div>
                         <Markdown :id="'msg_' + msg.gUID"
@@ -1420,6 +1420,7 @@ export default {
   beforeUnmount () {
     clearInterval(this.timer)
     clearInterval(this.timerIdle)
+    this.disconnect()
   },
   methods: {
     closeModal: function () {
@@ -3225,7 +3226,6 @@ export default {
       this.hideAllSidebars()
       await this.connect(subchatGUID, subchatMode)
       this.lazyLoadingStatus = 'idle'
-      this.inputField.focus()
       return new Promise((resolve) => {
         resolve()
       })
@@ -4221,6 +4221,29 @@ export default {
         // Focus
         this.focusComment()
       }, 0)
+    },
+    getHumanReadableDateText: function (date, withTime = false) {
+      const date2 = new Date()
+      const diffTime = Math.abs(date2 - date)
+      let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      if (date.getDate() === date2.getDate() &&
+        date.getMonth() === date2.getMonth() &&
+        date.getFullYear() === date2.getFullYear()) {
+        diffDays = 0
+      }
+      let suffix = ''
+      if (withTime) {
+        suffix = ', ' + date.toLocaleTimeString('de-DE')
+      }
+      if (diffDays === 0) {
+        return 'Today' + suffix
+      } else if (diffDays === 1) {
+        return 'Yesterday' + suffix
+      } else if (diffDays === 2) {
+        return '2 days ago' + suffix
+      } else {
+        return date.toLocaleDateString('de-DE') + suffix
+      }
     }
   }
 }
