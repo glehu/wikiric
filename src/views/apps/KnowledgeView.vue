@@ -48,8 +48,8 @@
         </div>
       </div>
       <div id="main" class="h-full w-full flex justify-center overflow-y-auto pb-56 overflow-x-hidden">
-        <div class="h-fit w-full pt-3 px-3">
-          <div class="flex mb-2 items-center">
+        <div class="h-fit w-full max-w-[1000px] px-3">
+          <div id="taskstart" class="flex mb-2 items-center pt-3">
             <TagIcon class="text-neutral-400 h-5 w-5 mr-2"></TagIcon>
             <template v-if="wisdom.categories">
               <template v-for="cat in wisdom.categories" :key="cat">
@@ -124,13 +124,113 @@
               <PencilSquareIcon class="h-6 w-6"></PencilSquareIcon>
             </div>
           </div>
-          <hr class="text-neutral-700 opacity-100 mb-3">
+          <hr class="text-neutral-700 opacity-100 mb-3 mt-1">
           <!-- Main Content -->
-          <Markdown class="markedView text-neutral-400"
-                    :source="wisdom.desc"
-                    :plugins="plugins"></Markdown>
+          <template v-if="wisdom.desc">
+            <Markdown class="markedView text-neutral-400"
+                      :source="wisdom.desc"
+                      :plugins="plugins"></Markdown>
+          </template>
+          <template v-else>
+            <div class="text-neutral-500">(No Description)</div>
+          </template>
+          <!-- Related Tasks -->
+          <div class="w-full mt-5">
+            <template v-if="related.tasks">
+              <Disclosure v-slot="{ open }">
+                <DisclosureButton
+                  class="my-2 flex w-full justify-between rounded-lg px-2 py-1 bg-neutral-800 hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-neutral-500 focus-visible:ring-opacity-75"
+                >
+                  <div class="text-neutral-400 text-sm flex justify-between w-full">
+                    <div>Related Tasks</div>
+                    <div class="font-bold mr-2">{{ related.tasks.length }}</div>
+                  </div>
+                  <ChevronUpIcon
+                    :class="open ? 'rotate-180 transform' : ''"
+                    class="h-5 w-5 text-neutral-400"
+                  />
+                </DisclosureButton>
+                <transition
+                  enter-active-class="transition duration-100 ease-out"
+                  enter-from-class="transform scale-95 opacity-0"
+                  enter-to-class="transform scale-100 opacity-100"
+                  leave-active-class="transition duration-75 ease-out"
+                  leave-from-class="transform scale-100 opacity-100"
+                  leave-to-class="transform scale-95 opacity-0"
+                >
+                  <DisclosurePanel>
+                    <div class="w-full grid gap-y-3 gap-x-2 grid-cols-2 xl:grid-cols-3">
+                      <div v-for="task in related.tasks" :key="task.uID"
+                           v-on:click="fetchData(task.gUID)"
+                           class="text-neutral-400 rounded-xl w-full cursor-pointer hover:brightness-150">
+                        <div class="bg-neutral-800 text-neutral-300 rounded-t py-1 px-3 pointer-events-none">
+                          <p class="font-bold">{{ task.t }}</p>
+                        </div>
+                        <div
+                          class="bg-neutral-700 text-neutral-300 rounded-b py-1 px-3 pointer-events-none max-h-[11em] overflow-y-hidden">
+                          <div class="flex items-center">
+                            <p class="text-sm">{{ task.desc }}</p>
+                          </div>
+                        </div>
+                        <div class="flex w-full mt-1 text-xs text-neutral-400">
+                          <p>{{ task.author }}</p>
+                          <p class="ml-auto">{{ getHumanReadableDateText(new Date(parseInt(task.cdate, 16) * 1000)) }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </DisclosurePanel>
+                </transition>
+              </Disclosure>
+            </template>
+            <template v-if="relatedSearch">
+              <Disclosure v-slot="{ open }">
+                <DisclosureButton
+                  class="my-2 flex w-full justify-between rounded-lg px-2 py-1 bg-neutral-800 hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-neutral-500 focus-visible:ring-opacity-75"
+                >
+                  <div class="text-neutral-400 text-sm flex justify-between w-full">
+                    <div>Related Entries</div>
+                    <div class="font-bold mr-2">{{ relatedSearch.length }}</div>
+                  </div>
+                  <ChevronUpIcon
+                    :class="open ? 'rotate-180 transform' : ''"
+                    class="h-5 w-5 text-neutral-400"
+                  />
+                </DisclosureButton>
+                <transition
+                  enter-active-class="transition duration-100 ease-out"
+                  enter-from-class="transform scale-95 opacity-0"
+                  enter-to-class="transform scale-100 opacity-100"
+                  leave-active-class="transition duration-75 ease-out"
+                  leave-from-class="transform scale-100 opacity-100"
+                  leave-to-class="transform scale-95 opacity-0"
+                >
+                  <DisclosurePanel>
+                    <div class="w-full grid gap-y-3 gap-x-2 grid-cols-2 xl:grid-cols-3">
+                      <div v-for="task in relatedSearch" :key="task.uID"
+                           v-on:click="fetchData(task.result.gUID)"
+                           class="text-neutral-400 w-full rounded-xl cursor-pointer hover:brightness-150">
+                        <div class="bg-neutral-800 text-neutral-300 rounded-t py-1 px-3 pointer-events-none">
+                          <p class="font-bold">{{ task.result.t }}</p>
+                        </div>
+                        <div
+                          class="bg-neutral-700 text-neutral-300 rounded-b py-1 px-3 pointer-events-none max-h-[11em] overflow-y-hidden">
+                          <div class="flex items-center">
+                            <p class="text-sm">{{ task.result.desc }}</p>
+                          </div>
+                        </div>
+                        <div class="flex w-full mt-1 text-xs text-neutral-400">
+                          <p>{{ task.result.author }}</p>
+                          <p class="ml-auto">{{ getHumanReadableDateText(new Date(task.result.cdate)) }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </DisclosurePanel>
+                </transition>
+              </Disclosure>
+            </template>
+          </div>
           <!-- Comments/Answers -->
-          <div id="wisdomComments" class="w-full mt-10 pt-10">
+          <div id="wisdomComments" class="w-full mt-5 pt-3">
             <div class="w-full relative">
               <div
                 class="p-2 rounded-full hover:bg-neutral-700 text-neutral-500 hover:text-neutral-200 absolute right-0 sidebar_button cursor-pointer -translate-y-1 flex mx-1">
@@ -359,8 +459,16 @@ import {
   TagIcon,
   XMarkIcon
 } from '@heroicons/vue/24/outline'
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
-import { ArrowsUpDownIcon, CheckIcon, Squares2X2Icon } from '@heroicons/vue/24/solid'
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions
+} from '@headlessui/vue'
+import { ArrowsUpDownIcon, CheckIcon, ChevronUpIcon, Squares2X2Icon } from '@heroicons/vue/24/solid'
 
 export default {
   name: 'KnowledgeView',
@@ -387,7 +495,11 @@ export default {
     PencilSquareIcon,
     CubeTransparentIcon,
     Squares2X2Icon,
-    ChatBubbleLeftEllipsisIcon
+    ChatBubbleLeftEllipsisIcon,
+    Disclosure,
+    DisclosureButton,
+    DisclosurePanel,
+    ChevronUpIcon
   },
   data () {
     return {
@@ -403,14 +515,19 @@ export default {
       isEditingWisdom: false,
       isWritingComment: false,
       // ---
+      srcguidOverride: '',
       knowledge: {},
       wisdom: {
         type: ''
       },
       related: {
         answers: [],
-        comments: []
+        comments: [],
+        tasks: [],
+        questions: [],
+        lessons: []
       },
+      relatedSearch: [],
       wisComment: '',
       inputComment: null,
       plugins: [
@@ -439,26 +556,35 @@ export default {
     }
   },
   methods: {
-    fetchData: async function () {
+    fetchData: async function (guidOverride = '') {
+      document.getElementById('taskstart').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      })
+      this.srcguidOverride = guidOverride
       await this.serverLogin()
       await this.getWisdom()
       await this.getRelated()
+      if (this.wisdom.type === 'task') {
+        await this.getRelated(this.wisdom.srcWisdomUID + '?type=uid', true)
+      }
       // Whose knowledge are we trying to see?
-      let srcGUID
+      let knowledgeGUID
       if (!this.isoverlay) {
         const params = new Proxy(new URLSearchParams(window.location.search), {
           get: (searchParams, prop) => searchParams.get(prop)
         })
-        srcGUID = params.src
+        knowledgeGUID = params.src
       } else {
-        srcGUID = this.chatguid
+        knowledgeGUID = this.chatguid
       }
-      if (srcGUID != null) {
-        const knowledge = await this.getKnowledge(srcGUID)
+      if (knowledgeGUID != null) {
+        const knowledge = await this.getKnowledge(knowledgeGUID)
         if (knowledge != null) {
           this.knowledge = knowledge
         }
       }
+      await this.getRelatedSearch()
       return new Promise((resolve) => {
         resolve()
       })
@@ -468,7 +594,6 @@ export default {
       const input = document.getElementById('input_comment')
       input.addEventListener('keydown', this.handleEnter, false)
       this.inputComment = document.getElementById('input_comment')
-      // this.mainContent = document.getElementById('')
       this.auto_grow()
     },
     serverLogin: async function () {
@@ -507,10 +632,14 @@ export default {
       return new Promise((resolve) => {
         const headers = new Headers()
         let guid
-        if (!this.isoverlay) {
-          guid = this.$route.params.id
+        if (this.srcguidOverride === '') {
+          if (!this.isoverlay) {
+            guid = this.$route.params.id
+          } else {
+            guid = this.srcguid
+          }
         } else {
-          guid = this.srcguid
+          guid = this.srcguidOverride
         }
         headers.set('Authorization', 'Bearer ' + this.$store.state.token)
         fetch(
@@ -524,15 +653,7 @@ export default {
           .then((data) => {
             this.wisdom = data
             // Cut away all hashtags and whitespace at the front
-            if (this.wisdom.t && this.wisdom.t.startsWith('#')) {
-              let cutUntil = 0
-              for (let i = 0; i < this.wisdom.t.length; i++) {
-                if (this.wisdom.t.substring(i, i + 1) === '#') {
-                  cutUntil++
-                }
-              }
-              this.wisdom.t = this.wisdom.t.substring(cutUntil).trim()
-            }
+            this.wisdom.t = this.formatTitle(this.wisdom.t)
             this.wisGUID = data.gUID
             resolve()
           })
@@ -541,14 +662,19 @@ export default {
           })
       })
     },
-    getRelated: async function () {
+    getRelated: async function (guidOverride = '', onlyTasks = false) {
       return new Promise((resolve) => {
         let guid
-        if (!this.isoverlay) {
-          guid = this.$route.params.id
+        if (this.srcguidOverride === '') {
+          if (!this.isoverlay) {
+            guid = this.$route.params.id
+          } else {
+            guid = this.srcguid
+          }
         } else {
-          guid = this.srcguid
+          guid = this.srcguidOverride
         }
+        if (guidOverride !== '') guid = guidOverride
         const headers = new Headers()
         headers.set('Authorization', 'Bearer ' + this.$store.state.token)
         fetch(
@@ -560,11 +686,23 @@ export default {
         )
           .then((res) => res.json())
           .then((data) => {
-            this.related = data
-            if (this.related.comments) {
-              for (let i = 0; i < this.related.comments.length; i++) {
-                this.related.comments[i].cdate = new Date(
-                  parseInt(this.related.comments[i].cdate, 16) * 1000)
+            if (!onlyTasks) {
+              this.related = data
+              if (this.related.comments) {
+                for (let i = 0; i < this.related.comments.length; i++) {
+                  this.related.comments[i].cdate = new Date(
+                    parseInt(this.related.comments[i].cdate, 16) * 1000)
+                }
+              }
+            } else {
+              if (data.tasks) {
+                this.related.tasks = []
+                for (let i = 0; i < data.tasks.length; i++) {
+                  if (data.tasks[i].gUID !== this.wisdom.gUID) {
+                    data.tasks[i].t = this.formatTitle(data.tasks[i].t)
+                    this.related.tasks.push(data.tasks[i])
+                  }
+                }
               }
             }
           })
@@ -658,6 +796,9 @@ export default {
             this.resetValues()
             this.getWisdom()
           })
+          .then(() => {
+            this.getRelatedSearch()
+          })
           .then(() => resolve)
           .catch((err) => {
             console.error(err.message)
@@ -721,9 +862,7 @@ export default {
       }
       this.wisCopyContent = wisdom.copyContent
       this.wisGUID = wisdom.gUID
-      setTimeout(() => {
-        mermaid.init()
-      }, 0)
+      this.renderMermaid()
     },
     getKnowledge: async function (sessionID) {
       return new Promise((resolve) => {
@@ -816,6 +955,11 @@ export default {
               this.auto_grow()
             }, 0)
           })
+          .then(() => {
+            if (this.wisdom.type === 'task') {
+              this.getRelated(this.wisdom.srcWisdomUID + '?type=uid', true)
+            }
+          })
           .then(() => resolve)
           .catch((err) => {
             console.error(err.message)
@@ -846,6 +990,117 @@ export default {
         this.$router.back()
       } else {
         this.$emit('close')
+      }
+    },
+    getRelatedSearch: async function (substitute = null) {
+      if (!this.wisdom.keywords || this.wisdom.keywords.length < 1) return
+      // Reset results
+      this.relatedSearch = []
+      // Build queryString
+      let queryString = this.wisdom.keywords.replaceAll(',', ' ') + ' ' + this.wisdom.t
+      // Remove dangerous Regex wildcards
+      queryString = queryString.replaceAll('.', '')
+      queryString = queryString.replaceAll('?', '')
+      const payload = {
+        query: substitute ?? queryString
+      }
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m7/search/' + this.knowledge.gUID,
+          {
+            method: 'post',
+            headers: headers,
+            body: JSON.stringify(payload)
+          }
+        )
+          .then(res => res.json())
+          .then((data) => {
+            const parsedData = data
+            if (parsedData.first != null) {
+              for (let i = 0; i < parsedData.first.length; i++) {
+                if (parsedData.first[i].wisdom.gUID !== this.wisdom.gUID) {
+                  parsedData.first[i].wisdom.t = this.formatTitle(parsedData.first[i].wisdom.t)
+                  this.relatedSearch.push({
+                    priority: 'high',
+                    result: parsedData.first[i].wisdom
+                  })
+                }
+              }
+            }
+            if (parsedData.second != null) {
+              for (let i = 0; i < parsedData.second.length; i++) {
+                if (parsedData.second[i].wisdom.gUID !== this.wisdom.gUID) {
+                  parsedData.second[i].wisdom.t = this.formatTitle(parsedData.second[i].wisdom.t)
+                  this.relatedSearch.push({
+                    priority: 'medium',
+                    result: parsedData.second[i].wisdom
+                  })
+                }
+              }
+            }
+            /*
+            if (parsedData.third != null) {
+              for (let i = 0; i < parsedData.third.length; i++) {
+                if (parsedData.third[i].wisdom.gUID !== this.wisdom.gUID) {
+                  parsedData.third[i].wisdom.t = this.formatTitle(parsedData.third[i].wisdom.t)
+                  this.relatedSearch.push({
+                    priority: 'low',
+                    result: parsedData.third[i].wisdom
+                  })
+                }
+              }
+            }
+             */
+            this.relatedSearch.time = parsedData.time / 1000
+          })
+          .then(() => {
+            setTimeout(() => {
+              mermaid.init()
+            }, 0)
+          })
+          .then(() => resolve())
+          .catch((err) => {
+            console.error(err.message)
+          })
+      })
+    },
+    formatTitle: function (title) {
+      if (!title || title.length < 1) return ''
+      if (title.startsWith('#')) {
+        let cutUntil = 0
+        for (let i = 0; i < title.length; i++) {
+          if (title.substring(i, i + 1) === '#') {
+            cutUntil++
+          }
+        }
+        return title.substring(cutUntil).trim()
+      } else {
+        return title
+      }
+    },
+    getHumanReadableDateText: function (date, withTime = false) {
+      const date2 = new Date()
+      const diffTime = Math.abs(date2 - date)
+      let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      if (date.getDate() === date2.getDate() &&
+        date.getMonth() === date2.getMonth() &&
+        date.getFullYear() === date2.getFullYear()) {
+        diffDays = 0
+      }
+      let suffix = ''
+      if (withTime) {
+        suffix = ', ' + date.toLocaleTimeString('de-DE')
+      }
+      if (diffDays === 0) {
+        return 'Today' + suffix
+      } else if (diffDays === 1) {
+        return 'Yesterday' + suffix
+      } else if (diffDays === 2) {
+        return '2 days ago' + suffix
+      } else {
+        return date.toLocaleDateString('de-DE') + suffix
       }
     }
   }

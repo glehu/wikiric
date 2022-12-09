@@ -1099,7 +1099,7 @@ export default {
           categories.push(JSON.stringify(this.newTask.categories[i]))
         }
         payload = {
-          title: '## ' + this.newTask.name,
+          title: this.newTask.name,
           description: this.newTask.description,
           knowledgeGUID: this.knowledge.gUID,
           keywords: this.newTask.name,

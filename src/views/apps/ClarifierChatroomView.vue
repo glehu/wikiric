@@ -508,12 +508,12 @@
                     </template>
                     <template v-else-if="msg.mType === 'Reply'">
                       <div class="w-full h-full">
-                        <div class="mb-3 mt-2 pl-2 text-neutral-400 border-l-4 border-l-slate-800">
+                        <div class="mb-3 mt-2 pl-2 text-neutral-400 border-l-4 border-l-slate-700">
                           <p class="mb-2 text-sm">
                             Reply to {{ msg.source.src }}:
                           </p>
                           <Markdown :id="'rsr_' + msg.gUID"
-                                    class="py-1 px-2 bg-neutral-900 border-4 border-slate-800 rounded-md w-fit mb-1"
+                                    class="py-1 px-2 w-fit mb-1"
                                     :source="msg.source.msg"
                                     :breaks="true"
                                     :plugins="plugins"
@@ -1439,8 +1439,6 @@ export default {
       document.addEventListener('keydown', this.handleGlobalKeyEvents, false)
       // Set message section with its scroll event
       this.message_section.addEventListener('scroll', this.checkScroll, false)
-      // Add message input field events
-      this.prepareInputField()
       // Add dropzone events (settings -> image upload)
       const dropZone = document.getElementById('drop_zone')
       dropZone.addEventListener('dragover', this.handleDragOver, false)
@@ -1621,25 +1619,26 @@ export default {
           this.connection.send(this.$store.state.token)
           // Subscribe to notifications
           this.subscribeFCM(sessionID, isSubchat)
+          setTimeout(() => {
+            // Get metadata and messages
+            console.debug('connect->getClarifierMetaData', sessionID, isSubchat)
+            this.getClarifierMetaData(sessionID, isSubchat, novisual)
+              .then(() => this.getClarifierMessages(false, sessionID))
+              .then(() => this.getActiveMembers(sessionID))
+              .then(() => this.prepareInputField())
+              .then(() => // Websocket incoming frames
+                (
+                  this.connection.onmessage = (event) => {
+                    this.showMessage(event.data)
+                  }
+                ))
+              .then(resolve)
+          }, 0)
         }
         // Websocket CLOSE
         this.connection.onclose = async () => {
-          if (this.websocketState === 'SWITCHING') {
-            // If we're switching to another channel, don't try to revive!
-            // return
-          }
+          // if (this.websocketState === 'SWITCHING') {}
         }
-        // Websocket incoming frames
-        this.connection.onmessage = (event) => {
-          this.showMessage(event.data)
-        }
-        // Get metadata and messages
-        console.debug('connect->getClarifierMetaData', sessionID, isSubchat)
-        this.getClarifierMetaData(sessionID, isSubchat, novisual)
-          .then(() => this.getClarifierMessages(false, sessionID))
-          .then(() => this.getActiveMembers(sessionID))
-          .then(() => this.prepareInputField())
-          .then(resolve)
       })
     },
     serverLogin: function () {

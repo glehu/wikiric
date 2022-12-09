@@ -189,6 +189,11 @@ import firebase from 'firebase/app'
 import 'firebase/firebase-messaging'
 import { toRaw } from 'vue'
 import {
+  Combobox,
+  ComboboxButton,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
@@ -196,19 +201,10 @@ import {
   MenuButton,
   MenuItem,
   MenuItems,
-  Combobox,
-  ComboboxInput,
-  ComboboxButton,
-  ComboboxOptions,
-  ComboboxOption,
   TransitionRoot
 } from '@headlessui/vue'
 
-import {
-  BellIcon,
-  Bars3Icon,
-  XMarkIcon
-} from '@heroicons/vue/24/outline'
+import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 
 import { ArrowsUpDownIcon } from '@heroicons/vue/24/solid'
 
@@ -279,7 +275,11 @@ export default {
 
     messaging.onMessage((payload) => {
       console.log('Message received. ', payload)
-      if (!this.$route.fullPath.includes('/clarifier/wss/')) {
+      let notify = false
+      if (payload.data.dlDest && !this.$route.fullPath.includes(payload.data.dlDest)) {
+        notify = true
+      }
+      if (notify) {
         this.$notify(
           {
             title: payload.notification.title,
