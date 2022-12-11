@@ -61,12 +61,12 @@
                 <!-- QUICK VIEW -->
                 <div class="px-4 py-2 sm:absolute sm:bottom-0 sm:w-full">
                   <div class="flex">
-                    <button
-                      class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 mr-3 w-1/2 backdrop-brightness-75">
+                    <button v-on:click="writeWisdom('ask')"
+                            class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 mr-3 w-1/2 backdrop-brightness-75">
                       <i class="bi bi-question-lg mr-2"></i>
                       Ask
                     </button>
-                    <button v-on:click="writeLesson()"
+                    <button v-on:click="writeWisdom('teach')"
                             class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 w-1/2 backdrop-brightness-75">
                       <i class="bi bi-lightbulb small mr-2"></i>
                       Teach
@@ -79,7 +79,7 @@
               <template v-if="emptyState">
                 <div class="text-neutral-400 px-2 ml-2">
                   <p class="text-2xl font-bold mb-2 pointer-events-none">Top Contributors</p>
-                  <div class="flex w-full overflow-x-auto py-2">
+                  <div class="flex w-full overflow-x-auto pt-1 mb-2">
                     <div v-for="author in topWriters.contributors" :key="author.username"
                          class="mr-4 text-neutral-400 shadow shadow-black rounded-xl">
                       <div class="bg-neutral-800 rounded-t-xl py-2 px-3 pointer-events-none">
@@ -94,10 +94,27 @@
                     </div>
                   </div>
                 </div>
-                <div
-                  class="flex w-full justify-content-center items-center text-neutral-400 pointer-events-none p-2 my-3 border-t border-t-neutral-800 border-b border-b-neutral-800">
-                  <MagnifyingGlassIcon class="h-8 w-8 mr-4"></MagnifyingGlassIcon>
-                  <p>Search to get some results!</p>
+                <div v-if="questions.length > 0" class="text-neutral-400 px-2 ml-2">
+                  <p class="text-2xl font-bold mb-2 pointer-events-none">Recent Questions</p>
+                  <div class="flex w-full overflow-x-auto pt-1 mb-2 gap-x-2 pb-4">
+                    <div v-for="task in questions" :key="task.uID"
+                         v-on:click="gotoWisdom(task.result.gUID)"
+                         class="text-neutral-400 w-full rounded-xl cursor-pointer hover:brightness-150 relative min-w-[250px]">
+                      <div class="bg-neutral-800 text-neutral-300 rounded-t py-1 px-3 pointer-events-none">
+                        <p class="font-bold">{{ task.result.t }}</p>
+                      </div>
+                      <div
+                        class="bg-neutral-700 text-neutral-300 rounded-b py-1 px-3 pointer-events-none max-h-[11em] overflow-y-hidden">
+                        <div class="flex items-center">
+                          <p class="text-sm">{{ task.result.desc }}</p>
+                        </div>
+                      </div>
+                      <div class="flex w-full mt-1 text-xs text-neutral-400">
+                        <p>{{ task.result.author }}</p>
+                        <p class="ml-auto">{{ getHumanReadableDateText(new Date(task.result.cdate), true) }}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div
                   class="flex w-full justify-content-center items-center p-2">
@@ -114,11 +131,11 @@
                     </p>
                     <div class="mt-2">
                       <div class="flex">
-                        <button
-                          class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-gray-300 hover:text-gray-200 w-1/2">
+                        <button v-on:click="writeWisdom('ask')"
+                                class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-gray-300 hover:text-gray-200 w-1/2">
                           <i class="bi bi-question-lg mr-2"></i> <span class="text-sm">Ask</span>
                         </button>
-                        <button v-on:click="writeLesson()"
+                        <button v-on:click="writeWisdom('teach')"
                                 class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-gray-300 hover:text-gray-200 ml-1 w-1/2">
                           <i class="bi bi-lightbulb small mr-2"></i> <span class="text-sm">Teach</span>
                         </button>
@@ -134,47 +151,62 @@
                 </div>
                 <template v-for="result in results" :key="result">
                   <div v-on:click="gotoWisdom(result.result.gUID)"
-                       class="result">
+                       class="result cursor-pointer">
                     <template v-if="result.priority === 'low'">
                       <div
                         class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
                     </template>
-                    <div class="text-neutral-400 mb-2 flex items-center">
+                    <div class="text-neutral-400 flex items-center text-sm">
                       <template v-if="result.priority === 'high'">
-                        <SparklesIcon class="w-6 h-6 mr-2"></SparklesIcon>
+                        <SparklesIcon class="w-5 h-5 mr-2 text-amber-600"></SparklesIcon>
                       </template>
-                      <div class="pointer-events-none">
-                        {{ capitalizeFirstLetter(result.result.type) }}
+                      <div class="inline-flex text-sm">
+                        {{ getHumanReadableDateText(new Date(result.result.cdate), true) }}
+                      </div>
+                      <div class="pointer-events-none ml-auto">
+                        <template v-if="result.result.type === 'lesson'">
+                          <div class="px-1 py-0.5 mr-1 inline-flex rounded-md bg-indigo-800 text-neutral-300 font-bold">
+                            {{ capitalizeFirstLetter(result.result.type) }}
+                          </div>
+                        </template>
+                        <template v-else-if="result.result.type === 'question'">
+                          <div class="px-1 py-0.5 mr-1 inline-flex rounded-md bg-orange-800 text-neutral-300 font-bold">
+                            {{ capitalizeFirstLetter(result.result.type) }}
+                          </div>
+                        </template>
+                        <template v-else>
+                          {{ capitalizeFirstLetter(result.result.type) }}
+                        </template>
                         from
                         {{ result.result.author }}
                       </div>
-                      <div v-if="result.result.reacts != null" class="flex ml-4">
+                      <div v-if="result.result.reacts != null" class="flex ml-2 pl-1 border-l-2 border-l-neutral-600">
                         <div v-for="reaction in result.result.reacts" :key="reaction.src"
-                             style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                             class="text-neutral-300 gray-hover"
+                             style="padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
+                             class="text-neutral-300 gray-hover flex items-center"
                              :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
                              v-on:click="reactToMessage(result.result, JSON.parse(reaction).t)"
                              :id="'react_' + result.result.gUID + '_' + JSON.parse(reaction).t">
                           <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
-                                           class="w-6 h-6 mr-1"></HandThumbUpIcon>
+                                           class="w-5 h-5 mr-1"></HandThumbUpIcon>
                           <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
-                                             class="w-6 h-6 mr-1"></HandThumbDownIcon>
+                                             class="w-5 h-5 mr-1"></HandThumbDownIcon>
                           <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
-                                    class="w-6 h-6 mr-1"></StarIcon>
+                                    class="w-5 h-5 mr-1"></StarIcon>
                           <span v-else> {{ JSON.parse(reaction).t }} </span>
                           {{ JSON.parse(reaction).src.length }}
                         </div>
                       </div>
                     </div>
-                    <div class="flex">
-                      <Markdown class="markedFinder hover:text-orange-500 cursor-pointer text-2xl font-bold"
-                                :source="result.result.t"
+                    <div class="w-full py-4 px-1">
+                      <Markdown class="markedFinder"
+                                :source="'# ' + result.result.t"
+                                :plugins="plugins"></Markdown>
+                      <Markdown class="text-gray-400 markedFinder text-base"
+                                :source="result.result.desc"
                                 :plugins="plugins"></Markdown>
                     </div>
-                    <Markdown class="text-gray-400 markedFinder text-base"
-                              :source="result.result.desc"
-                              :plugins="plugins"></Markdown>
-                    <div class="flex mt-3">
+                    <div class="flex">
                       <template v-if="result.result.copyContent != null">
                         <ClipboardIcon
                           class="w-10 h-8 text-yellow-500 flex items-center px-2 border-2 border-yellow-500 rounded-lg mr-1">
@@ -182,7 +214,7 @@
                       </template>
                       <template v-for="cat in result.result.categories" :key="cat">
                         <div v-if="JSON.parse(cat).category != null"
-                             class="h-8 text-gray-400 flex items-center px-2 border-2 border-gray-500 rounded-lg w-fit mr-1 pointer-events-none">
+                             class="text-gray-400 text-sm flex items-center px-1 py-0.5 border-2 border-gray-500 rounded-lg w-fit mr-1 pointer-events-none">
                           {{ JSON.parse(cat).category }}
                         </div>
                       </template>
@@ -200,143 +232,6 @@
           </template>
         </template>
       </div>
-      <modal @close="isAddingCategory = false"
-             v-show="isAddingCategory">
-        <template v-slot:header>
-          <span class="text-3xl font-bold">Add Category</span>
-        </template>
-        <template v-slot:body>
-          <div class="m-3">
-            <label for="new_category" class="text-2xl mb-2">Category:</label>
-            <br>
-            <input type="text" id="new_category" v-model="newCategory"
-                   class="search-field py-1 px-2 bg-neutral-900 text-lg border-2 border-neutral-800"
-                   v-on:keyup.enter="addCategory()">
-            <br>
-            <button v-on:click="addCategory()"
-                    class="mt-3 py-2 px-3 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black">
-              Add
-            </button>
-          </div>
-        </template>
-        <template v-slot:footer>
-        </template>
-      </modal>
-      <modal @close="isWritingLesson = false"
-             v-show="isWritingLesson">
-        <template v-slot:header>
-          <span class="text-3xl font-bold">Teach</span>
-        </template>
-        <template v-slot:body>
-          <div class="flex">
-            <div class="mb-3">
-              <button v-on:click="createLesson()"
-                      class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black font-bold">
-                Submit
-              </button>
-              <button v-on:click="deleteLesson()"
-                      class="py-2 px-3 border-2 border-red-700 rounded-full hover:bg-red-700 hover:text-black font-bold">
-                Delete
-              </button>
-            </div>
-          </div>
-          <div class="flex w-[90vw]" style="max-height: 90vh">
-            <div class="w-full pr-12 md:pr-0 md:w-1/2">
-              <label for="wisTitle" class="text-xl font-bold">Title:</label>
-              <br>
-              <input type="text" id="wisTitle" v-model="wisTitle"
-                     class="bg-neutral-900 rounded-xl w-full py-2 px-3">
-              <br>
-              <div class="block lg:flex w-full">
-                <div class="lg:w-1/2">
-                  <label for="wisCategories" class="text-xl mt-2 font-bold">Categories:</label>
-                  <br>
-                  <Listbox v-model="wisCategories" multiple id="wisCategories">
-                    <div class="relative mt-1">
-                      <ListboxButton
-                        class="bg-neutral-900 w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
-                      >
-                        <template v-if="wisCategories.length > 0">
-                          <div class="block truncate font-bold text-gray-300">
-                            {{ wisCategories.map((cat) => cat.category).join(', ') }}
-                          </div>
-                        </template>
-                        <template v-else>
-                          <span class="block truncate font-bold text-gray-500">Select...</span>
-                        </template>
-                        <div
-                          class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                          <ArrowsUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true"/>
-                        </div>
-                      </ListboxButton>
-                      <transition
-                        leave-active-class="transition duration-100 ease-in"
-                        leave-from-class="opacity-100"
-                        leave-to-class="opacity-0">
-                        <ListboxOptions
-                          class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-neutral-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                        >
-                          <ListboxOption
-                            v-slot="{ active, selected }"
-                            v-for="cat in knowledge.categories"
-                            :key="cat"
-                            :value="cat"
-                            as="template"
-                          >
-                            <li
-                              :class="[ active ? 'bg-gray-700' : '',
-                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-gray-200' ]">
-                              <div
-                                :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
-                                {{ cat.category }}
-                              </div>
-                              <div
-                                v-if="selected"
-                                class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                                <CheckIcon class="h-5 w-5" aria-hidden="true"/>
-                              </div>
-                            </li>
-                          </ListboxOption>
-                        </ListboxOptions>
-                      </transition>
-                    </div>
-                  </Listbox>
-                </div>
-                <div class="md:w-3/5 lg:ml-3">
-                  <label for="wisKeywords" class="text-xl mt-2 font-bold">Keywords:</label>
-                  <br>
-                  <input type="text" id="wisKeywords" v-model="wisKeywords"
-                         class="bg-neutral-900 rounded-xl py-2 px-3 w-full">
-                </div>
-              </div>
-              <label for="wisDescription" class="text-xl mt-2 font-bold">Description:</label>
-              <br>
-              <textarea type="text" id="wisDescription" v-model="wisDescription" rows="20"
-                        class="bg-neutral-900 rounded-xl w-full py-2 px-3"></textarea>
-              <br>
-              <label for="wisCopyContent" class="text-xl mt-2 font-bold">Copy Content:</label>
-              <br>
-              <textarea type="text" id="wisCopyContent" v-model="wisCopyContent" rows="5"
-                        class="bg-neutral-900 rounded-xl w-full py-2 px-3"></textarea>
-            </div>
-            <div class="hidden md:block w-[46%] ml-2">
-              <p class="text-xl font-bold pointer-events-none">Preview:</p>
-              <div class="bg-neutral-900 rounded-xl p-2 cursor-not-allowed">
-                <Markdown :source="'# ' + wisTitle" class="w-full markedFinder" :plugins="plugins"></Markdown>
-                <Markdown :source="wisDescription" class="w-full mt-4 markedFinder" :plugins="plugins"></Markdown>
-              </div>
-              <template v-if="wisCopyContent != null">
-                <p class="text-xl my-2 pointer-events-none font-bold">Copy Content:</p>
-                <div class="bg-neutral-900 rounded-xl p-2">
-                  <Markdown :source="wisCopyContent" class="w-full markedFinder" :plugins="plugins"></Markdown>
-                </div>
-              </template>
-            </div>
-          </div>
-        </template>
-        <template v-slot:footer>
-        </template>
-      </modal>
     </template>
     <template v-else>
       <div class="">
@@ -377,6 +272,139 @@
         </div>
       </div>
     </template>
+    <modal @close="isAddingCategory = false"
+           v-show="isAddingCategory">
+      <template v-slot:header>
+        <span class="text-3xl font-bold">Add Category</span>
+      </template>
+      <template v-slot:body>
+        <div class="m-3">
+          <label for="new_category" class="text-2xl mb-2">Category:</label>
+          <br>
+          <input type="text" id="new_category" v-model="newCategory"
+                 class="search-field py-1 px-2 bg-neutral-900 text-lg border-2 border-neutral-800"
+                 v-on:keyup.enter="addCategory()">
+          <br>
+          <button v-on:click="addCategory()"
+                  class="mt-3 py-2 px-3 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black">
+            Add
+          </button>
+        </div>
+      </template>
+      <template v-slot:footer>
+      </template>
+    </modal>
+    <modal @close="isWritingWisdom = false"
+           v-show="isWritingWisdom">
+      <template v-slot:header>
+        <template v-if="isWritingLesson">Teach</template>
+        <template v-else-if="isWritingQuestion">Ask</template>
+      </template>
+      <template v-slot:body>
+        <div class="flex w-[90vw]" style="max-height: 90vh">
+          <div class="w-full pr-12 md:pr-0 md:w-1/2">
+            <label for="wisTitle" class="text-xl font-bold">Title:</label>
+            <br>
+            <input type="text" id="wisTitle" v-model="wisTitle"
+                   class="bg-neutral-900 rounded-xl w-full py-2 px-3">
+            <br>
+            <div class="block lg:flex w-full">
+              <div class="lg:w-1/2">
+                <label for="wisCategories" class="text-xl mt-2 font-bold">Categories:</label>
+                <br>
+                <Listbox v-model="wisCategories" multiple id="wisCategories">
+                  <div class="relative mt-1">
+                    <ListboxButton
+                      class="bg-neutral-900 w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                    >
+                      <template v-if="wisCategories.length > 0">
+                        <div class="block truncate font-bold text-gray-300">
+                          {{ wisCategories.map((cat) => cat.category).join(', ') }}
+                        </div>
+                      </template>
+                      <template v-else>
+                        <span class="block truncate font-bold text-gray-500">Select...</span>
+                      </template>
+                      <div
+                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                        <ArrowsUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true"/>
+                      </div>
+                    </ListboxButton>
+                    <transition
+                      leave-active-class="transition duration-100 ease-in"
+                      leave-from-class="opacity-100"
+                      leave-to-class="opacity-0">
+                      <ListboxOptions
+                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-neutral-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                      >
+                        <ListboxOption
+                          v-slot="{ active, selected }"
+                          v-for="cat in knowledge.categories"
+                          :key="cat"
+                          :value="cat"
+                          as="template"
+                        >
+                          <li
+                            :class="[ active ? 'bg-gray-700' : '',
+                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-gray-200' ]">
+                            <div
+                              :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
+                              {{ cat.category }}
+                            </div>
+                            <div
+                              v-if="selected"
+                              class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                              <CheckIcon class="h-5 w-5" aria-hidden="true"/>
+                            </div>
+                          </li>
+                        </ListboxOption>
+                      </ListboxOptions>
+                    </transition>
+                  </div>
+                </Listbox>
+              </div>
+              <div class="md:w-3/5 lg:ml-3">
+                <label for="wisKeywords" class="text-xl mt-2 font-bold">Keywords:</label>
+                <br>
+                <input type="text" id="wisKeywords" v-model="wisKeywords"
+                       class="bg-neutral-900 rounded-xl py-2 px-3 w-full">
+              </div>
+            </div>
+            <label for="wisDescription" class="text-xl mt-2 font-bold">Description:</label>
+            <br>
+            <textarea type="text" id="wisDescription" v-model="wisDescription" rows="20"
+                      class="bg-neutral-900 rounded-xl w-full py-2 px-3"></textarea>
+            <br>
+            <label for="wisCopyContent" class="text-xl mt-2 font-bold">Copy Content:</label>
+            <br>
+            <textarea type="text" id="wisCopyContent" v-model="wisCopyContent" rows="5"
+                      class="bg-neutral-900 rounded-xl w-full py-2 px-3"></textarea>
+          </div>
+          <div class="hidden md:block w-[46%] ml-2">
+            <p class="text-xl font-bold pointer-events-none">Preview:</p>
+            <div class="bg-neutral-900 rounded-xl p-2 cursor-not-allowed">
+              <Markdown :source="'# ' + wisTitle" class="w-full markedFinder" :plugins="plugins"></Markdown>
+              <Markdown :source="wisDescription" class="w-full mt-4 markedFinder" :plugins="plugins"></Markdown>
+            </div>
+            <div class="flex mt-2 mb-4 w-full">
+              <div class="mb-3 ml-auto text-black font-bold">
+                <button v-on:click="createLesson()"
+                        class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-400">
+                  <template v-if="isWritingLesson">Teach</template>
+                  <template v-else-if="isWritingQuestion">Ask</template>
+                </button>
+                <button v-on:click="deleteLesson()"
+                        class="py-2 px-3 border-2 border-red-700 rounded-lg bg-red-700 hover:bg-red-900">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+      <template v-slot:footer>
+      </template>
+    </modal>
   </div>
 </template>
 
@@ -429,7 +457,6 @@ export default {
   data () {
     return {
       source: '',
-      swords: [],
       knowledgeExists: true,
       knowledge: {},
       // Knowledge Creation
@@ -448,6 +475,7 @@ export default {
       isAddingCategory: false,
       isWritingWisdom: false,
       isWritingLesson: false,
+      isWritingQuestion: false,
       isEditingWisdom: false,
       queryText: '',
       querySubmission: '',
@@ -455,6 +483,7 @@ export default {
       noResults: false,
       results: [],
       topWriters: [],
+      questions: [],
       isViewingWisdom: false,
       wisdomGUID: '',
       plugins: [
@@ -497,6 +526,7 @@ export default {
         }
         await this.getTopContributors(this.srcguid)
         await this.getRecentCategories()
+        await this.getRecentQuestions()
       }
     },
     getClarifierChatroom: async function (sessionID) {
@@ -596,9 +626,11 @@ export default {
           .catch((err) => console.error(err.message))
       })
     },
-    searchWisdom: async function (substitute = null) {
-      this.results = []
-      this.emptyState = false
+    searchWisdom: async function (substitute = null, questionsOnly = false) {
+      if (!questionsOnly) {
+        this.results = []
+        this.emptyState = false
+      }
       this.querySubmission = substitute ?? this.queryText
       if (this.querySubmission == null || this.querySubmission === '') {
         this.emptyState = true
@@ -606,10 +638,27 @@ export default {
         await this.getTopContributors()
         await this.getRecentKeywords()
         await this.getRecentCategories()
+        await this.getRecentQuestions()
         return
       }
+      let entryType = ''
+      // Are we looking for a specific wisdom type?
+      // Extract the type using regex, looking for the pattern: "type:<userInput>"
+      if (/type:\w+/g.test(this.querySubmission)) {
+        // If found, extract the type by splitting away the prefix "type:"
+        try {
+          entryType = this.querySubmission.match(/type:\w+/g)[0].split(':')[1]
+          if (entryType === 'ask' || entryType === 'q') entryType = 'question'
+          if (entryType === 'teach' || entryType === 'l') entryType = 'lesson'
+          if (entryType === 'todo' || entryType === 't') entryType = 'task'
+          if (entryType === 'reply' || entryType === 'c') entryType = 'comment'
+        } catch (e) {
+          console.error(e.message)
+        }
+      }
       const payload = {
-        query: this.querySubmission
+        query: this.querySubmission,
+        entryType: entryType
       }
       return new Promise((resolve) => {
         const headers = new Headers()
@@ -624,30 +673,49 @@ export default {
         )
           .then(res => res.json())
           .then((data) => {
-            this.noResults = false
+            if (!questionsOnly) this.noResults = false
             const parsedData = data
+            let entry
             if (parsedData.first != null) {
               for (let i = 0; i < parsedData.first.length; i++) {
-                this.results.push({
+                parsedData.first[i].wisdom.t = this.formatTitle(parsedData.first[i].wisdom.t)
+                entry = {
                   priority: 'high',
                   result: parsedData.first[i].wisdom
-                })
+                }
+                if (questionsOnly) {
+                  this.questions.push(entry)
+                } else {
+                  this.results.push(entry)
+                }
               }
             }
             if (parsedData.second != null) {
               for (let i = 0; i < parsedData.second.length; i++) {
-                this.results.push({
+                parsedData.second[i].wisdom.t = this.formatTitle(parsedData.second[i].wisdom.t)
+                entry = {
                   priority: 'medium',
                   result: parsedData.second[i].wisdom
-                })
+                }
+                if (questionsOnly) {
+                  this.questions.push(entry)
+                } else {
+                  this.results.push(entry)
+                }
               }
             }
             if (parsedData.third != null) {
               for (let i = 0; i < parsedData.third.length; i++) {
-                this.results.push({
+                parsedData.third[i].wisdom.t = this.formatTitle(parsedData.third[i].wisdom.t)
+                entry = {
                   priority: 'low',
                   result: parsedData.third[i].wisdom
-                })
+                }
+                if (questionsOnly) {
+                  this.questions.push(entry)
+                } else {
+                  this.results.push(entry)
+                }
               }
             }
             this.results.time = parsedData.time / 1000
@@ -666,16 +734,32 @@ export default {
           .then(() => resolve())
           .catch((err) => {
             console.error(err.message)
-            this.noResults = true
+            if (!questionsOnly) this.noResults = true
           })
           .finally(() => {
-            this.$router.push({
-              query: {
-                query: this.querySubmission
-              }
-            })
+            if (!questionsOnly) {
+              this.$router.push({
+                query: {
+                  query: this.querySubmission
+                }
+              })
+            }
           })
       })
+    },
+    formatTitle: function (title) {
+      if (!title || title.length < 1) return ''
+      if (title.startsWith('#')) {
+        let cutUntil = 0
+        for (let i = 0; i < title.length; i++) {
+          if (title.substring(i, i + 1) === '#') {
+            cutUntil++
+          }
+        }
+        return title.substring(cutUntil).trim()
+      } else {
+        return title
+      }
     },
     createLesson: async function () {
       await this.serverLogin()
@@ -683,20 +767,29 @@ export default {
       for (let i = 0; i < this.wisCategories.length; i++) {
         categories.push(JSON.stringify(this.wisCategories[i]))
       }
+      let keywordSuffix = ''
+      if (this.isWritingQuestion && !this.wisKeywords.includes('question')) {
+        if (this.wisKeywords !== '') this.wisKeywords += ','
+        keywordSuffix = 'question'
+      }
       const payload = {
         title: this.wisTitle,
         description: this.wisDescription,
         knowledgeGUID: this.knowledge.gUID,
-        keywords: this.wisKeywords,
+        keywords: this.wisKeywords + keywordSuffix,
         copyContent: this.wisCopyContent,
         categories: categories
       }
+      // Lesson (teach) or Question (ask)?
+      let endpoint = 'teach'
+      if (this.isWritingQuestion) endpoint = 'ask'
+      // Create entry on the backend
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
         const headers = new Headers()
         headers.set('Authorization', 'Bearer ' + this.$store.state.token)
         fetch(
-          this.$store.state.serverIP + '/api/m7/teach',
+          this.$store.state.serverIP + '/api/m7/' + endpoint,
           {
             method: 'post',
             headers: headers,
@@ -704,15 +797,7 @@ export default {
           }
         )
           .then(() => {
-            this.wisTitle = ''
-            this.wisDescription = ''
-            this.wisKeywords = ''
-            this.wisCopyContent = ''
-            this.wisCategories = []
-            this.wisGUID = ''
-            this.isWritingWisdom = false
-            this.isWritingLesson = false
-            this.isEditingWisdom = false
+            this.resetWriting()
           })
           .then(() => resolve)
           .catch((err) => {
@@ -736,15 +821,7 @@ export default {
         )
           .then(res => res)
           .then(() => {
-            this.wisTitle = ''
-            this.wisDescription = ''
-            this.wisKeywords = ''
-            this.wisCopyContent = ''
-            this.wisCategories = []
-            this.wisGUID = ''
-            this.isWritingWisdom = false
-            this.isWritingLesson = false
-            this.isEditingWisdom = false
+            this.resetWriting()
             this.$notify(
               {
                 title: 'Wisdom deleted.',
@@ -764,7 +841,7 @@ export default {
           })
       })
     },
-    writeLesson: function () {
+    writeWisdom: function (type = 'lesson') {
       this.wisTitle = ''
       this.wisDescription = ''
       this.wisKeywords = ''
@@ -772,10 +849,23 @@ export default {
       this.wisCategories = []
       this.wisGUID = ''
       this.isWritingWisdom = true
-      this.isWritingLesson = true
+      if (type === 'lesson' || type === 'teach') this.isWritingLesson = true
+      if (type === 'question' || type === 'ask') this.isWritingQuestion = true
       this.isEditingWisdom = false
       // Defaults
       this.wisTitle = this.capitalizeFirstLetter(this.queryText).trim()
+    },
+    resetWriting: function () {
+      this.wisTitle = ''
+      this.wisDescription = ''
+      this.wisKeywords = ''
+      this.wisCopyContent = ''
+      this.wisCategories = []
+      this.wisGUID = ''
+      this.isWritingWisdom = false
+      this.isWritingLesson = false
+      this.isWritingQuestion = false
+      this.isEditingWisdom = false
     },
     capitalizeFirstLetter: function ([first, ...rest], locale = navigator.language) {
       return first === undefined ? '' : first.toLocaleUpperCase(locale) + rest.join('')
@@ -875,15 +965,15 @@ export default {
     wordCloud: function (text, {
       size = group => group.length, // Given a grouping of words, returns the size factor for that word
       word = d => d, // Given an item of the data array, returns the word
-      marginTop = 0, // top margin, in pixels
-      marginRight = 0, // right margin, in pixels
-      marginBottom = 0, // bottom margin, in pixels
-      marginLeft = 0, // left margin, in pixels
-      width = 640, // outer width, in pixels
-      height = 400, // outer height, in pixels
-      maxWords = 50, // maximum number of words to extract from the text
+      marginTop = 4, // top margin, in pixels
+      marginRight = 4, // right margin, in pixels
+      marginBottom = 4, // bottom margin, in pixels
+      marginLeft = 4, // left margin, in pixels
+      width = 600, // outer width, in pixels
+      height = 300, // outer height, in pixels
+      maxWords = 100, // maximum number of words to extract from the text
       fontFamily = 'Lato', // font family
-      fontScale = 12, // base font size
+      fontScale = 16, // base font size
       padding = 4, // amount of padding between the words (in pixels)
       rotate = 0, // a constant or function to rotate the words
       invalidation // when this promise resolves, stop the simulation
@@ -895,7 +985,7 @@ export default {
         .slice(0, maxWords)
         .map(([key, size]) => ({
           text: word(key),
-          size: Math.exp(size)
+          size: size
         }))
 
       const svg = d3.create('svg')
@@ -903,7 +993,7 @@ export default {
         .attr('width', width)
         .attr('font-family', fontFamily)
         .attr('text-anchor', 'middle')
-        .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
+        .attr('style', 'max-width: 100%; height: auto; height: intrinsic; font-weight: bold; font-style: italic;')
 
       const g = svg.append('g').attr('transform', `translate(${marginLeft},${marginTop})`)
       const vueInstance = this
@@ -923,7 +1013,7 @@ export default {
         }) => {
           g.append('text')
             .attr('font-size', size)
-            .attr('fill', '#AFAFAF')
+            .attr('fill', 'rgb(154,154,154)')
             .attr('transform', `translate(${x},${y}) rotate(${rotate})`)
             .text(text)
             .on('click', function () {
@@ -938,7 +1028,7 @@ export default {
             .on('mouseout', function () {
               d3.select(this).transition()
                 .duration('200')
-                .attr('fill', '#AFAFAF')
+                .attr('fill', 'rgb(206,206,206)')
             })
         })
 
@@ -1018,6 +1108,36 @@ export default {
       } else {
         this.$emit('close')
       }
+    },
+    getHumanReadableDateText: function (date, withTime = false) {
+      const date2 = new Date()
+      const diffTime = Math.abs(date2 - date)
+      let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      if (date.getDate() === date2.getDate() &&
+        date.getMonth() === date2.getMonth() &&
+        date.getFullYear() === date2.getFullYear()) {
+        diffDays = 0
+      }
+      let suffix = ''
+      if (withTime) {
+        suffix = ', ' + date.toLocaleTimeString('de-DE')
+      }
+      if (diffDays === 0) {
+        return 'Today' + suffix
+      } else if (diffDays === 1) {
+        return 'Yesterday' + suffix
+      } else if (diffDays === 2) {
+        return '2 days ago' + suffix
+      } else {
+        return date.toLocaleDateString('de-DE') + suffix
+      }
+    },
+    getRecentQuestions: async function () {
+      this.questions = []
+      await this.searchWisdom('type:question question', true)
+      return new Promise((resolve) => {
+        resolve()
+      })
     }
   }
 }
@@ -1070,7 +1190,7 @@ export default {
 }
 
 .markedFinder h1 {
-  @apply text-3xl mb-2 mt-3 font-bold;
+  @apply text-xl font-bold;
 }
 
 .markedFinder h2 {

@@ -68,9 +68,21 @@
           </div>
           <div class="text-neutral-400 mb-4 flex items-center">
             <div class="flex pointer-events-none items-center">
-              <p class="mr-2 pr-2 border-r border-neutral-700 font-bold">
-                {{ capitalizeFirstLetter(wisdom.type) }}
-              </p>
+              <div class="mr-2 pr-2 border-r border-neutral-700 font-bold">
+                <template v-if="wisdom.type === 'lesson'">
+                  <div class="px-1 py-0.5 inline-flex rounded-md bg-indigo-800 text-neutral-300">
+                    {{ capitalizeFirstLetter(wisdom.type) }}
+                  </div>
+                </template>
+                <template v-else-if="wisdom.type === 'question'">
+                  <div class="px-1 py-0.5 mr-1 inline-flex rounded-md bg-orange-800 text-neutral-300">
+                    {{ capitalizeFirstLetter(wisdom.type) }}
+                  </div>
+                </template>
+                <template v-else>
+                  {{ capitalizeFirstLetter(wisdom.type) }}
+                </template>
+              </div>
               <p> {{ wisdom.author }} </p>
             </div>
             <template v-if="wisdom.reacts != null">
@@ -174,7 +186,9 @@
                         </div>
                         <div class="flex w-full mt-1 text-xs text-neutral-400">
                           <p>{{ task.author }}</p>
-                          <p class="ml-auto">{{ getHumanReadableDateText(new Date(parseInt(task.cdate, 16) * 1000)) }}</p>
+                          <p class="ml-auto">
+                            {{ getHumanReadableDateText(new Date(parseInt(task.cdate, 16) * 1000)) }}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -208,7 +222,11 @@
                     <div class="w-full grid gap-y-3 gap-x-2 grid-cols-2 xl:grid-cols-3">
                       <div v-for="task in relatedSearch" :key="task.uID"
                            v-on:click="fetchData(task.result.gUID)"
-                           class="text-neutral-400 w-full rounded-xl cursor-pointer hover:brightness-150">
+                           class="text-neutral-400 w-full rounded-xl cursor-pointer hover:brightness-150 relative">
+                        <template v-if="task.priority !== 'high'">
+                          <div
+                            class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
+                        </template>
                         <div class="bg-neutral-800 text-neutral-300 rounded-t py-1 px-3 pointer-events-none">
                           <p class="font-bold">{{ task.result.t }}</p>
                         </div>
@@ -219,6 +237,9 @@
                           </div>
                         </div>
                         <div class="flex w-full mt-1 text-xs text-neutral-400">
+                          <template v-if="task.priority === 'high'">
+                            <SparklesIcon class="w-4 h-4 mr-2 text-amber-600"></SparklesIcon>
+                          </template>
                           <p>{{ task.result.author }}</p>
                           <p class="ml-auto">{{ getHumanReadableDateText(new Date(task.result.cdate)) }}</p>
                         </div>
@@ -265,13 +286,49 @@
                 </p>
               </div>
               <div v-for="comment in related.comments" :key="comment.uID"
-                   class="mb-2 w-full bg-neutral-800 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2 border-r-2 border-b-neutral-700 border-r-neutral-700">
+                   class="mb-2 w-full bg-neutral-800 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2 border-r-2 border-b-neutral-700 border-r-neutral-700 comment">
+                <div v-if="comment.reacts" class="px-2 pt-2 flex">
+                  <div v-for="reaction in comment.reacts" :key="reaction.src"
+                       class="flex items-center p-1 mr-1 text-neutral-400 cursor-pointer hover:text-white"
+                       :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
+                       v-on:click="reactToMessage(comment, JSON.parse(reaction).t)"
+                       :id="'react_' + comment.gUID + '_' + JSON.parse(reaction).t">
+                    <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
+                                     class="w-6 h-6 mr-1"></HandThumbUpIcon>
+                    <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
+                                       class="w-6 h-6 mr-1"></HandThumbDownIcon>
+                    <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
+                              class="w-6 h-6 mr-1"></StarIcon>
+                    <span v-else> {{ JSON.parse(reaction).t }} </span>
+                    {{ JSON.parse(reaction).src.length }}
+                  </div>
+                </div>
                 <Markdown :source="comment.desc"
                           class="text-neutral-300 w-full markedView py-3 px-3"
                           :plugins="plugins"></Markdown>
                 <div class="flex w-full">
+                  <div class="flex text-neutral-500 ml-auto mr-2 comment_react">
+                    <div class="sidebar_button rounded-xl">
+                      <div v-on:click="reactToMessage(comment, '+')"
+                           class="cursor-pointer hover:text-neutral-200 p-2">
+                        <HandThumbUpIcon class="h-6 w-6"></HandThumbUpIcon>
+                      </div>
+                    </div>
+                    <div class="sidebar_button rounded-xl">
+                      <div v-on:click="reactToMessage(comment, '-')"
+                           class="cursor-pointer hover:text-neutral-200 p-2">
+                        <HandThumbDownIcon class="h-6 w-6"></HandThumbDownIcon>
+                      </div>
+                    </div>
+                    <div class="sidebar_button rounded-xl">
+                      <div v-on:click="reactToMessage(comment, '⭐')"
+                           class="cursor-pointer hover:text-neutral-200 p-2">
+                        <StarIcon class="h-6 w-6"></StarIcon>
+                      </div>
+                    </div>
+                  </div>
                   <div
-                    class="text-neutral-400 ml-auto bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
+                    class="text-neutral-400 bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
                     <p class="text-neutral-500 text-xs mr-2">
                       {{ comment.cdate.toLocaleString('de-DE').replace(' ', '&nbsp;') }}</p>
                     <p class="">{{ comment.author }}</p>
@@ -327,21 +384,9 @@
   <modal @close="isWritingLesson = false"
          v-show="isWritingLesson">
     <template v-slot:header>
-      <span class="text-3xl font-bold">Edit</span>
+      Edit
     </template>
     <template v-slot:body>
-      <div class="flex">
-        <div class="mb-3">
-          <button v-on:click="editLesson()"
-                  class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black font-bold">
-            Submit
-          </button>
-          <button v-on:click="deleteLesson()"
-                  class="py-2 px-3 border-2 border-red-700 rounded-full hover:bg-red-700 hover:text-black font-bold">
-            Delete
-          </button>
-        </div>
-      </div>
       <div class="flex w-[90vw]" style="max-height: 90vh">
         <div class="w-full pr-12 md:pr-0 md:w-1/2">
           <label for="wisTitle" class="text-xl font-bold">Title:</label>
@@ -427,12 +472,18 @@
             <Markdown :source="'# ' + wisTitle" class="w-full markedView" :plugins="plugins"></Markdown>
             <Markdown :source="wisDescription" class="w-full mt-4 markedView" :plugins="plugins"></Markdown>
           </div>
-          <template v-if="wisCopyContent != null">
-            <p class="text-xl my-2 pointer-events-none font-bold">Copy Content:</p>
-            <div class="bg-neutral-900 rounded-xl p-2">
-              <Markdown :source="wisCopyContent" class="w-full markedView" :plugins="plugins"></Markdown>
+          <div class="flex mt-2 mb-4 w-full">
+            <div class="mb-3 ml-auto text-black font-bold">
+              <button v-on:click="editLesson()"
+                      class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-400">
+                Submit
+              </button>
+              <button v-on:click="deleteLesson()"
+                      class="py-2 px-3 border-2 border-red-700 rounded-lg bg-red-700 hover:bg-red-900">
+                Delete
+              </button>
             </div>
-          </template>
+          </div>
         </div>
       </div>
     </template>
@@ -468,7 +519,7 @@ import {
   ListboxOption,
   ListboxOptions
 } from '@headlessui/vue'
-import { ArrowsUpDownIcon, CheckIcon, ChevronUpIcon, Squares2X2Icon } from '@heroicons/vue/24/solid'
+import { ArrowsUpDownIcon, CheckIcon, ChevronUpIcon, SparklesIcon, Squares2X2Icon } from '@heroicons/vue/24/solid'
 
 export default {
   name: 'KnowledgeView',
@@ -499,7 +550,8 @@ export default {
     Disclosure,
     DisclosureButton,
     DisclosurePanel,
-    ChevronUpIcon
+    ChevronUpIcon,
+    SparklesIcon
   },
   data () {
     return {
@@ -733,6 +785,7 @@ export default {
         )
           .then(() => {
             this.getWisdom()
+            this.getRelated()
             this.$notify(
               {
                 title: 'Feedback sent to the server.',
@@ -992,17 +1045,22 @@ export default {
         this.$emit('close')
       }
     },
-    getRelatedSearch: async function (substitute = null) {
-      if (!this.wisdom.keywords || this.wisdom.keywords.length < 1) return
+    getRelatedSearch: async function (substitute = null, entryType = '') {
+      const keywords = this.wisdom.keywords ?? ''
+      const title = this.wisdom.t ?? ''
+      if ((!keywords || keywords.length < 1) && (!title || title.length < 1)) {
+        return
+      }
       // Reset results
       this.relatedSearch = []
       // Build queryString
-      let queryString = this.wisdom.keywords.replaceAll(',', ' ') + ' ' + this.wisdom.t
+      let queryString = keywords.replaceAll(',', ' ') + ' ' + title
       // Remove dangerous Regex wildcards
       queryString = queryString.replaceAll('.', '')
       queryString = queryString.replaceAll('?', '')
       const payload = {
-        query: substitute ?? queryString
+        query: substitute ?? queryString.trim(),
+        entryType: entryType
       }
       return new Promise((resolve) => {
         const headers = new Headers()
@@ -1187,6 +1245,14 @@ export default {
 
 .sidebar_button:hover .sidebar_tooltip {
   @apply opacity-100 py-2 px-3 rounded bg-neutral-800;
+}
+
+.comment .comment_react {
+  @apply opacity-0;
+}
+
+.comment:hover .comment_react {
+  @apply opacity-100;
 }
 
 </style>

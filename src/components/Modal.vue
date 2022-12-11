@@ -12,13 +12,13 @@ export default {
 <template>
   <transition name="modal-fade">
     <div class="modal-backdrop">
-      <div class="modal b_darkgray c_lightgray container"
+      <div class="modal bg-zinc-700 c_lightgray"
            role="dialog"
            aria-labelledby="modalTitle"
            aria-describedby="modalDescription"
       >
         <header
-          class="modal-header"
+          class="modal-header bg-neutral-900 z-50"
           id="modalTitle"
         >
           <slot name="header">
@@ -26,7 +26,6 @@ export default {
           <button
             type="button"
             class="btn-close orange-hover"
-            style="margin-right: 0"
             @click="close"
             aria-label="Close modal"
           >
@@ -35,7 +34,7 @@ export default {
         </header>
 
         <section
-          class="modal-body"
+          class="modal-body mt-[42px] z-40"
           id="modalDescription"
         >
           <slot name="body">
@@ -119,15 +118,16 @@ export default {
 .modal {
   @apply rounded-lg;
   box-shadow: black 2px 2px 10px 1px;
-  overflow-y: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   height: fit-content;
-  max-height: calc(100vh - 120px);
+  max-height: calc(95vh - 60px);
   width: fit-content;
   max-width: 95vw;
   top: unset;
   left: unset;
+  transform: translateY(30px);
 }
 
 .modal-header,
@@ -136,14 +136,19 @@ export default {
 }
 
 .modal-header {
-  position: relative;
-  border-bottom: none;
-  justify-content: space-between;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 52px;
+  @apply font-bold text-lg border-b-4 border-b-zinc-700;
 }
 
 .modal-body {
   position: relative;
-  padding: 0;
+  padding: 12px;
+  max-height: 100%;
+  overflow-y: auto;
 }
 
 .modal-footer {
@@ -153,15 +158,19 @@ export default {
 
 .btn-close {
   position: absolute;
-  top: 10px;
-  right: 5px;
+  top: 12px;
+  right: 12px;
   border: none;
   font-size: 20px;
-  padding: 10px;
   cursor: pointer;
   font-weight: bold;
   background: transparent;
   color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
 .btn-green {

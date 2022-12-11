@@ -319,8 +319,8 @@
               <template v-for="msg in messages" :key="msg.gUID">
                 <div class="message" :id="msg.gUID">
                   <template v-if="msg.separator === true">
-                    <div class="headerline pointer-events-none text-xs text-neutral-500">
-                      {{ getHumanReadableDateText(msg.time) }}
+                    <div class="headerline pointer-events-none text-neutral-500">
+                      <span class="text-xs">{{ getHumanReadableDateText(msg.time) }}</span>
                     </div>
                   </template>
                   <!-- Chat Avatar and Date -->
@@ -1085,7 +1085,7 @@
     v-show="isViewingNewSubchat"
     @close="hideAllWindows()">
     <template v-slot:header>
-      <h2 class="fw-bold">New Subchat</h2>
+      New Subchat
     </template>
     <template v-slot:body>
       <!-- #### New Subchat #### -->
@@ -1098,36 +1098,36 @@
                  style="width: 100%; border: none; border-radius: 20px">
           <label class="fw-bold lead mt-4 c_lightgray" style="width: 100%">Create:</label>
           <button v-on:click="createSubchatroom('text')"
-                  id="new_subchat_type_text" class="btn darkbutton mt-2"
-                  style="color: white; width: 100%; text-align: left; display: flex;
+                  id="new_subchat_type_text" class="btn darkbutton mt-2 text-neutral-400"
+                  style="width: 100%; text-align: left; display: flex;
                          align-items: center; border-radius: 10px">
             <span style="font-size: 200%"><i class="bi bi-hash"></i></span>
             <div class="ms-3">
-              <span>Text Subchat</span>
+              <span class="text-neutral-300">Text Subchat</span>
               <br>
-              <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Write messages and send files.</span>
+              <span class="text-neutral-400 text-xs">Write messages and send files.</span>
             </div>
           </button>
           <button v-on:click="createSubchatroom('screenshare')"
-                  id="new_subchat_type_screenshare" class="btn darkbutton mt-2"
-                  style="color: white; width: 100%; text-align: left; display: flex;
+                  id="new_subchat_type_screenshare" class="btn darkbutton mt-2 text-neutral-400"
+                  style="width: 100%; text-align: left; display: flex;
                          align-items: center; border-radius: 10px">
             <span style="font-size: 200%"><i class="bi bi-window-fullscreen"></i></span>
             <div class="ms-3">
-              <span>Screenshare Subchat</span>
+              <span class="text-neutral-300">Screenshare Subchat</span>
               <br>
-              <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Share your screen for others.</span>
+              <span class="text-neutral-400 text-xs">Share your screen for others.</span>
             </div>
           </button>
           <button v-on:click="createSubchatroom('webcam')"
-                  id="new_subchat_type_webcam" class="btn darkbutton mt-2"
-                  style="color: white; width: 100%; text-align: left; display: flex;
+                  id="new_subchat_type_webcam" class="btn darkbutton mt-2 text-neutral-400"
+                  style="width: 100%; text-align: left; display: flex;
                          align-items: center; border-radius: 10px">
             <span style="font-size: 200%"><i class="bi bi-camera-video"></i></span>
             <div class="ms-3">
-              <span>Webcam Subchat</span>
+              <span class="text-neutral-300">Webcam Subchat</span>
               <br>
-              <span class="c_lightgray" style="font-size: 80%; font-weight: bold">Video call with others.</span>
+              <span class="text-neutral-400 text-xs">Video call with others.</span>
             </div>
           </button>
         </div>
@@ -2731,6 +2731,7 @@ export default {
     },
     resizeCanvas: function () {
       if (window.innerWidth >= 1100) {
+        this.hideSidebar()
         this.showSidebar2()
         this.showMemberSidebar()
       } else {
@@ -4425,6 +4426,7 @@ export default {
 .clarifier_chatroom {
   position: absolute;
   height: 100%;
+  border-left: 1px solid rgba(174, 174, 183, 0.25);
 }
 
 .channel_section::-webkit-scrollbar {
@@ -4479,7 +4481,6 @@ export default {
 
 .sidebar2.active {
   width: 250px;
-  border-right: 1px solid rgba(174, 174, 183, 0.25);
   opacity: 1;
 }
 
@@ -4547,7 +4548,11 @@ export default {
   }
 
   .darkergray-on-small {
-    @apply bg-neutral-900 border-r border-r-neutral-700;
+    @apply bg-neutral-900 border-r-neutral-700;
+  }
+
+  .darkergray-on-small.active {
+    @apply border-r;
   }
 }
 
@@ -4699,7 +4704,7 @@ export default {
 }
 
 .darkbutton {
-  @apply bg-gray-800;
+  @apply bg-neutral-900;
 }
 
 .darkbutton:hover {
@@ -4963,7 +4968,6 @@ export default {
   position: relative;
   vertical-align: middle;
   width: 50%;
-  border-radius: 10px;
 }
 
 .headerline:before {
