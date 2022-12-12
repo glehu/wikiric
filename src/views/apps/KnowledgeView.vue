@@ -117,10 +117,27 @@
               </div>
             </template>
             <template v-else>
-              <div class="text-neutral-600 text-xs ml-5 pointer-events-none">
+              <div class="text-neutral-600 text-xs ml-4 pointer-events-none">
                 (No Comments)
               </div>
             </template>
+          </div>
+          <template v-if="wisdom.type === 'question' && wisdom.finished !== true">
+            <div class="w-full">
+              <div class="ml-2 my-2 p-2 border-l-4 border-l-orange-600 bg-orange-800 bg-opacity-25 text-neutral-300">
+                This question is unanswered (or at least not yet confirmed)!
+                <br>Help by submitting a comment, providing useful information on this topic.
+              </div>
+            </div>
+          </template>
+          <div v-if="wisdom.type === 'question' && wisdom.finished === true"
+               v-on:click="gotoComments()"
+               class="flex w-full items-center cursor-pointer">
+            <div
+              class="px-1 py-0.5 border-2 border-emerald-700 text-emerald-500 font-bold rounded-md w-fit">
+              Answered
+            </div>
+            <div class="text-neutral-400 ml-2 text-sm">(Click to see the answer)</div>
           </div>
           <div class="flex">
             <template v-if="this.wisdom.t">
@@ -251,8 +268,78 @@
             </template>
           </div>
           <!-- Comments/Answers -->
-          <div id="wisdomComments" class="w-full mt-5 pt-3">
-            <div class="w-full relative">
+          <div id="wisdomComments" class="w-full">
+            <template v-if="wisdom.type === 'question'">
+              <template v-if="related.answers == null">
+                <div class="flex w-full items-center justify-content-center py-4">
+                  <div class="w-full text-neutral-600 pointer-events-none">
+                    <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
+                    <p class="text-md font-bold italic w-fit mx-auto">No Answer</p>
+                  </div>
+                </div>
+              </template>
+              <template v-else>
+                <div class="flex items-center mt-2 pt-2 mb-2 pointer-events-none">
+                  <p class="text-emerald-500 text-xl font-bold">
+                    Answer:
+                  </p>
+                </div>
+                <div v-for="comment in related.answers" :key="comment.uID"
+                     class="border-l-4 border-l-emerald-600 pl-4">
+                  <div class="mb-2 w-full bg-neutral-800 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2
+                            border-r-2 border-b-neutral-700 border-r-neutral-700 comment">
+                    <div v-if="comment.reacts" class="px-2 pt-2 flex">
+                      <div v-for="reaction in comment.reacts" :key="reaction.src"
+                           class="flex items-center p-1 mr-1 text-neutral-400 cursor-pointer hover:text-white"
+                           :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
+                           v-on:click="reactToMessage(comment, JSON.parse(reaction).t)"
+                           :id="'react_' + comment.gUID + '_' + JSON.parse(reaction).t">
+                        <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
+                                         class="w-6 h-6 mr-1"></HandThumbUpIcon>
+                        <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
+                                           class="w-6 h-6 mr-1"></HandThumbDownIcon>
+                        <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
+                                  class="w-6 h-6 mr-1"></StarIcon>
+                        <span v-else> {{ JSON.parse(reaction).t }} </span>
+                        {{ JSON.parse(reaction).src.length }}
+                      </div>
+                    </div>
+                    <Markdown :source="comment.desc"
+                              class="text-neutral-300 w-full markedView py-3 px-3"
+                              :plugins="plugins"></Markdown>
+                    <div class="flex w-full">
+                      <div class="flex text-neutral-500 ml-auto mr-2 comment_react">
+                        <div class="sidebar_button rounded-xl">
+                          <div v-on:click="reactToMessage(comment, '+')"
+                               class="cursor-pointer hover:text-neutral-200 p-2">
+                            <HandThumbUpIcon class="h-6 w-6"></HandThumbUpIcon>
+                          </div>
+                        </div>
+                        <div class="sidebar_button rounded-xl">
+                          <div v-on:click="reactToMessage(comment, '-')"
+                               class="cursor-pointer hover:text-neutral-200 p-2">
+                            <HandThumbDownIcon class="h-6 w-6"></HandThumbDownIcon>
+                          </div>
+                        </div>
+                        <div class="sidebar_button rounded-xl">
+                          <div v-on:click="reactToMessage(comment, '⭐')"
+                               class="cursor-pointer hover:text-neutral-200 p-2">
+                            <StarIcon class="h-6 w-6"></StarIcon>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        class="text-neutral-400 bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
+                        <p class="text-neutral-500 text-xs mr-2">
+                          {{ getHumanReadableDateText(comment.cdate, true) }}</p>
+                        <p class="">{{ comment.author }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </template>
+            <div class="w-full relative mt-4 pt-4">
               <div
                 class="p-2 rounded-full hover:bg-neutral-700 text-neutral-500 hover:text-neutral-200 absolute right-0 sidebar_button cursor-pointer -translate-y-1 flex mx-1">
                 <Squares2X2Icon
@@ -285,56 +372,68 @@
                   {{ related.comments.length }} {{ commentsText }}:
                 </p>
               </div>
-              <div v-for="comment in related.comments" :key="comment.uID"
-                   class="mb-2 w-full bg-neutral-800 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2 border-r-2 border-b-neutral-700 border-r-neutral-700 comment">
-                <div v-if="comment.reacts" class="px-2 pt-2 flex">
-                  <div v-for="reaction in comment.reacts" :key="reaction.src"
-                       class="flex items-center p-1 mr-1 text-neutral-400 cursor-pointer hover:text-white"
-                       :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
-                       v-on:click="reactToMessage(comment, JSON.parse(reaction).t)"
-                       :id="'react_' + comment.gUID + '_' + JSON.parse(reaction).t">
-                    <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
-                                     class="w-6 h-6 mr-1"></HandThumbUpIcon>
-                    <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
-                                       class="w-6 h-6 mr-1"></HandThumbDownIcon>
-                    <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
-                              class="w-6 h-6 mr-1"></StarIcon>
-                    <span v-else> {{ JSON.parse(reaction).t }} </span>
-                    {{ JSON.parse(reaction).src.length }}
+              <template v-for="comment in related.comments" :key="comment.uID">
+                <div class="mb-2 w-full bg-neutral-800 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2
+                            border-r-2 border-b-neutral-700 border-r-neutral-700 comment">
+                  <div v-if="comment.reacts" class="px-2 pt-2 flex">
+                    <div v-for="reaction in comment.reacts" :key="reaction.src"
+                         class="flex items-center p-1 mr-1 text-neutral-400 cursor-pointer hover:text-white"
+                         :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
+                         v-on:click="reactToMessage(comment, JSON.parse(reaction).t)"
+                         :id="'react_' + comment.gUID + '_' + JSON.parse(reaction).t">
+                      <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
+                                       class="w-6 h-6 mr-1"></HandThumbUpIcon>
+                      <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
+                                         class="w-6 h-6 mr-1"></HandThumbDownIcon>
+                      <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
+                                class="w-6 h-6 mr-1"></StarIcon>
+                      <span v-else> {{ JSON.parse(reaction).t }} </span>
+                      {{ JSON.parse(reaction).src.length }}
+                    </div>
+                  </div>
+                  <Markdown :source="comment.desc"
+                            class="text-neutral-300 w-full markedView py-3 px-3"
+                            :plugins="plugins"></Markdown>
+                  <div class="flex w-full">
+                    <div class="flex text-neutral-500 ml-auto mr-2 comment_react">
+                      <div class="sidebar_button rounded-xl">
+                        <div v-on:click="reactToMessage(comment, '+')"
+                             class="cursor-pointer hover:text-neutral-200 p-2">
+                          <HandThumbUpIcon class="h-6 w-6"></HandThumbUpIcon>
+                        </div>
+                      </div>
+                      <div class="sidebar_button rounded-xl">
+                        <div v-on:click="reactToMessage(comment, '-')"
+                             class="cursor-pointer hover:text-neutral-200 p-2">
+                          <HandThumbDownIcon class="h-6 w-6"></HandThumbDownIcon>
+                        </div>
+                      </div>
+                      <div class="sidebar_button rounded-xl">
+                        <div v-on:click="reactToMessage(comment, '⭐')"
+                             class="cursor-pointer hover:text-neutral-200 p-2">
+                          <StarIcon class="h-6 w-6"></StarIcon>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="text-neutral-400 bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
+                      <p class="text-neutral-500 text-xs mr-2">
+                        {{ getHumanReadableDateText(comment.cdate, true) }}</p>
+                      <p class="">{{ comment.author }}</p>
+                    </div>
                   </div>
                 </div>
-                <Markdown :source="comment.desc"
-                          class="text-neutral-300 w-full markedView py-3 px-3"
-                          :plugins="plugins"></Markdown>
-                <div class="flex w-full">
-                  <div class="flex text-neutral-500 ml-auto mr-2 comment_react">
-                    <div class="sidebar_button rounded-xl">
-                      <div v-on:click="reactToMessage(comment, '+')"
-                           class="cursor-pointer hover:text-neutral-200 p-2">
-                        <HandThumbUpIcon class="h-6 w-6"></HandThumbUpIcon>
-                      </div>
-                    </div>
-                    <div class="sidebar_button rounded-xl">
-                      <div v-on:click="reactToMessage(comment, '-')"
-                           class="cursor-pointer hover:text-neutral-200 p-2">
-                        <HandThumbDownIcon class="h-6 w-6"></HandThumbDownIcon>
-                      </div>
-                    </div>
-                    <div class="sidebar_button rounded-xl">
-                      <div v-on:click="reactToMessage(comment, '⭐')"
-                           class="cursor-pointer hover:text-neutral-200 p-2">
-                        <StarIcon class="h-6 w-6"></StarIcon>
-                      </div>
-                    </div>
+                <template
+                  v-if="wisdom.type === 'question' && wisdom.finished !== true && wisdom.author === this.$store.state.username">
+                  <div class="mb-4 mt-1 w-full flex">
+                    <button v-on:click="finishQuestion(wisdom, comment)"
+                            class="text-emerald-700 hover:text-black border-2 border-emerald-700 hover:bg-emerald-700
+                                   rounded-lg px-1 py-0.5 font-bold ml-auto transition-colors">
+                      Mark as Answer
+                    </button>
                   </div>
-                  <div
-                    class="text-neutral-400 bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
-                    <p class="text-neutral-500 text-xs mr-2">
-                      {{ comment.cdate.toLocaleString('de-DE').replace(' ', '&nbsp;') }}</p>
-                    <p class="">{{ comment.author }}</p>
-                  </div>
-                </div>
-              </div>
+                </template>
+              </template>
             </template>
           </div>
         </div>
@@ -353,7 +452,7 @@
             </tr>
             <tr>
               <th class="text-neutral-400 text-xs pr-2">Date</th>
-              <td class="text-sm">{{ new Date(wisdom.cdate).toLocaleString('de-DE') }}</td>
+              <td class="text-sm">{{ getHumanReadableDateText(new Date(wisdom.cdate), true) }}</td>
             </tr>
           </table>
           <template v-if="!this.$store.getters.hasSeenWisdomTutorial()">
@@ -744,6 +843,12 @@ export default {
                 for (let i = 0; i < this.related.comments.length; i++) {
                   this.related.comments[i].cdate = new Date(
                     parseInt(this.related.comments[i].cdate, 16) * 1000)
+                }
+              }
+              if (this.related.answers) {
+                for (let i = 0; i < this.related.answers.length; i++) {
+                  this.related.answers[i].cdate = new Date(
+                    parseInt(this.related.answers[i].cdate, 16) * 1000)
                 }
               }
             } else {
@@ -1160,6 +1265,38 @@ export default {
       } else {
         return date.toLocaleDateString('de-DE') + suffix
       }
+    },
+    finishQuestion: async function (wisdom, comment) {
+      if (wisdom == null) return
+      await this.serverLogin()
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m7/finish/' + wisdom.gUID + '?answer=' + comment.gUID,
+          {
+            method: 'get',
+            headers: headers
+          }
+        )
+          .then(res => res)
+          .then(() => {
+            this.getWisdom()
+          })
+          .then(() => {
+            this.getRelated()
+          })
+          .then(() => resolve)
+          .catch((err) => {
+            this.$notify(
+              {
+                title: 'Error!',
+                text: 'Maybe you aren\'t the owner or a collaborator of this question?',
+                type: 'error'
+              })
+            console.error(err.message)
+          })
+      })
     }
   }
 }

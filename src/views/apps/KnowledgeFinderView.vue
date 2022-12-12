@@ -649,6 +649,7 @@ export default {
         try {
           entryType = this.querySubmission.match(/type:\w+/g)[0].split(':')[1]
           if (entryType === 'ask' || entryType === 'q') entryType = 'question'
+          if (entryType === 'ans' || entryType === 'a') entryType = 'answer'
           if (entryType === 'teach' || entryType === 'l') entryType = 'lesson'
           if (entryType === 'todo' || entryType === 't') entryType = 'task'
           if (entryType === 'reply' || entryType === 'c') entryType = 'comment'
@@ -656,9 +657,21 @@ export default {
           console.error(e.message)
         }
       }
+      let state = ''
+      // Are we looking for a specific wisdom finished state?
+      if (/state:\w+/g.test(this.querySubmission)) {
+        try {
+          state = this.querySubmission.match(/state:\w+/g)[0].split(':')[1]
+          if (state === 'done' || state === 'finished') state = 'true'
+          if (state === 'todo' || state === 'unfinished') state = 'false'
+        } catch (e) {
+          console.error(e.message)
+        }
+      }
       const payload = {
         query: this.querySubmission,
-        entryType: entryType
+        entryType: entryType,
+        state: state
       }
       return new Promise((resolve) => {
         const headers = new Headers()
@@ -916,11 +929,11 @@ export default {
           .then((res) => res.json())
           .then((data) => {
             this.topWriters = data
-            resolve()
           })
           .catch((err) => {
             console.error(err.message)
           })
+          .finally(() => resolve())
       })
     },
     reactToMessage: async function (wisdom, t) {
@@ -1057,11 +1070,11 @@ export default {
               myNode.removeChild(myNode.lastElementChild)
             }
             myNode.appendChild(svg)
-            resolve()
           })
           .catch((err) => {
             console.error(err.message)
           })
+          .finally(() => resolve())
       })
     },
     getRecentCategories: async function () {
@@ -1088,11 +1101,11 @@ export default {
                 }
               }
             }
-            resolve()
           })
           .catch((err) => {
             console.error(err.message)
           })
+          .finally(() => resolve())
       })
     },
     startAddingCategory: function () {
@@ -1134,7 +1147,7 @@ export default {
     },
     getRecentQuestions: async function () {
       this.questions = []
-      await this.searchWisdom('type:question question', true)
+      await this.searchWisdom('type:question state:false question', true)
       return new Promise((resolve) => {
         resolve()
       })
