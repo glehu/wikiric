@@ -99,45 +99,34 @@ export default {
         console.log('User already logged in.')
       }
     },
-    serverLogin () {
-      const headers = new Headers()
-      headers.set(
-        'Authorization',
-        'Basic ' + Base64.encode(this.user.email + ':' + this.user.password)
-      )
-      fetch(
-        this.$store.state.serverIP + '/login',
-        {
-          method: 'get',
-          headers: headers
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => (this.loginResponse = JSON.parse(data.contentJson)))
-        .then(this.processLogin)
-        .catch(() => this.$notify(
+    async serverLogin () {
+      const response = await this.$Worker.execute({
+        action: 'login',
+        u: Base64.encode(this.user.email + ':' + this.user.password)
+      })
+      if (!response.success) {
+        this.$notify(
           {
             title: 'Login Failed',
             text: 'Check Credentials or Register.',
             type: 'error'
-          }))
-    },
-    processLogin () {
-      if (this.loginResponse.httpCode === 200) {
-        this.user.token = this.loginResponse.token
-        this.user.username = this.loginResponse.username
-        this.$store.commit('logIn', this.user)
-        if (this.usageTracker) {
-          this.sendUsageData({
-            source: 'webshop',
-            module: 'login',
-            action: 'login'
           })
-        }
-        this.$router.push(this.$route.query.redirect.toString() || '/')
-      } else {
         this.user.password = ''
+        return
       }
+      this.processLogin(response)
+    },
+    processLogin (response) {
+      this.user.username = response.result.username
+      this.$store.commit('logIn', this.user)
+      if (this.usageTracker) {
+        this.sendUsageData({
+          source: 'webshop',
+          module: 'login',
+          action: 'login'
+        })
+      }
+      this.$router.push(this.$route.query.redirect.toString() || '/')
     },
     gotoRegister () {
       const params = new Proxy(new URLSearchParams(window.location.search), {

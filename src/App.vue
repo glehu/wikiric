@@ -184,7 +184,6 @@
 </template>
 
 <script>
-import { Base64 } from 'js-base64'
 import firebase from 'firebase/app'
 import 'firebase/firebase-messaging'
 import { toRaw } from 'vue'
@@ -230,7 +229,7 @@ export default {
   },
   mounted () {
     this.checkServerIP()
-    this.serverLogin()
+    this.$store.commit('logOut')
 
     const firebaseConfig = {
       apiKey: 'AIzaSyDMz_cfwofnEW7d49795IhtOBZgmrJtyqA',
@@ -247,7 +246,6 @@ export default {
     // Broadcast channel to listen to firebase cloud messaging notifications
     const bc = new BroadcastChannel('dlChannel')
     bc.onmessage = event => {
-      this.serverLogin()
       console.debug('firebase->dlChannel->connect')
       if (event.data.subchatGUID) {
         console.debug('firebase->dlChannel->connect as SUBCHAT', event.data.subchatGUID)
@@ -362,53 +360,14 @@ export default {
     checkServerIP () {
       this.$store.commit('setServerIP', 'https://wikiric.xyz')
     },
-    serverLogin: function () {
-      if (this.$store.state.email === '') return
-      const headers = new Headers()
-      headers.set(
-        'Authorization',
-        'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
-      )
-      fetch(
-        this.$store.state.serverIP + '/login',
-        {
-          method: 'get',
-          headers: headers
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => (this.loginResponse = JSON.parse(data.contentJson)))
-        .then(this.processLogin)
-        .catch((err) => this.$notify(
-          {
-            title: 'Unable to Login',
-            text: err.message,
-            type: 'error'
-          }))
-    },
-    processLogin: function () {
-      if (this.loginResponse.httpCode === 200) {
-        this.$store.commit('setServerToken', this.loginResponse.token)
-      }
-    },
-    logout () {
-      if (this.isLoggedIn) {
-        const headers = new Headers()
-        headers.set(
-          'Authorization',
-          'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
-        )
-        fetch(
-          this.$store.state.serverIP + '/logout',
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-        this.$store.commit('logOut')
-        this.$store.commit('clearCart')
-        this.$router.push('/login?redirect=/account')
-      }
+    async logout () {
+      if (!this.isLoggedIn) return
+      await this.$Worker.execute({
+        action: 'logout'
+      })
+      this.$store.commit('logOut')
+      this.$store.commit('clearCart')
+      this.$router.push('/login?redirect=/account')
     },
     processCombo: function () {
       setTimeout(() => {

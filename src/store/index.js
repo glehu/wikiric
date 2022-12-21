@@ -43,10 +43,8 @@ export default createStore({
   mutations: {
     logIn (state, user) {
       state.authenticated = true
-      state.token = user.token
       state.email = user.email
       state.username = user.username
-      state.password = user.password
     },
     logOut (state) {
       state.authenticated = false

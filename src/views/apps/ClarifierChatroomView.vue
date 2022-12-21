@@ -1299,9 +1299,8 @@
 import modal from '../../components/Modal.vue'
 import taskcontainer from '../../components/TaskContainer.vue'
 import knowledgefinder from '../../views/apps/KnowledgeFinderView'
-import WRTC from '@/webrtc/wRTC'
+import WRTC from '@/libs/wRTC'
 // External
-import { Base64 } from 'js-base64'
 import Markdown from 'vue3-markdown-it'
 import markdownItMermaid from 'markdown-it-mermaid'
 import mermaid from 'mermaid'
@@ -1478,9 +1477,6 @@ export default {
       this.timer = setInterval(this.clearActivity, 1000)
       this.timerIdle = setInterval(this.clearActivityIdle, 1000)
       // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-      // Generate new token just in case
-      await this.serverLogin()
-      console.debug('initFunction->getClarifierMetaData (INIT)', this.getSession())
       await this.getClarifierMetaData(this.getSession(), false, true)
       // Are we connecting to a subchat?
       const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -1490,14 +1486,11 @@ export default {
       this.toggleElement('init_loading', 'flex')
       if (subchatGUID != null) {
         this.$store.commit('setLastClarifierSubGUID', subchatGUID)
-        console.debug('initFunction->getClarifierMetaData (SUB PREP)', this.getSession())
         await this.getClarifierMetaData(this.getSession(), false, true)
-        console.debug('initFunction->gotoSubchat', subchatGUID)
         await this.gotoSubchat(subchatGUID)
       } else {
         this.$store.commit('setLastClarifierSubGUID', 'none')
         // Connect to the session
-        console.debug('initFunction->connect', this.getSession())
         await this.connect()
       }
       // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
@@ -1515,7 +1508,7 @@ export default {
     handleWRTCEvent: async function (event) {
       if (!event || !event.data) return
       if (event.data.event === 'connection_change') {
-        console.log('%c' + event.data.status, this.wRTC.logStyle)
+        console.debug('%c' + event.data.status, this.wRTC.logStyle)
       }
       if (event.data.event === 'new_ice') {
         const candidateId = event.data.candidateId
@@ -1527,7 +1520,7 @@ export default {
               remoteId: this.userId,
               candidate: peerConnection.candidates[i].candidate
             }
-            console.log('%cSending renegotiated Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
+            console.debug('%cSending renegotiated Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
             this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
             break
           }
@@ -1604,7 +1597,6 @@ export default {
       }
     },
     connect: async function (sessionID = this.getSession(), isSubchat = false, novisual = false) {
-      console.debug('connect', sessionID, isSubchat)
       this.resetStats()
       // Generate Key Pair
       const gTmp = this.getChatGUID()
@@ -1614,14 +1606,17 @@ export default {
         // Connect to the chat
         this.connection = new WebSocket('wss://wikiric.xyz/clarifier/' + sessionID)
         // Websocket OPEN
-        this.connection.onopen = () => {
+        this.connection.onopen = async () => {
           this.websocketState = 'OPEN'
-          this.connection.send(this.$store.state.token)
+          let auth = await this.$Worker.execute({
+            action: 'wss_auth'
+          })
+          this.connection.send(auth.t)
+          auth = null
           // Subscribe to notifications
           this.subscribeFCM(sessionID, isSubchat)
           setTimeout(() => {
             // Get metadata and messages
-            console.debug('connect->getClarifierMetaData', sessionID, isSubchat)
             this.getClarifierMetaData(sessionID, isSubchat, novisual)
               .then(() => this.getClarifierMessages(false, sessionID))
               .then(() => this.getActiveMembers(sessionID))
@@ -1641,53 +1636,16 @@ export default {
         }
       })
     },
-    serverLogin: function () {
-      return new Promise((resolve) => {
-        if (this.$store.state.email === undefined || this.$store.state.email === '') return
-        const headers = new Headers()
-        headers.set(
-          'Authorization',
-          'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
-        )
-        fetch(
-          this.$store.state.serverIP + '/login',
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
-          .then((data) => (this.loginResponse = JSON.parse(data.contentJson)))
-          .then(this.processLogin)
-          .then(resolve)
-          .catch((err) => this.$notify(
-            {
-              title: 'Unable to Login',
-              text: err.message,
-              type: 'error'
-            }))
-      })
-    },
-    processLogin: function () {
-      if (this.loginResponse.httpCode === 200) {
-        this.$store.commit('setServerToken', this.loginResponse.token)
-      }
-    },
     subscribeFCM: function (uniChatroomGUID) {
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const content = JSON.stringify({
         fcmToken: this.$store.state.fcmToken
       })
-      fetch(
-        this.$store.state.serverIP + '/api/m5/subscribe/' + uniChatroomGUID,
-        {
-          method: 'post',
-          headers: headers,
-          body: content
-        }
-      )
-        .catch((err) => console.error(err.message))
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: 'm5/subscribe/' + uniChatroomGUID,
+        body: content
+      }).catch((err) => console.error(err.message))
     },
     showMessage: async function (msg) {
       const message = await this.processRawMessage(msg)
@@ -1965,16 +1923,11 @@ export default {
         return
       }
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m5/getchatroom/' + sessionID,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm5/getchatroom/' + sessionID
+        })
           .then((data) => {
             let tmpElem
             // Remove active flag
@@ -1990,7 +1943,7 @@ export default {
             }
             // Set new chatroom or subchat + active flag
             if (!isSubchat) {
-              this.chatroom = data
+              this.chatroom = data.result
               if (this.chatroom.subChatrooms != null) {
                 // Parse JSON serialized subchats for performance
                 for (let i = 0; i < this.chatroom.subChatrooms.length; i++) {
@@ -2004,7 +1957,7 @@ export default {
                 }
               }
             } else {
-              this.currentSubchat = data
+              this.currentSubchat = data.result
               if (!novisual && this.chatroom.type !== 'direct') {
                 tmpElem = document.getElementById(this.currentSubchat.guid + '_subc')
                 if (tmpElem) tmpElem.classList.toggle('active', true)
@@ -2026,10 +1979,7 @@ export default {
       } else {
         chatElem.classList.remove('clarifier_chatroom_big')
       }
-      this.canShowSidebar = true
-      if (this.chatroom.type === 'direct') {
-        this.canShowSidebar = false
-      }
+      this.canShowSidebar = this.chatroom.type !== 'direct'
       if (isSubchat === false) {
         this.currentSubchat.type = 'text'
         this.$store.commit('addClarifierSession', {
@@ -2105,21 +2055,16 @@ export default {
         this.lazyLoadingStatus = 'request'
         pageIndex++
       }
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const parameters =
         '?pageIndex=' + pageIndex +
         '&pageSize=' + this.pageSize +
         '&skip=' + this.extraSkipCount
-      fetch(
-        this.$store.state.serverIP + '/api/m5/getmessages/' + sessionID + parameters,
-        {
-          method: 'get',
-          headers: headers
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => (this.processMessagesResponse(data, lazyLoad)))
+      this.$Worker.execute({
+        action: 'api',
+        method: 'get',
+        url: 'm5/getmessages/' + sessionID + parameters
+      })
+        .then((data) => (this.processMessagesResponse(data.result, lazyLoad)))
         .catch((err) => console.error(err.message))
     },
     processMessagesResponse: async function (data, lazyLoad = false) {
@@ -2226,7 +2171,7 @@ export default {
                 remoteId: this.userId,
                 candidate: peerConnection.candidates[i].candidate
               }
-              console.log('%cSending gathered Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
+              console.debug('%cSending gathered Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
               this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
             }
           }
@@ -2670,21 +2615,17 @@ export default {
       setTimeout(() => roleInput.focus(), 0)
     },
     commitUserRole: function () {
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const content = JSON.stringify({
         member: this.viewedUserProfile.usr,
         role: this.new_role
       })
-      this.hideUserProfile()
-      fetch(
-        this.$store.state.serverIP + '/api/m5/addrole/' + this.getSession(),
-        {
-          method: 'post',
-          headers: headers,
-          body: content
-        }
-      )
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: 'm5/addrole/' + this.getSession(),
+        body: content
+      })
+        .then(() => this.hideUserProfile())
         .then(() => this.getClarifierMetaData(this.getSession(), false, true))
         .catch((err) => console.error(err.message))
     },
@@ -3051,23 +2992,19 @@ export default {
       evt.preventDefault()
       const file = evt.target.files[0]
       const base64 = await this.getBase64(file)
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      const url = this.$store.state.serverIP + '/api/m5/setmemberimage/' + this.getSession()
+      const url = 'm5/setmemberimage/' + this.getSession()
       const updateFun = this.getClarifierMetaData
       const getMessagesFun = this.getClarifierMessages
       const content = JSON.stringify({
         imageBase64: base64,
         username: this.$store.state.username
       })
-      fetch(
-        url,
-        {
-          method: 'post',
-          headers: headers,
-          body: content
-        }
-      )
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: url,
+        body: content
+      })
         .then(() => (updateFun()))
         .then(() => (getMessagesFun()))
     },
@@ -3114,9 +3051,7 @@ export default {
       })
     },
     setSessionImage: function (image) {
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      const url = this.$store.state.serverIP + '/api/m5/setimage/' + this.getSession()
+      const url = 'm5/setimage/' + this.getSession()
       let base64String = ''
       const promise = this.getBase64(image)
       const updateFun = this.getClarifierMetaData
@@ -3127,14 +3062,12 @@ export default {
           const content = JSON.stringify({
             imageBase64: base64String
           })
-          fetch(
-            url,
-            {
-              method: 'post',
-              headers: headers,
-              body: content
-            }
-          )
+          this.$Worker.execute({
+            action: 'api',
+            method: 'post',
+            url: url,
+            body: content
+          })
             .then(() => (updateFun()))
             .then(() => (disableLoadingFun()))
             .catch((err) => console.error(err.message))
@@ -3183,46 +3116,37 @@ export default {
         type: subchatType
       })
       this.hideNewSubchatWindow()
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const mainSessionGUID = this.getSession()
       let response
-      fetch(
-        this.$store.state.serverIP + '/api/m5/createchatroom?parent=' + mainSessionGUID,
-        {
-          method: 'post',
-          headers: headers,
-          body: content
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => (response = data))
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: 'm5/createchatroom?parent=' + mainSessionGUID,
+        body: content
+      })
+        .then((data) => (response = data.result))
         .then(() => this.getClarifierMetaData(mainSessionGUID, false, true))
         .then(() => this.gotoSubchat(response.guid))
         .catch((err) => console.error(err.message))
     },
     gotoSubchat: async function (subchatGUID, subchatMode = true) {
-      console.debug('gotoSubchat->connect')
       if (subchatGUID == null) return
       this.websocketState = 'SWITCHING'
       this.lazyLoadingStatus = 'switching'
       if (subchatMode === true) {
         this.$store.commit('setLastClarifierSubGUID', subchatGUID)
-        console.debug('gotoSubchat->connect as SUBCHAT', subchatGUID, subchatMode)
         await this.$router.replace({
           path: '/apps/clarifier/wss/' + this.getSession(),
           query: { sub: subchatGUID }
         })
       } else {
         this.$store.commit('setLastClarifierSubGUID', 'none')
-        console.debug('gotoSubchat->connect as GENERAL', subchatGUID, subchatMode)
         await this.$router.replace({
           path: '/apps/clarifier/wss/' + subchatGUID // Previously getSession()
         })
       }
       this.disconnect()
       this.messages = []
-      await this.serverLogin()
       this.hideAllSidebars()
       await this.connect(subchatGUID, subchatMode)
       this.lazyLoadingStatus = 'idle'
@@ -3248,22 +3172,17 @@ export default {
     },
     uploadSnippet: function () {
       this.toggleElement('confirm_snippet_loading', 'flex')
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const content = JSON.stringify({
         type: this.uploadFileType,
         payload: this.uploadFileBase64
       })
-      fetch(
-        this.$store.state.serverIP + '/api/m6/create',
-        {
-          method: 'post',
-          headers: headers,
-          body: content
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => (this.processUploadSnippetResponse(data)))
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: 'm6/create',
+        body: content
+      })
+        .then((data) => (this.processUploadSnippetResponse(data.result)))
         .catch((err) => (this.handleUploadSnippetError(err.message)))
     },
     handleUploadSnippetError: function (errorMessage = '') {
@@ -3410,20 +3329,16 @@ export default {
         id: this.getChatGUID(),
         priv: await this.exportRSAPrivKey(keyPair.privateKey)
       })
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const content = JSON.stringify({
         pubKeyPEM: await this.exportRSAPubKey(keyPair.publicKey)
       })
       return new Promise((resolve) => {
-        fetch(
-          this.$store.state.serverIP + '/api/m5/pubkey/' + uniChatroomGUID,
-          {
-            method: 'post',
-            headers: headers,
-            body: content
-          }
-        )
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm5/pubkey/' + uniChatroomGUID,
+          body: content
+        })
           .then(resolve)
           .catch((err) => console.error(err.message))
       })
@@ -3730,7 +3645,7 @@ export default {
             remoteId: this.userId,
             candidate: peerConnection.candidates[i].candidate
           }
-          console.log('%cSending Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
+          console.debug('%cSending Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
           this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
         }
       }
@@ -3898,49 +3813,36 @@ export default {
       return array
     },
     upgradeChatroom: function () {
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       const content = JSON.stringify({
         toRank: this.chatroom.rank + 1
       })
-      fetch(
-        this.$store.state.serverIP + '/api/m5/upgrade/' + this.getSession(),
-        {
-          method: 'post',
-          headers: headers,
-          body: content
-        }
-      )
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: 'm5/upgrade/' + this.getSession(),
+        body: content
+      })
         .then(() => this.getClarifierMetaData(this.getSession(), false, true))
         .then(() => this.markActiveSubchat())
         .catch((err) => console.error(err.message))
     },
     distributeBadges: function () {
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      fetch(
-        this.$store.state.serverIP + '/api/m2/badges/set/' + this.getSession(),
-        {
-          method: 'get',
-          headers: headers
-        }
-      )
+      this.$Worker.execute({
+        action: 'api',
+        method: 'get',
+        url: 'm2/badges/set/' + this.getSession()
+      })
         .then(() => this.getClarifierMetaData(this.getSession(), false, true))
         .then(() => this.markActiveSubchat())
         .catch((err) => console.error(err.message))
     },
     getBadges: function (username) {
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      fetch(
-        this.$store.state.serverIP + '/api/m2/badges/get/' + username,
-        {
-          method: 'get',
-          headers: headers
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => (this.setUserBadges(data)))
+      this.$Worker.execute({
+        action: 'api',
+        method: 'get',
+        url: 'm2/badges/get/' + username
+      })
+        .then((data) => (this.setUserBadges(data.result)))
         .catch((err) => console.error(err.message))
     },
     setUserBadges: function (response) {
@@ -4101,18 +4003,13 @@ export default {
     },
     getActiveMembers: function (uniChatroomGUID) {
       if (!uniChatroomGUID) return
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      fetch(
-        this.$store.state.serverIP + '/api/m5/activemembers/' + uniChatroomGUID,
-        {
-          method: 'get',
-          headers: headers
-        }
-      )
-        .then((res) => res.json())
+      this.$Worker.execute({
+        action: 'api',
+        method: 'get',
+        url: 'm5/activemembers/' + uniChatroomGUID
+      })
         .then((data) => {
-          this.setActiveMembers(data.members)
+          this.setActiveMembers(data.result.members)
         })
         .finally(() => {
           setTimeout(() => {
@@ -4148,53 +4045,43 @@ export default {
         directMessageUsernames: users
       })
       this.hideAllWindows()
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
       // First check if there is already a direct message server
       let foundDirect = false
       let newId = ''
-      fetch(
-        this.$store.state.serverIP + '/api/m5/direct/' + username,
-        {
-          method: 'get',
-          headers: headers
-        }
-      )
-        .then((res) => res.json())
+      this.$Worker.execute({
+        action: 'api',
+        method: 'get',
+        url: 'm5/direct/' + username
+      })
         .then((data) => {
-          if (data.chatrooms.length > 0) {
+          if (data.result.chatrooms.length > 0) {
             foundDirect = true
-            newId = data.chatrooms[0]
+            newId = data.result.chatrooms[0]
             this.connectToGroup(newId, true)
           }
         })
         .then(() => {
           if (foundDirect) return
           // Create new one
-          fetch(
-            this.$store.state.serverIP + '/api/m5/createchatroom',
-            {
-              method: 'post',
-              headers: headers,
-              body: content
-            }
-          )
+          this.$Worker.execute({
+            action: 'api',
+            method: 'post',
+            url: 'm5/createchatroom',
+            body: content
+          })
         })
         .catch((err) => {
           console.error(err.message)
           if (foundDirect) return
           // Create new one
-          fetch(
-            this.$store.state.serverIP + '/api/m5/createchatroom',
-            {
-              method: 'post',
-              headers: headers,
-              body: content
-            }
-          )
-            .then((res) => res.json())
+          this.$Worker.execute({
+            action: 'api',
+            method: 'post',
+            url: 'm5/createchatroom',
+            body: content
+          })
             .then((data) => {
-              this.connectToGroup(data.guid, true)
+              this.connectToGroup(data.result.guid, true)
             })
         })
     },

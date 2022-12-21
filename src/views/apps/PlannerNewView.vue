@@ -2,43 +2,39 @@
   <div class="flex w-screen h-screen pt-[60px]">
     <div id="sidebar"
          class="active h-full p_sidebar_left bg-slate-700 border-r border-neutral-600 relative">
-      <div class="py-1 shadow rounded-none min-h-[80px] flex items-center">
-        <div class="flex items-center">
-          <div v-on:click="$router.push(
-                  '/apps/clarifier/wss/' + srcGUID
-                )"
-               class="h-full ml-4 mr-2 px-1 py-2 rounded-xl text-center text-gray-300 hover:text-orange-500 cursor-pointer">
-            <i class="sb_link_icon bi bi-x-square text-xl"></i>
+      <div class="w-full h-[calc(100%-20px)] relative">
+        <div class="grid grid-cols-3 m-2 h-[42px]">
+          <div class="flex items-center cursor-pointer hover:bg-neutral-900 hover:bg-opacity-50 p-2 rounded-md"
+               v-on:click="$router.back()">
+            <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
+              <i class="sb_link_icon bi bi-x-square text-xl"></i>
+            </div>
+            <div class="font-bold text-neutral-300">
+              Exit
+            </div>
           </div>
-          <div class="font-bold w-full overflow-x-hidden pr-2">
-            <div class="py-2 px-1 text-gray-100 pointer-events-none">
-              <div class="text-xl border-l border-gray-300 pl-5">
-                {{ this.knowledge.t }}
-              </div>
-              <div class="border-l border-gray-300 pl-5 text-gray-300 text-xs">
-                {{ this.knowledge.desc }}
-              </div>
+          <div class="flex items-center cursor-pointer hover:bg-neutral-900 hover:bg-opacity-50 p-2 rounded-md"
+               v-on:click="getBoxes(false)">
+            <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
+              <ArrowPathIcon class="h-6 w-6"></ArrowPathIcon>
+            </div>
+            <div class="font-bold text-neutral-300">
+              Reload Tasks
+            </div>
+          </div>
+          <div class="flex items-center cursor-pointer hover:bg-neutral-900 hover:bg-opacity-50 p-2 rounded-md"
+               v-on:click="openSearch()">
+            <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
+              <FunnelIcon class="h-6 w-6"></FunnelIcon>
+            </div>
+            <div class="font-bold text-neutral-300">
+              Filter
             </div>
           </div>
         </div>
-      </div>
-      <div class="flex items-center mt-8 cursor-pointer hover:bg-neutral-800 hover:bg-opacity-50 py-2"
-           v-on:click="getBoxes(false)">
-        <div class="h-full ml-4 mr-2 px-1 rounded-xl text-neutral-300">
-          <ArrowPathIcon class="h-6 w-6"></ArrowPathIcon>
-        </div>
-        <div class="font-bold text-neutral-300">
-          Reload Tasks
-        </div>
-      </div>
-      <div class="flex items-center cursor-pointer hover:bg-neutral-800 hover:bg-opacity-50 py-2"
-           v-on:click="openSearch()">
-        <div class="h-full ml-4 mr-2 px-1 rounded-xl text-neutral-300">
-          <FunnelIcon class="h-6 w-6"></FunnelIcon>
-        </div>
-        <div class="font-bold text-neutral-300">
-          Filter
-        </div>
+        <template v-if="calendarOptions">
+          <FullCalendar :options="calendarOptions" class="w-[calc(100%-20px)] h-[calc(100%-64px)] text-neutral-300"/>
+        </template>
       </div>
       <div
         class="p_sidebar_toggler absolute w-6 right-0 top-0 bottom-0 hover:bg-slate-600 cursor-pointer flex items-center justify-center overflow-hidden"
@@ -792,12 +788,14 @@ import {
   RadioGroupLabel,
   RadioGroupOption
 } from '@headlessui/vue'
-import { Base64 } from 'js-base64'
 import Markdown from 'vue3-markdown-it'
 import markdownItMermaid from 'markdown-it-mermaid'
 import 'highlight.js/styles/hybrid.css'
 import mermaid from 'mermaid'
 import modal from '../../components/Modal.vue'
+import FullCalendar from '@fullcalendar/vue3'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
 
 export default {
   name: 'PlannerNewView',
@@ -835,10 +833,12 @@ export default {
     FunnelIcon,
     DocumentTextIcon,
     ShareIcon,
-    ChatBubbleLeftRightIcon
+    ChatBubbleLeftRightIcon,
+    FullCalendar
   },
   data () {
     return {
+      calendarOptions: null,
       srcGUID: '',
       knowledge: {},
       knowledgeExists: false,
@@ -913,7 +913,6 @@ export default {
   },
   methods: {
     initFunction: async function () {
-      await this.serverLogin()
       const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop)
       })
@@ -925,40 +924,34 @@ export default {
       this.srcGUID = srcGUID
       this.inputComment = document.getElementById('input_comment')
       this.inputComment.addEventListener('keydown', this.handleEnter, false)
+
+      const updater = this.updateTaskDueDate
+
+      this.calendarOptions = {
+        plugins: [timeGridPlugin, interactionPlugin],
+        initialView: 'timeGridWeek',
+        nowIndicator: true,
+        editable: true,
+        events: [],
+        businessHours: {
+          daysOfWeek: [1, 2, 3, 4, 5, 6], // 0 would be sunday!
+          startTime: '7:00',
+          endTime: '19:00'
+        },
+        eventDrop: function (info) {
+          // alert(info.event.title + ' was dropped on ' + info.event.start.toISOString())
+          // if (!confirm('is this okay?')) { info.revert() }
+          updater(info.event.id, info.event.start, info.event.end)
+        },
+        eventResize: function (info) {
+          // alert(info.event.title + ' end is now ' + info.event.end.toISOString())
+          // if (!confirm('is this okay?')) { info.revert() }
+          updater(info.event.id, info.event.start, info.event.end)
+        }
+      }
+
       await this.getKnowledge(srcGUID)
       await this.getBoxes()
-    },
-    serverLogin: async function () {
-      return new Promise((resolve) => {
-        if (this.$store.state.email === undefined || this.$store.state.email === '') return
-        const headers = new Headers()
-        headers.set(
-          'Authorization',
-          'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
-        )
-        fetch(
-          this.$store.state.serverIP + '/login',
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
-          .then((data) => (this.loginResponse = JSON.parse(data.contentJson)))
-          .then(this.processLogin)
-          .then(resolve)
-          .catch((err) => this.$notify(
-            {
-              title: 'Unable to Login',
-              text: err.message,
-              type: 'error'
-            }))
-      })
-    },
-    processLogin: function () {
-      if (this.loginResponse.httpCode === 200) {
-        this.$store.commit('setServerToken', this.loginResponse.token)
-      }
     },
     getKnowledge: async function (sessionID) {
       return new Promise((resolve) => {
@@ -1002,9 +995,20 @@ export default {
           .then((data) => {
             // Retrieve all boxes and tasks from server response
             this.boxes = data.boxes.reverse()
+            this.calendarOptions.events = []
             for (let i = 0; i < this.boxes.length; i++) {
               if (this.boxes[i].tasks) {
                 this.boxes[i].tasks = this.boxes[i].tasks.reverse()
+                for (let j = 0; j < this.boxes[i].tasks.length; j++) {
+                  if (this.boxes[i].tasks[j].dueDate) {
+                    this.calendarOptions.events.push({
+                      id: this.boxes[i].tasks[j].gUID,
+                      title: this.boxes[i].tasks[j].t,
+                      start: this.boxes[i].tasks[j].dueDate,
+                      end: this.boxes[i].tasks[j].dueDateUntil
+                    })
+                  }
+                }
               }
             }
             // Draw Mermaid content in tasks
@@ -1047,7 +1051,6 @@ export default {
       }
     },
     createBox: async function () {
-      await this.serverLogin()
       const categories = []
       let boxColumn = 0
       if (this.boxes.length > 0) {
@@ -1089,7 +1092,6 @@ export default {
       })
     },
     createTask: async function (box, taskUpdate = false) {
-      await this.serverLogin()
       let categories = []
       let payload = {}
       let extension = ''
@@ -1209,7 +1211,6 @@ export default {
     },
     finishTask: async function (task, doDelete = false) {
       if (task == null) return
-      await this.serverLogin()
       let endpoint = 'finish'
       if (doDelete) endpoint = 'delete'
       return new Promise((resolve) => {
@@ -1554,6 +1555,41 @@ export default {
     },
     setTaskDueDate: function () {
       this.createTask(null, true)
+    },
+    updateTaskDueDate: function (guid, start, end) {
+      let payload
+      if (end) {
+        payload = {
+          knowledgeGUID: this.knowledge.gUID,
+          dueDate: start.toISOString(),
+          dueDateUntil: end.toISOString()
+        }
+      } else {
+        payload = {
+          knowledgeGUID: this.knowledge.gUID,
+          dueDate: start.toISOString()
+        }
+      }
+      const bodyPayload = JSON.stringify(payload)
+      return new Promise((resolve) => {
+        const headers = new Headers()
+        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
+        fetch(
+          this.$store.state.serverIP + '/api/m7/teach?guid=' + guid + '&mode=due',
+          {
+            method: 'post',
+            headers: headers,
+            body: bodyPayload
+          }
+        )
+          .then(() => {
+            this.getBoxes()
+          })
+          .then(() => resolve())
+          .catch((err) => {
+            console.error(err.message)
+          })
+      })
     },
     getTaskDueDate: function (task) {
       if (task.dueDate && task.dueDate !== '') {
@@ -1920,7 +1956,7 @@ export default {
 }
 
 .p_sidebar_left.active {
-  @apply min-w-[265px] max-w-[265px];
+  @apply min-w-[80vw] max-w-[80vw];
 }
 
 .p_sidebar_left.active > .p_sidebar_toggler {
@@ -1947,6 +1983,63 @@ export default {
 /* Works on Chrome, Edge, and Safari */
 #board::-webkit-scrollbar {
   display: none;
+}
+
+.fc .fc-timegrid-day.fc-day-today {
+  @apply bg-white bg-opacity-20;
+}
+
+.fc .fc-timegrid-day.fc-day-today .fc-timegrid-day-number {
+  @apply text-neutral-100 font-bold;
+}
+
+.fc .fc-timegrid-day {
+  @apply hover:bg-white hover:bg-opacity-10 rounded-md;
+}
+
+.fc .fc-timegrid {
+  @apply rounded-md bg-neutral-900 p-2 mx-2;
+}
+
+.fc .fc-toolbar.fc-header-toolbar {
+  @apply pl-4 pr-2 py-2 mx-2 mb-2 bg-neutral-900 rounded-md;
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+  @apply border-none;
+}
+
+.fc-theme-standard .fc-scrollgrid {
+  @apply border-none;
+}
+
+.fc .fc-timegrid-day-number {
+  text-decoration: none;
+  @apply text-neutral-300 cursor-default;
+}
+
+.fc .fc-toolbar-title {
+  @apply cursor-default;
+}
+
+.fc .fc-scroller {
+  scrollbar-color: transparent transparent !important;
+}
+
+.fc .fc-scroller::-webkit-scrollbar-track {
+  background-color: transparent !important;
+}
+
+.fc .fc-scroller::-webkit-scrollbar-thumb {
+  background-color: transparent !important;
+}
+
+.fc .fc-v-event {
+  @apply bg-blue-900 border-blue-700 px-1 py-0.5;
+}
+
+.fc .fc-event-title {
+  @apply text-neutral-300 text-sm font-bold italic;
 }
 
 </style>

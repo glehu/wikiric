@@ -593,7 +593,6 @@
 
 <script>
 import modal from '../../components/Modal.vue'
-import { Base64 } from 'js-base64'
 import Markdown from 'vue3-markdown-it'
 import markdownItMermaid from 'markdown-it-mermaid'
 import 'highlight.js/styles/hybrid.css'
@@ -713,7 +712,6 @@ export default {
         block: 'start'
       })
       this.srcguidOverride = guidOverride
-      await this.serverLogin()
       await this.getWisdom()
       await this.getRelated()
       if (this.wisdom.type === 'task') {
@@ -747,41 +745,8 @@ export default {
       this.inputComment = document.getElementById('input_comment')
       this.auto_grow()
     },
-    serverLogin: async function () {
-      return new Promise((resolve) => {
-        if (this.$store.state.email === undefined || this.$store.state.email === '') return
-        const headers = new Headers()
-        headers.set(
-          'Authorization',
-          'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
-        )
-        fetch(
-          this.$store.state.serverIP + '/login',
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
-          .then((data) => (this.loginResponse = JSON.parse(data.contentJson)))
-          .then(this.processLogin)
-          .then(resolve)
-          .catch((err) => this.$notify(
-            {
-              title: 'Unable to Login',
-              text: err.message,
-              type: 'error'
-            }))
-      })
-    },
-    processLogin: function () {
-      if (this.loginResponse.httpCode === 200) {
-        this.$store.commit('setServerToken', this.loginResponse.token)
-      }
-    },
     getWisdom: async function () {
       return new Promise((resolve) => {
-        const headers = new Headers()
         let guid
         if (this.srcguidOverride === '') {
           if (!this.isoverlay) {
@@ -792,20 +757,16 @@ export default {
         } else {
           guid = this.srcguidOverride
         }
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/learn/' + guid,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/learn/' + guid
+        })
           .then((data) => {
-            this.wisdom = data
+            this.wisdom = data.result
             // Cut away all hashtags and whitespace at the front
             this.wisdom.t = this.formatTitle(this.wisdom.t)
-            this.wisGUID = data.gUID
+            this.wisGUID = this.wisdom.gUID
             resolve()
           })
           .catch((err) => {
@@ -826,19 +787,14 @@ export default {
           guid = this.srcguidOverride
         }
         if (guidOverride !== '') guid = guidOverride
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/investigate/' + guid,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/investigate/' + guid
+        })
           .then((data) => {
             if (!onlyTasks) {
-              this.related = data
+              this.related = data.result
               if (this.related.comments) {
                 for (let i = 0; i < this.related.comments.length; i++) {
                   this.related.comments[i].cdate = new Date(
@@ -878,16 +834,12 @@ export default {
         t: t
       })
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/react/' + wisdom.gUID,
-          {
-            method: 'post',
-            headers: headers,
-            body: payload
-          }
-        )
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/react/' + wisdom.gUID,
+          body: payload
+        })
           .then(() => {
             this.getWisdom()
             this.getRelated()
@@ -924,7 +876,6 @@ export default {
       this.$store.commit('setWisdomTutorialSeen', true)
     },
     editLesson: async function () {
-      await this.serverLogin()
       const categories = []
       for (let i = 0; i < this.wisCategories.length; i++) {
         categories.push(JSON.stringify(this.wisCategories[i]))
@@ -940,16 +891,12 @@ export default {
       const bodyPayload = JSON.stringify(payload)
       const extension = '?guid=' + this.wisGUID
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/teach' + extension,
-          {
-            method: 'post',
-            headers: headers,
-            body: bodyPayload
-          }
-        )
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/teach' + extension,
+          body: bodyPayload
+        })
           .then(() => {
             this.resetValues()
             this.getWisdom()
@@ -965,18 +912,12 @@ export default {
     },
     deleteLesson: async function () {
       if (this.wisGUID == null || this.wisGUID === '') return
-      await this.serverLogin()
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/delete/' + this.wisGUID,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then(res => res)
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/delete/' + this.wisGUID
+        })
           .then(() => {
             this.resetValues()
             this.$notify(
@@ -987,7 +928,7 @@ export default {
               })
             this.$router.back()
           })
-          .then(() => resolve)
+          .then(() => resolve())
           .catch((err) => {
             this.$notify(
               {
@@ -1024,18 +965,13 @@ export default {
     },
     getKnowledge: async function (sessionID) {
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/get?src=' + sessionID + '&from=clarifier',
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/get?src=' + sessionID + '&from=clarifier'
+        })
           .then((data) => {
-            this.knowledge = data
+            this.knowledge = data.result
             if (this.knowledge.categories != null) {
               for (let i = 0; i < this.knowledge.categories.length; i++) {
                 this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
@@ -1089,16 +1025,12 @@ export default {
       }
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/reply',
-          {
-            method: 'post',
-            headers: headers,
-            body: bodyPayload
-          }
-        )
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/reply',
+          body: bodyPayload
+        })
           .then(() => {
             this.getRelated()
             this.resetValues()
@@ -1118,7 +1050,7 @@ export default {
               this.getRelated(this.wisdom.srcWisdomUID + '?type=uid', true)
             }
           })
-          .then(() => resolve)
+          .then(() => resolve())
           .catch((err) => {
             console.error(err.message)
           })
@@ -1168,19 +1100,14 @@ export default {
         entryType: entryType
       }
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/search/' + this.knowledge.gUID,
-          {
-            method: 'post',
-            headers: headers,
-            body: JSON.stringify(payload)
-          }
-        )
-          .then(res => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/search/' + this.knowledge.gUID,
+          body: JSON.stringify(payload)
+        })
           .then((data) => {
-            const parsedData = data
+            const parsedData = data.result
             if (parsedData.first != null) {
               for (let i = 0; i < parsedData.first.length; i++) {
                 if (parsedData.first[i].wisdom.gUID !== this.wisdom.gUID) {
@@ -1268,25 +1195,19 @@ export default {
     },
     finishQuestion: async function (wisdom, comment) {
       if (wisdom == null) return
-      await this.serverLogin()
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/finish/' + wisdom.gUID + '?answer=' + comment.gUID,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then(res => res)
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/finish/' + wisdom.gUID + '?answer=' + comment.gUID
+        })
           .then(() => {
             this.getWisdom()
           })
           .then(() => {
             this.getRelated()
           })
-          .then(() => resolve)
+          .then(() => resolve())
           .catch((err) => {
             this.$notify(
               {

@@ -424,7 +424,6 @@ import {
 } from '@heroicons/vue/24/outline'
 import { ArrowsUpDownIcon, CheckIcon, SparklesIcon } from '@heroicons/vue/24/solid'
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
-import { Base64 } from 'js-base64'
 import mermaid from 'mermaid'
 import * as d3 from 'd3'
 import * as d3Cloud from 'd3-cloud'
@@ -500,7 +499,6 @@ export default {
   },
   methods: {
     initFunction: async function () {
-      await this.serverLogin()
       const input = document.getElementById('search-field')
       input.focus()
       // Whose knowledge are we trying to see?
@@ -531,42 +529,30 @@ export default {
     },
     getClarifierChatroom: async function (sessionID) {
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m5/getchatroom/' + sessionID,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
-          .then((data) => resolve(data))
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm5/getchatroom/' + sessionID
+        }).then((data) => resolve(data.result))
           .catch((err) => console.error(err.message))
       })
     },
     getKnowledge: async function (sessionID) {
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/get?src=' + sessionID + '&from=clarifier',
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
-          .then((data) => {
-            this.knowledge = data
-            if (this.knowledge.categories != null) {
-              for (let i = 0; i < this.knowledge.categories.length; i++) {
-                this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
-                this.knowledge.categories[i].count = 0
-              }
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/get?src=' + sessionID + '&from=clarifier'
+        }).then((data) => {
+          this.knowledge = data.result
+          if (this.knowledge.categories != null) {
+            for (let i = 0; i < this.knowledge.categories.length; i++) {
+              this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
+              this.knowledge.categories[i].count = 0
             }
-            resolve()
-          })
+          }
+          resolve()
+        })
           .catch((err) => {
             console.error(err.message)
             this.knowledgeExists = false
@@ -582,20 +568,15 @@ export default {
         isPrivate: true
       }
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/create',
-          {
-            method: 'post',
-            headers: headers,
-            body: JSON.stringify(payload)
-          }
-        )
-          .then((res) => res.json())
-          .then(() => {
-            this.knowledgeExists = true
-          })
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/create',
+          body: JSON.stringify(payload)
+        }).then(() => {
+          this.knowledgeExists = true
+          window.location.reload()
+        })
           .then(() => resolve)
           .catch((err) => console.error(err.message))
       })
@@ -606,16 +587,12 @@ export default {
         category: this.newCategory
       }
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/edit/categories/' + this.knowledge.gUID,
-          {
-            method: 'post',
-            headers: headers,
-            body: JSON.stringify(payload)
-          }
-        )
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/edit/categories/' + this.knowledge.gUID,
+          body: JSON.stringify(payload)
+        })
           .then(() => {
             this.newCategory = ''
             this.knowledgeExists = true
@@ -674,20 +651,15 @@ export default {
         state: state
       }
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/search/' + this.knowledge.gUID,
-          {
-            method: 'post',
-            headers: headers,
-            body: JSON.stringify(payload)
-          }
-        )
-          .then(res => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/search/' + this.knowledge.gUID,
+          body: JSON.stringify(payload)
+        })
           .then((data) => {
             if (!questionsOnly) this.noResults = false
-            const parsedData = data
+            const parsedData = data.result
             let entry
             if (parsedData.first != null) {
               for (let i = 0; i < parsedData.first.length; i++) {
@@ -775,7 +747,6 @@ export default {
       }
     },
     createLesson: async function () {
-      await this.serverLogin()
       const categories = []
       for (let i = 0; i < this.wisCategories.length; i++) {
         categories.push(JSON.stringify(this.wisCategories[i]))
@@ -799,16 +770,12 @@ export default {
       // Create entry on the backend
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/' + endpoint,
-          {
-            method: 'post',
-            headers: headers,
-            body: bodyPayload
-          }
-        )
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/' + endpoint,
+          body: bodyPayload
+        })
           .then(() => {
             this.resetWriting()
           })
@@ -821,18 +788,12 @@ export default {
     },
     deleteLesson: async function () {
       if (this.wisGUID == null || this.wisGUID === '') return
-      await this.serverLogin()
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/delete/' + this.wisGUID,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then(res => res)
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/delete/' + this.wisGUID
+        })
           .then(() => {
             this.resetWriting()
             this.$notify(
@@ -883,52 +844,15 @@ export default {
     capitalizeFirstLetter: function ([first, ...rest], locale = navigator.language) {
       return first === undefined ? '' : first.toLocaleUpperCase(locale) + rest.join('')
     },
-    serverLogin: async function () {
-      return new Promise((resolve) => {
-        if (this.$store.state.email === undefined || this.$store.state.email === '') return
-        const headers = new Headers()
-        headers.set(
-          'Authorization',
-          'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
-        )
-        fetch(
-          this.$store.state.serverIP + '/login',
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
-          .then((data) => (this.loginResponse = JSON.parse(data.contentJson)))
-          .then(this.processLogin)
-          .then(resolve)
-          .catch((err) => this.$notify(
-            {
-              title: 'Unable to Login',
-              text: err.message,
-              type: 'error'
-            }))
-      })
-    },
-    processLogin: function () {
-      if (this.loginResponse.httpCode === 200) {
-        this.$store.commit('setServerToken', this.loginResponse.token)
-      }
-    },
     getTopContributors: async function () {
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/topwriters/' + this.knowledge.gUID,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/topwriters/' + this.knowledge.gUID
+        })
           .then((data) => {
-            this.topWriters = data
+            this.topWriters = data.result
           })
           .catch((err) => {
             console.error(err.message)
@@ -942,16 +866,12 @@ export default {
         t: t
       })
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/react/' + wisdom.gUID,
-          {
-            method: 'post',
-            headers: headers,
-            body: payload
-          }
-        )
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/react/' + wisdom.gUID,
+          body: payload
+        })
           .then(() => {
             this.$notify(
               {
@@ -1051,19 +971,14 @@ export default {
     },
     getRecentKeywords: async function () {
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/keywordlist/' + this.knowledge.gUID,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/keywordlist/' + this.knowledge.gUID
+        })
           .then((data) => {
             let keywords = []
-            if (data.keywords) keywords = data.keywords
+            if (data.result.keywords) keywords = data.result.keywords
             const svg = this.wordCloud(keywords)
             const myNode = document.getElementById('d3wordcloud')
             while (myNode.lastElementChild) {
@@ -1079,21 +994,16 @@ export default {
     },
     getRecentCategories: async function () {
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/categorylist/' + this.knowledge.gUID,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/categorylist/' + this.knowledge.gUID
+        })
           .then((data) => {
-            if (!data.categories) return
+            if (!data.result.categories) return
             if (this.knowledge && this.knowledge.categories) {
-              for (let i = 0; i < data.categories.length; i++) {
-                const category = data.categories[i]
+              for (let i = 0; i < data.result.categories.length; i++) {
+                const category = data.result.categories[i]
                 for (let j = 0; j < this.knowledge.categories.length; j++) {
                   if (this.knowledge.categories[j].category === category.category) {
                     this.knowledge.categories[j].count = category.count
