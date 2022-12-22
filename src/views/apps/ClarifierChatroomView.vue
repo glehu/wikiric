@@ -1999,15 +1999,17 @@ export default {
         if (this.isSubchat === false) {
           this.members = []
           // Parse JSON serialized users for performance
-          for (let i = 0; i < this.chatroom.members.length; i++) {
-            // Main Members
-            this.mainMembers[i] = JSON.parse(this.chatroom.members[i])
-            this.mainMembers[i].taggable = true
-            // Current Members
-            this.members[i] = this.mainMembers[i]
-            this.members[i].taggable = true
-            if (this.members[i].usr === this.$store.state.username) {
-              this.userId = this.members[i].id
+          if (this.chatroom.members) {
+            for (let i = 0; i < this.chatroom.members.length; i++) {
+              // Main Members
+              this.mainMembers[i] = JSON.parse(this.chatroom.members[i])
+              this.mainMembers[i].taggable = true
+              // Current Members
+              this.members[i] = this.mainMembers[i]
+              this.members[i].taggable = true
+              if (this.members[i].usr === this.$store.state.username) {
+                this.userId = this.members[i].id
+              }
             }
           }
         }

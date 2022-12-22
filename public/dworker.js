@@ -21,6 +21,10 @@ const refreshToken = () => {
     .then(() => {
       if (response.httpCode === 200) {
         _t = response.token
+        if (_interval) clearInterval(_interval)
+        _interval = setInterval(() => {
+          refreshToken()
+        }, (response.expiresInMs - 60000))
       }
     })
 }
@@ -30,7 +34,38 @@ onmessage = function (e) {
   if (!e.data) return
   const msg = e.data
   if (!msg.action) return
-  if (msg.action === 'login') {
+  if (msg.action === 'signup') {
+    if (!msg.u || !msg.uRaw || !msg.username) return
+    _u = msg.u
+    let response = null
+    const headers = new Headers()
+    headers.set(
+      'Content-Type', 'application/json'
+    )
+    fetch(
+      _endpoint + '/register',
+      {
+        method: 'post',
+        headers: headers,
+        body: JSON.stringify({
+          email: msg.uRaw.split(':')[0],
+          username: msg.username,
+          password: msg.uRaw.split(':')[1]
+        })
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => (response = data))
+      .then(() => {
+        if (response.success) {
+          e.ports[0].postMessage({
+            success: true,
+            result: response
+          })
+          refreshToken()
+        }
+      })
+  } else if (msg.action === 'login') {
     if (!msg.u) return
     _u = msg.u
     let response = null

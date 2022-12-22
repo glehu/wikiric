@@ -955,18 +955,13 @@ export default {
     },
     getKnowledge: async function (sessionID) {
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/get?src=' + sessionID + '&from=clarifier',
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/get?src=' + sessionID + '&from=clarifier'
+        })
           .then((data) => {
-            this.knowledge = data
+            this.knowledge = data.result
             if (this.knowledge.categories != null) {
               for (let i = 0; i < this.knowledge.categories.length; i++) {
                 this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
@@ -982,19 +977,14 @@ export default {
     },
     getBoxes: async function (silent = true) {
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/tasks/' + this.knowledge.gUID,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/tasks/' + this.knowledge.gUID
+        })
           .then((data) => {
             // Retrieve all boxes and tasks from server response
-            this.boxes = data.boxes.reverse()
+            this.boxes = data.result.boxes.reverse()
             this.calendarOptions.events = []
             for (let i = 0; i < this.boxes.length; i++) {
               if (this.boxes[i].tasks) {
@@ -1070,16 +1060,12 @@ export default {
       }
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/teach',
-          {
-            method: 'post',
-            headers: headers,
-            body: bodyPayload
-          }
-        )
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/teach',
+          body: bodyPayload
+        })
           .then(() => {
             this.newBox.name = ''
             this.getBoxes()
@@ -1156,16 +1142,12 @@ export default {
       }
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/teach' + extension,
-          {
-            method: 'post',
-            headers: headers,
-            body: bodyPayload
-          }
-        )
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/teach' + extension,
+          body: bodyPayload
+        })
           .then(() => {
             this.getBoxes()
             this.newTask.name = ''
@@ -1214,16 +1196,11 @@ export default {
       let endpoint = 'finish'
       if (doDelete) endpoint = 'delete'
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/' + endpoint + '/' + task.gUID,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then(res => res)
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/' + endpoint + '/' + task.gUID
+        })
           .then(() => {
             if (this.isShowingTask) this.isShowingTask = false
             this.getBoxes()
@@ -1285,18 +1262,13 @@ export default {
     },
     getRelated: async function (task) {
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/investigate/' + task.gUID,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/investigate/' + task.gUID
+        })
           .then((data) => {
-            this.showingTaskRelated = data
+            this.showingTaskRelated = data.result
             if (this.showingTaskRelated.comments) {
               for (let i = 0; i < this.showingTaskRelated.comments.length; i++) {
                 this.showingTaskRelated.comments[i].cdate = new Date(
@@ -1337,16 +1309,12 @@ export default {
       }
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/reply',
-          {
-            method: 'post',
-            headers: headers,
-            body: bodyPayload
-          }
-        )
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/reply',
+          body: bodyPayload
+        })
           .then(() => {
             this.getRelated(this.showingTask)
             this.resetValues()
@@ -1355,7 +1323,7 @@ export default {
               this.auto_grow('input_comment')
             }, 0)
           })
-          .then(() => resolve)
+          .then(() => resolve())
           .catch((err) => {
             console.error(err.message)
           })
@@ -1572,16 +1540,12 @@ export default {
       }
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/teach?guid=' + guid + '&mode=due',
-          {
-            method: 'post',
-            headers: headers,
-            body: bodyPayload
-          }
-        )
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/teach?guid=' + guid + '&mode=due',
+          body: bodyPayload
+        })
           .then(() => {
             this.getBoxes()
           })
@@ -1620,19 +1584,14 @@ export default {
         for (let i = 0; i < elements.length; i++) {
           elements[i].style.display = 'none'
         }
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/search/' + this.knowledge.gUID,
-          {
-            method: 'post',
-            headers: headers,
-            body: JSON.stringify(payload)
-          }
-        )
-          .then(res => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/search/' + this.knowledge.gUID,
+          body: JSON.stringify(payload)
+        })
           .then((data) => {
-            const parsedData = data
+            const parsedData = data.result
             if (parsedData.first != null) {
               for (let i = 0; i < parsedData.first.length; i++) {
                 this.results.push({
@@ -1668,7 +1627,7 @@ export default {
               }
             }
           })
-          .then(() => resolve)
+          .then(() => resolve())
           .catch((err) => {
             console.error(err.message)
           })
@@ -1762,18 +1721,13 @@ export default {
         return
       }
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m5/getchatroom/' + sessionID,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm5/getchatroom/' + sessionID
+        })
           .then((data) => {
-            this.sharing.chatroom = data
+            this.sharing.chatroom = data.result
             if (this.sharing.chatroom.subChatrooms != null) {
               // Parse JSON serialized subchats for performance
               for (let i = 0; i < this.sharing.chatroom.subChatrooms.length; i++) {
@@ -1781,7 +1735,7 @@ export default {
               }
             }
           })
-          .then(resolve)
+          .then(resolve())
           .catch((err) => console.error(err.message))
       })
     },
@@ -1796,16 +1750,12 @@ export default {
         text: prefix + JSON.stringify(message)
       }
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m5/addmessage',
-          {
-            method: 'post',
-            headers: headers,
-            body: JSON.stringify(bodyPayload)
-          }
-        )
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm5/addmessage',
+          body: JSON.stringify(bodyPayload)
+        })
           .then(() => {
             this.sharing.message = ''
             this.sharing.selectedSubchat = ''

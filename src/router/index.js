@@ -42,12 +42,6 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/apps/planner/:id',
-    name: 'WPlanner',
-    component: () => import('../views/apps/PlannerView'),
-    meta: { requiresAuth: true }
-  },
-  {
     path: '/apps/clarifier',
     name: 'WClarifier',
     component: () => import('../views/apps/ClarifierView'),

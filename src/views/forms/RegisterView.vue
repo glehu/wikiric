@@ -1,93 +1,128 @@
 <template>
-  <div style="min-height: 10vh"></div>
-  <div class="d-md-flex align-items-center">
-    <div class="mt-2 text-white" style="padding-left: 10vw">
-      <h2 class="fw-bold" style="font-family: 'Lato', sans-serif; pointer-events: none">
-        Welcome
-      </h2>
-      <div class="d-flex">
-        <div class="mb-2"
-             style="text-align: justify; text-justify: inter-word; width: 200px; pointer-events: none">
-          Only a few steps 'till success. Before you lie many possibilities and ex- periments.
-          It is up to you to discover them and figure out what's next. But it is our mission,
-          to assist you and make you a part of this project.
-        </div>
-        <div class="text-center" style="width: 200px">
-          <button title="GitHub"
-                  class="btn bi-github p-3 btn-lg muArrow" style="color: white;" v-on:click="redirectGitHub"/>
-          <br>
-          <div class="d-md-none d-block">
-            <button title="Registration"
-                    class="btn bi-arrow-down p-3 btn-lg mdArrow"
-                    style="color: white;" v-on:click="scrollTo('registration')"/>
-          </div>
-        </div>
-      </div>
-    </div>
-    <form class=" register
-          " @submit.prevent="register">
-      <section>
-        <div id="registration" class="container h-100 p-4">
-          <div class="justify-content-center align-items-center h-100">
-            <div class="card text-white" style="border-radius: 1rem; background: #131313">
-              <div class="card-body p-5 text-center">
-                <div class="mt-md-0 pb-5">
-                  <h1 class="fw-bold mb-4 text-4xl"
-                      style="font-family: 'Lato', sans-serif; pointer-events: none">
-                    REGISTER
-                  </h1>
-                  <div class="form-outline form-white mb-4">
-                    <input
-                      required
-                      v-model="user.email"
-                      type="email"
-                      class="text-black py-1 px-2"
-                      placeholder="Email"
-                    />
+  <div class="h-screen w-screen d-md-flex align-items-center justify-center pt-[60px]">
+    <form class="register flex"
+          @submit.prevent="register">
+      <template v-if="metamask.account === ''">
+        <section>
+          <div id="registration" class="container h-full p-3">
+            <div class="justify-content-center align-items-center h-full">
+              <div class="card text-white border-[1px] border-neutral-600 h-full"
+                   style="border-radius: 1rem; background: #131313">
+                <div class="card-body p-5 text-center">
+                  <div class="mt-md-0">
+                    <h1 class="fw-bold mb-4 text-4xl"
+                        style="pointer-events: none">
+                      REGISTER
+                    </h1>
+                    <div class="form-outline form-white mb-4">
+                      <input
+                        required
+                        v-model="user.email"
+                        type="email"
+                        class="text-black py-1 px-2 rounded placeholder-neutral-600"
+                        placeholder="Email"
+                      />
+                    </div>
+                    <div class="form-outline form-white mb-4">
+                      <input
+                        required
+                        v-model="user.password"
+                        type="password"
+                        class="text-black py-1 px-2 rounded placeholder-neutral-600"
+                        placeholder="Password"
+                        autocomplete="new-password"
+                      />
+                    </div>
+                    <div class="form-outline form-white mb-4">
+                      <input
+                        required
+                        v-model="user.passwordRpt"
+                        type="password"
+                        class="text-black py-1 px-2 rounded placeholder-neutral-600"
+                        placeholder="Confirm Password"
+                        autocomplete="new-password"
+                      />
+                    </div>
+                    <div class="form-outline form-white mb-4">
+                      <p class="pointer-events-none text-neutral-300 py-1">How should we call you?</p>
+                      <input
+                        required
+                        v-model="user.username"
+                        type="text"
+                        class="text-black py-1 px-2 rounded placeholder-neutral-600 placeholder-wave"
+                        placeholder="Username"
+                      />
+                    </div>
+                    <button class="btn btn-outline-light btn-lg px-5" type="submit">Register</button>
                   </div>
-                  <div class="form-outline form-white mb-4">
-                    <input
-                      required
-                      v-model="user.password"
-                      type="password"
-                      class="text-black py-1 px-2"
-                      placeholder="Password"
-                    />
-                  </div>
-                  <div class="form-outline form-white mb-4">
-                    <input
-                      required
-                      v-model="user.passwordRpt"
-                      type="password"
-                      class="text-black py-1 px-2"
-                      placeholder="Confirm Password"
-                    />
-                  </div>
-                  <div class="form-outline form-white mb-4">
-                    <p style="pointer-events: none">How should we call you?</p>
-                    <input
-                      required
-                      v-model="user.username"
-                      type="text"
-                      class="text-black py-1 px-2"
-                      placeholder="Username"
-                    />
-                  </div>
-                  <button class="btn btn-outline-light btn-lg px-5" type="submit">Register</button>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </template>
+      <template v-if="hasMetaMask">
+        <section>
+          <div id="metamask_registration" class="container h-full p-3">
+            <div class="justify-content-center align-items-center h-full">
+              <div class="card text-white border-[1px] border-neutral-600 h-full"
+                   style="border-radius: 1rem; background: #131313">
+                <div class="card-body p-5 text-center">
+                  <div class="mt-md-0">
+                    <p class="pointer-events-none">Register via</p>
+                    <h1 class="fw-bold text-4xl"
+                        style="pointer-events: none">
+                      MetaMask
+                    </h1>
+                    <div class="w-full h-[128px] flex justify-center">
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"
+                           class="w-full h-full"
+                           alt="MetaMask Icon">
+                    </div>
+                    <template v-if="metamask.account === ''">
+                      <div>
+                        <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
+                                type="button"
+                                v-on:click="handleMetaMaskLogin()">
+                          Connect
+                        </button>
+                      </div>
+                    </template>
+                    <div class="form-outline form-white mb-4">
+                      <p class="pointer-events-none text-neutral-300 py-1">How should we call you?</p>
+                      <input
+                        required
+                        v-model="user.username"
+                        type="text"
+                        class="text-black py-1 px-2 rounded placeholder-neutral-600 placeholder-wave"
+                        placeholder="Username"
+                      />
+                    </div>
+                    <button class="btn btn-outline-light btn-lg px-5"
+                            type="submit"
+                            v-show="metamask.account !== ''">
+                      Register
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </template>
     </form>
   </div>
 </template>
 
 <script>
+import detectEthereumProvider from '@metamask/detect-provider'
+import Web3 from 'web3'
 import { Base64 } from 'js-base64'
 
 export default {
+  mounted () {
+    this.checkForMetaMask()
+  },
   data () {
     return {
       user: {
@@ -99,6 +134,10 @@ export default {
       response: {
         success: false,
         message: ''
+      },
+      hasMetaMask: false,
+      metamask: {
+        account: ''
       }
     }
   },
@@ -117,36 +156,22 @@ export default {
       }
     },
     serverRegister () {
-      const headers = new Headers()
-      headers.set(
-        'Content-Type', 'application/json'
-      )
-      fetch(
-        this.$store.state.serverIP + '/register',
-        {
-          method: 'post',
-          headers: headers,
-          body: JSON.stringify({
-            email: this.user.email,
-            username: this.user.username,
-            password: this.user.password
-          })
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => (this.response = data))
-        .then(this.processRegistration)
-        .catch((err) => console.log(err.message))
+      if (this.hasMetaMask) {
+        this.handleMetaMaskSignup()
+      } else {
+        this.$Worker.execute({
+          action: 'signup',
+          u: Base64.encode(this.user.email + ':' + this.user.password),
+          uRaw: this.user.email + ':' + this.user.password,
+          username: this.user.username
+        })
+          .then((data) => (this.response = data))
+          .then(this.processRegistration)
+          .catch((err) => console.log(err.message))
+      }
     },
     processRegistration () {
       if (this.response.success) {
-        if (this.usageTracker) {
-          this.sendUsageData({
-            source: 'web',
-            module: 'register',
-            action: 'register'
-          })
-        }
         const params = new Proxy(new URLSearchParams(window.location.search), {
           get: (searchParams, prop) => searchParams.get(prop)
         })
@@ -158,7 +183,6 @@ export default {
         }
       } else {
         this.user.email = ''
-        this.user.username = ''
         this.user.password = ''
         this.user.passwordRpt = ''
         alert(this.response.message)
@@ -170,19 +194,35 @@ export default {
     scrollTo (content) {
       document.getElementById(content).scrollIntoView({ behavior: 'smooth' })
     },
-    async sendUsageData (usageObj) {
-      const headers = new Headers()
-      headers.set('Authorization', 'Basic ' +
-        Base64.encode(this.$store.state.username + ':' + this.$store.state.password).toString('base64'))
-      headers.set('Content-Type', 'application/json')
-      fetch(
-        this.$store.state.serverIP + '/api/utr',
-        {
-          method: 'post',
-          headers: headers,
-          body: JSON.stringify(usageObj)
-        }
-      ).then(r => console.log(r))
+    checkForMetaMask: async function () {
+      const provider = await detectEthereumProvider()
+      if (provider && provider === window.ethereum) {
+        this.hasMetaMask = true
+      }
+    },
+    handleMetaMaskLogin: async function () {
+      if (!this.hasMetaMask) return
+      const resp = await window.ethereum.request({ method: 'eth_requestAccounts' })
+      this.metamask.account = resp[0]
+    },
+    handleMetaMaskSignup: async function () {
+      if (!this.hasMetaMask) return
+      const signingMessage = 'By signing this message,\nyou are giving wikiric.xyz (later wikiric) access ' +
+        'to your account information (e.g. seeing your balance) and allowing the signing of transactions etc.' +
+        '\nIn case there is no wikiric account associated with your MetaMask account, one will be created.' +
+        '\n\nDo not sign this message if the domain is any other than https://wikiric.netlify.app or ' +
+        'https://wikiric.xyz.'
+      const web3 = new Web3(window.ethereum)
+      const response = await web3.eth.personal.sign(signingMessage, this.metamask.account, console.log)
+      this.$Worker.execute({
+        action: 'signup',
+        u: Base64.encode(this.metamask.account + ':' + response),
+        uRaw: this.metamask.account + ':' + response,
+        username: this.user.username
+      })
+        .then((data) => (this.response = data))
+        .then(this.processRegistration)
+        .catch((err) => console.log(err.message))
     }
   }
 }

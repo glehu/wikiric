@@ -138,21 +138,16 @@ export default {
       setInterval(this.getTime, 1000)
     },
     create: function () {
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      fetch(
-        this.$store.state.serverIP + '/api/m5/createchatroom',
-        {
-          method: 'post',
-          headers: headers,
-          body: JSON.stringify({
-            title: this.input_string,
-            type: 'text'
-          })
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => (this.$router.push('/apps/clarifier/wss/' + data.guid)))
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: 'm5/createchatroom',
+        body: JSON.stringify({
+          title: this.input_string,
+          type: 'text'
+        })
+      })
+        .then((data) => (this.$router.push('/apps/clarifier/wss/' + data.result.guid)))
         .catch((err) => console.log(err.message))
     },
     getImg: function (imgGUID, get = false) {

@@ -1,49 +1,77 @@
 <template>
-  <div
-    style="min-height: 100vh; min-width: 100vw; max-width: 100vw; overflow-x: hidden"
-    :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-adrien-olichon-2387819.jpg')+')',
+  <div class="h-screen w-screen d-md-flex align-items-center justify-center"
+       style="min-height: 100vh; min-width: 100vw; max-width: 100vw; overflow-x: hidden"
+       :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-adrien-olichon-2387819.jpg')+')',
               backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div style="min-height: 10vh"></div>
-    <form class="login" @submit.prevent="login">
+    <form class="login md:flex pt-[60px]" @submit.prevent="login">
       <section>
-        <div class="container py-5 h-100">
-          <div class="row d-flex justify-content-center align-items-center h-100">
-            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-              <div class="card text-white" style="border-radius: 1rem; background: #131313">
-                <div class="card-body p-5 text-center">
-                  <div class="mt-md-0 pb-5">
-                    <h2 class="fw-bold mb-2 text-uppercase text-4xl mb-4"
-                        style="font-family: 'Lato', sans-serif; pointer-events: none">
-                      Login
-                    </h2>
-                    <div class="form-outline form-white mb-4">
-                      <input
-                        required
-                        v-model="user.email"
-                        type="email"
-                        class="text-black py-1 px-2"
-                        placeholder="Email"
-                      />
-                    </div>
-                    <div class="form-outline form-white mb-4">
-                      <input
-                        required
-                        v-model="user.password"
-                        type="password"
-                        class="text-black py-1 px-2"
-                        placeholder="Password"
-                      />
-                    </div>
-                    <!--<p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#">Forgot password?</a></p>-->
-                    <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
-                    <div class="flex items-center justify-content-center w-full mt-5">
-                      <p class="pointer-events-none text-neutral-400">Don't have an account?</p>
-                      <button v-on:click="gotoRegister()"
-                              class="btn btn-lg text-white muArrow">
-                        Sign Up
-                      </button>
-                    </div>
+        <div class="container p-3 h-full">
+          <div class="justify-content-center align-items-center h-full">
+            <div class="card text-white border-[1px] border-neutral-600 h-full"
+                 style="border-radius: 1rem; background: #131313">
+              <div class="card-body p-5 text-center">
+                <div class="mt-md-0">
+                  <h2 class="fw-bold mb-2 text-uppercase text-4xl mb-4"
+                      style="font-family: 'Lato', sans-serif; pointer-events: none">
+                    Sign In
+                  </h2>
+                  <div class="form-outline form-white mb-4">
+                    <input
+                      required
+                      v-model="user.email"
+                      type="email"
+                      class="text-black py-1 px-2 rounded placeholder-neutral-500"
+                      placeholder="Email"
+                      autocomplete="username"
+                    />
                   </div>
+                  <div class="form-outline form-white mb-4">
+                    <input
+                      required
+                      v-model="user.password"
+                      type="password"
+                      class="text-black py-1 px-2 rounded placeholder-neutral-500"
+                      placeholder="Password"
+                      autocomplete="current-password"
+                    />
+                  </div>
+                  <!--<p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#">Forgot password?</a></p>-->
+                  <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
+                  <div class="flex items-center justify-content-center w-full mt-5">
+                    <p class="pointer-events-none text-neutral-400">Don't have an account?</p>
+                    <button v-on:click="gotoRegister()"
+                            class="btn btn-lg text-white muArrow">
+                      Sign Up
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div id="metamask_registration" class="container h-full p-3">
+          <div class="justify-content-center align-items-center h-full">
+            <div class="card text-white border-[1px] border-neutral-600 h-full"
+                 style="border-radius: 1rem; background: #131313">
+              <div class="card-body p-5 text-center">
+                <div class="mt-md-0">
+                  <p class="pointer-events-none">Sign in via</p>
+                  <h1 class="fw-bold text-4xl"
+                      style="pointer-events: none">
+                    MetaMask
+                  </h1>
+                  <div class="w-full h-[128px] flex justify-center">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"
+                         class="w-full h-full"
+                         alt="MetaMask Icon">
+                  </div>
+                  <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
+                          type="button"
+                          v-on:click="handleMetaMaskLogin">
+                    Connect
+                  </button>
                 </div>
               </div>
             </div>
@@ -56,6 +84,8 @@
 
 <script>
 import { Base64 } from 'js-base64'
+import Web3 from 'web3'
+import detectEthereumProvider from '@metamask/detect-provider'
 
 export default {
   data () {
@@ -69,7 +99,8 @@ export default {
       loginResponse: {
         httpCode: 0,
         token: ''
-      }
+      },
+      hasMetaMask: false
     }
   },
   computed: {
@@ -79,6 +110,9 @@ export default {
     usageTracker () {
       return this.$store.state.usageTracking
     }
+  },
+  mounted () {
+    this.checkForMetaMask()
   },
   methods: {
     login () {
@@ -100,32 +134,29 @@ export default {
       }
     },
     async serverLogin () {
-      const response = await this.$Worker.execute({
-        action: 'login',
-        u: Base64.encode(this.user.email + ':' + this.user.password)
-      })
-      if (!response.success) {
-        this.$notify(
-          {
-            title: 'Login Failed',
-            text: 'Check Credentials or Register.',
-            type: 'error'
-          })
-        this.user.password = ''
-        return
+      if (this.hasMetaMask) {
+        await this.handleMetaMaskLogin()
+      } else {
+        const response = await this.$Worker.execute({
+          action: 'login',
+          u: Base64.encode(this.user.email + ':' + this.user.password)
+        })
+        if (!response.success) {
+          this.$notify(
+            {
+              title: 'Login Failed',
+              text: 'Check Credentials or Register.',
+              type: 'error'
+            })
+          this.user.password = ''
+          return
+        }
+        this.processLogin(response)
       }
-      this.processLogin(response)
     },
     processLogin (response) {
       this.user.username = response.result.username
       this.$store.commit('logIn', this.user)
-      if (this.usageTracker) {
-        this.sendUsageData({
-          source: 'webshop',
-          module: 'login',
-          action: 'login'
-        })
-      }
       this.$router.push(this.$route.query.redirect.toString() || '/')
     },
     gotoRegister () {
@@ -139,20 +170,37 @@ export default {
         this.$router.push('/register')
       }
     },
-    async sendUsageData (usageObj) {
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      headers.set(
-        'Content-Type', 'application/json'
-      )
-      fetch(
-        this.$store.state.serverIP + '/api/utr',
-        {
-          method: 'post',
-          headers: headers,
-          body: JSON.stringify(usageObj)
-        }
-      ).then(r => console.log(r))
+    handleMetaMaskLogin: async function () {
+      if (!this.hasMetaMask) return
+      const resp = await window.ethereum.request({ method: 'eth_requestAccounts' })
+      const signingMessage = 'By signing this message,\nyou are giving wikiric.xyz (later wikiric) access ' +
+        'to your account information (e.g. seeing your balance) and allowing the signing of transactions etc.' +
+        '\nIn case there is no wikiric account associated with your MetaMask account, one will be created.' +
+        '\n\nDo not sign this message if the domain is any other than https://wikiric.netlify.app or ' +
+        'https://wikiric.xyz.'
+      const web3 = new Web3(window.ethereum)
+      const respp = await web3.eth.personal.sign(signingMessage, resp[0], console.log)
+      const response = await this.$Worker.execute({
+        action: 'login',
+        u: Base64.encode(resp[0] + ':' + respp)
+      })
+      if (!response.success) {
+        this.$notify(
+          {
+            title: 'Login Failed',
+            text: 'Check Credentials or Register.',
+            type: 'error'
+          })
+        this.user.password = ''
+        return
+      }
+      this.processLogin(response)
+    },
+    checkForMetaMask: async function () {
+      const provider = await detectEthereumProvider()
+      if (provider && provider === window.ethereum) {
+        this.hasMetaMask = true
+      }
     }
   }
 }
