@@ -36,7 +36,11 @@
                     />
                   </div>
                   <!--<p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#">Forgot password?</a></p>-->
-                  <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
+                  <button class="btn btn-outline-light btn-lg px-5"
+                          type="button"
+                          v-on:click="login()">
+                    Login
+                  </button>
                   <div class="flex items-center justify-content-center w-full mt-5">
                     <p class="pointer-events-none text-neutral-400">Don't have an account?</p>
                     <button v-on:click="gotoRegister()"
@@ -64,12 +68,39 @@
                   </h1>
                   <div class="w-full h-[128px] flex justify-center">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"
-                         class="w-full h-full"
+                         class="w-full h-full py-2"
                          alt="MetaMask Icon">
                   </div>
                   <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
                           type="button"
                           v-on:click="handleMetaMaskLogin">
+                    Connect
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div id="phantom_registration" class="container h-full p-3">
+          <div class="justify-content-center align-items-center h-full">
+            <div class="card text-white border-[1px] border-neutral-600 h-full"
+                 style="border-radius: 1rem; background: #131313">
+              <div class="card-body p-5 text-center">
+                <div class="mt-md-0">
+                  <p class="pointer-events-none">Sign in via</p>
+                  <h1 class="fw-bold text-4xl"
+                      style="pointer-events: none">
+                    Phantom
+                  </h1>
+                  <div class="w-full h-[128px] flex justify-center">
+                    <img src='@/assets/phantom/phantom-icon-purple.svg' alt="Phantom Logo"
+                         class="h-full w-full py-3">
+                  </div>
+                  <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
+                          type="button"
+                          v-on:click="handlePhantomLogin">
                     Connect
                   </button>
                 </div>
@@ -94,13 +125,15 @@ export default {
         token: '',
         username: '',
         email: '',
-        password: ''
+        password: '',
+        accountType: ''
       },
       loginResponse: {
         httpCode: 0,
         token: ''
       },
-      hasMetaMask: false
+      hasMetaMask: false,
+      hasPhantom: false
     }
   },
   computed: {
@@ -113,6 +146,7 @@ export default {
   },
   mounted () {
     this.checkForMetaMask()
+    this.checkForPhantom()
   },
   methods: {
     login () {
@@ -133,26 +167,29 @@ export default {
         console.log('User already logged in.')
       }
     },
-    async serverLogin () {
-      if (this.hasMetaMask) {
-        await this.handleMetaMaskLogin()
+    async serverLogin (u, p, accountType = 'email') {
+      if (!u) u = this.user.email
+      if (!p) p = this.user.password
+      if (accountType) {
+        this.user.accountType = accountType
       } else {
-        const response = await this.$Worker.execute({
-          action: 'login',
-          u: Base64.encode(this.user.email + ':' + this.user.password)
-        })
-        if (!response.success) {
-          this.$notify(
-            {
-              title: 'Login Failed',
-              text: 'Check Credentials or Register.',
-              type: 'error'
-            })
-          this.user.password = ''
-          return
-        }
-        this.processLogin(response)
+        this.user.accountType = 'email'
       }
+      const response = await this.$Worker.execute({
+        action: 'login',
+        u: Base64.encode(u + ':' + p)
+      })
+      if (!response.success) {
+        this.$notify(
+          {
+            title: 'Login Failed',
+            text: 'Check Credentials or Register.',
+            type: 'error'
+          })
+        this.user.password = ''
+        return
+      }
+      this.processLogin(response)
     },
     processLogin (response) {
       this.user.username = response.result.username
@@ -172,35 +209,46 @@ export default {
     },
     handleMetaMaskLogin: async function () {
       if (!this.hasMetaMask) return
-      const resp = await window.ethereum.request({ method: 'eth_requestAccounts' })
+      const respU = await window.ethereum.request({ method: 'eth_requestAccounts' })
       const signingMessage = 'By signing this message,\nyou are giving wikiric.xyz (later wikiric) access ' +
         'to your account information (e.g. seeing your balance) and allowing the signing of transactions etc.' +
         '\nIn case there is no wikiric account associated with your MetaMask account, one will be created.' +
         '\n\nDo not sign this message if the domain is any other than https://wikiric.netlify.app or ' +
         'https://wikiric.xyz.'
       const web3 = new Web3(window.ethereum)
-      const respp = await web3.eth.personal.sign(signingMessage, resp[0], console.log)
-      const response = await this.$Worker.execute({
-        action: 'login',
-        u: Base64.encode(resp[0] + ':' + respp)
-      })
-      if (!response.success) {
-        this.$notify(
-          {
-            title: 'Login Failed',
-            text: 'Check Credentials or Register.',
-            type: 'error'
-          })
-        this.user.password = ''
-        return
-      }
-      this.processLogin(response)
+      const respP = await web3.eth.personal.sign(signingMessage, respU[0], console.log)
+      await this.serverLogin(respU[0], respP, 'wallet_metamask')
     },
     checkForMetaMask: async function () {
       const provider = await detectEthereumProvider()
       if (provider && provider === window.ethereum) {
         this.hasMetaMask = true
       }
+    },
+    checkForPhantom: function () {
+      if ('phantom' in window) {
+        const provider = window.phantom?.solana
+        if (provider?.isPhantom) {
+          this.hasPhantom = true
+        }
+      }
+    },
+    getPhantomProvider: function () {
+      if (!this.hasPhantom) return null
+      return window.phantom?.solana
+    },
+    handlePhantomLogin: async function () {
+      const provider = this.getPhantomProvider()
+      const resp = await provider.connect()
+      const respU = resp.publicKey.toString()
+      const signingMessage = 'By signing this message,\nyou are giving wikiric.xyz (later wikiric) access ' +
+        'to your account information (e.g. seeing your balance) and allowing the signing of transactions etc.' +
+        '\nIn case there is no wikiric account associated with your Phantom account, one will be created.' +
+        '\n\nDo not sign this message if the domain is any other than https://wikiric.netlify.app or ' +
+        'https://wikiric.xyz.'
+      const encodedMessage = new TextEncoder().encode(signingMessage)
+      const respP = await provider.signMessage(encodedMessage, 'utf8')
+      await this.serverLogin(respU, respP, 'wallet_phantom')
     }
   }
 }

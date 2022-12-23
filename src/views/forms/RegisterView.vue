@@ -2,7 +2,7 @@
   <div class="h-screen w-screen d-md-flex align-items-center justify-center pt-[60px]">
     <form class="register flex"
           @submit.prevent="register">
-      <template v-if="metamask.account === ''">
+      <template v-if="metamask.account === '' && phantom.account === ''">
         <section>
           <div id="registration" class="container h-full p-3">
             <div class="justify-content-center align-items-center h-full">
@@ -61,7 +61,7 @@
           </div>
         </section>
       </template>
-      <template v-if="hasMetaMask">
+      <template v-if="hasMetaMask && phantom.account === ''">
         <section>
           <div id="metamask_registration" class="container h-full p-3">
             <div class="justify-content-center align-items-center h-full">
@@ -76,7 +76,7 @@
                     </h1>
                     <div class="w-full h-[128px] flex justify-center">
                       <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"
-                           class="w-full h-full"
+                           class="w-full h-full py-2"
                            alt="MetaMask Icon">
                     </div>
                     <template v-if="metamask.account === ''">
@@ -88,21 +88,73 @@
                         </button>
                       </div>
                     </template>
-                    <div class="form-outline form-white mb-4">
-                      <p class="pointer-events-none text-neutral-300 py-1">How should we call you?</p>
-                      <input
-                        required
-                        v-model="user.username"
-                        type="text"
-                        class="text-black py-1 px-2 rounded placeholder-neutral-600 placeholder-wave"
-                        placeholder="Username"
-                      />
+                    <template v-else>
+                      <div class="form-outline form-white mb-4">
+                        <p class="pointer-events-none text-neutral-300 py-1">How should we call you?</p>
+                        <input
+                          required
+                          v-model="user.username"
+                          type="text"
+                          class="text-black py-1 px-2 rounded placeholder-neutral-600 placeholder-wave"
+                          placeholder="Username"
+                        />
+                      </div>
+                      <button class="btn btn-outline-light btn-lg px-5"
+                              type="submit"
+                              v-show="metamask.account !== ''">
+                        Register
+                      </button>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </template>
+      <template v-if="hasPhantom && metamask.account === ''">
+        <section>
+          <div id="phantom_registration" class="container h-full p-3">
+            <div class="justify-content-center align-items-center h-full">
+              <div class="card text-white border-[1px] border-neutral-600 h-full"
+                   style="border-radius: 1rem; background: #131313">
+                <div class="card-body p-5 text-center">
+                  <div class="mt-md-0">
+                    <p class="pointer-events-none">Register via</p>
+                    <h1 class="fw-bold text-4xl"
+                        style="pointer-events: none">
+                      Phantom
+                    </h1>
+                    <div class="w-full h-[128px] flex justify-center">
+                      <img src='@/assets/phantom/phantom-icon-purple.svg' alt="Phantom Logo"
+                           class="h-full w-full py-3">
                     </div>
-                    <button class="btn btn-outline-light btn-lg px-5"
-                            type="submit"
-                            v-show="metamask.account !== ''">
-                      Register
-                    </button>
+                    <template v-if="phantom.account === ''">
+                      <div>
+                        <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
+                                type="button"
+                                v-on:click="handlePhantomLogin()">
+                          Connect
+                        </button>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div class="form-outline form-white mb-4">
+                        <p class="pointer-events-none text-neutral-300 py-1">How should we call you?</p>
+                        <input
+                          required
+                          v-model="user.username"
+                          type="text"
+                          class="text-black py-1 px-2 rounded placeholder-neutral-600 placeholder-wave"
+                          placeholder="Username"
+                        />
+                      </div>
+                      <button class="btn btn-outline-light btn-lg px-5"
+                              type="submit"
+                              v-show="phantom.account !== ''">
+                        Register
+                      </button>
+                    </template>
                   </div>
                 </div>
               </div>
@@ -121,7 +173,9 @@ import { Base64 } from 'js-base64'
 
 export default {
   mounted () {
+    // Check for installed wallet browser extensions
     this.checkForMetaMask()
+    this.checkForPhantom()
   },
   data () {
     return {
@@ -137,6 +191,10 @@ export default {
       },
       hasMetaMask: false,
       metamask: {
+        account: ''
+      },
+      hasPhantom: false,
+      phantom: {
         account: ''
       }
     }
@@ -158,6 +216,8 @@ export default {
     serverRegister () {
       if (this.hasMetaMask) {
         this.handleMetaMaskSignup()
+      } else if (this.hasPhantom) {
+        this.handlePhantomSignup()
       } else {
         this.$Worker.execute({
           action: 'signup',
@@ -204,6 +264,7 @@ export default {
       if (!this.hasMetaMask) return
       const resp = await window.ethereum.request({ method: 'eth_requestAccounts' })
       this.metamask.account = resp[0]
+      this.hasPhantom = false
     },
     handleMetaMaskSignup: async function () {
       if (!this.hasMetaMask) return
@@ -218,6 +279,44 @@ export default {
         action: 'signup',
         u: Base64.encode(this.metamask.account + ':' + response),
         uRaw: this.metamask.account + ':' + response,
+        username: this.user.username
+      })
+        .then((data) => (this.response = data))
+        .then(this.processRegistration)
+        .catch((err) => console.log(err.message))
+    },
+    checkForPhantom: function () {
+      if ('phantom' in window) {
+        const provider = window.phantom?.solana
+        if (provider?.isPhantom) {
+          this.hasPhantom = true
+        }
+      }
+    },
+    getPhantomProvider: function () {
+      if (!this.hasPhantom) return null
+      return window.phantom?.solana
+    },
+    handlePhantomLogin: async function () {
+      if (!this.hasPhantom) return
+      const provider = this.getPhantomProvider()
+      const resp = await provider.connect()
+      this.phantom.account = resp.publicKey.toString()
+      this.hasMetaMask = false
+    },
+    handlePhantomSignup: async function () {
+      const provider = this.getPhantomProvider()
+      const signingMessage = 'By signing this message,\nyou are giving wikiric.xyz (later wikiric) access ' +
+        'to your account information (e.g. seeing your balance) and allowing the signing of transactions etc.' +
+        '\nIn case there is no wikiric account associated with your Phantom account, one will be created.' +
+        '\n\nDo not sign this message if the domain is any other than https://wikiric.netlify.app or ' +
+        'https://wikiric.xyz.'
+      const encodedMessage = new TextEncoder().encode(signingMessage)
+      const signedMessage = await provider.signMessage(encodedMessage, 'utf8')
+      this.$Worker.execute({
+        action: 'signup',
+        u: Base64.encode(this.phantom.account + ':' + signedMessage),
+        uRaw: this.phantom.account + ':' + signedMessage,
         username: this.user.username
       })
         .then((data) => (this.response = data))

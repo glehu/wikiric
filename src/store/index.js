@@ -38,13 +38,15 @@ export default createStore({
     imgFlipPassword: '',
     // Knowledge
     // Wisdom
-    wisdomTutorialSeen: false
+    wisdomTutorialSeen: false,
+    accountType: ''
   },
   mutations: {
     logIn (state, user) {
       state.authenticated = true
       state.email = user.email
       state.username = user.username
+      state.accountType = user.accountType
     },
     logOut (state) {
       state.authenticated = false
@@ -52,6 +54,7 @@ export default createStore({
       state.email = ''
       state.username = ''
       state.password = ''
+      state.accountType = ''
     },
     putInCart (state, itemObj) {
       state.cart.push(itemObj)
