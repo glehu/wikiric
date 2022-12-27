@@ -1,6 +1,6 @@
 <template>
-  <div class="about h-screen w-screen flex items-center justify-around">
-    <div class="container text-white wrapper">
+  <div class="about min-h-screen w-screen flex items-center justify-around">
+    <div class="container text-white wrapper mt-[60px] p-2">
       <div class="text-wrapper mb-5"
            style="text-align: justify; text-justify: inter-word;
            margin: auto">

@@ -9,7 +9,7 @@
           <div class="justify-content-center align-items-center h-full">
             <div class="card text-white border-[1px] border-neutral-600 h-full"
                  style="border-radius: 1rem; background: #131313">
-              <div class="card-body p-5 text-center">
+              <div class="card-body p-4 text-center">
                 <div class="mt-md-0">
                   <h2 class="fw-bold mb-2 text-uppercase text-4xl mb-4"
                       style="font-family: 'Lato', sans-serif; pointer-events: none">
@@ -59,7 +59,7 @@
           <div class="justify-content-center align-items-center h-full">
             <div class="card text-white border-[1px] border-neutral-600 h-full"
                  style="border-radius: 1rem; background: #131313">
-              <div class="card-body p-5 text-center">
+              <div class="card-body p-4 text-center">
                 <div class="mt-md-0">
                   <p class="pointer-events-none">Sign in via</p>
                   <h1 class="fw-bold text-4xl"
@@ -87,7 +87,7 @@
           <div class="justify-content-center align-items-center h-full">
             <div class="card text-white border-[1px] border-neutral-600 h-full"
                  style="border-radius: 1rem; background: #131313">
-              <div class="card-body p-5 text-center">
+              <div class="card-body p-4 text-center">
                 <div class="mt-md-0">
                   <p class="pointer-events-none">Sign in via</p>
                   <h1 class="fw-bold text-4xl"

@@ -1,47 +1,68 @@
 <template style="max-width: 100vw; width: 100vw; overflow: hidden">
-  <div style="width: 100%; min-height: 100vh"
-       class="flex items-center justify-center"
+  <div class="flex w-full h-screen items-center justify-center"
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div class="text-gray-200 p-4"
-         style="width: 100%; display: flex">
-      <div class="w-full h-full mt-12">
-        <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
-          <div style="width: 100%; display: flex; align-items: center; justify-content: center">
+    <div class="text-gray-200 w-full h-full flex backdrop-brightness-75 mt-[60px] py-8 overflow-x-hidden">
+      <div class="w-full h-full relative p-8">
+        <div class="w-full"><!-- Demo Wrapper -->
+          <div class="w-full h-full items-center justify-center flex">
             <div style="pointer-events: inherit"
-                 class="rounded-2xl p-4 backdrop-blur-sm">
+                 class="rounded-2xl w-full h-full">
               <p
-                class="font-bold text-neutral-200 italic mb-12 text-3xl md:text-6xl w-full pointer-events-none text-center">
-                Connect and collaborate in a modern,<br>secure and responsive environment.
+                class="text-white font-bold pb-2 mb-2 text-4xl md:text-7xl w-fit pointer-events-none border-b-[4px] border-dotted border-b-fuchsia-500">
+                Web3 Collaboration
               </p>
-              <div class="d-flex justify-content-center">
-                <button class="muArrow fw-bold rounded-full text-4xl px-5 py-3 flex items-center"
-                        v-on:click="gotoClarifier()"
-                        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
-                                  backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-                  <ChatBubbleLeftRightIcon class="h-12 w-12 mr-4"></ChatBubbleLeftRightIcon>
-                  Clarifier
-                </button>
-              </div>
-              <div class="lead demotext text-neutral-400 mb-4">
+              <p class="text-neutral-300 mb-12 text-lg w-full pointer-events-none">
+                A secure and responsive environment for communities,
+                projects and ideas.
+                <br>Bridging the gap between Web2 and Web3.
+              </p>
+              <div hidden class="lead demotext text-neutral-400 mb-4">
                 <i class="bi bi-download lead p-1"></i>
                 Install me on any device.
               </div>
             </div>
           </div>
-          <div style="width: 100%; display: flex; justify-content: center">
-            <img src='@/assets/clarifier/clarifier_demo.png' alt=""
-                 style="width: 100%; object-fit: contain">
-          </div>
         </div><!-- Demo Wrapper End -->
         <div class="relative">
-          <div class="absolute w-full text-center cursor-pointer hover:bg-neutral-900 my-4 p-2 rounded-full"
-               v-on:click="scrollTo('firstSection')">
-            <p class="text-neutral-400 font-bold">Explore</p>
-            <i class="bi bi-arrow-down text-2xl text-neutral-400"
-               id="firstSection"></i>
+          <div class="flex w-full">
+            <div class="relative grid grid-cols-2 gap-4 items-center justify-center">
+              <button
+                class="muArrow fw-bold rounded-full text-xl md:text-3xl text-neutral-300 flex items-center justify-center px-4 py-3 border-2 border-neutral-300 backdrop-blur"
+                v-on:click="gotoClarifier()">
+                Knowledge
+              </button>
+              <button
+                class="muArrow fw-bold rounded-full text-xl md:text-3xl text-neutral-300 flex items-center justify-center px-4 py-3 border-2 border-neutral-300 backdrop-blur"
+                v-on:click="gotoClarifier()">
+                Communities
+              </button>
+            </div>
           </div>
         </div>
+        <div hidden style="width: 400px; display: flex; justify-content: center">
+          <img src='@/assets/clarifier/clarifier_demo.png' alt=""
+               style="width: 100%; object-fit: contain">
+        </div>
+        <template class="hidden md:block">
+          <div
+            class="absolute bottom-0 left-0 p-4 ml-8 mb-8 border-b-[4px] border-l-[4px] border-dotted border-b-fuchsia-500 border-l-fuchsia-500">
+            <div class="text-center cursor-pointer hover:bg-neutral-900 p-4 rounded-full text-neutral-300"
+                 v-on:click="scrollTo('firstSection')">
+              <p class="font-bold">Explore</p>
+              <i class="bi bi-arrow-down text-2xl"
+                 id="firstSection"></i>
+            </div>
+          </div>
+        </template>
+        <template class="hidden md:block">
+          <div
+            class="absolute bottom-0 right-0 p-4 mr-8 mb-8 border-b-[4px] border-r-[4px] border-dotted border-b-fuchsia-500 border-r-fuchsia-500">
+            <div class="text-center text-neutral-300">
+              <p class="font-bold text-4xl pointer-events-none">wikiric</p>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
   </div>
@@ -164,16 +185,9 @@
 
 <script>
 
-import {
-  ChatBubbleLeftRightIcon
-} from '@heroicons/vue/24/outline'
-
 export default {
   data () {
     return {}
-  },
-  components: {
-    ChatBubbleLeftRightIcon
   },
   methods: {
     scrollTo (content) {

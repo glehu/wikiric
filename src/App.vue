@@ -14,10 +14,10 @@
             </DisclosureButton>
           </div>
           <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
-            <div class="flex-shrink-0 flex items-center text-white font-bold cursor-pointer"
+            <div class="flex-shrink-0 flex items-center text-neutral-200 font-bold cursor-pointer text-2xl"
                  v-on:click="$router.push('/')">
-              <div class="block lg:hidden w-auto sm:ml-5">wikiric.xyz</div>
-              <div class="hidden lg:block w-auto ml-5">wikiric.xyz</div>
+              <div class="block lg:hidden w-auto sm:ml-5">wikiric</div>
+              <div class="hidden lg:block w-auto ml-5">wikiric</div>
             </div>
             <div class="hidden sm:block sm:ml-6">
               <div class="flex space-x-2 items-center">
@@ -328,12 +328,6 @@ export default {
           href: '/preferences',
           current: false,
           main: false
-        },
-        {
-          name: 'Clarifier',
-          href: '/apps/clarifier',
-          current: false,
-          main: true
         },
         {
           name: 'Chat',

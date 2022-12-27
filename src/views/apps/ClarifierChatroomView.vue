@@ -1964,7 +1964,11 @@ export default {
               }
             }
           })
-          .then(() => (this.processMetaDataResponse(isSubchat)))
+          .then(() => (
+            setTimeout(() => {
+              this.processMetaDataResponse(isSubchat)
+            }, 0)
+          ))
           .then(resolve)
           .catch((err) => console.error(err.message))
       })
