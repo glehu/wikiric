@@ -1,9 +1,6 @@
 <template>
   <div class="bg-neutral-900">
-    <template v-if="!isoverlay">
-      <div class="pt-[60px]"></div>
-    </template>
-    <div class="flex h-screen w-full overflow-hidden">
+    <div class="flex h-screen w-full overflow-hidden pt-[60px]">
       <div id="sidebar"
            class="h-full min-w-[40px] max-w-[40px] flex flex-col items-center overflow-y-auto ml-2">
         <div class="text-neutral-400 h-full">
@@ -47,7 +44,7 @@
           </div>
         </div>
       </div>
-      <div id="main" class="h-full w-full flex justify-center overflow-y-auto pb-56 overflow-x-hidden">
+      <div id="main" class="h-full w-full flex justify-center overflow-y-auto pb-10 overflow-x-hidden">
         <div class="h-fit w-full max-w-[1000px] px-3">
           <div id="taskstart" class="flex mb-2 items-center pt-3">
             <TagIcon class="text-neutral-400 h-5 w-5 mr-2"></TagIcon>
@@ -439,7 +436,7 @@
         </div>
       </div>
       <div id="rightbar"
-           class="h-full w-[350px] border-l border-neutral-700 overflow-y-auto hidden lg:block">
+           class="h-full w-[350px] border-l border-neutral-700 overflow-y-auto hidden xl:block">
         <div class="rounded-xl text-neutral-300 pt-3 px-3">
           <table class="border-none mb-2 pointer-events-none">
             <tr>

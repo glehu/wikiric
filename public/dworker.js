@@ -105,10 +105,18 @@ onmessage = function (e) {
     ).then(() => {
       if (_interval) clearInterval(_interval)
     })
-  } else if (msg.action === 'api') {
-    if (!msg.url || !msg.method) return
+  } else if (msg.action.substring(0, 3) === 'api') {
+    if (!msg.url || !msg.method || (msg.action !== 'api-http' && !_t)) {
+      e.ports[0].postMessage({
+        success: false,
+        errorMessage: 'invalid request or unauthorized'
+      })
+      return
+    }
     const headers = new Headers()
-    headers.set('Authorization', 'Bearer ' + _t)
+    if (msg.action !== 'api-http') {
+      headers.set('Authorization', 'Bearer ' + _t)
+    }
     let config
     if (msg.method === 'get') {
       config = {
@@ -123,8 +131,10 @@ onmessage = function (e) {
         body: msg.body
       }
     }
+    let prefix = 'api/'
+    if (msg.action === 'api-http') prefix = ''
     fetch(
-      _endpoint + 'api/' + msg.url,
+      _endpoint + prefix + msg.url,
       config
     )
       .then((res) => {
@@ -137,7 +147,7 @@ onmessage = function (e) {
           })
           .catch((err) => {
             e.ports[0].postMessage({
-              success: true,
+              success: false,
               errorMessage: err.message
             })
           })

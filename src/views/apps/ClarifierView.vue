@@ -1,8 +1,8 @@
 <template>
-  <div class="b_darkergray" style="min-height: 100vh; overflow-x: clip"
+  <div class="b_darkergray w-screen min-h-screen overflow-hidden"
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div class="wrapper bg-neutral-900 bg-opacity-80 pt-[80px] h-screen">
+    <div class="wrapper bg-neutral-900 bg-opacity-80 pt-[80px] h-screen h-full">
       <!-- Active Sessions -->
       <div class="container c-modal">
         <div class="row d-flex justify-content-center align-items-center">

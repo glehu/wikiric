@@ -1,6 +1,6 @@
 <template>
   <div id="root" class="home">
-    <Disclosure as="nav" class="backdrop-blur-xl fixed-top border-b border-neutral-700"
+    <Disclosure as="nav" class="backdrop-blur-xl fixed-top"
                 v-slot="{ open }" id="global_nav">
       <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div class="relative flex items-center justify-between"
@@ -176,7 +176,8 @@
         </div>
       </DisclosurePanel>
     </Disclosure>
-    <div style="min-height: 100vh" class="bg-neutral-900 relative top-0 left-0">
+    <!-- More Than A Dream -->
+    <div class="absolute top-0 left-0 w-screen min-h-screen bg-neutral-900">
       <router-view/>
     </div>
     <notifications position="bottom right"/>

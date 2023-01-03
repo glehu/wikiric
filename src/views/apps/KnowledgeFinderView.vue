@@ -1,24 +1,24 @@
 <template>
-  <div class="w-full">
-    <div class="header-margin shadow-xl w-full"/>
+  <div class="w-full overflow-hidden" id="knowledgeFinder">
     <template v-if="knowledgeExists">
-      <div class="h-[calc(100%-60px)] w-full">
+      <div class="h-full w-full">
         <template v-if="!isViewingWisdom">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full bg-neutral-900 h-full">
-            <div class="border-r border-neutral-700 h-full">
-              <div class="bg-neutral-900 bg-opacity-40 h-full relative">
-                <div class="py-1 shadow rounded-none">
+          <div class="grid grid-cols-1 md:grid-cols-3 w-full bg-neutral-900 h-full">
+            <div id="knowledgeFinder_sidebar"
+                 class="h-[calc(100%-1rem)] rounded-lg overflow-hidden m-2 bg-zinc-800">
+              <div class="h-full relative">
+                <div class="py-1 shadow">
                   <div class="flex items-center">
                     <div v-on:click="clickedBack()"
                          class="h-full ml-4 mr-2 px-2 py-4 rounded-xl text-center text-gray-300 hover:text-orange-500 cursor-pointer">
                       <i class="sb_link_icon bi bi-x-square text-xl"></i>
                     </div>
-                    <div class="font-bold w-full overflow-x-hidden pr-2">
-                      <div class="py-2 px-2 text-gray-100 pointer-events-none">
-                        <div class="text-xl border-l border-gray-300 pl-5">
+                    <div class="w-full overflow-x-hidden pr-2">
+                      <div class="py-2 px-2 pointer-events-none">
+                        <div class="text-xl border-l border-gray-300 pl-5 text-neutral-300 font-bold">
                           {{ this.knowledge.t }}
                         </div>
-                        <div class="border-l border-gray-300 pl-5 text-gray-300">
+                        <div class="text-sm border-l border-gray-300 pl-5 text-gray-300 text-neutral-400">
                           {{ this.knowledge.desc }}
                         </div>
                       </div>
@@ -29,7 +29,7 @@
                   <div class="px-3 py-2 rounded-lg flex items-center relative">
                     <MagnifyingGlassIcon class="w-8 h-8 mx-1 text-neutral-300 absolute translate-x-1"/>
                     <input id="search-field" type="text"
-                           class="search-field py-4 pl-12 pr-4 bg-neutral-900 h-8 text-lg border-2 border-neutral-800"
+                           class="search-field py-4 pl-12 pr-4 bg-neutral-900 h-8 text-lg border-2 border-zinc-700"
                            placeholder="Search..."
                            v-on:keyup.enter="searchWisdom()"
                            v-model="queryText">
@@ -45,29 +45,39 @@
                     </button>
                   </div>
                   <div class="px-3 pb-2 flex items-center w-full">
-                    <div class="overflow-x-auto overflow-y-hidden py-2 w-full">
-                      <template v-for="category in knowledge.categories" :key="category">
-                        <div
-                          class="kf_category">
-                          <p>{{ category.category.replace(' ', '&nbsp;') }}</p>
-                          <template v-if="category.count > 0">
-                            <p class="ml-auto">{{ category.count }}</p>
-                          </template>
-                        </div>
+                    <div class="overflow-x-hidden overflow-y-auto py-2 w-full">
+                      <template v-if="knowledge.categories && knowledge.categories.length > 0">
+                        <template v-for="category in knowledge.categories" :key="category">
+                          <div
+                            class="kf_category">
+                            <p>{{ category.category.replace(' ', '&nbsp;') }}</p>
+                            <template v-if="category.count > 0">
+                              <p class="ml-auto">{{ category.count }}</p>
+                            </template>
+                          </div>
+                        </template>
+                      </template>
+                      <template v-else>
+                        <button class="w-full flex justify-center text-neutral-500 font-bold text-sm"
+                                v-on:click="startAddingCategory()">
+                          No Categories.
+                        </button>
                       </template>
                     </div>
                   </div>
                 </div>
                 <!-- QUICK VIEW -->
-                <div class="px-4 py-2 sm:absolute sm:bottom-0 sm:w-full">
+                <div class="px-3 py-3 md:absolute md:bottom-0 md:w-full">
                   <div class="flex">
                     <button v-on:click="writeWisdom('ask')"
-                            class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 mr-3 w-1/2 backdrop-brightness-75">
+                            class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2
+                                   rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 mr-3 w-1/2">
                       <i class="bi bi-question-lg mr-2"></i>
                       Ask
                     </button>
                     <button v-on:click="writeWisdom('teach')"
-                            class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 w-1/2 backdrop-brightness-75">
+                            class="border-indigo-500 hover:border-indigo-400 hover:bg-indigo-600 border-2
+                                   rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 w-1/2">
                       <i class="bi bi-lightbulb small mr-2"></i>
                       Teach
                     </button>
@@ -75,15 +85,17 @@
                 </div>
               </div>
             </div>
-            <div class="lg:col-span-2 pt-3 overflow-y-scroll overflow-x-hidden h-full">
+            <div class="md:col-span-2 pt-3 overflow-y-scroll overflow-x-hidden h-full">
               <template v-if="emptyState">
                 <div class="text-neutral-400 px-2 ml-2">
-                  <p class="text-2xl font-bold mb-2 pointer-events-none">Top Contributors</p>
+                  <p class="text-xl font-bold mb-2 pointer-events-none text-neutral-400">
+                    Top Contributors
+                  </p>
                   <div class="flex w-full overflow-x-auto pt-1 mb-2">
                     <div v-for="author in topWriters.contributors" :key="author.username"
                          class="mr-4 text-neutral-400 shadow shadow-black rounded-xl">
-                      <div class="bg-neutral-800 rounded-t-xl py-2 px-3 pointer-events-none">
-                        <p class="text-2xl">{{ author.username }}</p>
+                      <div class="bg-zinc-800 rounded-t-xl py-2 px-3 pointer-events-none">
+                        <p class="text-xl">{{ author.username }}</p>
                       </div>
                       <div class="bg-slate-700 rounded-b-xl py-1 px-3 pointer-events-none">
                         <div class="flex items-center">
@@ -95,16 +107,18 @@
                   </div>
                 </div>
                 <div v-if="questions.length > 0" class="text-neutral-400 px-2 ml-2">
-                  <p class="text-2xl font-bold mb-2 pointer-events-none">Recent Questions</p>
+                  <p class="text-xl font-bold mb-2 pointer-events-none text-neutral-400">
+                    Recent Questions
+                  </p>
                   <div class="flex w-full overflow-x-auto pt-1 mb-2 gap-x-2 pb-4">
                     <div v-for="task in questions" :key="task.uID"
                          v-on:click="gotoWisdom(task.result.gUID)"
                          class="text-neutral-400 w-full rounded-xl cursor-pointer hover:brightness-150 relative min-w-[250px]">
-                      <div class="bg-neutral-800 text-neutral-300 rounded-t py-1 px-3 pointer-events-none">
+                      <div class="bg-zinc-800 text-neutral-300 rounded-t py-1 px-3 pointer-events-none">
                         <p class="font-bold">{{ task.result.t }}</p>
                       </div>
                       <div
-                        class="bg-neutral-700 text-neutral-300 rounded-b py-1 px-3 pointer-events-none max-h-[11em] overflow-y-hidden">
+                        class="bg-zinc-700 text-neutral-300 rounded-b py-1 px-3 pointer-events-none max-h-[11em] overflow-y-hidden">
                         <div class="flex items-center">
                           <p class="text-sm">{{ task.result.desc }}</p>
                         </div>
@@ -116,9 +130,10 @@
                     </div>
                   </div>
                 </div>
-                <div
-                  class="flex w-full justify-content-center items-center p-2">
-                  <div id="d3wordcloud"></div>
+                <div class="px-2 ml-2">
+                  <div class="flex w-full justify-content-center items-center p-2">
+                    <div id="d3wordcloud"></div>
+                  </div>
                 </div>
               </template>
               <template v-if="noResults">
@@ -132,11 +147,13 @@
                     <div class="mt-2">
                       <div class="flex">
                         <button v-on:click="writeWisdom('ask')"
-                                class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2 rounded-xl py-1 px-2 text-gray-300 hover:text-gray-200 w-1/2">
+                                class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2
+                                       rounded-xl py-1 px-2 text-neutral-300 hover:text-neutral-200 w-1/2">
                           <i class="bi bi-question-lg mr-2"></i> <span class="text-sm">Ask</span>
                         </button>
                         <button v-on:click="writeWisdom('teach')"
-                                class="border-indigo-600 hover:border-indigo-400 hover:bg-indigo-600 border-2 rounded-xl py-1 px-2 text-gray-300 hover:text-gray-200 ml-1 w-1/2">
+                                class="border-indigo-500 hover:border-indigo-400 hover:bg-indigo-600 border-2
+                                       rounded-xl py-1 px-2 text-neutral-300 hover:text-neutral-200 ml-1 w-1/2">
                           <i class="bi bi-lightbulb small mr-2"></i> <span class="text-sm">Teach</span>
                         </button>
                       </div>
@@ -160,42 +177,42 @@
                       <template v-if="result.priority === 'high'">
                         <SparklesIcon class="w-5 h-5 mr-2 text-amber-600"></SparklesIcon>
                       </template>
-                      <div class="inline-flex text-sm">
-                        {{ getHumanReadableDateText(new Date(result.result.cdate), true) }}
+                      <div class="flex text-sm">
+                        <span class="pr-2 border-r-2 border-r-neutral-600">{{
+                            getHumanReadableDateText(new Date(result.result.cdate), true)
+                          }}</span>
+                        <span class="px-2">{{ result.result.author }}</span>
                       </div>
-                      <div class="pointer-events-none ml-auto">
+                      <div class="pointer-events-none ml-auto flex items-center">
+                        <div v-if="result.result.reacts != null" class="flex">
+                          <div v-for="reaction in result.result.reacts" :key="reaction.src"
+                               style="padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
+                               class="text-neutral-300 gray-hover flex items-center"
+                               :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
+                               :id="'react_' + result.result.gUID + '_' + JSON.parse(reaction).t">
+                            <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
+                                             class="w-5 h-5 mr-1"></HandThumbUpIcon>
+                            <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
+                                               class="w-5 h-5 mr-1"></HandThumbDownIcon>
+                            <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
+                                      class="w-5 h-5 mr-1"></StarIcon>
+                            <span v-else> {{ JSON.parse(reaction).t }} </span>
+                            {{ JSON.parse(reaction).src.length }}
+                          </div>
+                        </div>
                         <template v-if="result.result.type === 'lesson'">
-                          <div class="px-1 py-0.5 mr-1 inline-flex rounded-md bg-indigo-800 text-neutral-300 font-bold">
+                          <div class="px-2 py-0.5 mx-2 rounded-md bg-indigo-800 text-neutral-300 font-bold">
                             {{ capitalizeFirstLetter(result.result.type) }}
                           </div>
                         </template>
                         <template v-else-if="result.result.type === 'question'">
-                          <div class="px-1 py-0.5 mr-1 inline-flex rounded-md bg-orange-800 text-neutral-300 font-bold">
+                          <div class="px-2 py-0.5 mx-2 rounded-md bg-orange-800 text-neutral-300 font-bold">
                             {{ capitalizeFirstLetter(result.result.type) }}
                           </div>
                         </template>
-                        <template v-else>
+                        <template v-else class="mx-2">
                           {{ capitalizeFirstLetter(result.result.type) }}
                         </template>
-                        from
-                        {{ result.result.author }}
-                      </div>
-                      <div v-if="result.result.reacts != null" class="flex ml-2 pl-1 border-l-2 border-l-neutral-600">
-                        <div v-for="reaction in result.result.reacts" :key="reaction.src"
-                             style="padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                             class="text-neutral-300 gray-hover flex items-center"
-                             :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
-                             v-on:click="reactToMessage(result.result, JSON.parse(reaction).t)"
-                             :id="'react_' + result.result.gUID + '_' + JSON.parse(reaction).t">
-                          <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
-                                           class="w-5 h-5 mr-1"></HandThumbUpIcon>
-                          <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
-                                             class="w-5 h-5 mr-1"></HandThumbDownIcon>
-                          <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
-                                    class="w-5 h-5 mr-1"></StarIcon>
-                          <span v-else> {{ JSON.parse(reaction).t }} </span>
-                          {{ JSON.parse(reaction).src.length }}
-                        </div>
                       </div>
                     </div>
                     <div class="w-full py-4 px-1">
@@ -234,41 +251,37 @@
       </div>
     </template>
     <template v-else>
-      <div class="">
-        <div :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-anni-roenkae-2156881.jpg')+')',
-         backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-          <div class="backdrop-blur-3xl p-10 backdrop-brightness-75">
-            <div class="text-gray-300 mb-5 pointer-events-none">
-              <span class="text-5xl font-bold">Create new Knowledge Hub</span>
-              <hr class="text-neutral-500 opacity-100">
-            </div>
-            <form class="flex" @submit.prevent="createKnowledge">
-              <div class="text-gray-300 w-96 ml-5">
-                <label for="title" class="text-3xl mb-2">Title</label>
-                <br>
-                <input type="text" id="title" class="rounded text-xl w-full p-2 bg-neutral-400 bg-opacity-25"
-                       required v-model="titleCreation">
-                <br>
-                <label for="description" class="mt-3 mb-2 text-3xl">Description</label>
-                <br>
-                <textarea type="text" rows="3" id="description"
-                          class="rounded text-xl w-full p-2 bg-neutral-400 bg-opacity-25"
-                          v-model="descriptionCreation"></textarea>
-              </div>
-              <div class="text-gray-300 w-96 ml-5">
-                <label for="keywords" class="text-3xl mb-2 mr-3">Keywords</label>
-                <span class="text-gray-500">Comma separated</span>
-                <br>
-                <input type="text" id="keywords" class="rounded text-xl w-full p-2 bg-neutral-400 bg-opacity-25"
-                       v-model="keywordsCreation">
-                <br>
-                <button type="submit"
-                        class="mt-3 py-2 px-3 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black">
-                  Create
-                </button>
-              </div>
-            </form>
+      <div class="h-full">
+        <div class="backdrop-blur p-10 backdrop-brightness-75 h-full">
+          <div class="text-gray-300 mb-5 pointer-events-none">
+            <span class="text-5xl font-bold">Create new Knowledge Hub</span>
           </div>
+          <form class="flex" @submit.prevent="createKnowledge">
+            <div class="text-gray-300 w-96 ml-5">
+              <label for="title" class="text-3xl mb-2">Title</label>
+              <br>
+              <input type="text" id="title" class="rounded text-xl w-full p-2 bg-neutral-400 bg-opacity-25"
+                     required v-model="titleCreation">
+              <br>
+              <label for="description" class="mt-3 mb-2 text-3xl">Description</label>
+              <br>
+              <textarea type="text" rows="3" id="description"
+                        class="rounded text-xl w-full p-2 bg-neutral-400 bg-opacity-25"
+                        v-model="descriptionCreation"></textarea>
+            </div>
+            <div class="text-gray-300 w-96 ml-5">
+              <label for="keywords" class="text-3xl mb-2 mr-3">Keywords</label>
+              <span class="text-gray-500">Comma separated</span>
+              <br>
+              <input type="text" id="keywords" class="rounded text-xl w-full p-2 bg-neutral-400 bg-opacity-25"
+                     v-model="keywordsCreation">
+              <br>
+              <button type="submit"
+                      class="mt-3 py-2 px-3 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black">
+                Create
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </template>
@@ -499,35 +512,55 @@ export default {
   },
   methods: {
     initFunction: async function () {
+      // Get URL parameters
+      const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop)
+      })
+      // Set window height
+      const mainDiv = document.getElementById('knowledgeFinder')
+      if (mainDiv) {
+        if (!this.isoverlay) {
+          mainDiv.classList.add('pt-[60px]')
+          mainDiv.classList.add('h-screen')
+        } else {
+          mainDiv.classList.remove('h-screen')
+          mainDiv.classList.add('w-full')
+        }
+      }
+      // Focus search field
       const input = document.getElementById('search-field')
       input.focus()
-      // Whose knowledge are we trying to see?
+      // Whose knowledge are we trying to see? Return if there is no source
+      let srcGUID = this.srcguid
+      let from = 'clarifier'
       if (this.srcguid != null) {
-        const chatroom = await this.getClarifierChatroom(this.srcguid)
+        const chatroom = await this.getClarifierChatroom(srcGUID)
         if (chatroom != null) {
           this.source = chatroom.t
         }
-        const knowledge = await this.getKnowledge(this.srcguid)
-        if (knowledge != null) {
-          this.knowledge = knowledge
-        }
-        // Did we already search for something?
-        const params = new Proxy(new URLSearchParams(window.location.search), {
-          get: (searchParams, prop) => searchParams.get(prop)
-        })
-        const queryText = params.query
-        if (queryText != null) {
-          this.queryText = queryText
-          await this.searchWisdom()
-        } else {
-          await this.getRecentKeywords()
-        }
-        await this.getTopContributors(this.srcguid)
-        await this.getRecentCategories()
-        await this.getRecentQuestions()
+      } else {
+        srcGUID = params.kguid
+        if (!srcGUID) return
+        from = 'guid'
       }
+      const knowledge = await this.getKnowledge(srcGUID, from)
+      if (knowledge != null) {
+        this.knowledge = knowledge
+      }
+      // Did we already search for something?
+      const queryText = params.query
+      if (queryText != null) {
+        this.queryText = queryText
+        await this.searchWisdom()
+      } else {
+        await this.getRecentKeywords()
+      }
+      await this.getTopContributors(srcGUID)
+      await this.getRecentCategories()
+      await this.getRecentQuestions()
     },
     getClarifierChatroom: async function (sessionID) {
+      if (!sessionID) return
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
@@ -537,12 +570,13 @@ export default {
           .catch((err) => console.error(err.message))
       })
     },
-    getKnowledge: async function (sessionID) {
+    getKnowledge: async function (guid, from = 'clarifier') {
+      if (!guid || !from) return
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/get?src=' + sessionID + '&from=clarifier'
+          url: 'm7/get?src=' + guid + '&from=' + from
         }).then((data) => {
           this.knowledge = data.result
           if (this.knowledge.categories != null) {
@@ -554,8 +588,7 @@ export default {
           resolve()
         })
           .catch((err) => {
-            console.error(err.message)
-            this.knowledgeExists = false
+            if (err.message) this.knowledgeExists = false
           })
       })
     },
@@ -573,11 +606,12 @@ export default {
           method: 'post',
           url: 'm7/create',
           body: JSON.stringify(payload)
-        }).then(() => {
-          this.knowledgeExists = true
-          window.location.reload()
         })
-          .then(() => resolve)
+          .then(() => {
+            this.knowledgeExists = true
+            if (this.srcguid) this.getKnowledge(this.srcguid)
+          })
+          .then(() => resolve())
           .catch((err) => console.error(err.message))
       })
     },
@@ -723,10 +757,15 @@ export default {
           })
           .finally(() => {
             if (!questionsOnly) {
-              this.$router.push({
-                query: {
-                  query: this.querySubmission
-                }
+              const queryObj = {
+                query: this.querySubmission
+              }
+              const params = new Proxy(new URLSearchParams(window.location.search), {
+                get: (searchParams, prop) => searchParams.get(prop)
+              })
+              if (params.kguid) queryObj.kguid = params.kguid
+              this.$router.replace({
+                query: queryObj
               })
             }
           })
@@ -860,36 +899,14 @@ export default {
           .finally(() => resolve())
       })
     },
-    reactToMessage: async function (wisdom, t) {
-      const payload = JSON.stringify({
-        src: [],
-        t: t
-      })
-      return new Promise((resolve) => {
-        this.$Worker.execute({
-          action: 'api',
-          method: 'post',
-          url: 'm7/react/' + wisdom.gUID,
-          body: payload
-        })
-          .then(() => {
-            this.$notify(
-              {
-                title: 'Feedback sent to the server.',
-                text: 'Thanks!',
-                type: 'info'
-              })
-          })
-          .then(() => resolve)
-          .catch((err) => {
-            console.error(err.message)
-          })
-      })
-    },
     gotoWisdom: function (id) {
       if (id == null) return
       if (!this.isoverlay) {
-        this.$router.push('/apps/knowledge/' + id + '?src=' + this.srcguid)
+        if (this.srcguid) {
+          this.$router.push('/apps/knowledge/' + id + '?src=' + this.srcguid)
+        } else {
+          this.$router.push('/apps/knowledge/' + id)
+        }
       } else {
         this.isViewingWisdom = true
         this.wisdomGUID = id
@@ -1155,7 +1172,7 @@ export default {
 }
 
 .kf_category {
-  @apply font-bold text-xs text-neutral-400 bg-black bg-opacity-40 cursor-pointer mb-1 flex items-center text-center px-3 rounded-full hover:border-gray-100 hover:text-gray-100 h-8;
+  @apply font-bold text-xs text-neutral-400 bg-black bg-opacity-40 cursor-default mb-1 flex items-center text-center px-3 rounded-full hover:border-gray-100 hover:text-gray-100 h-8;
 }
 
 .result {

@@ -194,7 +194,7 @@ export default {
     processLogin (response) {
       this.user.username = response.result.username
       this.$store.commit('logIn', this.user)
-      this.$router.push(this.$route.query.redirect.toString() || '/')
+      this.$router.replace(this.$route.query.redirect.toString() || '/')
     },
     gotoRegister () {
       const params = new Proxy(new URLSearchParams(window.location.search), {

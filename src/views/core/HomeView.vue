@@ -1,41 +1,47 @@
-<template style="max-width: 100vw; width: 100vw; overflow: hidden">
-  <div class="flex w-full h-screen items-center justify-center"
+<template class="w-screen overflow-hidden">
+  <div class="flex w-full min-h-[750px] h-screen items-center justify-center"
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div class="text-gray-200 w-full h-full flex backdrop-brightness-75 mt-[60px] py-8 overflow-x-hidden">
+    <div
+      class="text-gray-200 max-w-screen-xl w-full h-full flex backdrop-brightness-75 pt-[60px] py-8 overflow-x-hidden">
       <div class="w-full h-full relative p-8">
         <div class="w-full"><!-- Demo Wrapper -->
-          <div class="w-full h-full items-center justify-center flex">
+          <div
+            class="w-full h-full items-center justify-center flex pl-4 py-4 border-l-[4px] rounded-r-md border-dotted border-l-fuchsia-500 backdrop-blur md:backdrop-blur-none">
             <div style="pointer-events: inherit"
                  class="rounded-2xl w-full h-full">
               <p
-                class="text-white font-bold pb-2 mb-2 text-4xl md:text-7xl w-fit pointer-events-none border-b-[4px] border-dotted border-b-fuchsia-500">
+                class="text-neutral-200 font-bold text-5xl md:text-7xl xl:text-8xl w-fit pointer-events-none">
                 Web3 Collaboration
               </p>
-              <p class="text-neutral-300 mb-12 text-lg w-full pointer-events-none">
+              <p
+                class="text-neutral-200 font-bold mb-4 py-2 text-2xl md:text-4xl w-fit pointer-events-none">
+                Powered by wikiric and
+                <span class="text-fuchsia-500 px-2 py-1 rounded-full backdrop-blur">{{ userCount }}</span>
+                others.
+              </p>
+              <p class="text-neutral-300 font-bold text-xl w-full pointer-events-none">
                 A secure and responsive environment for communities,
                 projects and ideas.
                 <br>Bridging the gap between Web2 and Web3.
               </p>
-              <div hidden class="lead demotext text-neutral-400 mb-4">
-                <i class="bi bi-download lead p-1"></i>
-                Install me on any device.
-              </div>
             </div>
           </div>
         </div><!-- Demo Wrapper End -->
-        <div class="relative">
-          <div class="flex w-full">
-            <div class="relative grid grid-cols-2 gap-4 items-center justify-center">
+        <div class="relative mt-12">
+          <div class="flex w-full justify-center md:justify-start">
+            <div class="relative grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-center w-full md:w-fit">
               <button
-                class="muArrow fw-bold rounded-full text-xl md:text-3xl text-neutral-300 flex items-center justify-center px-4 py-3 border-2 border-neutral-300 backdrop-blur"
+                class="muArrow font-bold rounded text-xl text-start text-black px-4 py-3 bg-fuchsia-500"
                 v-on:click="gotoClarifier()">
-                Knowledge
+                Join the
+                <br><span class="text-2xl md:text-3xl">Communities</span>
               </button>
               <button
-                class="muArrow fw-bold rounded-full text-xl md:text-3xl text-neutral-300 flex items-center justify-center px-4 py-3 border-2 border-neutral-300 backdrop-blur"
-                v-on:click="gotoClarifier()">
-                Communities
+                class="muArrow font-bold rounded text-xl text-start text-neutral-300 px-4 py-3 border-2 border-neutral-300 backdrop-blur"
+                v-on:click="gotoKnowledgeFinder()">
+                Browse the
+                <br><span class="text-2xl md:text-3xl">Knowledge</span>
               </button>
             </div>
           </div>
@@ -46,12 +52,11 @@
         </div>
         <template class="hidden md:block">
           <div
-            class="absolute bottom-0 left-0 p-4 ml-8 mb-8 border-b-[4px] border-l-[4px] border-dotted border-b-fuchsia-500 border-l-fuchsia-500">
+            class="absolute bottom-0 left-0 p-4 ml-4">
             <div class="text-center cursor-pointer hover:bg-neutral-900 p-4 rounded-full text-neutral-300"
                  v-on:click="scrollTo('firstSection')">
               <p class="font-bold">Explore</p>
-              <i class="bi bi-arrow-down text-2xl"
-                 id="firstSection"></i>
+              <i class="bi bi-arrow-down text-2xl"></i>
             </div>
           </div>
         </template>
@@ -66,11 +71,12 @@
       </div>
     </div>
   </div>
-  <div style="color: white; width: 100%;
+  <div id="firstSection"
+       style="color: white; width: 100%;
               display: flex; padding: 20px 5vw 20px 5vw;
               border-bottom: 4px dotted #192129"
        class="b_darkergray">
-    <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
+    <div style="width: 100%" class="wrapper mt-[60px]"><!-- Demo Wrapper -->
       <div style="width: 100%; display: flex; justify-content: center">
         <img src='@/assets/clarifier/clarifier_e2e_demo.png' alt=""
              style="width: 80%; border-radius: 10px; background-color: #101010">
@@ -187,7 +193,12 @@
 
 export default {
   data () {
-    return {}
+    return {
+      userCount: ''
+    }
+  },
+  created () {
+    this.getUsercount()
   },
   methods: {
     scrollTo (content) {
@@ -196,20 +207,26 @@ export default {
     gotoClarifier () {
       this.$router.push('/apps/clarifier')
     },
-    async sendUsageData (usageObj) {
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      headers.set(
-        'Content-Type', 'application/json'
-      )
-      fetch(
-        this.$store.state.serverIP + '/api/utr',
-        {
-          method: 'post',
-          headers: headers,
-          body: JSON.stringify(usageObj)
-        }
-      ).then(r => console.log(r))
+    gotoKnowledgeFinder () {
+      this.$router.push('/apps/knowledge?kguid=903f7d06-ed1b-467c-b8e3-751d07b83584')
+    },
+    getUsercount: async function () {
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api-http',
+          method: 'get',
+          url: 'm2/count'
+        })
+          .then((data) => {
+            console.log(data.result)
+            if (data.success) this.userCount = data.result
+            resolve()
+          })
+          .catch((err) => {
+            if (err.message) return
+            console.error(err.message)
+          })
+      })
     }
   },
   computed: {

@@ -1,5 +1,5 @@
 <template>
-  <div style="height: 100vh" class="b_darkergray"
+  <div class="b_darkergray w-screen h-screen overflow-hidden"
        :style="{
                 backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
                 backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
@@ -157,11 +157,12 @@
         </div>
       </div>
       <div id="clarifier_chatroom"
-           class="clarifier_chatroom"
-           style="display: flex; height: 100%; overflow-y: clip; overflow-x: clip"
+           class="clarifier_chatroom flex overflow-hidden mt-[60px] lg:rounded-xl
+                  lg:border-x-[2px] lg:border-t-[2px] lg:border-neutral-800"
            v-on:click="closeModals">
         <template v-if="overlayType === 'msg'">
-          <div id="chat_section" class="chat_section h-full w-full mt-[60px] overflow-hidden bg-neutral-900">
+          <div id="chat_section"
+               class="chat_section w-full h-full overflow-hidden bg-neutral-900">
             <!-- #### CHAT HEADER #### -->
             <div class="chat_header bg-neutral-900">
               <div
@@ -305,7 +306,7 @@
             </div>
             <!-- #### MESSAGES #### -->
             <div id="messages_section"
-                 class="messages_section bg-neutral-900 relative flex overflow-y-auto overflow-x-clip"
+                 class="messages_section bg-neutral-900 relative flex overflow-y-auto overflow-x-hidden"
                  style="height: calc(100vh - 60px - 50px - 80px);
                         flex-direction: column-reverse">
               <div id="init_loading" style="display: none">
@@ -762,7 +763,9 @@
             </div>
           </div>
         </template>
-        <template v-else-if="overlayType === 'knowledgefinder'">
+        <template v-else-if="overlayType === 'knowledgefinder'"
+                  class="h-[calc(100%-60px)] w-full translate-y-[60px] overflow-hidden
+                         bg-neutral-900 lg:rounded-xl sm:border-[1px] sm:border-[rgba(174,174,183,0.25)]">
           <knowledgefinder :isoverlay="true" :srcguid="getSession()"
                            @close="setOverlay('msg'); prepareInputField()"/>
         </template>
@@ -770,9 +773,7 @@
       <!-- #### MEMBERS #### -->
       <div id="member_section" style="margin-top: 60px"
            class="member_section">
-        <div style="width: 100%; height: 50px;
-                  border-bottom: 1px solid rgba(174, 174, 183, 0.25);
-                  display: flex; align-items: center">
+        <div style="width: 100%; height: 50px; display: flex; align-items: center">
         <span class="fw-bold member_count c_lightgray nopointer"
               style="padding-left: 20px">
           Members&nbsp;-&nbsp;{{ getMemberCount() }}
@@ -2659,7 +2660,7 @@ export default {
     },
     handleSidebarToggle: function (element) {
       if (element.classList.contains('active')) {
-        if (window.innerWidth >= 1100) this.showSidebar2()
+        if (window.innerWidth >= 1025) this.showSidebar2()
         element.classList.remove('active')
       } else {
         this.hideSidebar2()
@@ -2677,7 +2678,7 @@ export default {
       this.message_section.style.bottom = (this.inputField.scrollHeight - 40) + 'px'
     },
     resizeCanvas: function () {
-      if (window.innerWidth >= 1100) {
+      if (window.innerWidth >= 1025) {
         this.hideSidebar()
         this.showSidebar2()
         this.showMemberSidebar()
@@ -2718,7 +2719,7 @@ export default {
       if (memberSidebar.classList.contains('active')) memberSidebar.classList.remove('active')
     },
     hideAllSidebars: function (force = false) {
-      if (window.innerWidth < 1100 || force === true) {
+      if (window.innerWidth < 1025 || force === true) {
         this.hideSidebar()
         this.hideSidebar2()
         this.hideMemberSidebar()
@@ -4318,8 +4319,7 @@ export default {
 
 .clarifier_chatroom {
   position: absolute;
-  height: 100%;
-  border-left: 1px solid rgba(174, 174, 183, 0.25);
+  @apply h-[calc(100%-60px)];
 }
 
 .channel_section::-webkit-scrollbar {
@@ -4362,7 +4362,6 @@ export default {
   z-index: 1000;
   position: absolute;
   right: 0;
-  border-left: 1px solid rgba(174, 174, 183, 0.25);
   height: 100vh;
   opacity: 0;
   transition: ease-in-out all 0.2s;
@@ -4425,7 +4424,7 @@ export default {
   border-radius: 10px;
 }
 
-@media only screen and (max-width: 1099px) {
+@media only screen and (max-width: 1024px) {
   .clarifier_chatroom {
     width: calc(100% - 55px);
     left: 55px;
@@ -4461,7 +4460,7 @@ export default {
   border-radius: 0 20px 0 0;
 }
 
-@media only screen and (min-width: 1100px) {
+@media only screen and (min-width: 1025px) {
   .member_section_toggler {
     pointer-events: none;
     opacity: 0.5;
@@ -4724,20 +4723,6 @@ export default {
   text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
   background: transparent;
   border: none
-}
-
-.wrapper {
-  display: grid;
-  gap: 50px;
-  grid-auto-rows: minmax(100px, auto);
-  grid-template-columns: repeat(1, 1fr);
-}
-
-/* Small devices (portrait tablets and large phones, 765px and up) */
-@media only screen and (min-width: 992px) {
-  .wrapper {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 .draggable_meme_text {

@@ -20,6 +20,7 @@
     "bootstrap": "^5.2.1",
     "bootstrap-icons": "^1.9.1",
     "bootstrap-vue": "^2.22.0",
+    "bs58": "^5.0.0",
     "buffer": "^6.0.3",
     "chunk": "0.0.3",
     "codemirror": "^5.65.2",
