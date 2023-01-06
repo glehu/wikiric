@@ -82,7 +82,6 @@ export default {
   mounted () {
     if (!this.message || this.message === '') return
     this.parsedMessage = JSON.parse(this.message)
-    console.log(this.parsedMessage)
     this.getWisdom()
   },
   data () {
@@ -99,18 +98,13 @@ export default {
   methods: {
     getWisdom: async function () {
       return new Promise((resolve) => {
-        const headers = new Headers()
-        headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-        fetch(
-          this.$store.state.serverIP + '/api/m7/learn/' + this.parsedMessage.guid,
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
-          .then((res) => res.json())
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/learn/' + this.parsedMessage.guid
+        })
           .then((data) => {
-            this.showingTask = data
+            this.showingTask = data.result
             setTimeout(() => {
               mermaid.initialize({
                 startOnLoad: true,

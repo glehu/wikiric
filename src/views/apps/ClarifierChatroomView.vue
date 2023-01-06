@@ -1,5 +1,5 @@
 <template>
-  <div class="b_darkergray w-screen h-screen overflow-hidden"
+  <div class="bg-neutral-900 w-screen h-screen overflow-clip"
        :style="{
                 backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
                 backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
@@ -157,12 +157,12 @@
         </div>
       </div>
       <div id="clarifier_chatroom"
-           class="clarifier_chatroom flex overflow-hidden mt-[60px] lg:rounded-xl
-                  lg:border-x-[2px] lg:border-t-[2px] lg:border-neutral-800"
+           class="clarifier_chatroom flex overflow-clip mt-[60px] lg:rounded-xl
+                  lg:border-x-[1px] lg:border-t-[1px] lg:border-neutral-800"
            v-on:click="closeModals">
         <template v-if="overlayType === 'msg'">
           <div id="chat_section"
-               class="chat_section w-full h-full overflow-hidden bg-neutral-900">
+               class="chat_section w-full h-full overflow-clip bg-neutral-900">
             <!-- #### CHAT HEADER #### -->
             <div class="chat_header bg-neutral-900">
               <div
@@ -711,7 +711,7 @@
                 <i class="bi bi-arrow-down"></i>
               </button>
               <div style="bottom: 0; left: 10px; opacity: 1"
-                   class="scroll_to_bottom flex items-center px-1 overflow-hidden">
+                   class="scroll_to_bottom flex items-center px-1 overflow-clip">
                 <template v-if="userActivity.length > 0">
                   <ChartBarIcon class="h-3 w-3 text-neutral-400"></ChartBarIcon>
                   <div class="flex items-center divide-x divide-neutral-600">
@@ -764,7 +764,7 @@
           </div>
         </template>
         <template v-else-if="overlayType === 'knowledgefinder'"
-                  class="h-[calc(100%-60px)] w-full translate-y-[60px] overflow-hidden
+                  class="h-[calc(100%-60px)] w-full translate-y-[60px] overflow-clip
                          bg-neutral-900 lg:rounded-xl sm:border-[1px] sm:border-[rgba(174,174,183,0.25)]">
           <knowledgefinder :isoverlay="true" :srcguid="getSession()"
                            @close="setOverlay('msg'); prepareInputField()"/>
@@ -821,7 +821,7 @@
     </div>
   </div>
   <!-- #### USER PROFILE #### -->
-  <div class="user_profile b_darkgray" style="overflow-x: hidden; overflow-y: auto"
+  <div class="user_profile bg-zinc-800 overflow-x-hidden overflow-y-auto"
        v-show="isViewingUserProfile" @click.stop>
     <div style="position: relative; padding-top: 10px; height: 100%">
       <i class="bi bi-x-lg lead orange-hover"
@@ -850,24 +850,24 @@
       </div>
       <div class="items-center flex">
         <template v-if="viewedUserProfile.usr === this.$store.state.username">
-          <button class="c_lightgray gray-hover py-1 px-2"
+          <button class="c_lightgray hover:backdrop-brightness-125 py-1 px-2"
                   v-on:click="isEditingProfile = true">
             <i class="bi bi-pencil mr-2"></i>Edit Profile
           </button>
-          <button class="c_lightgray gray-hover py-1 px-2"
+          <button class="c_lightgray hover:backdrop-brightness-125 py-1 px-2"
                   v-on:click="startTransferring()">
             <span class="flex items-center"><QrCodeIcon class="h-5 w-5 mr-1"></QrCodeIcon>Transfer</span>
           </button>
         </template>
         <template v-else>
-          <button class="c_lightgray gray-hover py-1 px-2"
+          <button class="c_lightgray hover:backdrop-brightness-125 py-1 px-2"
                   v-on:click="gotoDirectMessages(viewedUserProfile.usr)">
             <i class="bi bi-send mr-2"></i>Direct Message
           </button>
-          <button class="c_lightgray gray-hover py-1 px-2">
+          <button class="c_lightgray hover:backdrop-brightness-125 py-1 px-2">
             <i class="bi bi-arrow-bar-left mr-2"></i>Kick
           </button>
-          <button class="c_lightgray gray-hover py-1 px-2">
+          <button class="c_lightgray hover:backdrop-brightness-125 py-1 px-2">
             <i class="bi bi-hammer mr-2"></i>Ban
           </button>
         </template>
@@ -896,17 +896,16 @@
           <h4 class="fw-bold">Add a new Role</h4>
           <input id="new_role"
                  type="text"
-                 class="fw-bold b_darkergray"
+                 class="fw-bold b_darkergray mt-3 mb-1"
                  style="height: 4ch; padding-left: 1ch; color: white; width: calc(100% - 1ch);
-             border: 1px solid white; border-radius: 10px"
+                        border: 1px solid white; border-radius: 10px"
                  v-model="new_role"
                  :placeholder="'Role'"
                  v-on:keyup.enter="commitUserRole">
         </div>
       </div>
-      <hr class="c_lightgray">
       <template v-if="chatroom.rank > 1">
-        <h5 class="c_lightgray mt-2 mb-1">Badges:</h5>
+        <h5 class="c_lightgray mt-3 mb-1">Badges:</h5>
         <template v-if="this.viewedUserProfile.badges == null || this.viewedUserProfile.badges.length < 1">
           <div style="border: 1px solid gray; border-radius: 10px; width: 100%; padding: 10%"
                class="c_lightgray text-center align-items-center">
@@ -967,7 +966,7 @@
     </template>
   </modal>
   <!-- #### GIF SELECTION #### -->
-  <div class="giphygrid b_darkgray p-3"
+  <div class="giphygrid bg-zinc-800 p-3"
        style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
     <div style="height: calc(100% - 50px); width: 100%; overflow-x: clip; overflow-y: auto;"
          class="b_darkergray rounded-lg">
@@ -992,7 +991,7 @@
     </div>
   </div>
   <!-- #### Settings #### -->
-  <div class="session_settings b_darkgray shadow"
+  <div class="session_settings bg-zinc-800 shadow"
        style="overflow-x: hidden; overflow-y: auto"
        v-show="isViewingSessionSettings" @click.stop>
     <div style="position: relative; padding-top: 10px; width: 100%">
@@ -1138,7 +1137,7 @@
     </template>
   </modal>
   <!-- #### File Upload (SnippetBase) #### -->
-  <div class="session_settings b_gray shadow" style="overflow-x: hidden; overflow-y: auto"
+  <div class="session_settings bg-zinc-800 shadow" style="overflow-x: hidden; overflow-y: auto"
        v-show="isUploadingSnippet" @click.stop>
     <div style="position: relative; padding-top: 10px; width: 100%">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
@@ -3057,28 +3056,23 @@ export default {
         reader.readAsDataURL(file)
       })
     },
-    setSessionImage: function (image) {
+    setSessionImage: async function (image) {
       const url = 'm5/setimage/' + this.getSession()
-      let base64String = ''
-      const promise = this.getBase64(image)
+      const base64String = await this.getBase64(image)
       const updateFun = this.getClarifierMetaData
       const disableLoadingFun = this.toggleSettingsLoading
-      promise
-        .then(function (result) {
-          base64String = result
-          const content = JSON.stringify({
-            imageBase64: base64String
-          })
-          this.$Worker.execute({
-            action: 'api',
-            method: 'post',
-            url: url,
-            body: content
-          })
-            .then(() => (updateFun()))
-            .then(() => (disableLoadingFun()))
-            .catch((err) => console.error(err.message))
-        })
+      const content = JSON.stringify({
+        imageBase64: base64String
+      })
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: url,
+        body: content
+      })
+        .then(() => (updateFun()))
+        .catch((err) => console.error(err.message))
+        .finally(() => (disableLoadingFun()))
     },
     toggleElement: function (id, display = 'block') {
       const elem = document.getElementById(id)
@@ -3111,6 +3105,7 @@ export default {
       }
     },
     lazyLoadMessages: function () {
+      if (this.websocketState !== 'OPEN') return
       this.getClarifierMessages(true, this.getChatGUID())
     },
     createSubchatroom: async function (subchatType) {
@@ -3191,6 +3186,7 @@ export default {
       })
         .then((data) => (this.processUploadSnippetResponse(data.result)))
         .catch((err) => (this.handleUploadSnippetError(err.message)))
+        .finally(() => (this.toggleElement('confirm_snippet_loading', 'flex')))
     },
     handleUploadSnippetError: function (errorMessage = '') {
       this.toggleElement('confirm_snippet_loading', 'flex')
@@ -3230,7 +3226,6 @@ export default {
       this.uploadFileBase64 = ''
       this.uploadFileType = ''
       this.new_message = ''
-      this.toggleElement('confirm_snippet_loading', 'flex')
       this.hideAllWindows()
       this.auto_grow()
     },
@@ -4258,7 +4253,7 @@ export default {
   max-height: calc(100vh - 200px);
   height: 100%;
   padding: 5px 20px;
-  border-radius: 20px;
+  @apply rounded;
 }
 
 .user_role {
@@ -4267,8 +4262,7 @@ export default {
   width: 250px;
   padding: 5px 20px;
   overflow: hidden;
-  border: 2px solid black;
-  border-radius: 20px;
+  @apply rounded-lg;
 }
 
 .serverMessage {
@@ -4569,7 +4563,7 @@ export default {
   display: flex;
   z-index: 10;
   position: relative;
-  border-bottom: 1px solid rgba(174, 174, 183, 0.25);
+  @apply border-b-[1px] border-neutral-800;
   align-items: center;
 }
 

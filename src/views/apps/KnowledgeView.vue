@@ -44,7 +44,7 @@
           </div>
         </div>
       </div>
-      <div id="main" class="h-full w-full flex justify-center overflow-y-auto pb-10 overflow-x-hidden">
+      <div id="main" class="h-full w-full flex justify-center overflow-y-auto pb-10 overflow-x-hidden mr-2 pr-1">
         <div class="h-fit w-full max-w-[1000px] px-3">
           <div id="taskstart" class="flex mb-2 items-center pt-3">
             <TagIcon class="text-neutral-400 h-5 w-5 mr-2"></TagIcon>
@@ -165,7 +165,7 @@
             <template v-if="related.tasks">
               <Disclosure v-slot="{ open }">
                 <DisclosureButton
-                  class="my-2 flex w-full justify-between rounded-lg px-2 py-1 bg-neutral-800 hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-neutral-500 focus-visible:ring-opacity-75"
+                  class="my-2 flex w-full justify-between rounded-lg px-2 py-1 bg-zinc-800 hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-neutral-500 focus-visible:ring-opacity-75"
                 >
                   <div class="text-neutral-400 text-sm flex justify-between w-full">
                     <div>Related Tasks</div>
@@ -185,24 +185,24 @@
                   leave-to-class="transform scale-95 opacity-0"
                 >
                   <DisclosurePanel>
-                    <div class="w-full grid gap-y-3 gap-x-2 grid-cols-2 xl:grid-cols-3">
+                    <div class="w-full grid gap-y-3 gap-x-2 grid-cols-2 xl:grid-cols-3 bg-zinc-800 rounded p-2">
                       <div v-for="task in related.tasks" :key="task.uID"
                            v-on:click="fetchData(task.gUID)"
-                           class="text-neutral-400 rounded-xl w-full cursor-pointer hover:brightness-150">
-                        <div class="bg-neutral-800 text-neutral-300 rounded-t py-1 px-3 pointer-events-none">
-                          <p class="font-bold">{{ task.t }}</p>
-                        </div>
-                        <div
-                          class="bg-neutral-700 text-neutral-300 rounded-b py-1 px-3 pointer-events-none max-h-[11em] overflow-y-hidden">
-                          <div class="flex items-center">
-                            <p class="text-sm">{{ task.desc }}</p>
-                          </div>
-                        </div>
-                        <div class="flex w-full mt-1 text-xs text-neutral-400">
+                           class="bg-zinc-900 p-2 text-neutral-400 w-full rounded cursor-pointer hover:brightness-125 relative">
+                        <div class="flex w-full mb-1 text-xs text-neutral-400">
                           <p>{{ task.author }}</p>
                           <p class="ml-auto">
                             {{ getHumanReadableDateText(new Date(parseInt(task.cdate, 16) * 1000)) }}
                           </p>
+                        </div>
+                        <div class="text-neutral-300 py-1 pointer-events-none">
+                          <p class="font-bold">{{ task.t }}</p>
+                        </div>
+                        <div
+                          class="text-neutral-300 py-1 pointer-events-none max-h-[11em] overflow-y-hidden">
+                          <div class="flex items-center">
+                            <p class="text-sm">{{ task.desc }}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -213,7 +213,7 @@
             <template v-if="relatedSearch">
               <Disclosure v-slot="{ open }">
                 <DisclosureButton
-                  class="my-2 flex w-full justify-between rounded-lg px-2 py-1 bg-neutral-800 hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-neutral-500 focus-visible:ring-opacity-75"
+                  class="my-2 flex w-full justify-between rounded-lg px-2 py-1 bg-zinc-800 hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-neutral-500 focus-visible:ring-opacity-75"
                 >
                   <div class="text-neutral-400 text-sm flex justify-between w-full">
                     <div>Related Entries</div>
@@ -233,29 +233,29 @@
                   leave-to-class="transform scale-95 opacity-0"
                 >
                   <DisclosurePanel>
-                    <div class="w-full grid gap-y-3 gap-x-2 grid-cols-2 xl:grid-cols-3">
+                    <div class="w-full grid gap-y-3 gap-x-2 grid-cols-2 xl:grid-cols-3 bg-zinc-800 rounded p-2">
                       <div v-for="task in relatedSearch" :key="task.uID"
                            v-on:click="fetchData(task.result.gUID)"
-                           class="text-neutral-400 w-full rounded-xl cursor-pointer hover:brightness-150 relative">
+                           class="bg-zinc-900 p-2 text-neutral-400 w-full rounded cursor-pointer hover:brightness-125 relative">
                         <template v-if="task.priority !== 'high'">
                           <div
                             class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
                         </template>
-                        <div class="bg-neutral-800 text-neutral-300 rounded-t py-1 px-3 pointer-events-none">
-                          <p class="font-bold">{{ task.result.t }}</p>
-                        </div>
-                        <div
-                          class="bg-neutral-700 text-neutral-300 rounded-b py-1 px-3 pointer-events-none max-h-[11em] overflow-y-hidden">
-                          <div class="flex items-center">
-                            <p class="text-sm">{{ task.result.desc }}</p>
-                          </div>
-                        </div>
-                        <div class="flex w-full mt-1 text-xs text-neutral-400">
+                        <div class="flex w-full mb-1 text-xs text-neutral-400">
                           <template v-if="task.priority === 'high'">
                             <SparklesIcon class="w-4 h-4 mr-2 text-amber-600"></SparklesIcon>
                           </template>
                           <p>{{ task.result.author }}</p>
                           <p class="ml-auto">{{ getHumanReadableDateText(new Date(task.result.cdate)) }}</p>
+                        </div>
+                        <div class="text-neutral-300 py-1 pointer-events-none">
+                          <p class="font-bold">{{ task.result.t }}</p>
+                        </div>
+                        <div
+                          class="text-neutral-300 py-1 pointer-events-none max-h-[11em] overflow-y-hidden">
+                          <div class="flex items-center">
+                            <p class="text-sm">{{ task.result.desc }}</p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -436,8 +436,8 @@
         </div>
       </div>
       <div id="rightbar"
-           class="h-full w-[350px] border-l border-neutral-700 overflow-y-auto hidden xl:block">
-        <div class="rounded-xl text-neutral-300 pt-3 px-3">
+           class="h-full w-[350px] overflow-y-auto hidden xl:block">
+        <div class="rounded-xl text-neutral-300 p-2 mr-2 mt-2 bg-neutral-800">
           <table class="border-none mb-2 pointer-events-none">
             <tr>
               <th class="text-neutral-400 text-xs pr-2">Author</th>

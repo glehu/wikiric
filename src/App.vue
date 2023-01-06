@@ -177,7 +177,7 @@
       </DisclosurePanel>
     </Disclosure>
     <!-- More Than A Dream -->
-    <div class="absolute top-0 left-0 w-screen min-h-screen bg-neutral-900">
+    <div class="absolute top-0 left-0 w-full min-h-screen bg-neutral-900">
       <router-view/>
     </div>
     <notifications position="bottom right"/>
