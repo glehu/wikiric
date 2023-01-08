@@ -1,13 +1,14 @@
 <template>
-  <div class="bg-neutral-900 w-screen h-screen overflow-clip"
+  <div id="clarifier_chatroom_view_elem"
+       class="bg-neutral-900 w-screen h-full absolute overflow-hidden"
        :style="{
                 backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
                 backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div class="bg-neutral-900 bg-opacity-70 fixed top-0 left-0 w-full h-full">
-      <div id="sidebar" class="sidebar darkergray-on-small"
-           style="height: 100vh; z-index: 1000">
+    <div class="bg-neutral-900 bg-opacity-60 fixed top-0 left-0 w-full h-full">
+      <div id="sidebar" class="sidebar darkergray-on-small h-full"
+           style="z-index: 1000">
         <div class="header-margin" style="box-shadow: none"></div>
-        <div style="height: calc(100vh - 60px)"
+        <div style="height: calc(100% - 60px)"
              class="sidebar_bg">
           <!-- #### Tools #### -->
           <div style="height: 140px; overflow-x: clip; position: relative">
@@ -85,15 +86,15 @@
       </div>
       <div id="sidebar2" style="margin-top: 60px" v-show="canShowSidebar"
            class="sidebar2">
-        <div style="height: calc(100vh - 60px); position: relative; padding-left: 10px">
+        <div style="height: 100%; position: relative; padding-left: 10px">
           <!-- #### SUBCHATS #### -->
-          <div style="height: calc(100% - 120px); overflow-y: auto; overflow-x: clip"
+          <div style="height: calc(100% - 160px); overflow-y: auto; overflow-x: clip"
                class="c_lightgray">
             <div style="height: 50px; align-items: center; display: flex">
               <div :id="getSession() + '_subc'" class="subchat orange-hover"
                    v-on:click="gotoSubchat(getSession(), false)">
                 <i v-show="hasUnread(getSession())" :id="getSession() + '_notify'"
-                   class="bi bi-chat-quote-fill" style="position: absolute; left: 20px"></i>
+                   class="bi bi-chat-quote-fill absolute left-[20px] z-[500]"></i>
                 <span style="font-size: 150%"><i class="bi bi-hash"></i></span>
                 <span style="padding-left: 10px">General</span>
               </div>
@@ -224,7 +225,7 @@
             <div v-if="this.isSubchat === true &&
                      (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam')"
                  style="width: calc(100% - 350px);
-                      height: calc(100vh - 60px - 50px - 80px);
+                      height: calc(100% - 60px - 50px - 80px);
                       position: absolute; left: 350px;
                       border-bottom: 1px solid rgba(174, 174, 183, 0.25);
                       padding: 0;
@@ -306,9 +307,8 @@
             </div>
             <!-- #### MESSAGES #### -->
             <div id="messages_section"
-                 class="messages_section bg-neutral-900 relative flex overflow-y-auto overflow-x-hidden"
-                 style="height: calc(100vh - 60px - 50px - 80px);
-                        flex-direction: column-reverse">
+                 class="messages_section bg-neutral-900 relative flex h-[calc(100%-132px)] overflow-y-auto overflow-x-hidden"
+                 style="flex-direction: column-reverse">
               <div id="init_loading" style="display: none">
                 <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
                 <span class="ms-2 fw-bold c_lightgray">Initializing...</span>
@@ -821,7 +821,7 @@
     </div>
   </div>
   <!-- #### USER PROFILE #### -->
-  <div class="user_profile bg-zinc-800 overflow-x-hidden overflow-y-auto"
+  <div class="user_profile bg-zinc-700 overflow-x-hidden overflow-y-auto"
        v-show="isViewingUserProfile" @click.stop>
     <div style="position: relative; padding-top: 10px; height: 100%">
       <i class="bi bi-x-lg lead orange-hover"
@@ -833,7 +833,7 @@
           <img :src="getImg(viewedUserProfile.iurl, true)" alt="?"
                class="b_darkergray"
                style="width: 75px; height: 75px; border-radius: 100%;
-                                position: absolute; top: 20px; left: -5px">
+                                position: absolute; top: 20px; left: -4px">
         </template>
         <div style="display: block">
           <h2 class="fw-bold text-2xl">
@@ -850,37 +850,37 @@
       </div>
       <div class="items-center flex">
         <template v-if="viewedUserProfile.usr === this.$store.state.username">
-          <button class="c_lightgray hover:backdrop-brightness-125 py-1 px-2"
+          <button class="user_profile_button"
                   v-on:click="isEditingProfile = true">
             <i class="bi bi-pencil mr-2"></i>Edit Profile
           </button>
-          <button class="c_lightgray hover:backdrop-brightness-125 py-1 px-2"
+          <button class="user_profile_button"
                   v-on:click="startTransferring()">
             <span class="flex items-center"><QrCodeIcon class="h-5 w-5 mr-1"></QrCodeIcon>Transfer</span>
           </button>
         </template>
         <template v-else>
-          <button class="c_lightgray hover:backdrop-brightness-125 py-1 px-2"
+          <button class="user_profile_button"
                   v-on:click="gotoDirectMessages(viewedUserProfile.usr)">
             <i class="bi bi-send mr-2"></i>Direct Message
           </button>
-          <button class="c_lightgray hover:backdrop-brightness-125 py-1 px-2">
+          <button class="user_profile_button">
             <i class="bi bi-arrow-bar-left mr-2"></i>Kick
           </button>
-          <button class="c_lightgray hover:backdrop-brightness-125 py-1 px-2">
+          <button class="user_profile_button">
             <i class="bi bi-hammer mr-2"></i>Ban
           </button>
         </template>
       </div>
       <!-- #### MEMBER ROLES #### -->
-      <hr class="c_lightgray my-2">
+      <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Roles</h5>
       <div style="display: flex; flex-wrap: wrap">
         <div v-for="role in this.viewedUserProfile.roles" :key="role"
-             class="b_purple"
-             style="border-radius: 5px; padding: 0 4px 4px 4px; margin-right: 1ch; margin-bottom: 1ch">
+             class="bg-zinc-800"
+             style="border-radius: 5px; padding: 0 6px 4px 6px; margin-right: 1ch; margin-bottom: 1ch">
           <i v-show="isEditingRoles" class="bi bi-x-circle-fill orange-hover"
              style="margin-right: 4px"></i>
-          <span>{{ JSON.parse(role).name.replace(' ', '&nbsp;') }}</span>
+          <span class="text-neutral-400">{{ JSON.parse(role).name.replace(' ', '&nbsp;') }}</span>
         </div>
         <span style="border-radius: 2rem; margin-right: 1em" class="orange-hover"
               v-on:click="addUserRole" title="Add new Role">
@@ -905,10 +905,10 @@
         </div>
       </div>
       <template v-if="chatroom.rank > 1">
-        <h5 class="c_lightgray mt-3 mb-1">Badges:</h5>
+        <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Badges</h5>
         <template v-if="this.viewedUserProfile.badges == null || this.viewedUserProfile.badges.length < 1">
           <div style="border: 1px solid gray; border-radius: 10px; width: 100%; padding: 10%"
-               class="c_lightgray text-center align-items-center">
+               class="c_lightgray text-center align-items-center pointer-events-none">
             <i class="bi bi-award-fill lead"></i>
             <br>Keep communicating to earn badges!
           </div>
@@ -916,7 +916,7 @@
         <template v-else>
           <div class="w-full grid grid-cols-2 gap-3 mb-4">
             <div v-for="badge in this.viewedUserProfile.badges" :key="badge.handle"
-                 class="c_lightgray text-center rounded-xl border-2 border-slate-600 py-1 px-2 hover:bg-slate-800">
+                 class="c_lightgray text-center rounded-xl border-2 border-zinc-600 py-1 px-2 hover:bg-zinc-800">
               <div class="pointer-events-none">
                 <div v-if="badge.handle.startsWith('msg')"
                      style="font-size: 150%">
@@ -947,14 +947,22 @@
       <h3>Edit Your Profile</h3>
     </template>
     <template v-slot:body>
-      <div style="display: flex; margin-bottom: 5px">
+      <div style="display: flex; margin-bottom: 5px" class="items-center">
         <img :src="getImg(this.viewedUserProfile.iurl, true)" alt="No Picture"
              class="b_darkergray"
              style="width: 100px; height: 100px; border-radius: 100%">
-        <h2 class="fw-bold text-white"
-            style="margin: 0 0 0 10px">
-          {{ this.viewedUserProfile.usr }}
-        </h2>
+        <div class="block ml-2">
+          <h2 class="fw-bold text-2xl">
+            {{ viewedUserProfile.usr }}
+          </h2>
+          <div title="This member's messages are being End-to-End encrypted"
+               style="display: flex; align-items: center">
+            <i class="bi bi-shield-lock-fill" style="margin-right: 1ch"></i>
+            <p class="c_lightgray" style="cursor: default; font-size: 75%; margin: 0">
+              RSA-OAEP
+            </p>
+          </div>
+        </div>
       </div>
       <label for="setProfilePicInput">
         Set a Profile Picture:
@@ -966,7 +974,7 @@
     </template>
   </modal>
   <!-- #### GIF SELECTION #### -->
-  <div class="giphygrid bg-zinc-800 p-3"
+  <div class="giphygrid bg-zinc-700 p-3"
        style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
     <div style="height: calc(100% - 50px); width: 100%; overflow-x: clip; overflow-y: auto;"
          class="b_darkergray rounded-lg">
@@ -991,7 +999,7 @@
     </div>
   </div>
   <!-- #### Settings #### -->
-  <div class="session_settings bg-zinc-800 shadow"
+  <div class="session_settings bg-zinc-700 shadow"
        style="overflow-x: hidden; overflow-y: auto"
        v-show="isViewingSessionSettings" @click.stop>
     <div style="position: relative; padding-top: 10px; width: 100%">
@@ -3013,6 +3021,15 @@ export default {
       })
         .then(() => (updateFun()))
         .then(() => (getMessagesFun()))
+        .then(() => (this.hideAllWindows()))
+        .then(() => (
+          this.$notify(
+            {
+              title: 'Done!',
+              text: 'User profile picture updated.',
+              type: 'info'
+            })
+        ))
     },
     handleUploadImageSelectDrop: function (evt) {
       this.handleUploadFileSelect(evt, true)
@@ -4250,10 +4267,10 @@ export default {
   color: white;
   max-width: calc(100vw - 32px);
   width: 400px;
-  max-height: calc(100vh - 200px);
+  max-height: calc(100% - 200px);
   height: 100%;
   padding: 5px 20px;
-  @apply rounded;
+  @apply rounded-lg;
 }
 
 .user_role {
@@ -4335,7 +4352,7 @@ export default {
 .sidebar2 {
   opacity: 0;
   width: 0;
-  height: 100vh;
+  height: calc(100% - 60px);
   position: fixed;
   z-index: 999;
   top: 0;
@@ -4356,7 +4373,7 @@ export default {
   z-index: 1000;
   position: absolute;
   right: 0;
-  height: 100vh;
+  height: calc(100% - 60px);
   opacity: 0;
   transition: ease-in-out all 0.2s;
 }
@@ -4691,7 +4708,7 @@ export default {
   width: calc(100% - 20px);
   font-weight: bold;
   transition: 0.3s opacity;
-  max-height: calc(100vh - 60px - 50px - 80px - 10px);
+  max-height: calc(100% - 60px - 50px - 80px - 10px);
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -4833,10 +4850,10 @@ export default {
 
 .headerline:before,
 .headerline:after {
-  background-color: #424242;
+  @apply bg-neutral-500;
   content: "";
   display: inline-block;
-  height: 2px;
+  height: 1px;
   position: relative;
   vertical-align: middle;
   width: 50%;
@@ -4850,6 +4867,10 @@ export default {
 .headerline:after {
   left: 0.5em;
   margin-right: -50%;
+}
+
+.user_profile_button {
+  @apply text-neutral-300 rounded bg-zinc-600 py-1 px-2 mr-1 hover:brightness-125;
 }
 
 </style>

@@ -1,11 +1,12 @@
 <template>
-  <div class="w-full overflow-hidden" id="knowledgeFinder">
+  <div id="knowledgeFinder"
+       class="bg-neutral-900 w-full h-full absolute overflow-hidden">
     <template v-if="knowledgeExists">
       <div class="h-full w-full">
         <template v-if="!isViewingWisdom">
           <div class="grid grid-cols-1 md:grid-cols-3 w-full bg-neutral-900 h-full">
             <div id="knowledgeFinder_sidebar"
-                 class="h-[calc(100%-1rem)] rounded-lg overflow-hidden m-2 bg-zinc-800">
+                 class="h-[calc(100%-1rem)] rounded-lg overflow-hidden m-2 bg-zinc-700">
               <div class="h-full relative">
                 <div class="py-1 shadow">
                   <div class="flex items-center">
@@ -67,16 +68,16 @@
                   </div>
                 </div>
                 <!-- QUICK VIEW -->
-                <div class="px-3 py-3 md:absolute md:bottom-0 md:w-full">
+                <div class="px-3 py-3 md:absolute md:bottom-0 md:w-full bg-zinc-800">
                   <div class="flex">
                     <button v-on:click="writeWisdom('ask')"
-                            class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2
+                            class="border-orange-500 hover:bg-orange-600 border-2
                                    rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 mr-3 w-1/2">
                       <i class="bi bi-question-lg mr-2"></i>
                       Ask
                     </button>
                     <button v-on:click="writeWisdom('teach')"
-                            class="border-indigo-500 hover:border-indigo-400 hover:bg-indigo-600 border-2
+                            class="border-indigo-500 hover:bg-indigo-600 border-2
                                    rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 w-1/2">
                       <i class="bi bi-lightbulb small mr-2"></i>
                       Teach
@@ -147,14 +148,16 @@
                     <div class="mt-2">
                       <div class="flex">
                         <button v-on:click="writeWisdom('ask')"
-                                class="border-orange-600 hover:border-orange-400 hover:bg-orange-600 border-2
-                                       rounded-xl py-1 px-2 text-neutral-300 hover:text-neutral-200 w-1/2">
-                          <i class="bi bi-question-lg mr-2"></i> <span class="text-sm">Ask</span>
+                                class="border-orange-500 hover:bg-orange-600 border-2
+                                   rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 mr-3 w-1/2">
+                          <i class="bi bi-question-lg mr-2"></i>
+                          Ask
                         </button>
                         <button v-on:click="writeWisdom('teach')"
-                                class="border-indigo-500 hover:border-indigo-400 hover:bg-indigo-600 border-2
-                                       rounded-xl py-1 px-2 text-neutral-300 hover:text-neutral-200 ml-1 w-1/2">
-                          <i class="bi bi-lightbulb small mr-2"></i> <span class="text-sm">Teach</span>
+                                class="border-indigo-500 hover:bg-indigo-600 border-2
+                                   rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 w-1/2">
+                          <i class="bi bi-lightbulb small mr-2"></i>
+                          Teach
                         </button>
                       </div>
                     </div>
@@ -521,10 +524,8 @@ export default {
       if (mainDiv) {
         if (!this.isoverlay) {
           mainDiv.classList.add('pt-[60px]')
-          mainDiv.classList.add('h-screen')
         } else {
-          mainDiv.classList.remove('h-screen')
-          mainDiv.classList.add('w-full')
+          mainDiv.classList.remove('pt-[60px]')
         }
       }
       // Focus search field

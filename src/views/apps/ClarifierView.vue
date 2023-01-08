@@ -1,13 +1,14 @@
 <template>
-  <div class="b_darkergray w-screen min-h-screen overflow-hidden"
+  <div id="clarifier_view_elem"
+       class="bg-neutral-900 w-screen h-full absolute overflow-hidden"
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div class="wrapper bg-neutral-900 bg-opacity-80 pt-[80px] h-screen w-full">
+    <div class="wrapper bg-neutral-900 bg-opacity-60 pt-[80px] h-full w-full">
       <!-- Active Sessions -->
       <div class="container c-modal">
         <div class="row d-flex justify-content-center align-items-center">
-          <div style="min-width: 400px; width: 80%">
-            <div class="card-subtitle text-white" style="border-radius: 1rem">
+          <div class="w-full max-w-xl">
+            <div class="card-subtitle text-white mx-4">
               <div class="card-body mt-md-0">
                 <div style="pointer-events: none; margin-bottom: 50px">
                   <div class="flex items-end justify-between">
@@ -71,8 +72,8 @@
       <!-- Join or Create a new Session -->
       <div class="container c-modal mb-4">
         <div class="row d-flex justify-content-center align-items-center">
-          <div style="min-width: 400px; width: 80%">
-            <div class="card-subtitle text-white">
+          <div class="w-full max-w-xl">
+            <div class="card-subtitle text-white mx-4">
               <div class="card-body">
                 <div class="mt-md-0">
                   <h1 class="fw-bold mb-2 text-3xl text-gray-300"

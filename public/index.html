@@ -3,13 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0">
     <meta name="author" content="Luca Goldhausen">
     <meta name="description" content="wikiric is a Web3 End-to-End encrypted collaboration hub with extensive features including a knowledge/Q&A database and Kanban style task planning tool.">
     <meta property="og:title" content="wikiric | Web3 Collaboration Hub">
     <!--<meta property="og:image" content="https://wikiric.netlify.app/img/icons/favicon-32x32.png">-->
     <meta property="og:description" content="wikiric is a Web3 End-to-End encrypted collaboration hub with extensive features including a knowledge/Q&A database and Kanban style task planning tool.">
-    <meta property="og:title" content="wikiric.xyz">
 
     <title><%= htmlWebpackPlugin.options.title %></title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
@@ -42,6 +41,11 @@
 </body>
 </html>
 <style>
+    html,
+    body {
+        height:100%
+    }
+
     * {
         font-family: 'Lato', sans-serif;
         scrollbar-width: thin;

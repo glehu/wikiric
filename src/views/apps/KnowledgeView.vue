@@ -1,6 +1,7 @@
 <template>
-  <div class="bg-neutral-900">
-    <div class="flex h-screen w-full overflow-hidden pt-[60px]">
+  <div id="knowledgeViewer"
+       class="bg-neutral-900 w-full h-full absolute overflow-hidden">
+    <div class="flex h-full w-full">
       <div id="sidebar"
            class="h-full min-w-[40px] max-w-[40px] flex flex-col items-center overflow-y-auto ml-2">
         <div class="text-neutral-400 h-full">
@@ -437,7 +438,7 @@
       </div>
       <div id="rightbar"
            class="h-full w-[350px] overflow-y-auto hidden xl:block">
-        <div class="rounded-xl text-neutral-300 p-2 mr-2 mt-2 bg-neutral-800">
+        <div class="rounded-xl text-neutral-300 p-2 mr-2 mt-2 bg-zinc-800">
           <table class="border-none mb-2 pointer-events-none">
             <tr>
               <th class="text-neutral-400 text-xs pr-2">Author</th>
@@ -741,6 +742,15 @@ export default {
       input.addEventListener('keydown', this.handleEnter, false)
       this.inputComment = document.getElementById('input_comment')
       this.auto_grow()
+      // Set window height
+      const mainDiv = document.getElementById('knowledgeViewer')
+      if (mainDiv) {
+        if (!this.isoverlay) {
+          mainDiv.classList.add('pt-[60px]')
+        } else {
+          mainDiv.classList.remove('pt-[60px]')
+        }
+      }
     },
     getWisdom: async function () {
       return new Promise((resolve) => {

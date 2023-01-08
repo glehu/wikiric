@@ -177,7 +177,8 @@
       </DisclosurePanel>
     </Disclosure>
     <!-- More Than A Dream -->
-    <div class="absolute top-0 left-0 w-full min-h-screen bg-neutral-900">
+    <div id="router_view_elem"
+         class="absolute top-0 left-0 w-full bg-neutral-900">
       <router-view/>
     </div>
     <notifications position="bottom right"/>
@@ -295,6 +296,16 @@ export default {
         const keywordSearch = document.getElementById('cboxinput')
         keywordSearch.focus()
         keywordSearch.select()
+      }
+    })
+    const elem = document.getElementById('router_view_elem')
+    if (elem) {
+      elem.style.minHeight = (window.innerHeight * 0.01 * 100).toString() + 'px'
+    }
+    window.addEventListener('resize', function () {
+      const elem = document.getElementById('router_view_elem')
+      if (elem) {
+        elem.style.minHeight = (window.innerHeight * 0.01 * 100).toString() + 'px'
       }
     })
   },
