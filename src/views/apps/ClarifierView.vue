@@ -1,14 +1,12 @@
 <template>
   <div id="clarifier_view_elem"
-       class="bg-neutral-900 w-screen h-full absolute overflow-hidden"
-       :style="{ backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
-                 backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div class="wrapper bg-neutral-900 bg-opacity-60 pt-[80px] h-full w-full">
+       class="bg-zinc-700 w-screen min-h-full absolute overflow-x-hidden overflow-y-auto">
+    <div class="wrapper pt-[80px] h-full w-full">
       <!-- Active Sessions -->
       <div class="container c-modal">
         <div class="row d-flex justify-content-center align-items-center">
           <div class="w-full max-w-xl">
-            <div class="card-subtitle text-white mx-4">
+            <div class="card-subtitle text-white mx-4 p-4 rounded-lg">
               <div class="card-body mt-md-0">
                 <div style="pointer-events: none; margin-bottom: 50px">
                   <div class="flex items-end justify-between">
@@ -35,7 +33,7 @@
                     </div>
                   </div>
                   <hr class="my-2">
-                  <p class="text-neutral-400">
+                  <p class="text-neutral-300">
                     Your current Clarifier Groups. Click on one of them to quickly enter.
                   </p>
                 </div>
@@ -43,7 +41,7 @@
                      class="justify-content-center"
                      style="padding-bottom: 15px; display: flex">
                   <div
-                    class="text-neutral-400 hover:text-white hover:bg-slate-700 hover:bg-opacity-50 cursor-pointer rounded-xl p-2 w-4/5"
+                    class="text-neutral-300 hover:text-white hover:bg-zinc-500 hover:bg-opacity-50 cursor-pointer rounded-xl p-2 w-4/5"
                     style="display: flex; align-items: center; justify-items: center"
                     v-on:click="joinActive(group.id)">
                     <img class="b_darkergray"
@@ -73,7 +71,7 @@
       <div class="container c-modal mb-4">
         <div class="row d-flex justify-content-center align-items-center">
           <div class="w-full max-w-xl">
-            <div class="card-subtitle text-white mx-4">
+            <div class="card-subtitle text-white mx-4 p-4 rounded-lg">
               <div class="card-body">
                 <div class="mt-md-0">
                   <h1 class="fw-bold mb-2 text-3xl text-gray-300"
@@ -82,12 +80,13 @@
                   </h1>
                   <hr class="my-2">
                   <p style="text-align: justify; text-justify: inter-word; width: 100%; pointer-events: none"
-                     class="text-neutral-400">
-                    Enter an invite ID or create your own chatroom.
+                     class="text-neutral-300">
+                    Enter an invite ID to join an existing group or create your own by typing in a name for it.
                   </p>
                   <input id="input_session" v-model="input_string"
                          placeholder="Invite ID or Name..."
-                         class="font-bold px-2 py-1 my-3 bg-neutral-900 text-neutral-300 rounded-lg border-2 border-neutral-600"
+                         class="font-bold px-2 py-1 my-3 bg-neutral-900 text-neutral-300 rounded-lg
+                                border-2 border-neutral-600 placeholder-neutral-400"
                          style="width: 100%; font-size: 150%"
                          v-on:keyup.enter="joinOrCreate()">
                   <br>

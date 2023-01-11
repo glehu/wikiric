@@ -1,10 +1,10 @@
 <template>
   <div id="knowledgeFinder"
-       class="bg-neutral-900 w-full h-full absolute overflow-hidden">
+       class="bg-zinc-800 w-full h-full absolute overflow-hidden rounded-tr-lg border-r-2 border-r-zinc-900">
     <template v-if="knowledgeExists">
       <div class="h-full w-full">
         <template v-if="!isViewingWisdom">
-          <div class="grid grid-cols-1 md:grid-cols-3 w-full bg-neutral-900 h-full">
+          <div class="grid grid-cols-1 md:grid-cols-3 w-full h-full">
             <div id="knowledgeFinder_sidebar"
                  class="h-[calc(100%-1rem)] rounded-lg overflow-hidden m-2 bg-zinc-700">
               <div class="h-full relative">
@@ -30,7 +30,7 @@
                   <div class="px-3 py-2 rounded-lg flex items-center relative">
                     <MagnifyingGlassIcon class="w-8 h-8 mx-1 text-neutral-300 absolute translate-x-1"/>
                     <input id="search-field" type="text"
-                           class="search-field py-4 pl-12 pr-4 bg-neutral-900 h-8 text-lg border-2 border-zinc-700"
+                           class="search-field py-4 pl-12 pr-4 bg-neutral-900 h-8 border-2 border-zinc-700"
                            placeholder="Search..."
                            v-on:keyup.enter="searchWisdom()"
                            v-model="queryText">
@@ -68,7 +68,7 @@
                   </div>
                 </div>
                 <!-- QUICK VIEW -->
-                <div class="px-3 py-3 md:absolute md:bottom-0 md:w-full bg-zinc-800">
+                <div class="px-3 py-3 md:absolute md:bottom-0 md:w-full">
                   <div class="flex">
                     <button v-on:click="writeWisdom('ask')"
                             class="border-orange-500 hover:bg-orange-600 border-2
@@ -1177,12 +1177,12 @@ export default {
 }
 
 .result {
-  @apply my-1 relative text-gray-300 px-3 py-3 border-y border-y-neutral-800;
+  @apply my-1 relative text-gray-300 px-3 py-3 border-y border-y-zinc-700;
 }
 
 .result:hover {
-  @apply bg-neutral-800 bg-opacity-25;
-  box-shadow: 0 0 0 1px #696969;
+  @apply bg-zinc-700 bg-opacity-50;
+  box-shadow: 0 0 0 1px rgb(82 82 91);
 }
 
 </style>

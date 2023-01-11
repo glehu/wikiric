@@ -1,13 +1,10 @@
 <template>
   <div id="clarifier_chatroom_view_elem"
-       class="bg-neutral-900 w-screen h-full absolute overflow-hidden"
-       :style="{
-                backgroundImage: 'url('+require('@/assets/'+'account/BigBlur.webp')+')',
-                backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div class="bg-neutral-900 bg-opacity-60 fixed top-0 left-0 w-full h-full">
-      <div id="sidebar" class="sidebar darkergray-on-small h-full"
+       class="bg-zinc-900 w-screen h-full absolute overflow-hidden">
+    <div class="fixed top-0 left-0 w-full h-full">
+      <div id="sidebar"
+           class="sidebar bg-zinc-900 darkergray-on-small h-[calc(100%-60px)] relative top-[60px]"
            style="z-index: 1000">
-        <div class="header-margin" style="box-shadow: none"></div>
         <div style="height: calc(100% - 60px)"
              class="sidebar_bg">
           <!-- #### Tools #### -->
@@ -63,9 +60,8 @@
                   <div style="width: 50px; height: 100%; position: relative;
                             display: flex; align-items: center; justify-content: center;">
                     <div v-if="group.id === chatroom.guid"
-                         style="position: absolute; height: 20px; width: 5px; left: 0;
-                            border-radius: 5px;
-                            background-color: forestgreen; z-index: 5">
+                         style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5"
+                         class="bg-green-500 rounded-r">
                     </div>
                     <img class="b_darkergray"
                          style="border-radius: 10px; margin-left: 1px;
@@ -84,88 +80,89 @@
           </div>
         </div>
       </div>
-      <div id="sidebar2" style="margin-top: 60px" v-show="canShowSidebar"
-           class="sidebar2">
-        <div style="height: 100%; position: relative; padding-left: 10px">
+      <div id="sidebar2"
+           style="margin-top: 60px" v-show="canShowSidebar"
+           class="sidebar2 bg-zinc-700 lg:rounded-tl">
+        <div class="h-full relative">
           <!-- #### SUBCHATS #### -->
-          <div style="height: calc(100% - 160px); overflow-y: auto; overflow-x: clip"
-               class="c_lightgray">
+          <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden"
+               class="c_lightgray px-2">
             <div style="height: 50px; align-items: center; display: flex">
-              <div :id="getSession() + '_subc'" class="subchat orange-hover"
+              <div :id="getSession() + '_subc'" class="subchat bg-zinc-800 bg-opacity-75"
                    v-on:click="gotoSubchat(getSession(), false)">
                 <i v-show="hasUnread(getSession())" :id="getSession() + '_notify'"
-                   class="bi bi-chat-quote-fill absolute left-[20px] z-[500]"></i>
-                <span style="font-size: 150%"><i class="bi bi-hash"></i></span>
-                <span style="padding-left: 10px">General</span>
+                   class="bi bi-chat-quote-fill relative left-0 z-[500] text-orange-500"></i>
+                <HomeIcon class="h-5 w-5"></HomeIcon>
+                <span class="relative left-[20px]">Home</span>
               </div>
             </div>
-            <div style="width: 100%; height: 35px; padding-top: 5px;
-                      display: flex; position: relative; align-items: center">
+            <div style="width: 100%; height: 35px; padding-top: 5px"
+                 class="px-2 flex relative items-center justify-between">
               <span class="fw-bold c_lightgray nopointer">Subchats</span>
               <button class="text-white btn-no-outline"
-                      style="position: absolute; right: 20px"
                       title="New Subchat"
                       v-on:click="showNewSubchatWindow">
-                <i class="bi bi-plus lead orange-hover c_lightgray" style="font-size: 150%"></i>
+                <i class="bi bi-plus lead orange-hover c_lightgray"
+                   style="font-size: 150%"></i>
               </button>
             </div>
             <div v-for="subchat in chatroom.subChatrooms" :key="subchat"
                  :id="subchat.guid + '_subc'"
-                 class="subchat orange-hover"
+                 class="subchat"
                  style="display: flex"
                  v-on:click="gotoSubchat(subchat.guid)">
               <i v-show="hasUnread(subchat.guid)" :id="subchat.guid + '_notify'"
-                 class="bi bi-chat-quote-fill" style="position: absolute; left: 20px"></i>
-              <span v-if="subchat.type === 'screenshare'"
-                    style="font-size: 150%"><i class="bi bi-window-fullscreen"></i></span>
-              <span v-else-if="subchat.type === 'webcam'"
-                    style="font-size: 150%"><i class="bi bi-camera-video"></i></span>
-              <span v-else style="font-size: 150%"><i class="bi bi-hash"></i></span>
-              <span style="padding-left: 10px">{{ subchat.t }}</span>
+                 class="bi bi-chat-quote-fill relative left-0 z-[500] text-orange-500"></i>
+              <template v-if="subchat.type === 'screenshare'">
+                <WindowIcon class="h-5 w-5"></WindowIcon>
+              </template>
+              <template v-else-if="subchat.type === 'webcam'">
+                <i class="bi bi-camera-video h-5 w-5 flex items-center justify-center text-lg"></i>
+              </template>
+              <template v-else>
+                <HashtagIcon class="h-5 w-5"></HashtagIcon>
+              </template>
+              <span class="relative left-[20px]">{{ subchat.t }}</span>
             </div>
-            <!-- #### Clarifier Rank Benefits ####-->
-            <template v-if="this.chatroom.rank > 1">
-              <div style="width: 100%;
-                        position: absolute; bottom: 20px;
-                        border: 1px solid rgba(174, 174, 183, 0.25);
-                        border-radius: 20px 0 0 20px">
-                <template v-if="this.chatroom.rank > 3">
-                  <div style="height: 40px"
-                       class="subchat w-full flex items-center orange-hover"
-                       v-on:click="this.$router.push('/apps/plannernew?src=' + this.getSession())">
-                    <ViewColumnsIcon class="h-5 w-5"></ViewColumnsIcon>
-                    <span style="padding-left: 10px">Planner</span>
-                  </div>
-                </template>
-                <template v-if="this.chatroom.rank > 2">
-                  <div style="height: 40px"
-                       class="subchat w-full flex items-center orange-hover"
-                       v-on:click="setOverlay('knowledgefinder')">
-                    <!-- this.$router.push('/apps/knowledge?src=' + this.getSession()) -->
-                    <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
-                    <span style="padding-left: 10px">Knowledge</span>
-                  </div>
-                </template>
-                <div style="height: 40px"
-                     class="subchat w-full flex items-center orange-hover"
-                     v-on:click="isViewingBadges = true">
-                  <TrophyIcon class="h-5 w-5"></TrophyIcon>
-                  <span style="padding-left: 10px">Badges</span>
-                </div>
-              </div>
-            </template>
           </div>
+          <!-- #### Clarifier Rank Benefits ####-->
+          <template v-if="this.chatroom.rank > 1">
+            <div class="absolute bottom-0 w-full p-2 text-neutral-300 border-t-2 border-t-neutral-800">
+              <template v-if="this.chatroom.rank > 3">
+                <div style="height: 40px"
+                     class="subchat w-full flex items-center"
+                     v-on:click="this.$router.push('/apps/plannernew?src=' + this.getSession())">
+                  <ViewColumnsIcon class="h-5 w-5"></ViewColumnsIcon>
+                  <span class="relative left-[20px]">Planner</span>
+                </div>
+              </template>
+              <template v-if="this.chatroom.rank > 2">
+                <div style="height: 40px"
+                     class="subchat w-full flex items-center"
+                     v-on:click="setOverlay('knowledgefinder')">
+                  <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
+                  <span class="relative left-[20px]">Knowledge</span>
+                </div>
+              </template>
+              <div style="height: 40px"
+                   class="subchat w-full flex items-center"
+                   v-on:click="isViewingBadges = true">
+                <TrophyIcon class="h-5 w-5"></TrophyIcon>
+                <span class="relative left-[20px]">Badges</span>
+              </div>
+            </div>
+          </template>
         </div>
       </div>
       <div id="clarifier_chatroom"
-           class="clarifier_chatroom flex overflow-clip mt-[60px] lg:rounded-xl
-                  lg:border-x-[1px] lg:border-t-[1px] lg:border-neutral-800"
+           class="clarifier_chatroom flex overflow-clip mt-[60px]"
            v-on:click="closeModals">
         <template v-if="overlayType === 'msg'">
           <div id="chat_section"
-               class="chat_section w-full h-full overflow-clip bg-neutral-900">
+               class="chat_section w-full h-full overflow-clip
+                      bg-zinc-600 bg-opacity-50 rounded-tl-lg lg:rounded-tl-none lg:rounded-tr-lg border-r-zinc-900 border-r-2">
             <!-- #### CHAT HEADER #### -->
-            <div class="chat_header bg-neutral-900">
+            <div class="chat_header">
               <div
                 style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%; align-items: center">
                 <div style="margin-left: 10px"
@@ -227,14 +224,13 @@
                  style="width: calc(100% - 350px);
                       height: calc(100% - 60px - 50px - 80px);
                       position: absolute; left: 350px;
-                      border-bottom: 1px solid rgba(174, 174, 183, 0.25);
                       padding: 0;
                       display: flex"
                  class="c_lightgray">
               <div style="position: relative; top: 0; left: 0;
                         width: 100%;
                         aspect-ratio: 16 / 9"
-                   class="b_darkergray flex">
+                   class="flex">
                 <div v-if="!isStreamingVideo"
                      class="d-flex"
                      style="pointer-events: none;
@@ -292,12 +288,11 @@
                 <template v-for="user in this.members" :key="user">
                   <template v-if="user.id !== userId">
                     <button v-on:click="startScreenshare(user.id)"
-                            class="btn btn-sm gray-hover
-                           c_lightgray"
+                            class="btn btn-sm gray-hover c_lightgray"
                             style="position: relative;
-                           margin-left: 20px; margin-top: 10px;
-                           border: 1px solid rgba(174, 174, 183, 0.25);
-                           border-radius: 10px;">
+                                   margin-left: 20px; margin-top: 10px;
+                                   border: 1px solid rgba(174, 174, 183, 0.25);
+                                   border-radius: 10px;">
                       Call {{ user.usr }}
                     </button>
                     <br>
@@ -307,7 +302,7 @@
             </div>
             <!-- #### MESSAGES #### -->
             <div id="messages_section"
-                 class="messages_section bg-neutral-900 relative flex h-[calc(100%-132px)] overflow-y-auto overflow-x-hidden"
+                 class="messages_section relative flex h-[calc(100%-132px)] overflow-y-auto overflow-x-hidden"
                  style="flex-direction: column-reverse">
               <div id="init_loading" style="display: none">
                 <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
@@ -335,9 +330,9 @@
                       <i v-else class="sender_avatar bi bi-person-circle"></i>
                       <template v-if="msg.iurl !== ''">
                         <img :src="getImg(msg.iurl, true)" alt="?"
-                             class="b_darkergray"
+                             class="bg-zinc-900"
                              style="width: 42px; height: 42px; border-radius: 100%;
-                                position: absolute; top: 8px; left: -7px">
+                                    position: absolute; top: 8px; left: -7px">
                       </template>
                       <span class="orange-hover text-neutral-200"
                             style="font-weight: bold"
@@ -388,34 +383,34 @@
                     </template>
                     <!-- #### MESSAGE OPTIONS #### -->
                     <div v-if="msg.mType !== 'CryptError' && !msg.src.startsWith('_server')" class="msg_options">
-                      <div class="b_darkgray rounded mr-1">
-                        <button title="Reply" class="btn btn-sm c_lightgray orange-hover"
+                      <div class="bg-zinc-800 rounded mr-1">
+                        <button title="Reply" class="btn btn-sm text-neutral-400 orange-hover"
                                 v-on:click="replyToMessage(msg)">
                           <i class="bi bi-reply-fill"></i>
                         </button>
                         <template v-if="msg.editable === true">
-                          <button title="Edit" class="btn btn-sm c_lightgray orange-hover"
+                          <button title="Edit" class="btn btn-sm text-neutral-400 orange-hover"
                                   v-on:click="editMessage(msg)">
                             <i class="bi bi-pencil-fill"></i>
                           </button>
-                          <button title="Remove" class="btn btn-sm c_lightgray orange-hover"
+                          <button title="Remove" class="btn btn-sm text-neutral-400 orange-hover"
                                   v-on:click="editMessage(msg, true)">
                             <i class="bi bi-trash-fill"></i>
                           </button>
                         </template>
                       </div>
-                      <div class="b_darkgray rounded mr-1">
-                        <button title="Upvote" class="btn btn-sm c_lightgray orange-hover"
+                      <div class="bg-zinc-800 rounded mr-1">
+                        <button title="Upvote" class="btn btn-sm text-neutral-400 orange-hover"
                                 v-on:click="reactToMessage(msg, '+')">
                           <i class="bi bi-hand-thumbs-up"></i>
                         </button>
-                        <button title="Downvote" class="btn btn-sm c_lightgray orange-hover"
+                        <button title="Downvote" class="btn btn-sm text-neutral-400 orange-hover"
                                 v-on:click="reactToMessage(msg, '-')">
                           <i class="bi bi-hand-thumbs-down"></i>
                         </button>
                       </div>
-                      <div class="b_darkgray rounded mr-1">
-                        <button title="Awesome!" class="btn btn-sm c_lightgray orange-hover"
+                      <div class="bg-zinc-800 rounded mr-1">
+                        <button title="Awesome!" class="btn btn-sm text-neutral-400 orange-hover"
                                 v-on:click="reactToMessage(msg, '⭐')">
                           <i class="bi bi-star-fill"></i>
                         </button>
@@ -578,7 +573,7 @@
               </template>
             </div>
             <div v-if="isTaggingUser"
-                 class="user_tagger b_gray c_lightgray"
+                 class="user_tagger c_lightgray"
                  style="padding: 10px; position: absolute; z-index: 100">
               <p class="pointer-events-none mb-2">Tag a member:</p>
               <div v-for="(usr, index) in this.members" :key="usr"
@@ -597,7 +592,7 @@
               </div>
             </div>
             <div v-if="isSelectingImgflipTemplate"
-                 class="imgflip_selector b_gray c_lightgray"
+                 class="imgflip_selector c_lightgray"
                  style="padding: 10px; position: absolute; z-index: 100">
               <p class="pointer-events-none mb-2">Select an Imgflip meme template:</p>
               <template v-for="(template, index) in this.imgflipSelection" :key="template">
@@ -616,7 +611,7 @@
               </template>
             </div>
             <div v-if="isFillingImgflipTemplate.active"
-                 class="imgflip_selector b_gray c_lightgray"
+                 class="imgflip_selector c_lightgray"
                  style="padding: 10px; position: absolute; z-index: 100; overflow: hidden">
               <div class="imgflip_toolbar b_darkergray"
                    style="display: flex; width: fit-content; align-items: center; padding: 5px;
@@ -701,7 +696,6 @@
                       bottom: 0;
                       padding-bottom: 20px;
                       flex-direction: column-reverse"
-                 class="bg-neutral-900"
                  v-if="overlayType === 'msg'">
               <button class="c_lightgray text-center scroll_to_bottom orange-hover"
                       id="scroll_to_bottom"
@@ -740,7 +734,7 @@
                 </template>
               </div>
               <textarea id="new_comment"
-                        class="new_comment b_darkgray py-2 px-3"
+                        class="new_comment bg-zinc-600 py-2 px-3 placeholder-neutral-400"
                         type="text"
                         v-model="new_message"
                         maxlength="5000"
@@ -748,13 +742,14 @@
                         v-on:keyup="auto_grow"
                         v-on:click="hideAllSidebars"></textarea>
               <button id="send_image_button"
-                      class="message_button send_image_button b_darkgray hover:brightness-200 flex justify-center items-center"
+                      class="message_button send_image_button bg-zinc-600 hover:brightness-200
+                             flex justify-center items-center"
                       style="position: absolute; right: 50px; border-radius: 0"
                       title="Send Files"
                       v-on:click="toggleUploadingSnippet">
                 <DocumentArrowUpIcon class="text-neutral-300 h-6 w-6"></DocumentArrowUpIcon>
               </button>
-              <button class="message_button b_darkgray hover:brightness-200 flex justify-center items-center"
+              <button class="message_button bg-zinc-600 hover:brightness-200 flex justify-center items-center"
                       style="position: absolute; right: 10px; border-radius: 0 6px 6px 0"
                       title="Search on GIPHY"
                       v-on:click="toggleSelectingGIF">
@@ -765,14 +760,14 @@
         </template>
         <template v-else-if="overlayType === 'knowledgefinder'"
                   class="h-[calc(100%-60px)] w-full translate-y-[60px] overflow-clip
-                         bg-neutral-900 lg:rounded-xl sm:border-[1px] sm:border-[rgba(174,174,183,0.25)]">
+                         bg-zinc-900 lg:rounded-xl sm:border-[1px] sm:border-[rgba(174,174,183,0.25)]">
           <knowledgefinder :isoverlay="true" :srcguid="getSession()"
                            @close="setOverlay('msg'); prepareInputField()"/>
         </template>
       </div>
       <!-- #### MEMBERS #### -->
       <div id="member_section" style="margin-top: 60px"
-           class="member_section">
+           class="member_section bg-zinc-600 bg-opacity-50 rounded-tl-lg border-l-2 border-l-zinc-900">
         <div style="width: 100%; height: 50px; display: flex; align-items: center">
         <span class="fw-bold member_count c_lightgray nopointer"
               style="padding-left: 20px">
@@ -795,7 +790,7 @@
             </i>
             <template v-if="usr.iurl != null">
               <img :src="getImg(usr.iurl, true)" alt="?"
-                   class="b_darkergray"
+                   class="bg-zinc-900"
                    style="width: 40px; height: 40px; border-radius: 100%;
                                 position: absolute; top: 4px; left: 6px">
             </template>
@@ -821,7 +816,7 @@
     </div>
   </div>
   <!-- #### USER PROFILE #### -->
-  <div class="user_profile bg-zinc-700 overflow-x-hidden overflow-y-auto"
+  <div class="user_profile overflow-x-hidden overflow-y-auto"
        v-show="isViewingUserProfile" @click.stop>
     <div style="position: relative; padding-top: 10px; height: 100%">
       <i class="bi bi-x-lg lead orange-hover"
@@ -831,7 +826,7 @@
         <i class="bi bi-person-circle" style="font-size: 400%; margin-right: 15px"></i>
         <template v-if="viewedUserProfile.iurl != null">
           <img :src="getImg(viewedUserProfile.iurl, true)" alt="?"
-               class="b_darkergray"
+               class="bg-zinc-900"
                style="width: 75px; height: 75px; border-radius: 100%;
                                 position: absolute; top: 20px; left: -4px">
         </template>
@@ -1145,7 +1140,7 @@
     </template>
   </modal>
   <!-- #### File Upload (SnippetBase) #### -->
-  <div class="session_settings bg-zinc-800 shadow" style="overflow-x: hidden; overflow-y: auto"
+  <div class="session_settings shadow" style="overflow-x: hidden; overflow-y: auto"
        v-show="isUploadingSnippet" @click.stop>
     <div style="position: relative; padding-top: 10px; width: 100%">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
@@ -1316,7 +1311,15 @@ import 'highlight.js/styles/base16/google-dark.css'
 import * as QRCode from 'easyqrcodejs'
 // Icons
 import { ChartBarIcon, EyeIcon, GifIcon, PhoneIcon, QrCodeIcon, VideoCameraIcon } from '@heroicons/vue/24/solid'
-import { BookOpenIcon, DocumentArrowUpIcon, TrophyIcon, ViewColumnsIcon } from '@heroicons/vue/24/outline'
+import {
+  BookOpenIcon,
+  DocumentArrowUpIcon,
+  HashtagIcon,
+  HomeIcon,
+  TrophyIcon,
+  ViewColumnsIcon,
+  WindowIcon
+} from '@heroicons/vue/24/outline'
 
 export default {
   props: {
@@ -1336,7 +1339,10 @@ export default {
     TrophyIcon,
     BookOpenIcon,
     ChartBarIcon,
-    EyeIcon
+    EyeIcon,
+    HashtagIcon,
+    WindowIcon,
+    HomeIcon
   },
   data () {
     return {
@@ -2048,11 +2054,9 @@ export default {
       const messagesSection = document.getElementById('messages_section')
       if (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam') {
         messagesSection.style.width = '350px'
-        messagesSection.style.borderRight = '2px solid rgba(174, 174, 183, 0.25)'
         this.mediaMaxWidth = '260px'
       } else {
         messagesSection.style.width = 'initial'
-        messagesSection.style.borderRight = 'initial'
         this.mediaMaxWidth = '300px'
       }
       document.title = this.chatroom.t
@@ -3595,8 +3599,9 @@ export default {
     enterCinemaMode: function () {
       const chat = document.getElementById('chat_section')
       chat.style.position = 'fixed'
-      chat.style.top = '0'
+      chat.style.top = '0px'
       chat.style.left = '0'
+      chat.style.height = '100vh'
       chat.style.zIndex = '9999'
       const sidebar = document.getElementById('sidebar')
       sidebar.style.display = 'none'
@@ -3604,12 +3609,15 @@ export default {
       sidebar2.style.display = 'none'
       const members = document.getElementById('member_section')
       members.style.display = 'none'
+      const nav = document.getElementById('global_nav')
+      nav.style.display = 'none'
     },
     exitCinemaMode: function () {
       const chat = document.getElementById('chat_section')
       chat.style.position = 'initial'
       chat.style.top = 'initial'
       chat.style.left = 'initial'
+      chat.style.height = 'initial'
       chat.style.zIndex = 'initial'
       const sidebar = document.getElementById('sidebar')
       sidebar.style.display = 'initial'
@@ -3617,6 +3625,8 @@ export default {
       sidebar2.style.display = 'initial'
       const members = document.getElementById('member_section')
       members.style.display = 'initial'
+      const nav = document.getElementById('global_nav')
+      nav.style.display = 'initial'
     },
     startTimeCounter: function () {
       const now = Math.floor(Date.now() / 1000)
@@ -4202,8 +4212,8 @@ export default {
 }
 
 .user_badge:hover {
-  transition: 0.1s ease;
-  @apply text-white cursor-pointer rounded-xl bg-neutral-300 bg-opacity-20;
+  transition: 0.1s ease-in-out;
+  @apply text-white cursor-pointer rounded-xl bg-zinc-500 bg-opacity-50;
 }
 
 .tooltip-mock-destination.show {
@@ -4239,7 +4249,7 @@ export default {
 
 .gray-hover:hover,
 .active_gray {
-  @apply bg-gray-800 rounded-md;
+  @apply bg-zinc-600 rounded-md;
   cursor: pointer;
 }
 
@@ -4263,14 +4273,14 @@ export default {
   position: fixed;
   z-index: 1001;
   bottom: 80px;
-  right: 16px;
+  right: 12px;
   color: white;
-  max-width: calc(100vw - 32px);
+  max-width: calc(100vw - 24px);
   width: 400px;
   max-height: calc(100% - 200px);
   height: 100%;
   padding: 5px 20px;
-  @apply rounded-lg;
+  @apply rounded-lg bg-zinc-700;
 }
 
 .user_role {
@@ -4285,13 +4295,8 @@ export default {
 .serverMessage {
   text-wrap: normal;
   word-wrap: break-word;
-  padding: 8px;
-  @apply bg-slate-700;
-  border-radius: 20px;
+  @apply bg-zinc-500 rounded-r-lg rounded-bl-lg p-4 my-2 font-bold text-xl text-neutral-200;
   text-align: center;
-  color: #aeaeb7;
-  font-weight: bold;
-  width: 100%;
 }
 
 .header-margin {
@@ -4423,10 +4428,6 @@ export default {
   pointer-events: none;
 }
 
-.darkergray-on-small {
-  @apply bg-none;
-}
-
 .sb_link:hover .sidebar_tooltip,
 .channel_link:hover .channel_tooltip {
   opacity: 1;
@@ -4451,7 +4452,7 @@ export default {
   }
 
   .darkergray-on-small {
-    @apply bg-neutral-900 border-r-neutral-700;
+    @apply bg-zinc-900 border-r-neutral-700;
   }
 
   .darkergray-on-small.active {
@@ -4570,32 +4571,33 @@ export default {
 }
 
 .chat_header {
-  width: 100%;
   height: 50px;
-  box-shadow: 0 20px 10px -15px #111;
+  box-shadow: 0 20px 10px -15px rgb(51, 51, 56);
   font-weight: bold;
   font-size: 125%;
   color: white;
-  padding-left: 10px;
   display: flex;
   z-index: 10;
   position: relative;
-  @apply border-b-[1px] border-neutral-800;
+  @apply w-full border-b-2 border-b-zinc-800 pl-2;
   align-items: center;
 }
 
 .subchat {
   display: flex;
   align-items: center;
-  margin-left: 10px;
-  padding-left: 5px;
-  width: 90%;
-  border-radius: 10px;
   cursor: pointer;
+  width: 100%;
+  height: 36px;
+  @apply px-2 rounded;
+}
+
+.subchat:hover {
+  @apply bg-zinc-500 bg-opacity-50;
 }
 
 .subchat.active {
-  @apply bg-slate-700
+  @apply bg-zinc-500 bg-opacity-75;
 }
 
 .subchat.active span {
@@ -4615,12 +4617,12 @@ export default {
 }
 
 .message {
-  color: white;
   padding: 2px 25px 2px 15px;
+  @apply text-neutral-200;
 }
 
 .message:hover {
-  background-color: rgba(38, 38, 38, 0.2);
+  @apply bg-zinc-800 bg-opacity-25;
 }
 
 .msg_options {
@@ -4654,9 +4656,9 @@ export default {
 .clientMessage {
   word-wrap: break-word;
   position: relative;
-  width: calc(100% - 42px);
+  max-width: calc(100% - 42px);
   margin: 0 !important;
-  @apply text-neutral-300;
+  @apply text-neutral-200 rounded-r-lg rounded-bl-lg px-2 py-0.5 bg-zinc-600 bg-opacity-50;
 }
 
 .send_image_button.active {
@@ -4701,7 +4703,7 @@ export default {
 
 .user_tagger,
 .imgflip_selector {
-  @apply rounded-md p-0;
+  @apply rounded-md p-0 bg-zinc-800;
   position: absolute;
   bottom: 80px;
   left: 10px;
@@ -4841,6 +4843,10 @@ export default {
 
 .clientMessage h5 {
   @apply text-lg mb-2;
+}
+
+.clientMessage img {
+  @apply my-1;
 }
 
 .headerline {
