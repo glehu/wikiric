@@ -166,7 +166,7 @@
             <template v-if="related.tasks">
               <Disclosure v-slot="{ open }">
                 <DisclosureButton
-                  class="my-2 flex w-full justify-between rounded-lg px-2 py-1 bg-zinc-800 hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-neutral-500 focus-visible:ring-opacity-75"
+                  class="my-2 flex w-full justify-between rounded-lg px-2 py-1 bg-zinc-700 hover:bg-zinc-600 focus:outline-none focus-visible:ring focus-visible:ring-neutral-500 focus-visible:ring-opacity-75"
                 >
                   <div class="text-neutral-400 text-sm flex justify-between w-full">
                     <div>Related Tasks</div>
@@ -186,7 +186,7 @@
                   leave-to-class="transform scale-95 opacity-0"
                 >
                   <DisclosurePanel>
-                    <div class="w-full grid gap-y-3 gap-x-2 grid-cols-2 xl:grid-cols-3 bg-zinc-800 rounded p-2">
+                    <div class="w-full grid gap-y-3 gap-x-2 grid-cols-2 xl:grid-cols-3 bg-zinc-700 rounded p-2">
                       <div v-for="task in related.tasks" :key="task.uID"
                            v-on:click="fetchData(task.gUID)"
                            class="bg-zinc-900 p-2 text-neutral-400 w-full rounded cursor-pointer hover:brightness-125 relative">
@@ -214,7 +214,7 @@
             <template v-if="relatedSearch">
               <Disclosure v-slot="{ open }">
                 <DisclosureButton
-                  class="my-2 flex w-full justify-between rounded-lg px-2 py-1 bg-zinc-800 hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-neutral-500 focus-visible:ring-opacity-75"
+                  class="my-2 flex w-full justify-between rounded-lg px-2 py-1 bg-zinc-700 hover:bg-zinc-600 focus:outline-none focus-visible:ring focus-visible:ring-neutral-500 focus-visible:ring-opacity-75"
                 >
                   <div class="text-neutral-400 text-sm flex justify-between w-full">
                     <div>Related Entries</div>
@@ -234,7 +234,7 @@
                   leave-to-class="transform scale-95 opacity-0"
                 >
                   <DisclosurePanel>
-                    <div class="w-full grid gap-y-3 gap-x-2 grid-cols-2 xl:grid-cols-3 bg-zinc-800 rounded p-2">
+                    <div class="w-full grid gap-y-3 gap-x-2 grid-cols-2 xl:grid-cols-3 bg-zinc-700 rounded p-2">
                       <div v-for="task in relatedSearch" :key="task.uID"
                            v-on:click="fetchData(task.result.gUID)"
                            class="bg-zinc-900 p-2 text-neutral-400 w-full rounded cursor-pointer hover:brightness-125 relative">
@@ -347,17 +347,16 @@
                 </div>
               </div>
               <textarea type="text" id="input_comment" v-model="wisComment" rows="1"
-                        class="w-[calc(100%-50px)] border-b border-neutral-500 text-neutral-300 bg-neutral-600 bg-opacity-20 focus:outline-none px-2 py-1"
-                        v-on:keyup="auto_grow">
-            </textarea>
+                        class="w-[calc(100%-50px)] border-b border-zinc-500 text-neutral-300 bg-zinc-900 focus:outline-none px-2 py-1"
+                        v-on:keyup="auto_grow"></textarea>
             </div>
             <label for="input_comment"
-                   class="text-neutral-600">
+                   class="text-neutral-500">
               Write a comment
             </label>
             <template v-if="related.comments == null">
               <div class="flex w-full items-center justify-content-center py-4">
-                <div class="w-full text-neutral-600 pointer-events-none">
+                <div class="w-full text-neutral-500 pointer-events-none">
                   <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
                   <p class="text-md font-bold italic w-fit mx-auto">No Comments</p>
                 </div>

@@ -95,10 +95,10 @@
                   <div class="flex w-full overflow-x-auto pt-1 mb-2">
                     <div v-for="author in topWriters.contributors" :key="author.username"
                          class="mr-4 text-neutral-400 shadow shadow-black rounded-xl">
-                      <div class="bg-zinc-800 rounded-t-xl py-2 px-3 pointer-events-none">
+                      <div class="bg-zinc-700 rounded-t-xl py-2 px-3 pointer-events-none">
                         <p class="text-xl">{{ author.username }}</p>
                       </div>
-                      <div class="bg-slate-700 rounded-b-xl py-1 px-3 pointer-events-none">
+                      <div class="bg-zinc-900 rounded-b-xl py-1 px-3 pointer-events-none">
                         <div class="flex items-center">
                           <BookOpenIcon class="h-6 w-6 mr-2"></BookOpenIcon>
                           <p class="text-xl">{{ author.lessons }}</p>

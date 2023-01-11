@@ -82,13 +82,13 @@
       </div>
       <div id="sidebar2"
            style="margin-top: 60px" v-show="canShowSidebar"
-           class="sidebar2 bg-zinc-700 lg:rounded-tl">
+           class="sidebar2 bg-zinc-600 lg:rounded-tl">
         <div class="h-full relative">
           <!-- #### SUBCHATS #### -->
           <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden"
                class="c_lightgray px-2">
             <div style="height: 50px; align-items: center; display: flex">
-              <div :id="getSession() + '_subc'" class="subchat bg-zinc-800 bg-opacity-75"
+              <div :id="getSession() + '_subc'" class="subchat bg-zinc-800"
                    v-on:click="gotoSubchat(getSession(), false)">
                 <i v-show="hasUnread(getSession())" :id="getSession() + '_notify'"
                    class="bi bi-chat-quote-fill relative left-0 z-[500] text-orange-500"></i>
@@ -160,9 +160,9 @@
         <template v-if="overlayType === 'msg'">
           <div id="chat_section"
                class="chat_section w-full h-full overflow-clip
-                      bg-zinc-600 bg-opacity-50 rounded-tl-lg lg:rounded-tl-none lg:rounded-tr-lg border-r-zinc-900 border-r-2">
+                      bg-zinc-600 rounded-tl-lg lg:rounded-tl-none lg:rounded-tr-lg border-r-zinc-900 border-r-2">
             <!-- #### CHAT HEADER #### -->
-            <div class="chat_header">
+            <div class="chat_header bg-zinc-600">
               <div
                 style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%; align-items: center">
                 <div style="margin-left: 10px"
@@ -301,276 +301,280 @@
               </div>
             </div>
             <!-- #### MESSAGES #### -->
-            <div id="messages_section"
-                 class="messages_section relative flex h-[calc(100%-132px)] overflow-y-auto overflow-x-hidden"
-                 style="flex-direction: column-reverse">
-              <div id="init_loading" style="display: none">
-                <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
-                <span class="ms-2 fw-bold c_lightgray">Initializing...</span>
-              </div>
-              <div id="loading" style="display: none">
-                <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
-                <span class="ms-2 fw-bold c_lightgray">Connecting...</span>
-              </div>
-              <template v-for="msg in messages" :key="msg.gUID">
-                <div class="message" :id="msg.gUID">
-                  <template v-if="msg.separator === true">
-                    <div class="headerline pointer-events-none text-neutral-500">
-                      <span class="text-xs">{{ getHumanReadableDateText(msg.time) }}</span>
-                    </div>
-                  </template>
-                  <!-- Chat Avatar and Date -->
-                  <template v-if="msg.header === true">
-                    <div style="position: relative;
+            <div class="h-[calc(100%-130px)] max-h-[calc(100%-130px)] overflow-hidden
+                        bg-zinc-800 lg:rounded-tl-lg">
+              <div id="messages_section"
+                   class="messages_section relative flex h-full
+                        overflow-y-auto overflow-x-hidden"
+                   style="flex-direction: column-reverse">
+                <div id="init_loading" style="display: none">
+                  <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
+                  <span class="ms-2 fw-bold c_lightgray">Initializing...</span>
+                </div>
+                <div id="loading" style="display: none">
+                  <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
+                  <span class="ms-2 fw-bold c_lightgray">Connecting...</span>
+                </div>
+                <template v-for="msg in messages" :key="msg.gUID">
+                  <div class="message" :id="msg.gUID">
+                    <template v-if="msg.separator === true">
+                      <div class="headerline pointer-events-none text-neutral-500">
+                        <span class="text-xs">{{ getHumanReadableDateText(msg.time) }}</span>
+                      </div>
+                    </template>
+                    <!-- Chat Avatar and Date -->
+                    <template v-if="msg.header === true">
+                      <div style="position: relative;
                             display: flex;
                             height: 30px;
                             align-items: center"
-                         class="mt-2">
-                      <i v-if="msg.src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
-                      <i v-else class="sender_avatar bi bi-person-circle"></i>
-                      <template v-if="msg.iurl !== ''">
-                        <img :src="getImg(msg.iurl, true)" alt="?"
-                             class="bg-zinc-900"
-                             style="width: 42px; height: 42px; border-radius: 100%;
+                           class="mt-2">
+                        <i v-if="msg.src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
+                        <i v-else class="sender_avatar bi bi-person-circle"></i>
+                        <template v-if="msg.iurl !== ''">
+                          <img :src="getImg(msg.iurl, true)" alt="?"
+                               class="bg-zinc-900"
+                               style="width: 42px; height: 42px; border-radius: 100%;
                                     position: absolute; top: 8px; left: -7px">
-                      </template>
-                      <span class="orange-hover text-neutral-200"
-                            style="font-weight: bold"
-                            @click.stop="showUserProfileFromName(msg.src)">
+                        </template>
+                        <span class="orange-hover text-neutral-200"
+                              style="font-weight: bold"
+                              @click.stop="showUserProfileFromName(msg.src)">
                     {{ msg.src }}
                   </span>
-                      <div style="color: gray; font-size: 80%; padding-left: 10px">
+                        <div style="color: gray; font-size: 80%; padding-left: 10px">
                     <span style="pointer-events: none">
                       {{ getHumanReadableDateText(msg.time, true) }}
                     </span>
-                        <template v-if="msg.isEncrypted === true">
-                          <i v-if="msg.decryptionFailed === false" class="bi bi-shield-lock ms-1"
-                             title="Decrypted Message"></i>
-                          <i v-else class="bi bi-exclamation-triangle-fill ms-1"
-                             title="Decryption Error Occurred"></i>
-                        </template>
-                        <template v-if="msg.tagActive === true">
-                          <i class="bi bi-at ms-1 c_orange" title="You got tagged!"></i>
-                        </template>
-                        <template v-if="msg.apiResponse === true">
-                          <i class="bi bi-gear ms-1 c_orange" title="API Response"></i>
-                          <span style="pointer-events: none" class="ms-1">
+                          <template v-if="msg.isEncrypted === true">
+                            <i v-if="msg.decryptionFailed === false" class="bi bi-shield-lock ms-1"
+                               title="Decrypted Message"></i>
+                            <i v-else class="bi bi-exclamation-triangle-fill ms-1"
+                               title="Decryption Error Occurred"></i>
+                          </template>
+                          <template v-if="msg.tagActive === true">
+                            <i class="bi bi-at ms-1 c_orange" title="You got tagged!"></i>
+                          </template>
+                          <template v-if="msg.apiResponse === true">
+                            <i class="bi bi-gear ms-1 c_orange" title="API Response"></i>
+                            <span style="pointer-events: none" class="ms-1">
                           {{ msg.mType }}
                         </span>
-                        </template>
-                        <template v-if="msg.mType === 'Task'">
-                          <div class="ms-1 translate-y-1 c_orange h-4 w-4 inline-flex items-center justify-center"
-                               title="Planner Task">
-                            <ViewColumnsIcon class="h-full w-full"/>
+                          </template>
+                          <template v-if="msg.mType === 'Task'">
+                            <div class="ms-1 translate-y-1 c_orange h-4 w-4 inline-flex items-center justify-center"
+                                 title="Planner Task">
+                              <ViewColumnsIcon class="h-full w-full"/>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+                    </template>
+                    <div class="message_body" style="width: 100%; display: flex; position: relative">
+                      <div style="min-width: 42px; max-width: 42px">
+                        <template v-if="msg.header === false">
+                          <div class="msg_time" style="pointer-events: none">
+                            {{ msg.time.toLocaleTimeString('de-DE').substring(0, 5).replace(' ', '&nbsp;') }}
                           </div>
                         </template>
                       </div>
-                    </div>
-                  </template>
-                  <div class="message_body" style="width: 100%; display: flex; position: relative">
-                    <div style="min-width: 42px; max-width: 42px">
-                      <template v-if="msg.header === false">
-                        <div class="msg_time" style="pointer-events: none">
-                          {{ msg.time.toLocaleTimeString('de-DE').substring(0, 5).replace(' ', '&nbsp;') }}
+                      <template v-if="msg.tagActive === true">
+                        <div style="position: absolute; height: 100%; width: 5px; left: -15px;
+                       border-radius: 5px; z-index: 5; box-shadow: 0 0 15px 0 #ff5d37"
+                             class="b_orange">
                         </div>
                       </template>
-                    </div>
-                    <template v-if="msg.tagActive === true">
-                      <div style="position: absolute; height: 100%; width: 5px; left: -15px;
-                       border-radius: 5px; z-index: 5; box-shadow: 0 0 15px 0 #ff5d37"
-                           class="b_orange">
-                      </div>
-                    </template>
-                    <!-- #### MESSAGE OPTIONS #### -->
-                    <div v-if="msg.mType !== 'CryptError' && !msg.src.startsWith('_server')" class="msg_options">
-                      <div class="bg-zinc-800 rounded mr-1">
-                        <button title="Reply" class="btn btn-sm text-neutral-400 orange-hover"
-                                v-on:click="replyToMessage(msg)">
-                          <i class="bi bi-reply-fill"></i>
-                        </button>
-                        <template v-if="msg.editable === true">
-                          <button title="Edit" class="btn btn-sm text-neutral-400 orange-hover"
-                                  v-on:click="editMessage(msg)">
-                            <i class="bi bi-pencil-fill"></i>
+                      <!-- #### MESSAGE OPTIONS #### -->
+                      <div v-if="msg.mType !== 'CryptError' && !msg.src.startsWith('_server')" class="msg_options">
+                        <div class="bg-zinc-900 rounded mr-1">
+                          <button title="Reply" class="btn btn-sm text-neutral-400 orange-hover"
+                                  v-on:click="replyToMessage(msg)">
+                            <i class="bi bi-reply-fill"></i>
                           </button>
-                          <button title="Remove" class="btn btn-sm text-neutral-400 orange-hover"
-                                  v-on:click="editMessage(msg, true)">
-                            <i class="bi bi-trash-fill"></i>
+                          <template v-if="msg.editable === true">
+                            <button title="Edit" class="btn btn-sm text-neutral-400 orange-hover"
+                                    v-on:click="editMessage(msg)">
+                              <i class="bi bi-pencil-fill"></i>
+                            </button>
+                            <button title="Remove" class="btn btn-sm text-neutral-400 orange-hover"
+                                    v-on:click="editMessage(msg, true)">
+                              <i class="bi bi-trash-fill"></i>
+                            </button>
+                          </template>
+                        </div>
+                        <div class="bg-zinc-900 rounded mr-1">
+                          <button title="Upvote" class="btn btn-sm text-neutral-400 orange-hover"
+                                  v-on:click="reactToMessage(msg, '+')">
+                            <i class="bi bi-hand-thumbs-up"></i>
                           </button>
-                        </template>
+                          <button title="Downvote" class="btn btn-sm text-neutral-400 orange-hover"
+                                  v-on:click="reactToMessage(msg, '-')">
+                            <i class="bi bi-hand-thumbs-down"></i>
+                          </button>
+                        </div>
+                        <div class="bg-zinc-900 rounded mr-1">
+                          <button title="Awesome!" class="btn btn-sm text-neutral-400 orange-hover"
+                                  v-on:click="reactToMessage(msg, '⭐')">
+                            <i class="bi bi-star-fill"></i>
+                          </button>
+                        </div>
                       </div>
-                      <div class="bg-zinc-800 rounded mr-1">
-                        <button title="Upvote" class="btn btn-sm text-neutral-400 orange-hover"
-                                v-on:click="reactToMessage(msg, '+')">
-                          <i class="bi bi-hand-thumbs-up"></i>
-                        </button>
-                        <button title="Downvote" class="btn btn-sm text-neutral-400 orange-hover"
-                                v-on:click="reactToMessage(msg, '-')">
-                          <i class="bi bi-hand-thumbs-down"></i>
-                        </button>
-                      </div>
-                      <div class="bg-zinc-800 rounded mr-1">
-                        <button title="Awesome!" class="btn btn-sm text-neutral-400 orange-hover"
-                                v-on:click="reactToMessage(msg, '⭐')">
-                          <i class="bi bi-star-fill"></i>
-                        </button>
-                      </div>
-                    </div>
-                    <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
-                    <template v-if="msg.mType === 'RegistrationNotification'">
-                      <div class="serverMessage">
-                        {{ msg.msg.trim() }}
-                      </div>
-                    </template>
-                    <template v-else-if="msg.mType === 'CryptError'">
-                      <div class="serverMessage">
-                        {{ msg.msg.trim() }}
-                      </div>
-                    </template>
-                    <template v-else-if="msg.mType === 'Leaderboard'">
-                      <div class="serverMessage" style="height: fit-content">
-                        <h4 style="font-weight: normal; border-radius: 15px; padding: 5px; margin-bottom: 10px"
-                            class="b_darkergray nopointer">
-                          <i class="bi bi-award"></i>
-                          Leaderboard
-                          <i class="bi bi-award"></i>
-                        </h4>
-                        <table class="table-borderless leaderboard-table text-start"
-                               style="width: 100%; height: 100%; padding: 5px">
-                          <tr style="pointer-events: none;
+                      <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
+                      <template v-if="msg.mType === 'RegistrationNotification'">
+                        <div class="serverMessage">
+                          {{ msg.msg.trim() }}
+                        </div>
+                      </template>
+                      <template v-else-if="msg.mType === 'CryptError'">
+                        <div class="serverMessage">
+                          {{ msg.msg.trim() }}
+                        </div>
+                      </template>
+                      <template v-else-if="msg.mType === 'Leaderboard'">
+                        <div class="serverMessage" style="height: fit-content">
+                          <h4 style="font-weight: normal; border-radius: 15px; padding: 5px; margin-bottom: 10px"
+                              class="b_darkergray nopointer">
+                            <i class="bi bi-award"></i>
+                            Leaderboard
+                            <i class="bi bi-award"></i>
+                          </h4>
+                          <table class="table-borderless leaderboard-table text-start"
+                                 style="width: 100%; height: 100%; padding: 5px">
+                            <tr style="pointer-events: none;
                                  height: 2ch;
                                  border-bottom: 1px solid #7e7d7d">
-                            <th>Username</th>
-                            <th>Messages</th>
-                            <th>Rating</th>
-                          </tr>
-                          <tr v-for="member in JSON.parse(msg.msg)" :key="member"
-                              style="font-weight: normal">
-                            <td>{{ member.username }}</td>
-                            <td>{{ member.messages }}</td>
-                            <td>{{ member.totalRating }}</td>
-                          </tr>
-                        </table>
-                        <div style="font-size: 75%; margin: 20px 10px 10px 10px;
+                              <th>Username</th>
+                              <th>Messages</th>
+                              <th>Rating</th>
+                            </tr>
+                            <tr v-for="member in JSON.parse(msg.msg)" :key="member"
+                                style="font-weight: normal">
+                              <td>{{ member.username }}</td>
+                              <td>{{ member.messages }}</td>
+                              <td>{{ member.totalRating }}</td>
+                            </tr>
+                          </table>
+                          <div style="font-size: 75%; margin: 20px 10px 10px 10px;
                                 font-style: italic; opacity: 0.5"
-                             class="nopointer">
-                          - Thank you for participating -
+                               class="nopointer">
+                            - Thank you for participating -
+                          </div>
                         </div>
-                      </div>
-                    </template>
-                    <!-- #### CLIENT GIF MESSAGE #### -->
-                    <template v-else-if="msg.mType === 'GIF'">
-                      <div class="clientMessage">
-                        <img :src="msg.msgURL"
-                             :alt="msg.msg"
-                             :style="{maxWidth: mediaMaxWidth}">
-                        <br>
-                        <div>
-                          <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png"
-                               alt="Powered By GIPHY"
-                               style="width: 100px"/>
+                      </template>
+                      <!-- #### CLIENT GIF MESSAGE #### -->
+                      <template v-else-if="msg.mType === 'GIF'">
+                        <div class="clientMessage">
+                          <img :src="msg.msgURL"
+                               :alt="msg.msg"
+                               :style="{maxWidth: mediaMaxWidth}">
+                          <br>
+                          <div>
+                            <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png"
+                                 alt="Powered By GIPHY"
+                                 style="width: 100px"/>
+                          </div>
                         </div>
-                      </div>
-                    </template>
-                    <!-- #### CLIENT IMAGE (SnippetBase) #### -->
-                    <template v-else-if="msg.mType === 'Image'">
-                      <div class="clientMessage">
-                        <img :src="msg.msgURL"
-                             :alt="msg.msg"
-                             style="cursor: zoom-in"
-                             :style="{maxWidth: mediaMaxWidth}"
-                             v-on:click="openURL(msg.msgURL)">
-                      </div>
-                    </template>
-                    <!-- #### CLIENT AUDIO (SnippetBase) #### -->
-                    <template v-else-if="msg.mType === 'Audio'">
-                      <div class="clientMessage">
-                        <audio controls preload="auto"
-                               class="uploadFileSnippet">
-                          <source :src="msg.msg">
-                          Your browser does not support playing audio.
-                        </audio>
-                      </div>
-                    </template>
-                    <!-- #### CLIENT MESSAGE #### -->
-                    <template v-else-if="msg.mType === 'Joke'">
-                      <p class="clientMessage">
-                        {{ msg.msg }}
-                      </p>
-                    </template>
-                    <template v-else-if="msg.mType === 'Task'">
-                      <taskcontainer :message="msg.msg"
-                                     class="clientMessage"/>
-                    </template>
-                    <template v-else-if="msg.mType === 'Reply'">
-                      <div class="w-full h-full">
-                        <div class="mb-3 mt-2 pl-2 text-neutral-400 border-l-4 border-l-slate-700">
-                          <p class="mb-2 text-sm">
-                            Reply to {{ msg.source.src }}:
-                          </p>
-                          <Markdown :id="'rsr_' + msg.gUID"
-                                    class="py-1 px-2 w-fit mb-1"
-                                    :source="msg.source.msg"
+                      </template>
+                      <!-- #### CLIENT IMAGE (SnippetBase) #### -->
+                      <template v-else-if="msg.mType === 'Image'">
+                        <div class="clientMessage">
+                          <img :src="msg.msgURL"
+                               :alt="msg.msg"
+                               style="cursor: zoom-in"
+                               :style="{maxWidth: mediaMaxWidth}"
+                               v-on:click="openURL(msg.msgURL)">
+                        </div>
+                      </template>
+                      <!-- #### CLIENT AUDIO (SnippetBase) #### -->
+                      <template v-else-if="msg.mType === 'Audio'">
+                        <div class="clientMessage">
+                          <audio controls preload="auto"
+                                 class="uploadFileSnippet">
+                            <source :src="msg.msg">
+                            Your browser does not support playing audio.
+                          </audio>
+                        </div>
+                      </template>
+                      <!-- #### CLIENT MESSAGE #### -->
+                      <template v-else-if="msg.mType === 'Joke'">
+                        <p class="clientMessage">
+                          {{ msg.msg }}
+                        </p>
+                      </template>
+                      <template v-else-if="msg.mType === 'Task'">
+                        <taskcontainer :message="msg.msg"
+                                       class="clientMessage"/>
+                      </template>
+                      <template v-else-if="msg.mType === 'Reply'">
+                        <div class="w-full h-full">
+                          <div class="mb-3 mt-2 pl-2 text-neutral-400 border-l-4 border-l-slate-700">
+                            <p class="mb-2 text-sm">
+                              Reply to {{ msg.source.src }}:
+                            </p>
+                            <Markdown :id="'rsr_' + msg.gUID"
+                                      class="py-1 px-2 w-fit mb-1"
+                                      :source="msg.source.msg"
+                                      :breaks="true"
+                                      :plugins="plugins"
+                                      :style="{maxWidth: mediaMaxWidth}"/>
+                            <p class="text-xs text-neutral-500">
+                              {{ getHumanReadableDateText(new Date(msg.source.time), true) }}
+                            </p>
+                          </div>
+                          <Markdown :id="'msg_' + msg.gUID"
+                                    class="clientMessage"
+                                    :source="msg.msg"
                                     :breaks="true"
-                                    :plugins="plugins"
-                                    :style="{maxWidth: mediaMaxWidth}"/>
-                          <p class="text-xs text-neutral-500">
-                            {{ getHumanReadableDateText(new Date(msg.source.time), true) }}
-                          </p>
+                                    :plugins="plugins"/>
                         </div>
+                      </template>
+                      <!-- #### CLIENT MESSAGE #### -->
+                      <template v-else>
                         <Markdown :id="'msg_' + msg.gUID"
                                   class="clientMessage"
                                   :source="msg.msg"
                                   :breaks="true"
                                   :plugins="plugins"/>
-                      </div>
-                    </template>
-                    <!-- #### CLIENT MESSAGE #### -->
-                    <template v-else>
-                      <Markdown :id="'msg_' + msg.gUID"
-                                class="clientMessage"
-                                :source="msg.msg"
-                                :breaks="true"
-                                :plugins="plugins"/>
-                    </template>
-                  </div>
-                  <div v-if="msg.reacts.length > 0"
-                       style="display: flex; margin: 10px 0 0 42px">
-                    <div v-for="reaction in msg.reacts" :key="reaction.src"
-                         style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                         class="b_darkgray c_lightgray gray-hover"
-                         :title="reaction.src.toString() + ' reacted to this message.'"
-                         v-on:click="reactToMessage(msg, reaction.t)"
-                         :id="'react_' + msg.gUID + '_' + reaction.t">
-                      <i v-if="reaction.t === '+'"
-                         class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
-                      <i v-else-if="reaction.t === '-'"
-                         class="bi bi-hand-thumbs-down" style="margin-right: 2px"></i>
-                      <span v-else> {{ reaction.t }} </span>
-                      {{ reaction.src.length }}
+                      </template>
                     </div>
-                  </div>
-                  <div :id="'edit_' + msg.gUID" class="hidden w-full justify-center">
-                    <div class="text-sm p-2 bg-neutral-900 rounded mt-2 mb-1 text-center flex items-center">
-                      <div class="ml-2 mr-4 text-neutral-400 pointer-events-none">
-                        <template v-if="isEditingMessage">Edit</template>
-                        <template v-else-if="isReplyingToMessage">Reply</template>
+                    <div v-if="msg.reacts.length > 0"
+                         style="display: flex; margin: 10px 0 0 42px">
+                      <div v-for="reaction in msg.reacts" :key="reaction.src"
+                           style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
+                           class="b_darkgray c_lightgray gray-hover"
+                           :title="reaction.src.toString() + ' reacted to this message.'"
+                           v-on:click="reactToMessage(msg, reaction.t)"
+                           :id="'react_' + msg.gUID + '_' + reaction.t">
+                        <i v-if="reaction.t === '+'"
+                           class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
+                        <i v-else-if="reaction.t === '-'"
+                           class="bi bi-hand-thumbs-down" style="margin-right: 2px"></i>
+                        <span v-else> {{ reaction.t }} </span>
+                        {{ reaction.src.length }}
                       </div>
-                      <div class="flex py-1 px-2 bg-blue-600 bg-opacity-20 rounded">
-                        <div v-on:click="this.addMessage()" class="text-white cursor-pointer mr-1 font-bold">
-                          [Enter]
+                    </div>
+                    <div :id="'edit_' + msg.gUID" class="hidden w-full justify-center">
+                      <div class="text-sm p-2 bg-neutral-900 rounded mt-2 mb-1 text-center flex items-center">
+                        <div class="ml-2 mr-4 text-neutral-400 pointer-events-none">
+                          <template v-if="isEditingMessage">Edit</template>
+                          <template v-else-if="isReplyingToMessage">Reply</template>
                         </div>
-                        <div class="mr-1 text-neutral-300 pointer-events-none">to save,</div>
-                        <div v-on:click="this.resetEditing(); this.resetReplying()"
-                             class="text-white cursor-pointer mr-1 font-bold">
-                          [Esc]
+                        <div class="flex py-1 px-2 bg-blue-600 bg-opacity-20 rounded">
+                          <div v-on:click="this.addMessage()" class="text-white cursor-pointer mr-1 font-bold">
+                            [Enter]
+                          </div>
+                          <div class="mr-1 text-neutral-300 pointer-events-none">to save,</div>
+                          <div v-on:click="this.resetEditing(); this.resetReplying()"
+                               class="text-white cursor-pointer mr-1 font-bold">
+                            [Esc]
+                          </div>
+                          <span class="text-neutral-300 pointer-events-none">to cancel.</span>
                         </div>
-                        <span class="text-neutral-300 pointer-events-none">to cancel.</span>
                       </div>
                     </div>
                   </div>
-                </div>
-              </template>
+                </template>
+              </div>
             </div>
             <div v-if="isTaggingUser"
                  class="user_tagger c_lightgray"
@@ -689,13 +693,14 @@
               </template>
             </div>
             <!-- #### USER INPUT FIELD #### -->
-            <div style="display: inline-flex;
-                      width: 100%;
-                      min-height: 80px;
-                      position: relative;
-                      bottom: 0;
-                      padding-bottom: 20px;
-                      flex-direction: column-reverse"
+            <div class="bg-zinc-800"
+                 style="display: inline-flex;
+                        width: 100%;
+                        min-height: 80px;
+                        position: relative;
+                        bottom: 0;
+                        padding-bottom: 20px;
+                        flex-direction: column-reverse"
                  v-if="overlayType === 'msg'">
               <button class="c_lightgray text-center scroll_to_bottom orange-hover"
                       id="scroll_to_bottom"
@@ -767,7 +772,7 @@
       </div>
       <!-- #### MEMBERS #### -->
       <div id="member_section" style="margin-top: 60px"
-           class="member_section bg-zinc-600 bg-opacity-50 rounded-tl-lg border-l-2 border-l-zinc-900">
+           class="member_section bg-zinc-700 rounded-tl-lg border-l-2 border-l-zinc-900">
         <div style="width: 100%; height: 50px; display: flex; align-items: center">
         <span class="fw-bold member_count c_lightgray nopointer"
               style="padding-left: 20px">
@@ -891,7 +896,7 @@
           <h4 class="fw-bold">Add a new Role</h4>
           <input id="new_role"
                  type="text"
-                 class="fw-bold b_darkergray mt-3 mb-1"
+                 class="fw-bold b_darkergray my-4"
                  style="height: 4ch; padding-left: 1ch; color: white; width: calc(100% - 1ch);
                         border: 1px solid white; border-radius: 10px"
                  v-model="new_role"
@@ -911,7 +916,7 @@
         <template v-else>
           <div class="w-full grid grid-cols-2 gap-3 mb-4">
             <div v-for="badge in this.viewedUserProfile.badges" :key="badge.handle"
-                 class="c_lightgray text-center rounded-xl border-2 border-zinc-600 py-1 px-2 hover:bg-zinc-800">
+                 class="c_lightgray text-center rounded-xl border-2 border-zinc-700 py-1 px-2 hover:bg-zinc-700">
               <div class="pointer-events-none">
                 <div v-if="badge.handle.startsWith('msg')"
                      style="font-size: 150%">
@@ -4280,7 +4285,7 @@ export default {
   max-height: calc(100% - 200px);
   height: 100%;
   padding: 5px 20px;
-  @apply rounded-lg bg-zinc-700;
+  @apply rounded-lg bg-zinc-600;
 }
 
 .user_role {
@@ -4295,7 +4300,7 @@ export default {
 .serverMessage {
   text-wrap: normal;
   word-wrap: break-word;
-  @apply bg-zinc-500 rounded-r-lg rounded-bl-lg p-4 my-2 font-bold text-xl text-neutral-200;
+  @apply bg-zinc-900 rounded-r-lg rounded-bl-lg p-3 my-2 text-lg font-bold italic text-neutral-300;
   text-align: center;
 }
 
@@ -4572,14 +4577,14 @@ export default {
 
 .chat_header {
   height: 50px;
-  box-shadow: 0 20px 10px -15px rgb(51, 51, 56);
+  box-shadow: 0 20px 10px -15px rgb(39 39 42);
   font-weight: bold;
   font-size: 125%;
   color: white;
   display: flex;
   z-index: 10;
   position: relative;
-  @apply w-full border-b-2 border-b-zinc-800 pl-2;
+  @apply w-full pl-2;
   align-items: center;
 }
 
@@ -4622,7 +4627,7 @@ export default {
 }
 
 .message:hover {
-  @apply bg-zinc-800 bg-opacity-25;
+  @apply bg-zinc-900 bg-opacity-25;
 }
 
 .msg_options {
@@ -4658,7 +4663,7 @@ export default {
   position: relative;
   max-width: calc(100% - 42px);
   margin: 0 !important;
-  @apply text-neutral-200 rounded-r-lg rounded-bl-lg px-2 py-0.5 bg-zinc-600 bg-opacity-50;
+  @apply text-neutral-200 rounded-r-lg rounded-bl-lg px-2 py-0.5 bg-zinc-700;
 }
 
 .send_image_button.active {
@@ -4876,7 +4881,7 @@ export default {
 }
 
 .user_profile_button {
-  @apply text-neutral-300 rounded bg-zinc-600 py-1 px-2 mr-1 hover:brightness-125;
+  @apply text-neutral-300 rounded bg-zinc-700 py-1 px-2 mr-1 hover:brightness-90;
 }
 
 </style>
