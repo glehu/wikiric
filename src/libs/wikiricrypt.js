@@ -1,13 +1,11 @@
 const Wikiricrypt = {
   decryptPayload: async function (encryptedMessageObj, userId, key) {
-    console.log(encryptedMessageObj)
     let decryptedMessage
     const encryptionPrefix = '[c:MSG<ENCR]'
     if (encryptedMessageObj.msg.startsWith(encryptionPrefix)) {
       encryptedMessageObj = JSON.parse(encryptedMessageObj.msg.substring(12))
       for (let i = 0; i < encryptedMessageObj.keys.length; i++) {
         const keyPair = encryptedMessageObj.keys[i]
-        console.log(keyPair.id, userId)
         if (keyPair.id === userId) {
           // Step 1: Decrypt the RSA encrypted AES key
           const decipherRSA = this.base64ToArrayBuffer(keyPair.key)

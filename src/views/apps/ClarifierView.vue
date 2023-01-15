@@ -3,41 +3,54 @@
        class="bg-zinc-900 w-screen h-full absolute overflow-x-hidden overflow-y-auto">
     <div class="wrapper pt-[80px] min-h-full w-full">
       <!-- Active Sessions -->
-      <div class="c-modal bg-zinc-700 rounded-tr-lg col-span-1 lg:col-span-2 xl:h-full">
+      <div class="bg-zinc-700 rounded-tr-lg col-span-1 lg:col-span-2 xl:h-full">
         <div class="row d-flex justify-content-center align-items-center xl:h-full">
           <div class="w-full xl:h-full">
-            <div class="card-subtitle text-white p-4 rounded-lg xl:w-full xl:h-full">
-              <div class="card-body mt-md-0 xl:flex lg:justify-between w-full xl:h-full lg:gap-x-8">
-                <div class="w-full xl:h-full bg-zinc-600 p-2 rounded mb-4">
+            <div class="text-white p-2 rounded-lg xl:w-full xl:h-full">
+              <div class="mt-md-0 xl:flex lg:justify-between w-full xl:h-full lg:gap-x-8">
+                <div class="w-full xl:h-full bg-zinc-800 p-2 rounded mb-4">
                   <div class="m-2">
                     <div class="pointer-events-none mb-4">
                       <div class="flex items-end justify-between">
-                        <h1 class="fw-bold text-uppercase text-3xl text-gray-300">
+                        <h1 class="fw-bold text-3xl text-gray-300">
                           Friends
                         </h1>
                       </div>
                     </div>
                   </div>
                   <!-- -->
-                  <div>
+                  <div class="m-2">
                     <div v-for="friend in friends" :key="friend"
                          v-on:click="joinActive(friend.chatroom.guid)"
-                         class="p-2 rounded bg-zinc-800 m-2 cursor-pointer hover:bg-zinc-900
-                                text-neutral-300 hover:text-white">
-                      <div class="font-bold">
-                        {{ getDirectChatroomName(friend.chatroom.directMessageUsername) }}
-                      </div>
-                      <div class="text-neutral-400">
-                        {{ friend.msg }}
+                         class="p-2 rounded cursor-pointer bg-zinc-700 hover:brightness-125
+                                text-neutral-300 hover:text-white w-full mb-2">
+                      <div class="flex w-full">
+                        <div v-show="hasUnread(friend.chatroom.guid)"
+                             class="flex items-center justify-center ml-2 mr-3">
+                          <i class="bi bi-chat-quote-fill z-[500] text-orange-500 text-lg"></i>
+                        </div>
+                        <div class="w-full">
+                          <div class="flex items-center w-full">
+                            <div class="font-bold">
+                              {{ getDirectChatroomName(friend.chatroom.directMessageUsername) }}
+                            </div>
+                            <div class="ml-auto text-sm">
+                              {{ getHumanReadableDateText(friend.ts) }}
+                            </div>
+                          </div>
+                          <div class="text-neutral-300">
+                            {{ friend.msg }}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="w-full">
-                  <div class="pointer-events-none mb-4">
+                <div class="w-full p-2">
+                  <div class="pointer-events-none mb-4 mt-2">
                     <div class="flex items-end justify-between">
-                      <h1 class="fw-bold text-uppercase text-3xl text-gray-300">
-                        Activity
+                      <h1 class="fw-bold text-3xl text-gray-300">
+                        Groups
                       </h1>
                       <div class="text-end text-neutral-300">
                         <h3 class="text-2xl" v-if="hour >= 5 && hour < 10">
@@ -54,33 +67,36 @@
                         </h3>
                       </div>
                     </div>
-                    <hr class="my-2">
                   </div>
-                  <div v-for="group in this.$store.state.clarifierSessions" :key="group"
-                       class="justify-content-center"
-                       style="padding-bottom: 15px; display: flex">
-                    <div
-                      class="text-neutral-300 hover:text-white hover:bg-zinc-500 hover:bg-opacity-50 cursor-pointer rounded-xl p-2 w-full"
-                      style="display: flex; align-items: center; justify-items: center"
-                      v-on:click="joinActive(group.id)">
-                      <img class="b_darkergray"
-                           style="width: 40px; height: 40px; border-radius: 10px"
-                           v-bind:src="getImg(group.img,true)"
-                           :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
-                      <h5 class="sb_link_text text-nowrap"
-                          style="margin: 0 0 0 10px; font-weight: bold">
-                        &nbsp;{{ group.title }}
-                      </h5>
-                      <i class="bi bi-shield-lock text-white"
-                         title="End-to-End Encrypted Group"
-                         style="margin-left: auto; margin-right: 4px"></i>
-                    </div>
-                    <button class="text-red-700 p-2 rounded-xl hover:bg-red-900 hover:bg-opacity-50 ml-2"
-                            title="Remove Group"
-                            v-on:click="this.removeGroup(group)">
-                      <i class="bi bi-x-lg"></i>
-                    </button>
-                  </div>
+                  <template v-for="group in this.$store.state.clarifierSessions" :key="group">
+                    <template v-if="group.type !== 'direct'">
+                      <div class="justify-content-center"
+                           style="padding-bottom: 15px; display: flex">
+                        <div
+                          class="text-neutral-300 hover:text-white hover:bg-zinc-500 hover:bg-opacity-50 cursor-pointer rounded-xl p-2 w-full"
+                          style="display: flex; align-items: center; justify-items: center"
+                          v-on:click="joinActive(group.id)">
+                          <img class="b_darkergray"
+                               style="width: 40px; height: 40px; border-radius: 10px"
+                               v-bind:src="getImg(group.img,true)"
+                               :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
+                          <h5 class="sb_link_text text-nowrap"
+                              style="margin: 0 0 0 10px; font-weight: bold">
+                            &nbsp;{{ group.title }}
+                          </h5>
+                          <i class="bi bi-shield-lock text-white"
+                             title="End-to-End Encrypted Group"
+                             style="margin-left: auto; margin-right: 4px"></i>
+                        </div>
+                        <button class="text-red-700 p-2 ml-2 rounded-xl
+                                       bg-zinc-800 hover:bg-red-800 hover:text-black"
+                                title="Remove Group"
+                                v-on:click="this.removeGroup(group)">
+                          <i class="bi bi-x-lg"></i>
+                        </button>
+                      </div>
+                    </template>
+                  </template>
                 </div>
               </div>
             </div>
@@ -88,41 +104,37 @@
         </div>
       </div>
       <!-- Join or Create a new Session -->
-      <div class="c-modal mb-4">
+      <div class="mb-4">
         <div class="row d-flex justify-content-center align-items-center">
           <div class="w-full max-w-xl">
-            <div class="card-subtitle text-white mx-4 p-4 rounded-lg">
-              <div class="card-body">
-                <div class="mt-md-0">
-                  <h1 class="fw-bold mb-2 text-3xl text-gray-300"
-                      style="pointer-events: none">
-                    Add or Join
-                  </h1>
-                  <hr class="my-2">
-                  <p style="text-align: justify; text-justify: inter-word; width: 100%; pointer-events: none"
-                     class="text-neutral-300">
-                    Enter an invite ID to join an existing group or create your own by typing in a name for it.
-                  </p>
-                  <input id="input_session" v-model="input_string"
-                         placeholder="Invite ID or Name..."
-                         class="font-bold px-2 py-1 my-3 bg-zinc-800 text-neutral-300 rounded-lg
+            <div class="text-white mx-4 p-4 rounded-lg">
+              <div class="mt-md-0">
+                <h1 class="fw-bold mb-2 text-3xl text-gray-300"
+                    style="pointer-events: none">
+                  Add or Join
+                </h1>
+                <p style="text-align: justify; text-justify: inter-word; width: 100%; pointer-events: none"
+                   class="text-neutral-300">
+                  Enter an invite ID to join an existing group or create your own by typing in a name for it.
+                </p>
+                <input id="input_session" v-model="input_string"
+                       placeholder="Invite ID or Name..."
+                       class="font-bold px-2 py-1 my-3 bg-zinc-800 text-neutral-300 rounded-lg
                                 border-2 border-zinc-700 placeholder-neutral-400"
-                         style="width: 100%; font-size: 150%"
-                         v-on:keyup.enter="joinOrCreate()">
-                  <br>
-                  <button id="btn_join_session"
-                          class="btn btn-outline-light border-2 border-zinc-700"
-                          style="max-height: 6ch; height: 6ch"
-                          v-on:click="join()">
-                    <span class="fw-bold lead">Join</span>
-                  </button>
-                  <button id="btn_create_session"
-                          class="btn btn-outline-light border-2 border-zinc-700"
-                          style="max-height: 6ch; height: 6ch"
-                          v-on:click="create()">
-                    <span class="fw-bold lead">Create</span>
-                  </button>
-                </div>
+                       style="width: 100%; font-size: 150%"
+                       v-on:keyup.enter="joinOrCreate()">
+                <button id="btn_join_session"
+                        class="btn btn-outline-light border-2 border-zinc-700"
+                        style="max-height: 6ch; height: 6ch"
+                        v-on:click="join()">
+                  <span class="fw-bold lead">Join</span>
+                </button>
+                <button id="btn_create_session"
+                        class="btn btn-outline-light border-2 border-zinc-700"
+                        style="max-height: 6ch; height: 6ch"
+                        v-on:click="create()">
+                  <span class="fw-bold lead">Create</span>
+                </button>
               </div>
             </div>
           </div>
@@ -147,21 +159,23 @@ export default {
       wcrypt: null
     }
   },
+  created () {
+    this.wcrypt = Wikiricrypt
+    this.getFriends()
+  },
   mounted () {
     setTimeout(() => this.initFunction(), 0)
   },
   methods: {
     initFunction: function () {
-      this.wcrypt = Wikiricrypt
       document.getElementById('btn_join_session').disabled = true
       document.getElementById('btn_create_session').disabled = true
       const sessionInput = document.getElementById('input_session')
       sessionInput.addEventListener('input', this.checkInput, false)
       sessionInput.addEventListener('keyup', this.checkInput, false)
-      if (window.innerWidth >= 992) sessionInput.focus()
+      if (window.innerWidth >= 1024) sessionInput.focus()
       this.getTime()
       setInterval(this.getTime, 1000)
-      this.getFriends()
     },
     create: function () {
       this.$Worker.execute({
@@ -263,7 +277,8 @@ export default {
                   const decryptedMessage = await this.wcrypt.decryptPayload(lastMessage, userId, key)
                   this.friends.push({
                     chatroom: data.result.chatrooms[i],
-                    msg: lastMessage.src + ': ' + decryptedMessage.substring(0, 100).trim()
+                    msg: lastMessage.src + ': ' + decryptedMessage.substring(0, 100).trim(),
+                    ts: new Date(lastMessage.ts)
                   })
                 }
               } else {
@@ -288,13 +303,54 @@ export default {
     getLastMessage: function (guid) {
       return new Promise((resolve) => {
         const parameters = '?pageIndex=0&pageSize=1&skip=0'
+        let message
         this.$Worker.execute({
           action: 'api',
           method: 'get',
           url: 'm5/getmessages/' + guid + parameters
         })
-          .then((data) => resolve(JSON.parse(data.result.messages[0])))
+          .then((data) => (message = JSON.parse(data.result.messages[0])))
+          .then(() => (
+            this.$store.commit('addClarifierTimestampNew', {
+              id: guid,
+              ts: Math.floor(new Date(message.ts).getTime())
+            })
+          ))
+          .then(() => (resolve(message)))
       })
+    },
+    hasUnread: function (guid) {
+      if (guid == null) return false
+      const timestamp = this.$store.getters.getTimestamp(guid)
+      if (timestamp == null) return false
+      let lastMessageTS = timestamp.tsNew
+      if (lastMessageTS == null) lastMessageTS = 0
+      let lastReadTS = timestamp.tsRead
+      if (lastReadTS == null) lastReadTS = 0
+      return lastReadTS < lastMessageTS
+    },
+    getHumanReadableDateText: function (date, withTime = false) {
+      const date2 = new Date()
+      const diffTime = Math.abs(date2 - date)
+      let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      if (date.getDate() === date2.getDate() &&
+        date.getMonth() === date2.getMonth() &&
+        date.getFullYear() === date2.getFullYear()) {
+        diffDays = 0
+      }
+      let suffix = ''
+      if (withTime) {
+        suffix = ', ' + date.toLocaleTimeString('de-DE')
+      }
+      if (diffDays === 0) {
+        return 'Today' + suffix
+      } else if (diffDays === 1) {
+        return 'Yesterday' + suffix
+      } else if (diffDays === 2) {
+        return '2 days ago' + suffix
+      } else {
+        return date.toLocaleDateString('de-DE') + suffix
+      }
     }
   }
 }

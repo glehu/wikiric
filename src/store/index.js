@@ -131,7 +131,8 @@ export default createStore({
       state.clarifierSessions.unshift({
         id: session.id,
         title: session.title,
-        img: session.img
+        img: session.img,
+        type: session.type
       })
     },
     removeClarifierSession (state, session) {

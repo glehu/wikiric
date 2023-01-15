@@ -18,7 +18,7 @@
             <ul class="nav_list list-unstyled"
                 style="color: white; margin-top: 5px">
               <li>
-                <div class="sb_link" v-on:click="this.$router.push('/apps/clarifier')">
+                <div class="sb_link" v-on:click="disconnect(); this.$router.push('/apps/clarifier')">
                   <div class="c_lightgray orange-hover">
                     <i class="sb_link_icon bi bi-x-square"></i>
                     <span class="sb_link_text">Exit</span>
@@ -43,7 +43,7 @@
             <hr class="c_lightgray"
                 style="width: 75%; margin: auto auto 10px;">
             <span class="sb_link_text c_lightgray nopointer">
-            Groups&nbsp;-&nbsp;{{ this.$store.state.clarifierSessions.length }}
+            Activity&nbsp;-&nbsp;{{ this.$store.state.clarifierSessions.length }}
           </span>
           </div>
           <div id="channel_section" class="channel_section"
@@ -1919,6 +1919,10 @@ export default {
     addMessagePar: function (text, closeGIFSelection = false) {
       if (text !== '') this.connection.send(text)
       if (closeGIFSelection) this.isViewingGIFSelection = false
+      this.$store.commit('addClarifierTimestampRead', {
+        id: this.getSession(),
+        ts: new Date().getTime()
+      })
     },
     getClarifierMetaData: function (sessionID = this.getSession(), isSubchat = false, novisual = false) {
       if (sessionID == null || sessionID === 'undefined') {
@@ -1997,7 +2001,8 @@ export default {
         this.$store.commit('addClarifierSession', {
           id: this.chatroom.guid,
           title: this.chatroom.t,
-          img: this.getImg(this.chatroom.imgGUID)
+          img: this.getImg(this.chatroom.imgGUID),
+          type: this.chatroom.type
         })
         this.$store.commit('addClarifierTimestampRead', {
           id: this.chatroom.guid,
@@ -3148,6 +3153,7 @@ export default {
     },
     gotoSubchat: async function (subchatGUID, subchatMode = true) {
       if (subchatGUID == null) return
+      this.disconnect()
       this.websocketState = 'SWITCHING'
       this.lazyLoadingStatus = 'switching'
       if (subchatMode === true) {
@@ -3162,8 +3168,6 @@ export default {
           path: '/apps/clarifier/wss/' + subchatGUID // Previously getSession()
         })
       }
-      this.disconnect()
-      this.messages = []
       this.hideAllSidebars()
       await this.connect(subchatGUID, subchatMode)
       this.lazyLoadingStatus = 'idle'
@@ -3175,6 +3179,11 @@ export default {
       if (this.connection == null) return
       this.addMessagePar('[c:SC]' + '[offline]' + this.$store.state.username)
       this.connection.close()
+      this.$store.commit('addClarifierTimestampRead', {
+        id: this.getSession(),
+        ts: new Date().getTime()
+      })
+      this.messages = []
     },
     resetStats: function () {
       // Reset session specific stats
