@@ -172,17 +172,6 @@
                 </div>
                 <div v-if="isSubchat === true" class="nopointer">
                   <span style="margin-left: 10px"><i class="bi bi-caret-right"></i></span>
-                  <span v-if="currentSubchat.type === 'screenshare'"
-                        style="margin-left: 10px">
-                <i class="bi bi-window-fullscreen"></i>
-              </span>
-                  <span v-else-if="currentSubchat.type === 'webcam'"
-                        style="margin-left: 10px">
-                <i class="bi bi-camera-video"></i>
-              </span>
-                  <span v-else style="margin-left: 10px">
-                <i class="bi bi-hash"></i>
-              </span>
                   <span style="margin-left: 10px">{{ currentSubchat.t }}</span>
                 </div>
                 <div v-if="isStreamingVideo"
@@ -1433,7 +1422,7 @@ export default {
   created () {
   },
   mounted () {
-    setTimeout(() => this.initFunction(), 0)
+    setTimeout(() => this.initFunction(), 100)
   },
   beforeUnmount () {
     clearInterval(this.timer)
@@ -4074,7 +4063,7 @@ export default {
     gotoDirectMessages: async function (username) {
       const users = [this.$store.state.username, username]
       const content = JSON.stringify({
-        title: this.new_subchat_name.trim(),
+        title: '',
         type: 'direct',
         directMessageUsernames: users
       })
@@ -4085,12 +4074,12 @@ export default {
       this.$Worker.execute({
         action: 'api',
         method: 'get',
-        url: 'm5/direct/' + username
+        url: 'm5/direct/' + username + '?all=true'
       })
         .then((data) => {
           if (data.result.chatrooms.length > 0) {
             foundDirect = true
-            newId = data.result.chatrooms[0]
+            newId = data.result.chatrooms[0].guid
             this.connectToGroup(newId, true)
           }
         })
@@ -4622,8 +4611,8 @@ export default {
 }
 
 .message {
-  padding: 2px 25px 2px 15px;
-  @apply text-neutral-200;
+  padding: 0 25px 0 15px;
+  @apply text-neutral-200 my-[1px];
 }
 
 .message:hover {

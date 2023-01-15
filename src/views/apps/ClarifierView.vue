@@ -1,66 +1,86 @@
 <template>
   <div id="clarifier_view_elem"
-       class="bg-zinc-700 w-screen min-h-full absolute overflow-x-hidden overflow-y-auto">
-    <div class="wrapper pt-[80px] h-full w-full">
+       class="bg-zinc-900 w-screen h-full absolute overflow-x-hidden overflow-y-auto">
+    <div class="wrapper pt-[80px] min-h-full w-full">
       <!-- Active Sessions -->
-      <div class="container c-modal">
-        <div class="row d-flex justify-content-center align-items-center">
-          <div class="w-full max-w-xl">
-            <div class="card-subtitle text-white mx-4 p-4 rounded-lg">
-              <div class="card-body mt-md-0">
-                <div style="pointer-events: none; margin-bottom: 50px">
-                  <div class="flex items-end justify-between">
-                    <h1 class="fw-bold text-uppercase text-3xl text-gray-300">
-                      Groups
-                    </h1>
-                    <div class="text-end text-neutral-300">
-                      <h3 class="text-2xl" v-if="hour >= 5 && hour < 10">
-                        <i class="bi bi-sunrise-fill p-1"></i>
-                        Good&nbsp;Morning
-                      </h3>
-                      <h3 class="text-2xl" v-else-if="hour >= 10 && hour < 17">
-                        <i class="bi bi-sun-fill p-1"></i>
-                        Good&nbsp;Day
-                      </h3>
-                      <h3 class="text-2xl" v-else-if="hour >= 17 && hour < 22">
-                        <i class="bi bi-sunset p-1"></i>
-                        Good&nbsp;Evening
-                      </h3>
-                      <h3 class="text-2xl" v-else-if="hour >= 22 || hour < 5">
-                        <i class="bi bi-moon p-1"></i>
-                        Good&nbsp;Night
-                      </h3>
+      <div class="c-modal bg-zinc-700 rounded-tr-lg col-span-1 lg:col-span-2 xl:h-full">
+        <div class="row d-flex justify-content-center align-items-center xl:h-full">
+          <div class="w-full xl:h-full">
+            <div class="card-subtitle text-white p-4 rounded-lg xl:w-full xl:h-full">
+              <div class="card-body mt-md-0 xl:flex lg:justify-between w-full xl:h-full lg:gap-x-8">
+                <div class="w-full xl:h-full bg-zinc-600 p-2 rounded mb-4">
+                  <div class="m-2">
+                    <div class="pointer-events-none mb-4">
+                      <div class="flex items-end justify-between">
+                        <h1 class="fw-bold text-uppercase text-3xl text-gray-300">
+                          Friends
+                        </h1>
+                      </div>
                     </div>
                   </div>
-                  <hr class="my-2">
-                  <p class="text-neutral-300">
-                    Your current Clarifier Groups. Click on one of them to quickly enter.
-                  </p>
-                </div>
-                <div v-for="group in this.$store.state.clarifierSessions" :key="group"
-                     class="justify-content-center"
-                     style="padding-bottom: 15px; display: flex">
-                  <div
-                    class="text-neutral-300 hover:text-white hover:bg-zinc-500 hover:bg-opacity-50 cursor-pointer rounded-xl p-2 w-4/5"
-                    style="display: flex; align-items: center; justify-items: center"
-                    v-on:click="joinActive(group.id)">
-                    <img class="b_darkergray"
-                         style="width: 40px; height: 40px; border-radius: 10px"
-                         v-bind:src="getImg(group.img,true)"
-                         :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
-                    <h5 class="sb_link_text text-nowrap"
-                        style="margin: 0 0 0 10px; font-weight: bold">
-                      &nbsp;{{ group.title }}
-                    </h5>
-                    <i class="bi bi-shield-lock text-white"
-                       title="End-to-End Encrypted Group"
-                       style="margin-left: auto; margin-right: 4px"></i>
+                  <!-- -->
+                  <div>
+                    <div v-for="friend in friends" :key="friend"
+                         v-on:click="joinActive(friend.chatroom.guid)"
+                         class="p-2 rounded bg-zinc-800 m-2 cursor-pointer hover:bg-zinc-900
+                                text-neutral-300 hover:text-white">
+                      <div class="font-bold">
+                        {{ getDirectChatroomName(friend.chatroom.directMessageUsername) }}
+                      </div>
+                      <div class="text-neutral-400">
+                        {{ friend.msg }}
+                      </div>
+                    </div>
                   </div>
-                  <button class="text-red-700 p-2 rounded-xl hover:bg-red-900 hover:bg-opacity-50 ml-2"
-                          title="Remove Group"
-                          v-on:click="this.removeGroup(group)">
-                    <i class="bi bi-x-lg"></i>
-                  </button>
+                </div>
+                <div class="w-full">
+                  <div class="pointer-events-none mb-4">
+                    <div class="flex items-end justify-between">
+                      <h1 class="fw-bold text-uppercase text-3xl text-gray-300">
+                        Activity
+                      </h1>
+                      <div class="text-end text-neutral-300">
+                        <h3 class="text-2xl" v-if="hour >= 5 && hour < 10">
+                          <i class="bi bi-sunrise-fill p-1"></i>
+                        </h3>
+                        <h3 class="text-2xl" v-else-if="hour >= 10 && hour < 17">
+                          <i class="bi bi-sun-fill p-1"></i>
+                        </h3>
+                        <h3 class="text-2xl" v-else-if="hour >= 17 && hour < 22">
+                          <i class="bi bi-sunset p-1"></i>
+                        </h3>
+                        <h3 class="text-2xl" v-else-if="hour >= 22 || hour < 5">
+                          <i class="bi bi-moon p-1"></i>
+                        </h3>
+                      </div>
+                    </div>
+                    <hr class="my-2">
+                  </div>
+                  <div v-for="group in this.$store.state.clarifierSessions" :key="group"
+                       class="justify-content-center"
+                       style="padding-bottom: 15px; display: flex">
+                    <div
+                      class="text-neutral-300 hover:text-white hover:bg-zinc-500 hover:bg-opacity-50 cursor-pointer rounded-xl p-2 w-full"
+                      style="display: flex; align-items: center; justify-items: center"
+                      v-on:click="joinActive(group.id)">
+                      <img class="b_darkergray"
+                           style="width: 40px; height: 40px; border-radius: 10px"
+                           v-bind:src="getImg(group.img,true)"
+                           :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
+                      <h5 class="sb_link_text text-nowrap"
+                          style="margin: 0 0 0 10px; font-weight: bold">
+                        &nbsp;{{ group.title }}
+                      </h5>
+                      <i class="bi bi-shield-lock text-white"
+                         title="End-to-End Encrypted Group"
+                         style="margin-left: auto; margin-right: 4px"></i>
+                    </div>
+                    <button class="text-red-700 p-2 rounded-xl hover:bg-red-900 hover:bg-opacity-50 ml-2"
+                            title="Remove Group"
+                            v-on:click="this.removeGroup(group)">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -68,7 +88,7 @@
         </div>
       </div>
       <!-- Join or Create a new Session -->
-      <div class="container c-modal mb-4">
+      <div class="c-modal mb-4">
         <div class="row d-flex justify-content-center align-items-center">
           <div class="w-full max-w-xl">
             <div class="card-subtitle text-white mx-4 p-4 rounded-lg">
@@ -85,19 +105,19 @@
                   </p>
                   <input id="input_session" v-model="input_string"
                          placeholder="Invite ID or Name..."
-                         class="font-bold px-2 py-1 my-3 bg-neutral-900 text-neutral-300 rounded-lg
-                                border-2 border-neutral-600 placeholder-neutral-400"
+                         class="font-bold px-2 py-1 my-3 bg-zinc-800 text-neutral-300 rounded-lg
+                                border-2 border-zinc-700 placeholder-neutral-400"
                          style="width: 100%; font-size: 150%"
                          v-on:keyup.enter="joinOrCreate()">
                   <br>
                   <button id="btn_join_session"
-                          class="btn btn-outline-light"
+                          class="btn btn-outline-light border-2 border-zinc-700"
                           style="max-height: 6ch; height: 6ch"
                           v-on:click="join()">
                     <span class="fw-bold lead">Join</span>
                   </button>
                   <button id="btn_create_session"
-                          class="btn btn-outline-light"
+                          class="btn btn-outline-light border-2 border-zinc-700"
                           style="max-height: 6ch; height: 6ch"
                           v-on:click="create()">
                     <span class="fw-bold lead">Create</span>
@@ -113,6 +133,8 @@
 </template>
 
 <script>
+import Wikiricrypt from '@/libs/wikiricrypt'
+
 export default {
   name: 'WClarifier',
   data () {
@@ -120,7 +142,9 @@ export default {
       input_string: '',
       join_type: '',
       time: '',
-      hour: 0
+      hour: 0,
+      friends: [],
+      wcrypt: null
     }
   },
   mounted () {
@@ -128,6 +152,7 @@ export default {
   },
   methods: {
     initFunction: function () {
+      this.wcrypt = Wikiricrypt
       document.getElementById('btn_join_session').disabled = true
       document.getElementById('btn_create_session').disabled = true
       const sessionInput = document.getElementById('input_session')
@@ -136,6 +161,7 @@ export default {
       if (window.innerWidth >= 992) sessionInput.focus()
       this.getTime()
       setInterval(this.getTime, 1000)
+      this.getFriends()
     },
     create: function () {
       this.$Worker.execute({
@@ -211,6 +237,64 @@ export default {
         ':' + today.getMinutes().toString().padStart(2, '0') +
         ':' + today.getSeconds().toString().padStart(2, '0')
       this.hour = hours
+    },
+    getFriends: function () {
+      this.$Worker.execute({
+        action: 'api',
+        method: 'get',
+        url: 'm5/direct/.*'
+      })
+        .then(async (data) => {
+          if (data.result.chatrooms.length > 0) {
+            this.friends = []
+            for (let i = 0; i < data.result.chatrooms.length; i++) {
+              let userId = 'none'
+              for (let j = 0; j < data.result.chatrooms[i].members.length; j++) {
+                const member = JSON.parse(data.result.chatrooms[i].members[j])
+                if (member.usr === this.$store.state.username) {
+                  userId = member.id
+                  break
+                }
+              }
+              const lastMessage = await this.getLastMessage(data.result.chatrooms[i].guid)
+              if (lastMessage.src !== '_server') {
+                const key = this.$store.getters.getClarifierKeyPair(data.result.chatrooms[i].guid)
+                if (key != null) {
+                  const decryptedMessage = await this.wcrypt.decryptPayload(lastMessage, userId, key)
+                  this.friends.push({
+                    chatroom: data.result.chatrooms[i],
+                    msg: lastMessage.src + ': ' + decryptedMessage.substring(0, 100).trim()
+                  })
+                }
+              } else {
+                this.friends.push({
+                  chatroom: data.result.chatrooms[i],
+                  msg: ''
+                })
+              }
+            }
+          } else {
+            this.friends = []
+          }
+        })
+        .catch((err) => console.log(err.message))
+    },
+    getDirectChatroomName: function (username) {
+      if (username == null) return ''
+      return username
+        .replaceAll('|' + this.$store.state.username + '|', '||')
+        .replaceAll('|', ' ').replaceAll('  ', ' ').trim()
+    },
+    getLastMessage: function (guid) {
+      return new Promise((resolve) => {
+        const parameters = '?pageIndex=0&pageSize=1&skip=0'
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm5/getmessages/' + guid + parameters
+        })
+          .then((data) => resolve(JSON.parse(data.result.messages[0])))
+      })
     }
   }
 }
@@ -265,9 +349,9 @@ export default {
   min-height: 80px
 }
 
-@media only screen and (min-width: 800px) {
+@media only screen and (min-width: 1024px) {
   .wrapper {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
