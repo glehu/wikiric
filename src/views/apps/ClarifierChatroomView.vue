@@ -1755,6 +1755,10 @@ export default {
       }, 0)
     },
     addMessage: async function () {
+      this.$store.commit('addClarifierTimestampRead', {
+        id: this.getChatGUID(),
+        ts: new Date().getTime()
+      })
       if (this.isEditingMessage === true) {
         let editPayloadMessage
         if (this.new_message !== '') {
@@ -1916,10 +1920,6 @@ export default {
     addMessagePar: function (text, closeGIFSelection = false) {
       if (text !== '') this.connection.send(text)
       if (closeGIFSelection) this.isViewingGIFSelection = false
-      this.$store.commit('addClarifierTimestampRead', {
-        id: this.getSession(),
-        ts: new Date().getTime()
-      })
     },
     getClarifierMetaData: function (sessionID = this.getSession(), isSubchat = false, novisual = false) {
       if (sessionID == null || sessionID === 'undefined') {
