@@ -178,6 +178,7 @@ export default {
       setInterval(this.getTime, 1000)
     },
     create: function () {
+      let guid
       this.$Worker.execute({
         action: 'api',
         method: 'post',
@@ -187,7 +188,8 @@ export default {
           type: 'text'
         })
       })
-        .then((data) => (this.$router.push('/apps/clarifier/wss/' + data.result.guid)))
+        .then((data) => (guid = data.result.guid))
+        .then(() => (this.$router.push('/apps/clarifier/wss/' + guid)))
         .catch((err) => console.log(err.message))
     },
     getImg: function (imgGUID, get = false) {
@@ -330,6 +332,7 @@ export default {
       return lastReadTS < lastMessageTS
     },
     getHumanReadableDateText: function (date, withTime = false) {
+      if (date == null) return ''
       const date2 = new Date()
       const diffTime = Math.abs(date2 - date)
       let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))

@@ -12,7 +12,7 @@
             <div style="width: 100%; height: 35px; padding-top: 10px">
               <span class="sb_link_text c_lightgray nopointer">Menu</span>
             </div>
-            <button class="sb_toggler btn-no-outline" v-on:click="toggleSidebar">
+            <button class="sb_toggler btn-no-outline" v-on:click="toggleSidebar()">
               <i class="bi bi-caret-right c_lightgray"></i>
             </button>
             <ul class="nav_list list-unstyled"
@@ -88,9 +88,9 @@
           <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden"
                class="c_lightgray px-2">
             <div style="height: 50px; align-items: center; display: flex">
-              <div :id="getSession() + '_subc'" class="subchat bg-zinc-800"
-                   v-on:click="gotoSubchat(getSession(), false)">
-                <i v-show="hasUnread(getSession())" :id="getSession() + '_notify'"
+              <div id="home_subc" class="subchat bg-zinc-800"
+                   v-on:click="gotoSubchat(null, false)">
+                <i v-show="hasUnread(null)" id="home_notify"
                    class="bi bi-chat-quote-fill relative left-0 z-[500] text-orange-500"></i>
                 <HomeIcon class="h-5 w-5"></HomeIcon>
                 <span class="relative left-[20px]">Home</span>
@@ -131,7 +131,7 @@
               <template v-if="this.chatroom.rank > 3">
                 <div style="height: 40px"
                      class="subchat w-full flex items-center"
-                     v-on:click="this.$router.push('/apps/plannernew?src=' + this.getSession())">
+                     v-on:click="gotoPlanner()">
                   <ViewColumnsIcon class="h-5 w-5"></ViewColumnsIcon>
                   <span class="relative left-[20px]">Planner</span>
                 </div>
@@ -154,7 +154,7 @@
           </template>
         </div>
       </div>
-      <div id="clarifier_chatroom"
+      <div id="clarifier_chatroom" :ref="'clarifier_chatroom'"
            class="clarifier_chatroom flex overflow-clip mt-[60px]"
            v-on:click="closeModals">
         <template v-if="overlayType === 'msg'">
@@ -167,7 +167,7 @@
                 style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%; align-items: center">
                 <div style="margin-left: 10px"
                      class="orange-hover"
-                     v-on:click="gotoSubchat(this.getSession(), false)">
+                     v-on:click="gotoSubchat(null, false)">
                   {{ chatroom.t }}
                 </div>
                 <div v-if="isSubchat === true" class="nopointer">
@@ -258,7 +258,7 @@
                   <PhoneIcon class="h-8 w-8"></PhoneIcon>
                 </div>
                 <div class="p-2 text-neutral-400 gray-hover"
-                     v-on:click="startScreenshare(undefined, {video: true, audio: false})">
+                     v-on:click="startScreenshare(undefined, {video: true, audio: true})">
                   <VideoCameraIcon class="h-8 w-8"></VideoCameraIcon>
                 </div>
               </div>
@@ -292,7 +292,7 @@
             <!-- #### MESSAGES #### -->
             <div class="h-[calc(100%-130px)] max-h-[calc(100%-130px)] overflow-hidden
                         bg-zinc-800 lg:rounded-tl-lg">
-              <div id="messages_section"
+              <div id="messages_section" :ref="'messages_section'"
                    class="messages_section relative flex h-full
                         overflow-y-auto overflow-x-hidden"
                    style="flex-direction: column-reverse">
@@ -727,7 +727,7 @@
                   </div>
                 </template>
               </div>
-              <textarea id="new_comment"
+              <textarea id="new_comment" :ref="'new_comment'"
                         class="new_comment bg-zinc-600 py-2 px-3 placeholder-neutral-400"
                         type="text"
                         v-model="new_message"
@@ -1000,7 +1000,10 @@
         <img class="b_darkergray" style="min-width: 80px; width: 80px; min-height: 80px; height: 80px;
              border-radius: 20px"
              v-bind:src="getImg(chatroom.imgGUID, true)" :alt="'&nbsp;'"/>
-        <div class="drop_zone" style="margin-left: 10px" id="drop_zone">Upload a picture!</div>
+        <div class="drop_zone" style="margin-left: 10px" id="drop_zone" :ref="'drop_zone'"
+             v-on:drop="handleFileSelectDrop()" v-on:dragover="handleDragOver()">
+          Upload a picture!
+        </div>
       </div>
       <input type="file" class="file_input" id="files" name="files[]"
              style="width: 100%"
@@ -1154,8 +1157,12 @@
         </div>
       </template>
       <template v-if="uploadFileBase64 === ''">
-        <div class="drop_zone mb-2" id="snippet_drop_zone">Drop a file here!</div>
-        <input type="file" class="file_input" id="snippet_files" name="files[]"
+        <div class="drop_zone mb-2" id="snippet_drop_zone" :ref="'snippet_drop_zone'"
+             v-on:drop="handleUploadImageSelectDrop()" v-on:dragover="handleDragOver()">
+          Drop a file here!
+        </div>
+        <input type="file" class="file_input" id="snippet_files" :ref="'snippet_files'" name="files[]"
+               v-on:drop="handleUploadImageSelectDrop()" v-on:dragover="handleDragOver()"
                style="width: 100%"
                multiple v-on:change="handleUploadFileSelect"/>
       </template>
@@ -1422,7 +1429,7 @@ export default {
   created () {
   },
   mounted () {
-    setTimeout(() => this.initFunction(), 100)
+    setTimeout(() => this.initFunction(), 0)
   },
   beforeUnmount () {
     clearInterval(this.timer)
@@ -1437,25 +1444,14 @@ export default {
     initFunction: async function () {
       this.setUpWRTC()
       this.$store.commit('setLastClarifierGUID', this.$route.params.id)
-      this.isModalVisible = !this.$store.getters.hasSeenE2ENotification()
       this.toggleElement('init_loading', 'flex')
       window.addEventListener('resize', this.resizeCanvas, false)
       this.resizeCanvas()
       // Save elements to gain performance boost by avoiding too many lookups
-      this.message_section = document.getElementById('messages_section')
+      this.message_section = this.$refs.messages_section
       document.addEventListener('keydown', this.handleGlobalKeyEvents, false)
       // Set message section with its scroll event
       this.message_section.addEventListener('scroll', this.checkScroll, false)
-      // Add dropzone events (settings -> image upload)
-      const dropZone = document.getElementById('drop_zone')
-      dropZone.addEventListener('dragover', this.handleDragOver, false)
-      dropZone.addEventListener('drop', this.handleFileSelectDrop, false)
-      const dropZoneSnippet = document.getElementById('snippet_drop_zone')
-      dropZoneSnippet.addEventListener('dragover', this.handleDragOver, false)
-      dropZoneSnippet.addEventListener('drop', this.handleUploadImageSelectDrop, false)
-      const dropFilesZoneSnippet = document.getElementById('snippet_files')
-      dropFilesZoneSnippet.addEventListener('dragover', this.handleDragOver, false)
-      dropFilesZoneSnippet.addEventListener('drop', this.handleUploadImageSelectDrop, false)
       // Broadcast channels to listen to firebase cloud messaging notifications
       const bc = new BroadcastChannel('dlChannel')
       bc.onmessage = event => {
@@ -1485,7 +1481,6 @@ export default {
       this.timer = setInterval(this.clearActivity, 1000)
       this.timerIdle = setInterval(this.clearActivityIdle, 1000)
       // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
-      await this.getClarifierMetaData(this.getSession(), false, true)
       // Are we connecting to a subchat?
       const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop)
@@ -1502,6 +1497,7 @@ export default {
         await this.connect()
       }
       // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
+      this.isModalVisible = !this.$store.getters.hasSeenE2ENotification()
     },
     setUpWRTC: function () {
       // Initialize wRTC.js
@@ -1572,7 +1568,7 @@ export default {
       }
     },
     handleFirebaseEvent: function (event) {
-      if (event.data.data.subchatGUID != null) {
+      if (event.data.data.subchatGUID != null && event.data.data.subchatGUID.length > 0) {
         const destId = event.data.data.subchatGUID
         if (!this.$route.fullPath.includes(destId)) {
           this.$store.commit('addClarifierTimestampNew', {
@@ -1588,12 +1584,13 @@ export default {
           }
         }
       } else {
-        const destId = event.data.data.dlDest.substring(20)
+        let destId = event.data.data.dlDest.substring(20)
         if (this.$route.fullPath.includes('sub=')) {
           this.$store.commit('addClarifierTimestampNew', {
             id: destId,
             ts: new Date().getTime()
           })
+          if (destId === this.getSession()) destId = 'home'
           const notify = document.getElementById(destId + '_notify')
           if (notify != null) {
             setTimeout(() => {
@@ -1606,9 +1603,6 @@ export default {
     },
     connect: async function (sessionID = this.getSession(), isSubchat = false, novisual = false) {
       this.resetStats()
-      // Generate Key Pair
-      const gTmp = this.getChatGUID()
-      await this.generateRSAKeyPair(gTmp)
       return new Promise((resolve) => {
         this.isSubchat = isSubchat
         // Connect to the chat
@@ -1623,6 +1617,9 @@ export default {
           auth = null
           // Subscribe to notifications
           this.subscribeFCM(sessionID, isSubchat)
+          // Generate Key Pair
+          const gTmp = this.getChatGUID()
+          await this.generateRSAKeyPair(gTmp)
           setTimeout(() => {
             // Get metadata and messages
             this.getClarifierMetaData(sessionID, isSubchat, novisual)
@@ -1945,7 +1942,7 @@ export default {
             // Remove active flag
             if (!novisual && this.chatroom.type !== 'direct') {
               if (this.chatroom.guid != null) {
-                tmpElem = document.getElementById(this.chatroom.guid + '_subc')
+                tmpElem = document.getElementById('home_subc')
                 if (tmpElem) tmpElem.classList.remove('active')
               }
               if (this.currentSubchat.guid != null) {
@@ -1963,7 +1960,7 @@ export default {
                 }
               }
               if (!novisual && (this.chatroom.type === undefined || this.chatroom.type !== 'direct')) {
-                tmpElem = document.getElementById(this.chatroom.guid + '_subc')
+                tmpElem = document.getElementById('home_subc')
                 if (tmpElem) {
                   tmpElem.classList.toggle('active', true)
                 }
@@ -1986,7 +1983,7 @@ export default {
       })
     },
     processMetaDataResponse: async function (isSubchat = false) {
-      const chatElem = document.getElementById('clarifier_chatroom')
+      const chatElem = this.$refs.clarifier_chatroom
       if (this.chatroom.type === 'direct') {
         chatElem.classList.add('clarifier_chatroom_big')
         this.chatroom.t = this.chatroom.directMessageUsername
@@ -2004,29 +2001,29 @@ export default {
           img: this.getImg(this.chatroom.imgGUID),
           type: this.chatroom.type
         })
-        this.$store.commit('addClarifierTimestampRead', {
-          id: this.chatroom.guid,
-          ts: new Date().getTime()
-        })
-        const notify = document.getElementById(this.chatroom.guid + '_notify')
-        if (notify != null) {
-          notify.style.opacity = '0'
-          notify.style.display = 'none'
-        }
         if (this.isSubchat === false) {
-          this.members = []
-          // Parse JSON serialized users for performance
-          if (this.chatroom.members) {
-            for (let i = 0; i < this.chatroom.members.length; i++) {
-              // Main Members
-              this.mainMembers[i] = JSON.parse(this.chatroom.members[i])
-              this.mainMembers[i].taggable = true
-              // Current Members
-              this.members[i] = this.mainMembers[i]
-              this.members[i].taggable = true
-              if (this.members[i].usr === this.$store.state.username) {
-                this.userId = this.members[i].id
-              }
+          this.$store.commit('addClarifierTimestampRead', {
+            id: this.chatroom.guid,
+            ts: new Date().getTime()
+          })
+          const notify = document.getElementById('home_notify')
+          if (notify != null) {
+            notify.style.opacity = '0'
+            notify.style.display = 'none'
+          }
+        }
+        this.members = []
+        // Parse JSON serialized users for performance
+        if (this.chatroom.members) {
+          for (let i = 0; i < this.chatroom.members.length; i++) {
+            // Main Members
+            this.mainMembers[i] = JSON.parse(this.chatroom.members[i])
+            this.mainMembers[i].taggable = true
+            // Current Members
+            this.members[i] = this.mainMembers[i]
+            this.members[i].taggable = true
+            if (this.members[i].usr === this.$store.state.username) {
+              this.userId = this.members[i].id
             }
           }
         }
@@ -2050,7 +2047,7 @@ export default {
           }
         }
       }
-      const messagesSection = document.getElementById('messages_section')
+      const messagesSection = this.$refs.messages_section
       if (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam') {
         messagesSection.style.width = '350px'
         this.mediaMaxWidth = '260px'
@@ -2351,7 +2348,10 @@ export default {
       if (full === false) {
         session = this.$store.getters.getLastClarifierGUID()
         if (session == null || session.length < 30) {
-          this.$router.push('/bsod?reason=' + 'Invalid Chatroom GUID')
+          session = this.$route.params.id
+          if (session == null) {
+            this.$router.push('/bsod?reason=' + 'Invalid Chatroom GUID @ getSession')
+          }
         }
         return session
       } else {
@@ -3152,7 +3152,9 @@ export default {
         .catch((err) => console.error(err.message))
     },
     gotoSubchat: async function (subchatGUID, subchatMode = true) {
-      if (subchatGUID == null) return
+      if (subchatGUID == null) {
+        subchatGUID = this.getSession()
+      }
       this.disconnect()
       this.websocketState = 'SWITCHING'
       this.lazyLoadingStatus = 'switching'
@@ -3179,10 +3181,17 @@ export default {
       if (this.connection == null) return
       this.addMessagePar('[c:SC]' + '[offline]' + this.$store.state.username)
       this.connection.close()
-      this.$store.commit('addClarifierTimestampRead', {
-        id: this.getSession(),
-        ts: new Date().getTime()
-      })
+      if (!this.isSubchat) {
+        this.$store.commit('addClarifierTimestampRead', {
+          id: this.getSession(),
+          ts: new Date().getTime()
+        })
+      } else {
+        this.$store.commit('addClarifierTimestampRead', {
+          id: this.currentSubchat.guid,
+          ts: new Date().getTime()
+        })
+      }
       this.messages = []
     },
     resetStats: function () {
@@ -3326,7 +3335,9 @@ export default {
       if (focusInput) this.focusComment(true)
     },
     hasUnread: function (guid) {
-      if (guid == null) return false
+      if (guid === null) {
+        guid = this.getSession()
+      }
       const timestamp = this.$store.getters.getTimestamp(guid)
       if (timestamp == null) return false
       let lastMessageTS = timestamp.tsNew
@@ -3338,7 +3349,7 @@ export default {
     generateRSAKeyPair: async function (uniChatroomGUID) {
       if (uniChatroomGUID == null || uniChatroomGUID === '') return
       // Check if we already have a PrivKey for this chat GUID
-      const clarifierKeyPair = this.$store.getters.getClarifierKeyPair(this.getChatGUID())
+      const clarifierKeyPair = this.$store.getters.getClarifierKeyPair(uniChatroomGUID)
       if (clarifierKeyPair != null) return false
       // Generate key pair
       const keyPair = await window.crypto.subtle.generateKey(
@@ -3352,7 +3363,7 @@ export default {
         ['encrypt', 'decrypt']
       )
       this.$store.commit('setClarifierKeyPair', {
-        id: this.getChatGUID(),
+        id: uniChatroomGUID,
         priv: await this.exportRSAPrivKey(keyPair.privateKey)
       })
       const content = JSON.stringify({
@@ -4130,7 +4141,7 @@ export default {
     },
     prepareInputField: function () {
       setTimeout(() => {
-        this.inputField = document.getElementById('new_comment')
+        this.inputField = this.$refs.new_comment
         // Remove event listeners first to avoid having multiple
         this.inputField.removeEventListener('keydown', this.handleEnter, false)
         this.inputField.removeEventListener('input', this.handleCommentInput, false)
@@ -4163,6 +4174,9 @@ export default {
       } else {
         return date.toLocaleDateString('de-DE') + suffix
       }
+    },
+    gotoPlanner: function () {
+      this.$router.push('/apps/plannernew?src=' + this.getSession())
     }
   }
 }
