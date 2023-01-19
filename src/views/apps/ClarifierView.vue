@@ -3,12 +3,12 @@
        class="bg-zinc-900 w-screen h-full absolute overflow-x-hidden overflow-y-auto">
     <div class="wrapper pt-[80px] min-h-full w-full">
       <!-- Active Sessions -->
-      <div class="bg-zinc-700 rounded-tr-lg col-span-1 lg:col-span-2 xl:h-full">
+      <div class="bg-zinc-800 rounded-tr-lg col-span-1 lg:col-span-2 xl:h-full">
         <div class="row d-flex justify-content-center align-items-center xl:h-full">
           <div class="w-full xl:h-full">
             <div class="text-white p-2 rounded-lg xl:w-full xl:h-full">
-              <div class="mt-md-0 xl:flex lg:justify-between w-full xl:h-full lg:gap-x-8">
-                <div class="w-full xl:h-full bg-zinc-800 p-2 rounded mb-4">
+              <div class="mt-md-0 xl:flex lg:justify-between w-full xl:h-full lg:gap-x-2">
+                <div class="w-full xl:h-full mb-2 p-2 bg-zinc-700 rounded-lg">
                   <div class="m-2">
                     <div class="pointer-events-none mb-4">
                       <div class="flex items-end justify-between">
@@ -19,35 +19,37 @@
                     </div>
                   </div>
                   <!-- -->
-                  <div class="m-2">
-                    <div v-for="friend in friends" :key="friend"
-                         v-on:click="joinActive(friend.chatroom.guid)"
-                         class="p-2 rounded cursor-pointer bg-zinc-700 hover:brightness-125
-                                text-neutral-300 hover:text-white w-full mb-2">
-                      <div class="flex w-full">
-                        <div v-show="hasUnread(friend.chatroom.guid)"
-                             class="flex items-center justify-center ml-2 mr-3">
-                          <i class="bi bi-chat-quote-fill z-[500] text-orange-500 text-lg"></i>
-                        </div>
-                        <div class="w-full">
-                          <div class="flex items-center w-full">
-                            <div class="font-bold">
-                              {{ getDirectChatroomName(friend.chatroom.directMessageUsername) }}
-                            </div>
-                            <div class="ml-auto text-sm">
-                              {{ getHumanReadableDateText(friend.ts) }}
-                            </div>
+                  <div class="m-2 divide-y-2 divide-zinc-600">
+                    <template v-for="friend in friends" :key="friend">
+                      <div class="w-full h-20 flex items-center pt-1 my-1">
+                        <div v-on:click="joinActive(friend.chatroom.guid)"
+                             class="w-full h-20 p-2 cursor-pointer bg-zinc-700 text-neutral-300
+                                    flex items-center
+                                    hover:brightness-125 hover:rounded hover:text-white">
+                          <div v-show="hasUnread(friend.chatroom.guid)"
+                               class="flex items-center justify-center ml-2 mr-3">
+                            <i class="bi bi-chat-quote-fill z-[500] text-orange-500 text-lg"></i>
                           </div>
-                          <div class="text-neutral-300">
-                            {{ friend.msg }}
+                          <div class="w-full">
+                            <div class="flex items-center w-full">
+                              <div class="font-bold">
+                                {{ getDirectChatroomName(friend.chatroom.directMessageUsername) }}
+                              </div>
+                              <div class="ml-auto text-sm">
+                                {{ getHumanReadableDateText(friend.ts) }}
+                              </div>
+                            </div>
+                            <div class="text-neutral-300">
+                              {{ friend.msg }}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </template>
                   </div>
                 </div>
-                <div class="w-full p-2">
-                  <div class="pointer-events-none mb-4 mt-2">
+                <div class="w-full xl:h-full mb-2 p-2 bg-zinc-700 rounded-lg">
+                  <div class="pointer-events-none m-2 mb-4">
                     <div class="flex items-end justify-between">
                       <h1 class="fw-bold text-3xl text-gray-300">
                         Groups
@@ -68,35 +70,37 @@
                       </div>
                     </div>
                   </div>
-                  <template v-for="group in this.$store.state.clarifierSessions" :key="group">
-                    <template v-if="group.type !== 'direct'">
-                      <div class="justify-content-center"
-                           style="padding-bottom: 15px; display: flex">
-                        <div
-                          class="text-neutral-300 hover:text-white hover:bg-zinc-500 hover:bg-opacity-50 cursor-pointer rounded-xl p-2 w-full"
-                          style="display: flex; align-items: center; justify-items: center"
-                          v-on:click="joinActive(group.id)">
-                          <img class="b_darkergray"
-                               style="width: 40px; height: 40px; border-radius: 10px"
-                               v-bind:src="getImg(group.img,true)"
-                               :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
-                          <h5 class="sb_link_text text-nowrap"
-                              style="margin: 0 0 0 10px; font-weight: bold">
-                            &nbsp;{{ group.title }}
-                          </h5>
-                          <i class="bi bi-shield-lock text-white"
-                             title="End-to-End Encrypted Group"
-                             style="margin-left: auto; margin-right: 4px"></i>
+                  <div class="m-2 divide-y-2 divide-zinc-600">
+                    <template v-for="group in this.$store.state.clarifierSessions" :key="group">
+                      <template v-if="group.type !== 'direct'">
+                        <div class="flex items-center h-20 pt-1 my-1">
+                          <div
+                            class="text-neutral-300 h-20 hover:text-white bg-zinc-700
+                                   hover:brightness-125 cursor-pointer hover:rounded p-2 w-full"
+                            style="display: flex; align-items: center; justify-items: center"
+                            v-on:click="joinActive(group.id)">
+                            <img class="b_darkergray"
+                                 style="width: 40px; height: 40px; border-radius: 10px"
+                                 v-bind:src="getImg(group.img,true)"
+                                 :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
+                            <h5 class="sb_link_text text-nowrap"
+                                style="margin: 0 0 0 10px; font-weight: bold">
+                              &nbsp;{{ group.title }}
+                            </h5>
+                            <i class="bi bi-shield-lock text-neutral-300"
+                               title="End-to-End Encrypted Group"
+                               style="margin-left: auto; margin-right: 4px"></i>
+                          </div>
+                          <button class="text-neutral-300 ml-2 h-20 flex items-center justify-center"
+                                  title="Remove Group"
+                                  v-on:click="this.removeGroup(group)">
+                            <i class="bi bi-x-lg p-2 rounded-xl bg-zinc-800 bg-opacity-50
+                                    hover:brightness-125"></i>
+                          </button>
                         </div>
-                        <button class="text-red-700 p-2 ml-2 rounded-xl
-                                       bg-zinc-800 hover:bg-red-800 hover:text-black"
-                                title="Remove Group"
-                                v-on:click="this.removeGroup(group)">
-                          <i class="bi bi-x-lg"></i>
-                        </button>
-                      </div>
+                      </template>
                     </template>
-                  </template>
+                  </div>
                 </div>
               </div>
             </div>
@@ -117,19 +121,27 @@
                    class="text-neutral-300">
                   Enter an invite ID to join an existing group or create your own by typing in a name for it.
                 </p>
-                <input id="input_session" v-model="input_string"
+                <input id="input_session"
+                       :ref="'input_session'"
+                       v-model="input_string"
+                       v-on:input="checkInput()"
+                       v-on:keyup="checkInput()"
                        placeholder="Invite ID or Name..."
                        class="font-bold px-2 py-1 my-3 bg-zinc-800 text-neutral-300 rounded-lg
                                 border-2 border-zinc-700 placeholder-neutral-400"
                        style="width: 100%; font-size: 150%"
                        v-on:keyup.enter="joinOrCreate()">
                 <button id="btn_join_session"
+                        :ref="'btn_join_session'"
+                        disabled
                         class="btn btn-outline-light border-2 border-zinc-700"
                         style="max-height: 6ch; height: 6ch"
                         v-on:click="join()">
                   <span class="fw-bold lead">Join</span>
                 </button>
                 <button id="btn_create_session"
+                        :ref="'btn_create_session'"
+                        disabled
                         class="btn btn-outline-light border-2 border-zinc-700"
                         style="max-height: 6ch; height: 6ch"
                         v-on:click="create()">
@@ -168,12 +180,6 @@ export default {
   },
   methods: {
     initFunction: function () {
-      document.getElementById('btn_join_session').disabled = true
-      document.getElementById('btn_create_session').disabled = true
-      const sessionInput = document.getElementById('input_session')
-      sessionInput.addEventListener('input', this.checkInput, false)
-      sessionInput.addEventListener('keyup', this.checkInput, false)
-      if (window.innerWidth >= 1024) sessionInput.focus()
       this.getTime()
       setInterval(this.getTime, 1000)
     },
@@ -263,8 +269,11 @@ export default {
         .then(async (data) => {
           if (data.result.chatrooms.length > 0) {
             this.friends = []
+            // Iterate over all direct chatrooms
             for (let i = 0; i < data.result.chatrooms.length; i++) {
               let userId = 'none'
+              // Iterate over all members of a single direct chatroom
+              // We do this to figure out the user ID for decryption
               for (let j = 0; j < data.result.chatrooms[i].members.length; j++) {
                 const member = JSON.parse(data.result.chatrooms[i].members[j])
                 if (member.usr === this.$store.state.username) {

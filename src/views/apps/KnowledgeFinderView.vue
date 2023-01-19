@@ -1135,35 +1135,39 @@ export default {
 }
 
 .markedFinder h2 {
-  @apply text-base mb-2 mt-3 font-bold;
+  @apply text-base my-4 font-bold;
 }
 
 .markedFinder h3 {
-  @apply text-base mb-2 mt-3 font-bold;
+  @apply text-base my-4 font-bold;
 }
 
 .markedFinder h4 {
-  @apply text-base mb-2 mt-3 font-bold;
+  @apply text-base my-2 font-bold;
 }
 
 .markedFinder h5 {
-  @apply text-base mb-2 mt-3 font-bold;
+  @apply text-base my-2 font-bold;
 }
 
 .markedFinder h6 {
-  @apply text-base font-bold;
+  @apply text-base my-1 font-bold;
 }
 
 .markedFinder p code {
-  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-neutral-700 text-neutral-400;
+  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-neutral-700 text-neutral-400 my-2;
 }
 
 .markedFinder hr {
-  @apply my-4 h-[4px] w-3/4 mx-auto;
+  @apply my-6 h-[4px] w-full;
 }
 
 .markedFinder > :last-child {
   @apply mb-0 !important;
+}
+
+.markedFinder > :first-child {
+  @apply mt-0 !important;
 }
 
 .gray-hover:hover {

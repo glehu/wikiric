@@ -1,7 +1,7 @@
 <template>
   <div class="flex w-screen h-screen pt-[60px]">
     <div id="sidebar"
-         class="active h-full p_sidebar_left bg-slate-700 border-r border-neutral-600 relative">
+         class="active h-full p_sidebar_left bg-zinc-700 border-r border-zinc-600 relative">
       <div class="w-full h-[calc(100%-20px)] relative">
         <div class="grid grid-cols-3 m-2 h-[42px]">
           <div class="flex items-center cursor-pointer hover:bg-neutral-900 hover:bg-opacity-50 p-2 rounded-md"
@@ -37,7 +37,7 @@
         </template>
       </div>
       <div
-        class="p_sidebar_toggler absolute w-6 right-0 top-0 bottom-0 hover:bg-slate-600 cursor-pointer flex items-center justify-center overflow-hidden"
+        class="p_sidebar_toggler absolute w-6 right-0 top-0 bottom-0 hover:bg-zinc-600 cursor-pointer flex items-center justify-center overflow-hidden"
         v-on:click="toggleSidebar">
       </div>
     </div>
@@ -209,7 +209,7 @@
                                 leave-from-class="transform scale-100 opacity-100"
                                 leave-to-class="transform scale-95 opacity-0"
                               >
-                                <MenuItems class="p_card_menu_list bg-slate-800">
+                                <MenuItems class="p_card_menu_list bg-zinc-800">
                                   <div class="px-1 py-1">
                                     <div class="pointer-events-none">
                                       <div class="text-neutral-300 group p_card_menu_item font-bold">
@@ -519,7 +519,7 @@
                 leave-from-class="transform scale-100 opacity-100"
                 leave-to-class="transform scale-95 opacity-0"
               >
-                <MenuItems class="p_card_menu_list bg-slate-800">
+                <MenuItems class="p_card_menu_list bg-zinc-800">
                   <div class="px-1 py-1">
                     <div class="pointer-events-none">
                       <div class="text-neutral-300 group p_card_menu_item font-bold">
@@ -1290,14 +1290,14 @@ export default {
         if (ev.shiftKey) return
         ev.preventDefault()
         if (this.isShowingTask) {
-          this.submitComment()
+          await this.submitComment()
         } else if (this.isSearching) {
           await this.searchWisdom()
         }
       }
     },
-    submitComment: function () {
-      this.postComment()
+    submitComment: async function () {
+      await this.postComment()
     },
     postComment: async function () {
       if (this.showingTaskComment.trim() === '') return
@@ -1777,7 +1777,7 @@ export default {
 
 /* Coloring / Shape */
 .p_card {
-  @apply bg-slate-700 rounded-lg text-neutral-300;
+  @apply bg-zinc-600 rounded-md text-neutral-300;
 }
 
 /* Sizing */
@@ -1786,7 +1786,7 @@ export default {
 }
 
 .p_input {
-  @apply rounded-md py-1 px-3 bg-neutral-800 hover:bg-neutral-900 focus:bg-neutral-900 bg-opacity-50 placeholder-neutral-400;
+  @apply rounded py-1 px-3 bg-neutral-800 hover:bg-neutral-900 focus:bg-neutral-900 bg-opacity-50 placeholder-neutral-400;
 }
 
 .p_input_icon {
@@ -1806,7 +1806,7 @@ export default {
 }
 
 .p_card_menu_active {
-  @apply bg-neutral-900 bg-opacity-60 text-white font-bold;
+  @apply bg-zinc-900 bg-opacity-60 text-white font-bold;
 }
 
 .p_card_menu_item {
@@ -1814,7 +1814,7 @@ export default {
 }
 
 .p_card_menu_list {
-  @apply absolute right-0 mt-2 w-56 origin-top-right divide-y divide-neutral-400 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10;
+  @apply absolute right-0 mt-2 w-56 origin-top-right divide-y divide-zinc-400 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10;
 }
 
 .p_markdown p {
@@ -1902,7 +1902,7 @@ export default {
 }
 
 .p_sidebar_left > .p_sidebar_toggler {
-  @apply bg-slate-700 hover:bg-slate-600;
+  @apply bg-zinc-700 hover:bg-zinc-600;
 }
 
 .p_sidebar_left.active {
@@ -1911,7 +1911,7 @@ export default {
 
 .p_sidebar_left.active > .p_sidebar_toggler {
   background-color: unset;
-  @apply hover:bg-slate-600;
+  @apply hover:bg-zinc-600;
 }
 
 .p_task.active {

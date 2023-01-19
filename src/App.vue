@@ -284,8 +284,21 @@ export default {
           {
             title: payload.notification.title,
             text: payload.notification.body,
-            type: 'info'
+            type: 'info',
+            duration: 5000
           })
+        if (payload.data.dlType === 'clarifier') {
+          let chatGUID
+          if (payload.data.subchatGUID !== '') {
+            chatGUID = payload.data.subchatGUID
+          } else {
+            chatGUID = payload.data.dlDest.substring(21, 36)
+          }
+          this.$store.commit('addClarifierTimestampNew', {
+            id: chatGUID,
+            ts: new Date().getTime()
+          })
+        }
       }
       // Forward the notification to the clarifier
       bc.postMessage(payload)

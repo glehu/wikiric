@@ -144,6 +144,7 @@ export default createStore({
       if (session.id == null) return
       for (let i = 0; i < state.clarifierTimestamps.length; i++) {
         if (state.clarifierTimestamps[i].id === session.id) {
+          if (state.clarifierTimestamps[i].tsNew >= session.ts) return
           state.clarifierTimestamps[i].tsNew = session.ts
           return
         }
@@ -157,6 +158,7 @@ export default createStore({
       if (session.id == null) return
       for (let i = 0; i < state.clarifierTimestamps.length; i++) {
         if (state.clarifierTimestamps[i].id === session.id) {
+          if (state.clarifierTimestamps[i].tsRead >= session.ts) return
           state.clarifierTimestamps[i].tsRead = session.ts
           return
         }

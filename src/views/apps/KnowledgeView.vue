@@ -370,8 +370,8 @@
                 </p>
               </div>
               <template v-for="comment in related.comments" :key="comment.uID">
-                <div class="mb-2 w-full bg-neutral-800 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2
-                            border-r-2 border-b-neutral-700 border-r-neutral-700 comment">
+                <div class="mb-2 w-full bg-zinc-700 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2
+                            border-r-2 border-b-zinc-700 border-r-zinc-700 comment">
                   <div v-if="comment.reacts" class="px-2 pt-2 flex">
                     <div v-for="reaction in comment.reacts" :key="reaction.src"
                          class="flex items-center p-1 mr-1 text-neutral-400 cursor-pointer hover:text-white"
@@ -1264,39 +1264,43 @@ export default {
 }
 
 .markedView h1 {
-  @apply text-3xl mb-2 mt-4 font-bold;
+  @apply text-3xl my-8 font-bold;
 }
 
 .markedView h2 {
-  @apply text-2xl mb-2 mt-4 font-bold;
+  @apply text-2xl my-6 font-bold;
 }
 
 .markedView h3 {
-  @apply text-xl mb-2 mt-4 font-bold;
+  @apply text-xl my-4 font-bold;
 }
 
 .markedView h4 {
-  @apply text-xl mb-2 mt-4 font-bold;
+  @apply text-xl my-2 font-bold;
 }
 
 .markedView h5 {
-  @apply text-lg mb-2 mt-4 font-bold;
+  @apply text-lg my-2 font-bold;
 }
 
 .markedView h6 {
-  @apply text-lg font-bold;
+  @apply text-lg my-1 font-bold;
 }
 
 .markedView p code {
-  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-neutral-700 text-neutral-400;
+  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-neutral-700 text-neutral-400 my-2;
 }
 
 .markedView hr {
-  @apply my-4 h-[4px] w-3/4 mx-auto;
+  @apply my-6 h-[4px] w-full;
 }
 
 .markedView > :last-child {
   @apply mb-0 !important;
+}
+
+.markedView > :first-child {
+  @apply mt-0 !important;
 }
 
 .sidebar_tooltip {

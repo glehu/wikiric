@@ -82,7 +82,7 @@
       </div>
       <div id="sidebar2"
            style="margin-top: 60px" v-show="canShowSidebar"
-           class="sidebar2 bg-zinc-600 lg:rounded-tl">
+           class="sidebar2 bg-zinc-700 lg:rounded-tl">
         <div class="h-full relative">
           <!-- #### SUBCHATS #### -->
           <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden"
@@ -160,9 +160,9 @@
         <template v-if="overlayType === 'msg'">
           <div id="chat_section"
                class="chat_section w-full h-full overflow-clip
-                      bg-zinc-600 rounded-tl-lg lg:rounded-tl-none lg:rounded-tr-lg border-r-zinc-900 border-r-2">
+                      bg-zinc-700 rounded-tl-lg lg:rounded-tl-none lg:rounded-tr-lg border-r-zinc-900 border-r-2">
             <!-- #### CHAT HEADER #### -->
-            <div class="chat_header bg-zinc-600">
+            <div class="chat_header bg-zinc-700">
               <div
                 style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%; align-items: center">
                 <div style="margin-left: 10px"
@@ -812,7 +812,7 @@
   <!-- #### USER PROFILE #### -->
   <div class="user_profile overflow-x-hidden overflow-y-auto"
        v-show="isViewingUserProfile" @click.stop>
-    <div style="position: relative; padding-top: 10px; height: 100%">
+    <div class="relative h-full">
       <i class="bi bi-x-lg lead orange-hover"
          style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideAllWindows()"></i>
@@ -822,7 +822,7 @@
           <img :src="getImg(viewedUserProfile.iurl, true)" alt="?"
                class="bg-zinc-900"
                style="width: 75px; height: 75px; border-radius: 100%;
-                                position: absolute; top: 20px; left: -4px">
+                                position: absolute; left: -4px">
         </template>
         <div style="display: block">
           <h2 class="fw-bold text-2xl">
@@ -963,15 +963,15 @@
     </template>
   </modal>
   <!-- #### GIF SELECTION #### -->
-  <div class="giphygrid bg-zinc-700 p-3"
+  <div class="giphygrid bg-zinc-700 p-3 h-full"
        style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
-    <div style="height: calc(100% - 50px); width: 100%; overflow-x: clip; overflow-y: auto;"
+    <div style="height: calc(100% - 50px); width: 100%; overflow-x: clip; overflow-y: auto"
          class="b_darkergray rounded-lg">
       <div v-for="gif in gifSelection" :key="gif"
            style="padding-top: 10px; padding-left: 10px; display: inline-flex"
            v-on:click="this.sendSelectedGIF(gif.images.fixed_height.url)">
         <img :src="gif.images.fixed_height.url" alt="Loading" class="selectableGIF"
-             style="width: 150px; max-height: 150px">
+             style="width: 100%; max-height: 150px">
       </div>
     </div>
     <div style="width: 100%; height: 50px"
@@ -1444,7 +1444,7 @@ export default {
     initFunction: async function () {
       this.setUpWRTC()
       this.$store.commit('setLastClarifierGUID', this.$route.params.id)
-      this.toggleElement('init_loading', 'flex')
+      // this.toggleElement('init_loading', 'flex')
       window.addEventListener('resize', this.resizeCanvas, false)
       this.resizeCanvas()
       // Save elements to gain performance boost by avoiding too many lookups
@@ -1486,7 +1486,7 @@ export default {
         get: (searchParams, prop) => searchParams.get(prop)
       })
       const subchatGUID = params.sub
-      this.toggleElement('init_loading', 'flex')
+      // this.toggleElement('init_loading', 'flex')
       if (subchatGUID != null) {
         this.$store.commit('setLastClarifierSubGUID', subchatGUID)
         await this.getClarifierMetaData(this.getSession(), false, true)
@@ -3243,16 +3243,22 @@ export default {
         this.handleUploadSnippetError()
         return
       }
-      let prefix = '[c:IMG]'
-      if (this.uploadFileType.includes('audio')) prefix = '[c:AUD]'
-      // Add the link as a message, so it shows up in the chat
-      const imgURL = this.$store.state.serverIP + '/m6/get/' + response.guid
-      const payload = {
-        msg: '![Snippet](' + imgURL + ')',
-        url: imgURL
+      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.guid
+      let prefix
+      let payload
+      if (this.uploadFileType.includes('audio')) {
+        prefix = '[c:AUD]'
+        payload = contentURL
+      } else {
+        prefix = '[c:IMG]'
+        // Add the link as a message, so it shows up in the chat
+        payload = JSON.stringify({
+          msg: '![Snippet](' + contentURL + ')',
+          url: contentURL
+        })
       }
       this.addMessagePar(prefix + '[c:MSG<ENCR]' +
-        await this.encryptPayload(JSON.stringify(payload))
+        await this.encryptPayload(payload)
       )
       // Post the new_message content in case the user has written a comment
       this.addMessagePar(this.new_message)
@@ -4295,9 +4301,7 @@ export default {
   max-width: calc(100vw - 24px);
   width: 400px;
   max-height: calc(100% - 200px);
-  height: 100%;
-  padding: 5px 20px;
-  @apply rounded-lg bg-zinc-600;
+  @apply rounded-lg bg-zinc-600 p-4;
 }
 
 .user_role {
@@ -4686,9 +4690,9 @@ export default {
 
 .uploadFileSnippet {
   min-width: 50px;
-  max-width: 90%;
+  max-width: 100%;
   min-height: 50px;
-  max-height: 250px;
+  max-height: 100%;
   margin: auto;
 }
 
@@ -4806,6 +4810,10 @@ export default {
   @apply mb-0 !important;
 }
 
+.clientMessage > :first-child {
+  @apply mt-0 !important;
+}
+
 .clientMessage table {
   @apply mb-4;
 }
@@ -4831,11 +4839,11 @@ export default {
 }
 
 .clientMessage p code {
-  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-neutral-700 text-neutral-400;
+  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-neutral-700 text-neutral-400 my-2;
 }
 
 .clientMessage hr {
-  @apply my-4 h-[4px] w-3/4 mx-auto;
+  @apply my-6 h-[4px] w-full;
 }
 
 .clientMessage a {
@@ -4843,27 +4851,27 @@ export default {
 }
 
 .clientMessage h1 {
-  @apply text-4xl mb-2;
+  @apply text-4xl my-8;
 }
 
 .clientMessage h2 {
-  @apply text-3xl mb-2;
+  @apply text-3xl my-6;
 }
 
 .clientMessage h3 {
-  @apply text-2xl mb-2;
+  @apply text-2xl my-4;
 }
 
 .clientMessage h4 {
-  @apply text-xl mb-2;
+  @apply text-xl my-2;
 }
 
 .clientMessage h5 {
-  @apply text-lg mb-2;
+  @apply text-lg my-1;
 }
 
 .clientMessage img {
-  @apply my-1;
+  @apply my-2;
 }
 
 .headerline {
