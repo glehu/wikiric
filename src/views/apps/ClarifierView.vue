@@ -1,9 +1,9 @@
 <template>
   <div id="clarifier_view_elem"
-       class="bg-zinc-900 w-screen h-full absolute overflow-x-hidden overflow-y-auto">
-    <div class="wrapper pt-[80px] min-h-full w-full">
+       class="bg-zinc-900 w-screen h-[calc(100%-60px)] absolute top-[60px] overflow-x-hidden overflow-y-auto">
+    <div class="wrapper min-h-full w-full">
       <!-- Active Sessions -->
-      <div class="bg-zinc-800 rounded-tr-lg col-span-1 lg:col-span-2 xl:h-full">
+      <div class="col-span-1 lg:col-span-2 xl:h-full">
         <div class="row d-flex justify-content-center align-items-center xl:h-full">
           <div class="w-full xl:h-full">
             <div class="text-white p-2 rounded-lg xl:w-full xl:h-full">
@@ -39,7 +39,7 @@
                                 {{ getHumanReadableDateText(friend.ts) }}
                               </div>
                             </div>
-                            <div class="text-neutral-300">
+                            <div class="text-neutral-300 max-h-12 overflow-hidden text-ellipsis">
                               {{ friend.msg }}
                             </div>
                           </div>

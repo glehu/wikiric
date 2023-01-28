@@ -4,7 +4,7 @@
     <template v-if="knowledgeExists">
       <div class="h-full w-full">
         <template v-if="!isViewingWisdom">
-          <div class="grid grid-cols-1 md:grid-cols-3 w-full h-full">
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 w-full h-full">
             <div id="knowledgeFinder_sidebar"
                  class="h-[calc(100%-1rem)] rounded-lg overflow-hidden m-2 bg-zinc-700">
               <div class="h-full relative">
@@ -86,7 +86,7 @@
                 </div>
               </div>
             </div>
-            <div class="md:col-span-2 pt-3 overflow-y-scroll overflow-x-hidden h-full">
+            <div class="xl:col-span-2 pt-3 overflow-y-scroll overflow-x-hidden h-full">
               <template v-if="emptyState">
                 <div class="text-neutral-400 px-2 ml-2">
                   <p class="text-xl font-bold mb-2 pointer-events-none text-neutral-400">

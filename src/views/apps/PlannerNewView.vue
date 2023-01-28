@@ -13,24 +13,6 @@
               Exit
             </div>
           </div>
-          <div class="flex items-center cursor-pointer hover:bg-neutral-900 hover:bg-opacity-50 p-2 rounded-md"
-               v-on:click="getBoxes(false)">
-            <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
-              <ArrowPathIcon class="h-6 w-6"></ArrowPathIcon>
-            </div>
-            <div class="font-bold text-neutral-300">
-              Reload Tasks
-            </div>
-          </div>
-          <div class="flex items-center cursor-pointer hover:bg-neutral-900 hover:bg-opacity-50 p-2 rounded-md"
-               v-on:click="openSearch()">
-            <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
-              <FunnelIcon class="h-6 w-6"></FunnelIcon>
-            </div>
-            <div class="font-bold text-neutral-300">
-              Filter
-            </div>
-          </div>
         </div>
         <template v-if="calendarOptions">
           <FullCalendar :options="calendarOptions" class="w-[calc(100%-20px)] h-[calc(100%-64px)] text-neutral-300"/>
@@ -41,121 +23,79 @@
         v-on:click="toggleSidebar">
       </div>
     </div>
-    <div id="board"
-         class="h-full w-full flex p-1 bg-neutral-900 overflow-x-auto overflow-y-auto">
-      <template v-if="boxes.length > 0">
-        <template v-for="box in boxes" :key="box.uID">
-          <div class="p_card" style="margin-bottom: 312px !important">
-            <div class="p_card_header_section relative text-neutral-300 flex items-center p-2">
-              <Markdown class="p_markdown p_markdown_xl_only font-bold"
-                        :source="box.box.t"
-                        :plugins="plugins"></Markdown>
-              <div class="ml-auto absolute top-0 right-0 h-full flex items-center">
-                <template v-if="box.tasks">
-                  <div class="ml-auto pl-2 font-bold flex items-center cursor-default"
-                       :title="'Tasks: ' + box.tasks.length">
-                    <InboxIcon class="h-4 w-4 mr-1"></InboxIcon>
-                    <p>{{ box.tasks.length }}</p>
-                  </div>
-                </template>
-                <Menu as="div" class="relative inline-block text-left">
-                  <MenuButton
-                    title="Options"
-                    class="hover:bg-neutral-900 p-1 ml-2 bg-opacity-50 rounded flex items-center cursor-pointer">
-                    <EllipsisVerticalIcon class="h-5 w-5"></EllipsisVerticalIcon>
-                  </MenuButton>
-                  <transition
-                    enter-active-class="transition duration-100 ease-out"
-                    enter-from-class="transform scale-95 opacity-0"
-                    enter-to-class="transform scale-100 opacity-100"
-                    leave-active-class="transition duration-75 ease-in"
-                    leave-from-class="transform scale-100 opacity-100"
-                    leave-to-class="transform scale-95 opacity-0"
-                  >
-                    <MenuItems
-                      class="p_card_menu_list bg-neutral-100"
-                    >
-                      <div class="px-1 py-1">
-                        <MenuItem v-slot="{ active }">
-                          <button v-on:click="finishTask(box.box, true)"
-                                  :class="[active ? 'p_card_menu_active' : 'text-gray-900','group p_card_menu_item']">
-                            <TrashIcon
-                              :active="active"
-                              class="mr-2 h-5 w-5"
-                              aria-hidden="true"
-                            />
-                            Delete
-                          </button>
-                        </MenuItem>
+    <div class="bg-zinc-900 w-[calc(100%-42px)] h-full overflow-hidden">
+      <div class="flex m-2 h-[42px] relative top-0 gap-xl-4">
+        <div class="flex items-center cursor-pointer hover:bg-zinc-800 p-2 rounded-md"
+             v-on:click="$router.back()">
+          <div class="h-full mr-3 px-1 rounded-xl text-neutral-300 flex items-center">
+            <i class="sb_link_icon bi bi-x-square text-xl"></i>
+          </div>
+          <div class="font-bold text-neutral-300">
+            Exit
+          </div>
+        </div>
+        <div class="flex items-center cursor-pointer hover:bg-zinc-800 p-2 rounded-md"
+             v-on:click="getBoxes(false)">
+          <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
+            <ArrowPathIcon class="h-6 w-6"></ArrowPathIcon>
+          </div>
+          <div class="font-bold text-neutral-300">
+            Reload
+          </div>
+        </div>
+        <div class="flex items-center cursor-pointer hover:bg-zinc-800 p-2 rounded-md"
+             v-on:click="openSearch()">
+          <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
+            <FunnelIcon class="h-6 w-6"></FunnelIcon>
+          </div>
+          <div class="font-bold text-neutral-300">
+            Filter
+          </div>
+        </div>
+        <div class="flex items-center cursor-pointer hover:bg-zinc-800 p-2 rounded-md"
+             v-on:click="isListView = !isListView">
+          <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
+            <template v-if="!isListView">
+              <ListBulletIcon class="h-6 w-6"></ListBulletIcon>
+            </template>
+            <template v-else>
+              <ViewColumnsIcon class="h-6 w-6"></ViewColumnsIcon>
+            </template>
+          </div>
+          <div class="font-bold text-neutral-300">
+            <template v-if="!isListView">
+              List
+            </template>
+            <template v-else>
+              Board
+            </template>
+          </div>
+        </div>
+      </div>
+      <template v-if="!isListView">
+        <div id="board"
+             class="h-full w-full flex p-1 overflow-x-auto overflow-y-auto">
+          <template v-if="boxes.length > 0">
+            <template v-for="box in boxes" :key="box.box.uID">
+              <div class="p_card box_container" style="margin-bottom: 312px !important"
+                   :ref="'boxcontainer_' + box.box.uID" :id="'boxcontainer_' + box.box.uID">
+                <div class="p_card_header_section relative text-neutral-300 flex items-center p-2">
+                  <Markdown class="p_markdown p_markdown_xl_only font-bold"
+                            :source="box.box.t"
+                            :plugins="plugins"></Markdown>
+                  <div class="ml-auto absolute top-0 right-0 h-full flex items-center">
+                    <template v-if="box.tasks">
+                      <div class="ml-auto pl-2 font-bold flex items-center cursor-default"
+                           :title="'Tasks: ' + box.tasks.length">
+                        <InboxIcon class="h-4 w-4 mr-1"></InboxIcon>
+                        <p>{{ box.tasks.length }}</p>
                       </div>
-                      <div class="px-1 py-1">
-                        <MenuItem v-slot="{ active }">
-                          <button
-                            :class="[active ? 'p_card_menu_active' : 'text-gray-900','group p_card_menu_item']">
-                            <ArrowsPointingOutIcon
-                              :active="active"
-                              class="mr-2 h-5 w-5"
-                              aria-hidden="true"
-                            />
-                            Move
-                          </button>
-                        </MenuItem>
-                      </div>
-                    </MenuItems>
-                  </transition>
-                </Menu>
-              </div>
-            </div>
-            <div v-if="box.tasks" class="mb-4">
-              <div v-for="task in box.tasks" :key="task.uID" class="p-1 task_container"
-                   :id="'taskcontainer_' + task.uID">
-                <div :id="'task_' + task.uID"
-                     class="p_task bg-neutral-900 bg-opacity-75 rounded flex items-center relative cursor-pointer">
-                  <div class="w-full h-full rounded py-1 px-1" v-on:click="openTask(task)">
-                    <div class="flex mb-2 items-center">
-                      <template v-if="task.categories">
-                        <template v-for="cat in task.categories" :key="cat">
-                          <div v-if="JSON.parse(cat).category != null"
-                               class="text-white bg-orange-900 flex items-center px-0.5 px-1 rounded mr-1 pointer-events-none text-xs">
-                            {{ JSON.parse(cat).category }}
-                          </div>
-                        </template>
-                      </template>
-                    </div>
-                    <Markdown class="p_markdown p_markdown_xl_only font-bold text-neutral-300 w-full px-1"
-                              :source="task.t"
-                              :plugins="plugins"></Markdown>
-                    <Markdown class="p_markdown p_markdown_xl_only text-neutral-400 text-sm mt-2 w-full px-1"
-                              :source="task.desc"
-                              :plugins="plugins"></Markdown>
-                    <div class="flex mt-2">
-                      <div class="ml-auto flex items-center">
-                        <div>
-                          <template v-if="task.dueDate && task.dueDate !== ''">
-                            <div class="ml-auto flex items-center text-neutral-500 py-0.5">
-                              <p class="m-0 text-xs font-bold">
-                                {{ getTaskDueDate(task).replace(' ', '&nbsp;') }}
-                              </p>
-                              <CalendarIcon class="w-4 h-4 ml-1"></CalendarIcon>
-                            </div>
-                          </template>
-                          <div class="ml-auto flex items-center text-neutral-500 py-0.5 justify-end">
-                            <p class="text-xs ml-1">
-                              {{ task.author }}
-                            </p>
-                            <UserIcon class="w-4 h-4 ml-1"></UserIcon>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    class="ml-auto absolute top-0 right-0 h-full">
-                    <Menu as="div" class="relative inline-block text-left h-full">
+                    </template>
+                    <Menu as="div" class="relative inline-block text-left">
                       <MenuButton
                         title="Options"
-                        class="p_task_overlay hover:bg-neutral-600 rounded m-1 p-1 backdrop-blur-3xl flex items-center cursor-pointer">
-                        <SquaresPlusIcon class="h-5 w-5"></SquaresPlusIcon>
+                        class="hover:bg-neutral-900 p-1 ml-2 bg-opacity-50 rounded flex items-center cursor-pointer">
+                        <EllipsisVerticalIcon class="h-5 w-5"></EllipsisVerticalIcon>
                       </MenuButton>
                       <transition
                         enter-active-class="transition duration-100 ease-out"
@@ -170,18 +110,7 @@
                         >
                           <div class="px-1 py-1">
                             <MenuItem v-slot="{ active }">
-                              <button v-on:click="finishTask(task)"
-                                      :class="[active ? 'p_card_menu_active' : 'text-gray-900','group p_card_menu_item']">
-                                <CheckIcon
-                                  :active="active"
-                                  class="mr-2 h-5 w-5"
-                                  aria-hidden="true"
-                                />
-                                Finish
-                              </button>
-                            </MenuItem>
-                            <MenuItem v-slot="{ active }">
-                              <button v-on:click="finishTask(task, true)"
+                              <button v-on:click="finishTask(box.box, true)"
                                       :class="[active ? 'p_card_menu_active' : 'text-gray-900','group p_card_menu_item']">
                                 <TrashIcon
                                   :active="active"
@@ -191,55 +120,6 @@
                                 Delete
                               </button>
                             </MenuItem>
-                            <Menu as="div" class="relative inline-block text-left w-full">
-                              <MenuButton
-                                title="Options"
-                                class="items-center cursor-pointer group p_card_menu_item text-gray-900 hover:text-white hover:bg-neutral-800 hover:bg-opacity-60">
-                                <ShareIcon
-                                  class="mr-2 h-5 w-5"
-                                  aria-hidden="true"
-                                />
-                                Share
-                              </MenuButton>
-                              <transition
-                                enter-active-class="transition duration-100 ease-out"
-                                enter-from-class="transform scale-95 opacity-0"
-                                enter-to-class="transform scale-100 opacity-100"
-                                leave-active-class="transition duration-75 ease-in"
-                                leave-from-class="transform scale-100 opacity-100"
-                                leave-to-class="transform scale-95 opacity-0"
-                              >
-                                <MenuItems class="p_card_menu_list bg-zinc-800">
-                                  <div class="px-1 py-1">
-                                    <div class="pointer-events-none">
-                                      <div class="text-neutral-300 group p_card_menu_item font-bold">
-                                        <ChatBubbleLeftRightIcon
-                                          class="mr-2 h-5 w-5"
-                                          aria-hidden="true"
-                                        />
-                                        Clarifier
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div class="px-1 py-1">
-                                    <template v-for="group in this.$store.state.clarifierSessions" :key="group">
-                                      <MenuItem v-slot="{ active }" class="mb-1">
-                                        <button v-on:click="showShareTask(group, task)"
-                                                :class="[active ? 'p_card_menu_active' : 'text-neutral-300','group p_card_menu_item p-1']">
-                                          <img class="bg-neutral-900 mr-2"
-                                               style="width: 32px; height: 32px; border-radius: 10px"
-                                               v-bind:src="getImg(group.img,true)"
-                                               :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
-                                          <div class="text-md">
-                                            {{ group.title }}
-                                          </div>
-                                        </button>
-                                      </MenuItem>
-                                    </template>
-                                  </div>
-                                </MenuItems>
-                              </transition>
-                            </Menu>
                           </div>
                           <div class="px-1 py-1">
                             <MenuItem v-slot="{ active }">
@@ -259,94 +139,309 @@
                     </Menu>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div class="relative flex items-center cursor-pointer p-2">
-              <PlusCircleIcon class="h-6 w-6 mx-1 absolute text-neutral-400"></PlusCircleIcon>
-              <div class="p_input p_input_icon text-neutral-400"
-                   v-on:click="toggleAndFocusNewTask('taskname_' + box.box.uID)">
-                Add a Task
-              </div>
-            </div>
-            <div :id="'taskname_' + box.box.uID"
-                 class="w-full hidden mt-4 p_new_task_disclosure relative p-2">
-              <p class="absolute pt-1 pl-2 text-neutral-400">##</p>
-              <input :id="'taskname_' + box.box.uID + '_input'"
-                     type="text"
-                     class="p_input w-full font-bold"
-                     style="padding-left: 2rem"
-                     placeholder="Title"
-                     v-model="newTask.name"
-                     v-on:keydown="newTaskKeyUp(box.box, 'taskname_' + box.box.uID)">
-              <textarea :id="'taskname_' + box.box.uID + '_desc'"
-                        type="text" v-model="newTask.description"
-                        rows="1"
-                        class="p_input w-full mt-2"
-                        placeholder="Description"
-                        v-on:keydown="newTaskKeyUp(box.box, 'taskname_' + box.box.uID)"
-                        v-on:keyup="auto_grow('taskname_' + box.box.uID + '_desc')"></textarea>
-              <Listbox v-model="newTask.categories" multiple id="newtaskcategories">
-                <div class="relative mt-1">
-                  <ListboxButton
-                    class="bg-neutral-900 w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
-                  >
-                    <template v-if="newTask.categories.length > 0">
-                      <div class="block truncate font-bold text-neutral-300">
-                        {{ newTask.categories.map((cat) => cat.category).join(', ') }}
+                <div v-if="box.tasks" class="mb-4">
+                  <div v-for="task in box.tasks" :key="task.uID" class="p-1 task_container"
+                       :ref="'taskcontainer_' + task.uID" :id="'taskcontainer_' + task.uID">
+                    <div :ref="'task_' + task.uID" :id="'task_' + task.uID"
+                         class="p_task bg-neutral-900 bg-opacity-75 rounded flex items-center relative cursor-pointer">
+                      <div class="w-full h-full rounded py-1 px-1" v-on:click="openTask(task)">
+                        <div class="flex mb-2 items-center">
+                          <template v-if="task.categories">
+                            <template v-for="cat in task.categories" :key="cat">
+                              <div v-if="JSON.parse(cat).category != null"
+                                   class="text-white bg-orange-900 flex items-center px-0.5 px-1 rounded mr-1 pointer-events-none text-xs">
+                                {{ JSON.parse(cat).category }}
+                              </div>
+                            </template>
+                          </template>
+                        </div>
+                        <Markdown class="p_markdown p_markdown_xl_only font-bold text-neutral-300 w-full px-1"
+                                  :source="task.t"
+                                  :plugins="plugins"></Markdown>
+                        <Markdown class="p_markdown p_markdown_xl_only text-neutral-400 text-sm mt-2 w-full px-1"
+                                  :source="task.desc"
+                                  :plugins="plugins"></Markdown>
+                        <div class="flex mt-2">
+                          <div class="ml-auto flex items-center">
+                            <div>
+                              <template v-if="task.dueDate && task.dueDate !== ''">
+                                <div class="ml-auto flex items-center text-neutral-500 py-0.5">
+                                  <p class="m-0 text-xs font-bold">
+                                    {{ getTaskDueDate(task).replace(' ', '&nbsp;') }}
+                                  </p>
+                                  <CalendarIcon class="w-4 h-4 ml-1"></CalendarIcon>
+                                </div>
+                              </template>
+                              <div class="ml-auto flex items-center text-neutral-500 py-0.5 justify-end">
+                                <p class="text-xs ml-1">
+                                  {{ task.author }}
+                                </p>
+                                <UserIcon class="w-4 h-4 ml-1"></UserIcon>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </template>
-                    <template v-else>
-                      <span class="block truncate font-bold text-neutral-500">Select...</span>
-                    </template>
-                    <div
-                      class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                      <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
+                      <div
+                        class="ml-auto absolute top-0 right-0 h-full">
+                        <Menu as="div" class="relative inline-block text-left h-full">
+                          <MenuButton
+                            title="Options"
+                            class="p_task_overlay hover:bg-neutral-600 rounded m-1 p-1 backdrop-blur-3xl flex items-center cursor-pointer">
+                            <SquaresPlusIcon class="h-5 w-5"></SquaresPlusIcon>
+                          </MenuButton>
+                          <transition
+                            enter-active-class="transition duration-100 ease-out"
+                            enter-from-class="transform scale-95 opacity-0"
+                            enter-to-class="transform scale-100 opacity-100"
+                            leave-active-class="transition duration-75 ease-in"
+                            leave-from-class="transform scale-100 opacity-100"
+                            leave-to-class="transform scale-95 opacity-0"
+                          >
+                            <MenuItems
+                              class="p_card_menu_list bg-neutral-100"
+                            >
+                              <div class="px-1 py-1">
+                                <MenuItem v-slot="{ active }">
+                                  <button v-on:click="finishTask(task)"
+                                          :class="[active ? 'p_card_menu_active' : 'text-gray-900','group p_card_menu_item']">
+                                    <CheckIcon
+                                      :active="active"
+                                      class="mr-2 h-5 w-5"
+                                      aria-hidden="true"
+                                    />
+                                    Finish
+                                  </button>
+                                </MenuItem>
+                                <MenuItem v-slot="{ active }">
+                                  <button v-on:click="finishTask(task, true)"
+                                          :class="[active ? 'p_card_menu_active' : 'text-gray-900','group p_card_menu_item']">
+                                    <TrashIcon
+                                      :active="active"
+                                      class="mr-2 h-5 w-5"
+                                      aria-hidden="true"
+                                    />
+                                    Delete
+                                  </button>
+                                </MenuItem>
+                                <Menu as="div" class="relative inline-block text-left w-full">
+                                  <MenuButton
+                                    title="Options"
+                                    class="items-center cursor-pointer group p_card_menu_item text-gray-900 hover:text-white hover:bg-neutral-800 hover:bg-opacity-60">
+                                    <ShareIcon
+                                      class="mr-2 h-5 w-5"
+                                      aria-hidden="true"
+                                    />
+                                    Share
+                                  </MenuButton>
+                                  <transition
+                                    enter-active-class="transition duration-100 ease-out"
+                                    enter-from-class="transform scale-95 opacity-0"
+                                    enter-to-class="transform scale-100 opacity-100"
+                                    leave-active-class="transition duration-75 ease-in"
+                                    leave-from-class="transform scale-100 opacity-100"
+                                    leave-to-class="transform scale-95 opacity-0"
+                                  >
+                                    <MenuItems class="p_card_menu_list bg-zinc-800">
+                                      <div class="px-1 py-1">
+                                        <div class="pointer-events-none">
+                                          <div class="text-neutral-300 group p_card_menu_item font-bold">
+                                            <ChatBubbleLeftRightIcon
+                                              class="mr-2 h-5 w-5"
+                                              aria-hidden="true"
+                                            />
+                                            Clarifier
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="px-1 py-1">
+                                        <template v-for="group in this.$store.state.clarifierSessions" :key="group">
+                                          <MenuItem v-slot="{ active }" class="mb-1">
+                                            <button v-on:click="showShareTask(group, task)"
+                                                    :class="[active ? 'p_card_menu_active' : 'text-neutral-300','group p_card_menu_item p-1']">
+                                              <img class="bg-neutral-900 mr-2"
+                                                   style="width: 32px; height: 32px; border-radius: 10px"
+                                                   v-bind:src="getImg(group.img,true)"
+                                                   :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
+                                              <div class="text-md">
+                                                {{ group.title }}
+                                              </div>
+                                            </button>
+                                          </MenuItem>
+                                        </template>
+                                      </div>
+                                    </MenuItems>
+                                  </transition>
+                                </Menu>
+                              </div>
+                              <div class="px-1 py-1">
+                                <MenuItem v-slot="{ active }">
+                                  <button
+                                    :class="[active ? 'p_card_menu_active' : 'text-gray-900','group p_card_menu_item']">
+                                    <ArrowsPointingOutIcon
+                                      :active="active"
+                                      class="mr-2 h-5 w-5"
+                                      aria-hidden="true"
+                                    />
+                                    Move
+                                  </button>
+                                </MenuItem>
+                              </div>
+                            </MenuItems>
+                          </transition>
+                        </Menu>
+                      </div>
                     </div>
-                  </ListboxButton>
-                  <transition
-                    leave-active-class="transition duration-100 ease-in"
-                    leave-from-class="opacity-100"
-                    leave-to-class="opacity-0">
-                    <ListboxOptions
-                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-neutral-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                    >
-                      <ListboxOption
-                        v-slot="{ active, selected }"
-                        v-for="cat in knowledge.categories"
-                        :key="cat"
-                        :value="cat"
-                        as="template"
-                      >
-                        <li
-                          :class="[ active ? 'bg-gray-700' : '',
-                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-neutral-200' ]">
-                          <div
-                            :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
-                            {{ cat.category }}
-                          </div>
-                          <div
-                            v-if="selected"
-                            class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                            <CheckIcon class="h-5 w-5" aria-hidden="true"/>
-                          </div>
-                        </li>
-                      </ListboxOption>
-                    </ListboxOptions>
-                  </transition>
+                  </div>
                 </div>
-              </Listbox>
+                <div class="relative flex items-center cursor-pointer p-2">
+                  <PlusCircleIcon class="h-6 w-6 mx-1 absolute text-neutral-400"></PlusCircleIcon>
+                  <div class="p_input p_input_icon text-neutral-400"
+                       v-on:click="toggleAndFocusNewTask('taskname_' + box.box.uID)">
+                    Add a Task
+                  </div>
+                </div>
+                <div :id="'taskname_' + box.box.uID"
+                     class="w-full hidden mt-4 p_new_task_disclosure relative p-2">
+                  <p class="absolute pt-1 pl-2 text-neutral-400">##</p>
+                  <input :id="'taskname_' + box.box.uID + '_input'"
+                         type="text"
+                         class="p_input w-full font-bold"
+                         style="padding-left: 2rem"
+                         placeholder="Title"
+                         v-model="newTask.name"
+                         v-on:keydown="newTaskKeyUp(box.box, 'taskname_' + box.box.uID)">
+                  <textarea :id="'taskname_' + box.box.uID + '_desc'"
+                            type="text" v-model="newTask.description"
+                            rows="1"
+                            class="p_input w-full mt-2"
+                            placeholder="Description"
+                            v-on:keydown="newTaskKeyUp(box.box, 'taskname_' + box.box.uID)"
+                            v-on:keyup="auto_grow('taskname_' + box.box.uID + '_desc')"></textarea>
+                  <Listbox v-model="newTask.categories" multiple id="newtaskcategories">
+                    <div class="relative mt-1">
+                      <ListboxButton
+                        class="bg-neutral-900 w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                      >
+                        <template v-if="newTask.categories.length > 0">
+                          <div class="block truncate font-bold text-neutral-300">
+                            {{ newTask.categories.map((cat) => cat.category).join(', ') }}
+                          </div>
+                        </template>
+                        <template v-else>
+                          <span class="block truncate font-bold text-neutral-500">Select...</span>
+                        </template>
+                        <div
+                          class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                          <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
+                        </div>
+                      </ListboxButton>
+                      <transition
+                        leave-active-class="transition duration-100 ease-in"
+                        leave-from-class="opacity-100"
+                        leave-to-class="opacity-0">
+                        <ListboxOptions
+                          class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-neutral-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                        >
+                          <ListboxOption
+                            v-slot="{ active, selected }"
+                            v-for="cat in knowledge.categories"
+                            :key="cat"
+                            :value="cat"
+                            as="template"
+                          >
+                            <li
+                              :class="[ active ? 'bg-gray-700' : '',
+                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-neutral-200' ]">
+                              <div
+                                :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
+                                {{ cat.category }}
+                              </div>
+                              <div
+                                v-if="selected"
+                                class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                                <CheckIcon class="h-5 w-5" aria-hidden="true"/>
+                              </div>
+                            </li>
+                          </ListboxOption>
+                        </ListboxOptions>
+                      </transition>
+                    </div>
+                  </Listbox>
+                </div>
+              </div>
+            </template>
+          </template>
+          <div id="new_box" class="p_card" style="margin-right: 312px">
+            <div class="p_card_header_section flex relative items-center p-2">
+              <PlusCircleIcon class="h-6 w-6 mx-1 absolute"></PlusCircleIcon>
+              <input type="text" class="p_input p_input_icon w-full" placeholder="New Box..."
+                     v-model="newBox.name"
+                     v-on:keydown="newBoxKeyUp">
             </div>
           </div>
-        </template>
-      </template>
-      <div id="new_box" class="p_card" style="margin-right: 312px">
-        <div class="p_card_header_section flex relative items-center p-2">
-          <PlusCircleIcon class="h-6 w-6 mx-1 absolute"></PlusCircleIcon>
-          <input type="text" class="p_input p_input_icon w-full" placeholder="New Box..."
-                 v-model="newBox.name"
-                 v-on:keydown="newBoxKeyUp">
         </div>
-      </div>
+      </template>
+      <template v-else>
+        <div id="list"
+             class="h-full w-full py-2 pl-2 pr-3 overflow-y-auto">
+          <template v-if="boxes.length > 0">
+            <table class="w-full table-auto divide-y divide-zinc-600"
+                   style="margin-bottom: 312px !important">
+              <thead>
+              <tr class="text-neutral-400 text-lg border-b-[1px] border-b-zinc-600">
+                <th class="p-2">State</th>
+                <th class="p-2">Title</th>
+                <th class="p-2">Description</th>
+                <th class="p-2">Author</th>
+                <th class="p-2">Collaborators</th>
+              </tr>
+              </thead>
+              <tbody class="bg-zinc-800">
+              <template v-for="box in boxes" :key="box.box.uID">
+                <tr class="text-neutral-300 rounded bg-zinc-600 z-10 list_boxcontainer my-1"
+                    :ref="'list_box_' + box.box.uID" :id="'list_box_' + box.box.uID">
+                  <td class="px-2 py-4"></td>
+                  <td class="px-2 py-4 font-bold text-xl">{{ box.box.t }}</td>
+                  <td class="px-2 py-4"></td>
+                  <td class="px-2 py-4"></td>
+                  <td class="px-2 py-4"></td>
+                </tr>
+                <template v-if="box.tasks">
+                  <tr v-for="task in box.tasks" :key="task.uID"
+                      :ref="'list_task_' + task.uID" :id="'list_task_' + task.uID"
+                      v-on:click="openTask(task)"
+                      class="text-neutral-300 cursor-pointer p_taskshadow z-20 list_taskcontainer">
+                    <td class="p-2">
+                      <template v-if="task.isFinished">
+                        <div class="px-2 py-1 rounded bg-green-700 flex">
+                          <CheckIcon class="h-4 w-4 mr-1"></CheckIcon>
+                          <span class="text-xs font-bold">Done</span>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <div class="px-2 py-1 rounded bg-red-700 flex">
+                          <Cog6ToothIcon class="h-4 w-4 mr-1"></Cog6ToothIcon>
+                          <span class="text-xs font-bold">Progress</span>
+                        </div>
+                      </template>
+                    </td>
+                    <td class="p-2 text-neutral-200">{{ task.t }}</td>
+                    <td class="p-2 text-neutral-400">
+                      <div class="max-h-12 overflow-hidden">
+                        {{ task.desc }}
+                      </div>
+                    </td>
+                    <td class="p-2">{{ task.author }}</td>
+                    <td class="p-2">{{ task.collaborators }}</td>
+                  </tr>
+                </template>
+              </template>
+              </tbody>
+            </table>
+          </template>
+        </div>
+      </template>
     </div>
   </div>
   <modal @close="isShowingTask = false"
@@ -756,8 +851,10 @@ import {
   CubeTransparentIcon,
   EllipsisVerticalIcon,
   FunnelIcon,
+  ListBulletIcon,
   PlusCircleIcon,
-  SquaresPlusIcon
+  SquaresPlusIcon,
+  ViewColumnsIcon
 } from '@heroicons/vue/24/outline'
 import {
   ArrowsPointingOutIcon,
@@ -766,6 +863,7 @@ import {
   ChatBubbleLeftRightIcon,
   CheckIcon,
   ClockIcon,
+  Cog6ToothIcon,
   DocumentTextIcon,
   InboxIcon,
   ShareIcon,
@@ -834,7 +932,10 @@ export default {
     DocumentTextIcon,
     ShareIcon,
     ChatBubbleLeftRightIcon,
-    FullCalendar
+    FullCalendar,
+    ListBulletIcon,
+    ViewColumnsIcon,
+    Cog6ToothIcon
   },
   data () {
     return {
@@ -871,6 +972,7 @@ export default {
         col: -1
       },
       isSearching: false,
+      isListView: false,
       searchQuery: '',
       filters: {
         filterTitle: true,
@@ -1580,10 +1682,7 @@ export default {
         filterOverride: filterOverrideArgs
       }
       return new Promise((resolve) => {
-        const elements = document.getElementsByClassName('task_container')
-        for (let i = 0; i < elements.length; i++) {
-          elements[i].style.display = 'none'
-        }
+        this.setVisibilityOfBoxesAndTasks('none')
         this.$Worker.execute({
           action: 'api',
           method: 'post',
@@ -1621,10 +1720,20 @@ export default {
             // Make tasks visible if they are part of the search results
             let elem
             for (let i = 0; i < this.results.length; i++) {
-              elem = document.getElementById('taskcontainer_' + this.results[i].result.uID)
-              if (elem) {
-                elem.style.display = 'block'
+              // Display box
+              if (!this.isListView) {
+                elem = document.getElementById('boxcontainer_' + this.results[i].result.srcWisdomUID)
+              } else {
+                elem = document.getElementById('list_box_' + this.results[i].result.srcWisdomUID)
               }
+              if (elem) elem.style.display = ''
+              // Display task
+              if (!this.isListView) {
+                elem = document.getElementById('taskcontainer_' + this.results[i].result.uID)
+              } else {
+                elem = document.getElementById('list_task_' + this.results[i].result.uID)
+              }
+              if (elem) elem.style.display = ''
             }
           })
           .then(() => resolve())
@@ -1646,10 +1755,7 @@ export default {
       this.filters.filterKeywords = true
       this.filters.filterDescription = true
       this.filters.filterAuthor = true
-      const elements = document.getElementsByClassName('task_container')
-      for (let i = 0; i < elements.length; i++) {
-        elements[i].style.display = 'block'
-      }
+      this.setVisibilityOfBoxesAndTasks('')
     },
     moveToSelectedTask (setActive = false) {
       if (this.selection.row === -1 || this.selection.col === -1) return
@@ -1768,6 +1874,27 @@ export default {
             console.error(err.message)
           })
       })
+    },
+    setVisibilityOfBoxesAndTasks: function (display = '') {
+      let elements
+      // Boxes
+      if (!this.isListView) {
+        elements = document.getElementsByClassName('box_container')
+      } else {
+        elements = document.getElementsByClassName('list_boxcontainer')
+      }
+      for (let i = 0; i < elements.length; i++) {
+        elements[i].style.display = display
+      }
+      // Tasks
+      if (!this.isListView) {
+        elements = document.getElementsByClassName('task_container')
+      } else {
+        elements = document.getElementsByClassName('list_taskcontainer')
+      }
+      for (let i = 0; i < elements.length; i++) {
+        elements[i].style.display = display
+      }
     }
   }
 }
@@ -1914,11 +2041,13 @@ export default {
   @apply hover:bg-zinc-600;
 }
 
-.p_task.active {
+.p_task.active,
+.p_taskshadow.active {
   box-shadow: 0 0 0 2px white;
 }
 
-.p_task:hover {
+.p_task:hover,
+.p_taskshadow:hover {
   box-shadow: 0 0 0 2px white;
 }
 

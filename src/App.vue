@@ -2,7 +2,7 @@
   <div id="root" class="home">
     <Disclosure as="nav" class="backdrop-blur-xl fixed-top"
                 v-slot="{ open }" id="global_nav">
-      <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+      <div class="px-4">
         <div class="relative flex items-center justify-between"
              style="height: 60px; max-height: 60px; min-height: 60px">
           <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -178,7 +178,7 @@
     </Disclosure>
     <!-- More Than A Dream -->
     <div id="router_view_elem"
-         class="absolute top-0 left-0 w-full bg-neutral-900">
+         class="absolute top-0 left-0 w-full bg-zinc-900">
       <router-view/>
     </div>
     <notifications position="bottom right"/>

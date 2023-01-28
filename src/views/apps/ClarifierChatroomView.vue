@@ -530,7 +530,7 @@
                          style="display: flex; margin: 10px 0 0 42px">
                       <div v-for="reaction in msg.reacts" :key="reaction.src"
                            style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                           class="b_darkgray c_lightgray gray-hover"
+                           class="bg-zinc-900 c_lightgray gray-hover"
                            :title="reaction.src.toString() + ' reacted to this message.'"
                            v-on:click="reactToMessage(msg, reaction.t)"
                            :id="'react_' + msg.gUID + '_' + reaction.t">

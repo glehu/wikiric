@@ -3,7 +3,7 @@
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <div
-      class="text-gray-200 max-w-screen-xl w-full h-full flex backdrop-brightness-75 pt-[60px] py-8 overflow-x-hidden">
+      class="text-gray-200 w-full h-full flex pt-[60px] py-8 overflow-x-hidden">
       <div class="w-full h-full relative p-8">
         <div class="w-full"><!-- Demo Wrapper -->
           <div
