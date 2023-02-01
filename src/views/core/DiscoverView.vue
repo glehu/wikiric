@@ -52,7 +52,7 @@
     <div class="d-flex">
       <div class="container text-white">
         <h2 class="fw-bold">Featured Artist:</h2>
-        <p class="fw-bold" style="font-size: 400%;font-family: 'JetBrains Mono Bold',sans-serif;">CLOUDDAY</p>
+        <p class="fw-bold" style="font-size: 400%">CLOUDDAY</p>
         <div class="d-flex mt-2">
           <div class="mb-2" style="text-align: justify; text-justify: inter-word; width: 250px">
             <p>

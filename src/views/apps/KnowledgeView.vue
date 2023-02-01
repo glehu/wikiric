@@ -52,8 +52,8 @@
             <template v-if="wisdom.categories">
               <template v-for="cat in wisdom.categories" :key="cat">
                 <div v-if="JSON.parse(cat).category != null"
-                     class="text-neutral-400 flex items-center py-0.5 px-1.5 rounded mr-1 pointer-events-none text-sm font-bold"
-                     style="border: 1px solid #424242">
+                     class="text-neutral-400 border-[1px] border-zinc-700 flex items-center
+                            py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm bg-zinc-900">
                   {{ JSON.parse(cat).category }}
                 </div>
               </template>
@@ -130,7 +130,7 @@
           </template>
           <div v-if="wisdom.type === 'question' && wisdom.finished === true"
                v-on:click="gotoComments()"
-               class="flex w-full items-center cursor-pointer">
+               class="flex w-full items-center cursor-pointer my-2">
             <div
               class="px-1 py-0.5 border-2 border-emerald-700 text-emerald-500 font-bold rounded-md w-fit">
               Answered
@@ -139,7 +139,7 @@
           </div>
           <div class="flex">
             <template v-if="this.wisdom.t">
-              <Markdown class="markedView text-neutral-300 font-bold"
+              <Markdown class="markedView text-neutral-200 font-bold"
                         :source="'# ' + wisdom.t"
                         :plugins="plugins"></Markdown>
             </template>
@@ -154,7 +154,7 @@
           <hr class="text-neutral-700 opacity-100 mb-3 mt-1">
           <!-- Main Content -->
           <template v-if="wisdom.desc">
-            <Markdown class="markedView text-neutral-400"
+            <Markdown class="markedView text-neutral-300"
                       :source="wisdom.desc"
                       :plugins="plugins"></Markdown>
           </template>
@@ -240,7 +240,7 @@
                            class="bg-zinc-900 p-2 text-neutral-400 w-full rounded cursor-pointer hover:brightness-125 relative">
                         <template v-if="task.priority !== 'high'">
                           <div
-                            class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
+                            class="absolute top-0 left-0 bottom-0 right-0 bg-zinc-900 bg-opacity-50 hover:bg-opacity-0"></div>
                         </template>
                         <div class="flex w-full mb-1 text-xs text-neutral-400">
                           <template v-if="task.priority === 'high'">
@@ -270,7 +270,7 @@
             <template v-if="wisdom.type === 'question'">
               <template v-if="related.answers == null">
                 <div class="flex w-full items-center justify-content-center py-4">
-                  <div class="w-full text-neutral-600 pointer-events-none">
+                  <div class="w-full text-neutral-500 pointer-events-none">
                     <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
                     <p class="text-md font-bold italic w-fit mx-auto">No Answer</p>
                   </div>
@@ -284,8 +284,8 @@
                 </div>
                 <div v-for="comment in related.answers" :key="comment.uID"
                      class="border-l-4 border-l-emerald-600 pl-4">
-                  <div class="mb-2 w-full bg-neutral-800 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2
-                            border-r-2 border-b-neutral-700 border-r-neutral-700 comment">
+                  <div class="mb-2 w-full bg-zinc-700 rounded-r-xl rounded-l-lg border-b-2
+                            border-r-2 border-b-zinc-600 border-r-zinc-600 comment">
                     <div v-if="comment.reacts" class="px-2 pt-2 flex">
                       <div v-for="reaction in comment.reacts" :key="reaction.src"
                            class="flex items-center p-1 mr-1 text-neutral-400 cursor-pointer hover:text-white"
@@ -327,7 +327,7 @@
                         </div>
                       </div>
                       <div
-                        class="text-neutral-400 bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
+                        class="text-neutral-400 bg-zinc-800 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
                         <p class="text-neutral-500 text-xs mr-2">
                           {{ getHumanReadableDateText(comment.cdate, true) }}</p>
                         <p class="">{{ comment.author }}</p>
@@ -339,7 +339,7 @@
             </template>
             <div class="w-full relative mt-4 pt-4">
               <div
-                class="p-2 rounded-full hover:bg-neutral-700 text-neutral-500 hover:text-neutral-200 absolute right-0 sidebar_button cursor-pointer -translate-y-1 flex mx-1">
+                class="p-2 rounded-full hover:bg-zinc-700 text-neutral-500 hover:text-neutral-200 absolute right-0 sidebar_button cursor-pointer -translate-y-1 flex mx-1">
                 <Squares2X2Icon
                   class="h-6 w-6"></Squares2X2Icon>
                 <div class="ml-auto translate-y-2.5">
@@ -370,8 +370,8 @@
                 </p>
               </div>
               <template v-for="comment in related.comments" :key="comment.uID">
-                <div class="mb-2 w-full bg-zinc-700 bg-opacity-60 rounded-r-xl rounded-l-lg border-b-2
-                            border-r-2 border-b-zinc-700 border-r-zinc-700 comment">
+                <div class="mb-2 w-full bg-zinc-700 rounded-r-xl rounded-l-lg border-b-2
+                            border-r-2 border-b-zinc-600 border-r-zinc-600 comment">
                   <div v-if="comment.reacts" class="px-2 pt-2 flex">
                     <div v-for="reaction in comment.reacts" :key="reaction.src"
                          class="flex items-center p-1 mr-1 text-neutral-400 cursor-pointer hover:text-white"
@@ -413,7 +413,7 @@
                       </div>
                     </div>
                     <div
-                      class="text-neutral-400 bg-neutral-700 bg-opacity-40 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
+                      class="text-neutral-400 bg-zinc-800 rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-content-between flex items-center">
                       <p class="text-neutral-500 text-xs mr-2">
                         {{ getHumanReadableDateText(comment.cdate, true) }}</p>
                       <p class="">{{ comment.author }}</p>
@@ -457,7 +457,7 @@
                  class="rounded-xl relative my-4 text-neutral-300">
               <div class="bg-slate-700 rounded-t-xl p-2">
                 <XMarkIcon v-on:click="dismissTutorial()"
-                           class="h-6 w-6 absolute top-2 right-2 hover:text-white cursor-pointer hover:bg-neutral-600 rounded-xl">
+                           class="h-6 w-6 absolute top-2 right-2 hover:text-white cursor-pointer hover:bg-zinc-600 rounded-xl">
                 </XMarkIcon>
                 <div class="font-bold ml-1">Hey!</div>
               </div>
@@ -488,7 +488,7 @@
           <label for="wisTitle" class="text-xl font-bold">Title:</label>
           <br>
           <input type="text" id="wisTitle" v-model="wisTitle"
-                 class="bg-neutral-900 rounded-xl w-full py-2 px-3">
+                 class="bg-zinc-900 rounded-xl w-full py-2 px-3">
           <br>
           <div class="block lg:flex w-full">
             <div class="lg:w-1/2">
@@ -497,7 +497,7 @@
               <Listbox v-model="wisCategories" multiple id="wisCategories">
                 <div class="relative mt-1">
                   <ListboxButton
-                    class="bg-neutral-900 w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                    class="bg-zinc-900 w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
                   >
                     <template v-if="wisCategories.length > 0">
                       <div class="block truncate font-bold text-neutral-300">
@@ -517,7 +517,7 @@
                     leave-from-class="opacity-100"
                     leave-to-class="opacity-0">
                     <ListboxOptions
-                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-neutral-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                     >
                       <ListboxOption
                         v-slot="{ active, selected }"
@@ -549,22 +549,22 @@
               <label for="wisKeywords" class="text-xl mt-2 font-bold">Keywords:</label>
               <br>
               <input type="text" id="wisKeywords" v-model="wisKeywords"
-                     class="bg-neutral-900 rounded-xl py-2 px-3 w-full">
+                     class="bg-zinc-900 rounded-xl py-2 px-3 w-full">
             </div>
           </div>
           <label for="wisDescription" class="text-xl mt-2 font-bold">Description:</label>
           <br>
           <textarea type="text" id="wisDescription" v-model="wisDescription" rows="20"
-                    class="bg-neutral-900 rounded-xl w-full py-2 px-3"></textarea>
+                    class="bg-zinc-900 rounded-xl w-full py-2 px-3"></textarea>
           <br>
           <label for="wisCopyContent" class="text-xl mt-2 font-bold">Copy Content:</label>
           <br>
           <textarea type="text" id="wisCopyContent" v-model="wisCopyContent" rows="5"
-                    class="bg-neutral-900 rounded-xl w-full py-2 px-3"></textarea>
+                    class="bg-zinc-900 rounded-xl w-full py-2 px-3"></textarea>
         </div>
         <div class="hidden md:block w-[46%] ml-2">
           <p class="text-xl font-bold pointer-events-none">Preview:</p>
-          <div class="bg-neutral-900 rounded-xl p-2 cursor-not-allowed">
+          <div class="bg-zinc-900 rounded-xl p-2 cursor-not-allowed">
             <Markdown :source="'# ' + wisTitle" class="w-full markedView" :plugins="plugins"></Markdown>
             <Markdown :source="wisDescription" class="w-full mt-4 markedView" :plugins="plugins"></Markdown>
           </div>
@@ -895,7 +895,7 @@ export default {
         categories: categories
       }
       const bodyPayload = JSON.stringify(payload)
-      const extension = '?guid=' + this.wisGUID
+      const extension = '?guid=' + this.wisGUID + '&mode=edit'
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
@@ -1260,7 +1260,7 @@ export default {
 }
 
 .markedView tr {
-  @apply hover:bg-neutral-800;
+  @apply hover:bg-zinc-800;
 }
 
 .markedView h1 {
@@ -1288,7 +1288,7 @@ export default {
 }
 
 .markedView p code {
-  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-neutral-700 text-neutral-400 my-2;
+  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-zinc-700 text-neutral-400 my-2;
 }
 
 .markedView hr {
@@ -1308,11 +1308,11 @@ export default {
 }
 
 .sidebar_button:hover {
-  @apply bg-neutral-700;
+  @apply bg-zinc-700;
 }
 
 .sidebar_button:hover .sidebar_tooltip {
-  @apply opacity-100 py-2 px-3 rounded bg-neutral-800;
+  @apply opacity-100 py-2 px-3 rounded bg-zinc-800;
 }
 
 .comment .comment_react {

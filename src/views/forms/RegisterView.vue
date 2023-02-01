@@ -1,20 +1,20 @@
 <template>
-  <div class="h-screen w-screen d-md-flex align-items-center justify-center pt-[60px]">
+  <div class="h-full w-full md:flex items-center justify-center pt-[60px]">
     <form class="register flex"
           @submit.prevent="register">
       <template v-if="metamask.account === '' && phantom.account === ''">
         <section>
           <div id="registration" class="container h-full p-3">
-            <div class="justify-content-center align-items-center h-full">
-              <div class="card text-white border-[1px] border-neutral-600 h-full"
+            <div class="justify-center items-center h-full">
+              <div class="text-white border-[1px] border-neutral-600 h-full"
                    style="border-radius: 1rem; background: #131313">
-                <div class="card-body p-5 text-center">
+                <div class="p-5 text-center">
                   <div class="mt-md-0">
                     <h1 class="fw-bold mb-4 text-4xl"
                         style="pointer-events: none">
                       REGISTER
                     </h1>
-                    <div class="form-outline form-white mb-4">
+                    <div class="mb-4">
                       <input
                         required
                         v-model="user.email"
@@ -23,7 +23,7 @@
                         placeholder="Email"
                       />
                     </div>
-                    <div class="form-outline form-white mb-4">
+                    <div class="mb-4">
                       <input
                         required
                         v-model="user.password"
@@ -33,7 +33,7 @@
                         autocomplete="new-password"
                       />
                     </div>
-                    <div class="form-outline form-white mb-4">
+                    <div class="mb-4">
                       <input
                         required
                         v-model="user.passwordRpt"
@@ -53,7 +53,10 @@
                         placeholder="Username"
                       />
                     </div>
-                    <button class="btn btn-outline-light btn-lg px-5" type="submit">Register</button>
+                    <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
+                            type="submit">
+                      Register
+                    </button>
                   </div>
                 </div>
               </div>
@@ -64,11 +67,11 @@
       <template v-if="hasMetaMask && phantom.account === ''">
         <section>
           <div id="metamask_registration" class="container h-full p-3">
-            <div class="justify-content-center align-items-center h-full">
-              <div class="card text-white border-[1px] border-neutral-600 h-full"
+            <div class="justify-center items-center h-full">
+              <div class="text-white border-[1px] border-neutral-600 h-full"
                    style="border-radius: 1rem; background: #131313">
-                <div class="card-body p-5 text-center">
-                  <div class="mt-md-0">
+                <div class="p-5 text-center">
+                  <div class="md:mt-0">
                     <p class="pointer-events-none">Register via</p>
                     <h1 class="fw-bold text-4xl"
                         style="pointer-events: none">
@@ -89,7 +92,7 @@
                       </div>
                     </template>
                     <template v-else>
-                      <div class="form-outline form-white mb-4">
+                      <div class="mb-4">
                         <p class="pointer-events-none text-neutral-300 py-1">How should we call you?</p>
                         <input
                           required
@@ -99,7 +102,7 @@
                           placeholder="Username"
                         />
                       </div>
-                      <button class="btn btn-outline-light btn-lg px-5"
+                      <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
                               type="submit"
                               v-show="metamask.account !== ''">
                         Register
@@ -115,11 +118,11 @@
       <template v-if="hasPhantom && metamask.account === ''">
         <section>
           <div id="phantom_registration" class="container h-full p-3">
-            <div class="justify-content-center align-items-center h-full">
-              <div class="card text-white border-[1px] border-neutral-600 h-full"
+            <div class="justify-center items-center h-full">
+              <div class="text-white border-[1px] border-neutral-600 h-full"
                    style="border-radius: 1rem; background: #131313">
-                <div class="card-body p-5 text-center">
-                  <div class="mt-md-0">
+                <div class="p-5 text-center">
+                  <div class="md:mt-0">
                     <p class="pointer-events-none">Register via</p>
                     <h1 class="fw-bold text-4xl"
                         style="pointer-events: none">
@@ -139,7 +142,7 @@
                       </div>
                     </template>
                     <template v-else>
-                      <div class="form-outline form-white mb-4">
+                      <div class="mb-4">
                         <p class="pointer-events-none text-neutral-300 py-1">How should we call you?</p>
                         <input
                           required
@@ -149,7 +152,7 @@
                           placeholder="Username"
                         />
                       </div>
-                      <button class="btn btn-outline-light btn-lg px-5"
+                      <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
                               type="submit"
                               v-show="phantom.account !== ''">
                         Register

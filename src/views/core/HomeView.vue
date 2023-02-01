@@ -46,10 +46,6 @@
             </div>
           </div>
         </div>
-        <div hidden style="width: 400px; display: flex; justify-content: center">
-          <img src='@/assets/clarifier/clarifier_demo.png' alt=""
-               style="width: 100%; object-fit: contain">
-        </div>
         <template class="hidden md:block">
           <div
             class="absolute bottom-0 left-0 p-4 ml-4">

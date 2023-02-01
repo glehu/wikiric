@@ -234,7 +234,8 @@
                       </template>
                       <template v-for="cat in result.result.categories" :key="cat">
                         <div v-if="JSON.parse(cat).category != null"
-                             class="text-gray-400 text-sm flex items-center px-1 py-0.5 border-2 border-gray-500 rounded-lg w-fit mr-1 pointer-events-none">
+                             class="text-neutral-400 border-[1px] border-zinc-700 flex items-center
+                                    py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm bg-zinc-900">
                           {{ JSON.parse(cat).category }}
                         </div>
                       </template>
@@ -923,7 +924,7 @@ export default {
       width = 600, // outer width, in pixels
       height = 300, // outer height, in pixels
       maxWords = 100, // maximum number of words to extract from the text
-      fontFamily = 'Lato', // font family
+      fontFamily = 'Open Sans', // font family
       fontScale = 16, // base font size
       padding = 4, // amount of padding between the words (in pixels)
       rotate = 0, // a constant or function to rotate the words

@@ -423,18 +423,4 @@ export default {
 
 <style scoped>
 
-@font-face {
-  font-family: "JetBrains Mono Medium";
-  font-style: normal;
-  font-display: auto;
-  src: local("JetBrains Mono Medium"), url(./assets/fonts/JetBrainsMono-Medium.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "JetBrains Mono Bold";
-  font-style: normal;
-  font-display: auto;
-  src: local("JetBrains Mono Bold"), url(./assets/fonts/JetBrainsMono-Bold.ttf) format("truetype");
-}
-
 </style>

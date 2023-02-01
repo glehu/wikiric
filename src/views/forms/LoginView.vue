@@ -1,21 +1,20 @@
 <template>
-  <div class="h-screen w-screen d-md-flex align-items-center justify-center"
+  <div class="h-full w-full md:flex items-center justify-center"
        style="min-height: 100vh; min-width: 100vw; max-width: 100vw; overflow-x: hidden"
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-adrien-olichon-2387819.jpg')+')',
               backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <form class="login md:flex pt-[60px]" @submit.prevent="login">
       <section>
         <div class="container p-3 h-full">
-          <div class="justify-content-center align-items-center h-full">
-            <div class="card text-white border-[1px] border-neutral-600 h-full"
+          <div class="justify-center items-center h-full">
+            <div class="text-white border-[1px] border-neutral-600 h-full"
                  style="border-radius: 1rem; background: #131313">
-              <div class="card-body p-4 text-center">
-                <div class="mt-md-0">
-                  <h2 class="fw-bold mb-2 text-uppercase text-4xl mb-4"
-                      style="font-family: 'Lato', sans-serif; pointer-events: none">
+              <div class="p-4 text-center">
+                <div class="md:mt-0">
+                  <h2 class="fw-bold mb-2 text-uppercase text-4xl mb-4">
                     Sign In
                   </h2>
-                  <div class="form-outline form-white mb-4">
+                  <div class="mb-4">
                     <input
                       required
                       v-model="user.email"
@@ -25,7 +24,7 @@
                       autocomplete="username"
                     />
                   </div>
-                  <div class="form-outline form-white mb-4">
+                  <div class="mb-4">
                     <input
                       required
                       v-model="user.password"
@@ -36,15 +35,16 @@
                     />
                   </div>
                   <!--<p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#">Forgot password?</a></p>-->
-                  <button class="btn btn-outline-light btn-lg px-5"
+                  <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
                           type="button"
                           v-on:click="login()">
                     Login
                   </button>
-                  <div class="flex items-center justify-content-center w-full mt-5">
-                    <p class="pointer-events-none text-neutral-400">Don't have an account?</p>
+                  <div class="flex items-center justify-center w-full mt-5 gap-x-2">
+                    <p class="pointer-events-none text-neutral-400">No Account?</p>
                     <button v-on:click="gotoRegister()"
-                            class="btn btn-lg text-white muArrow">
+                            type="button"
+                            class="text-white muArrow">
                       Sign Up
                     </button>
                   </div>
@@ -56,11 +56,11 @@
       </section>
       <section>
         <div id="metamask_registration" class="container h-full p-3">
-          <div class="justify-content-center align-items-center h-full">
-            <div class="card text-white border-[1px] border-neutral-600 h-full"
+          <div class="justify-center items-center h-full">
+            <div class="text-white border-[1px] border-neutral-600 h-full"
                  style="border-radius: 1rem; background: #131313">
-              <div class="card-body p-4 text-center">
-                <div class="mt-md-0">
+              <div class="p-4 text-center">
+                <div class="md:mt-0">
                   <p class="pointer-events-none">Sign in via</p>
                   <h1 class="fw-bold text-4xl"
                       style="pointer-events: none">
@@ -84,11 +84,11 @@
       </section>
       <section>
         <div id="phantom_registration" class="container h-full p-3">
-          <div class="justify-content-center align-items-center h-full">
-            <div class="card text-white border-[1px] border-neutral-600 h-full"
+          <div class="justify-center items-center h-full">
+            <div class="text-white border-[1px] border-neutral-600 h-full"
                  style="border-radius: 1rem; background: #131313">
-              <div class="card-body p-4 text-center">
-                <div class="mt-md-0">
+              <div class="p-4 text-center">
+                <div class="md:mt-0">
                   <p class="pointer-events-none">Sign in via</p>
                   <h1 class="fw-bold text-4xl"
                       style="pointer-events: none">
