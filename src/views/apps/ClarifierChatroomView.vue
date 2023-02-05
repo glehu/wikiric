@@ -365,7 +365,7 @@
                       <div style="min-width: 42px; max-width: 42px">
                         <template v-if="msg.header === false">
                           <div class="msg_time" style="pointer-events: none">
-                            {{ msg.time.toLocaleString().replace(' ', '&nbsp;') }}
+                            {{ getSimpleTime(msg.ts) }}
                           </div>
                         </template>
                       </div>
@@ -1011,7 +1011,7 @@
       <input type="file" class="file_input" id="files" name="files[]"
              style="width: 100%"
              multiple v-on:change="handleFileSelect"/>
-      <div id="confirm_settings_loading" class="ms-3 mt-3" style="display: none">
+      <div id="confirm_settings_loading" class="ml-3 mt-3" style="display: none">
         <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
         <span class="jetb ms-2">Uploading...</span>
       </div>
@@ -1097,7 +1097,7 @@
           <label for="new_subchat_name" class="font-bold lead c_lightgray">Name:</label>
           <input v-model="new_subchat_name"
                  id="new_subchat_name" type="text"
-                 class="mt-2 b_darkergray text-white p-2 ps-3"
+                 class="mt-2 b_darkergray text-white p-2 px-3"
                  style="width: 100%; border: none; border-radius: 20px">
           <label class="font-bold lead mt-4 c_lightgray" style="width: 100%">Create:</label>
           <button v-on:click="createSubchatroom('text')"
@@ -1105,7 +1105,7 @@
                   style="width: 100%; text-align: left; display: flex;
                          align-items: center; border-radius: 10px">
             <span style="font-size: 200%"><i class="bi bi-hash"></i></span>
-            <div class="ms-3">
+            <div class="ml-3">
               <span class="text-neutral-300">Text Subchat</span>
               <br>
               <span class="text-neutral-400 text-xs">Write messages and send files.</span>
@@ -1116,7 +1116,7 @@
                   style="width: 100%; text-align: left; display: flex;
                          align-items: center; border-radius: 10px">
             <span style="font-size: 200%"><i class="bi bi-window-fullscreen"></i></span>
-            <div class="ms-3">
+            <div class="ml-3">
               <span class="text-neutral-300">Screenshare Subchat</span>
               <br>
               <span class="text-neutral-400 text-xs">Share your screen for others.</span>
@@ -1127,7 +1127,7 @@
                   style="width: 100%; text-align: left; display: flex;
                          align-items: center; border-radius: 10px">
             <span style="font-size: 200%"><i class="bi bi-camera-video"></i></span>
-            <div class="ms-3">
+            <div class="ml-3">
               <span class="text-neutral-300">Webcam Subchat</span>
               <br>
               <span class="text-neutral-400 text-xs">Video call with others.</span>
@@ -4217,6 +4217,9 @@ export default {
     },
     gotoPlanner: function () {
       this.$router.push('/apps/plannernew?src=' + this.getSession())
+    },
+    getSimpleTime: function (ts) {
+      return DateTime.fromISO(ts).toLocaleString(DateTime.TIME_SIMPLE)
     }
   }
 }
@@ -4650,7 +4653,7 @@ export default {
 }
 
 .darkbutton {
-  @apply bg-zinc-900;
+  @apply bg-zinc-900 px-2 py-2;
 }
 
 .darkbutton:hover {

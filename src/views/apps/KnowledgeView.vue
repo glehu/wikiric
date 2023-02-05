@@ -43,7 +43,8 @@
               </div>
             </div>
             <div class="sidebar_button rounded-xl">
-              <div class="cursor-pointer hover:text-neutral-200 p-2 my-2"
+              <div v-on:click="shareWisdom(wisdom)"
+                   class="cursor-pointer hover:text-neutral-200 p-2 my-2"
                    v-tooltip.right="{
                        content: 'Share'
                      }">
@@ -140,7 +141,7 @@
           </div>
           <template v-if="wisdom.type === 'question' && wisdom.finished !== true">
             <div class="w-full">
-              <div class="ml-2 my-2 p-2 border-l-4 border-l-orange-600 bg-orange-800 bg-opacity-25 text-neutral-300">
+              <div class="mt-2 mb-4 p-2 border-l-4 border-l-orange-600 bg-orange-800 bg-opacity-25 text-neutral-300">
                 This question is unanswered (or at least not yet confirmed)!
                 <br>Help by submitting a comment, providing useful information on this topic.
               </div>
@@ -220,6 +221,18 @@
                             <p class="text-sm">{{ task.desc }}</p>
                           </div>
                         </div>
+                        <template v-if="task.finished">
+                          <div class="px-2 py-1 rounded bg-green-800 flex w-fit">
+                            <CheckIcon class="h-4 w-4 mr-1"></CheckIcon>
+                            <span class="text-xs font-bold">Done</span>
+                          </div>
+                        </template>
+                        <template v-else>
+                          <div class="px-2 py-1 rounded bg-red-800 flex w-fit">
+                            <Cog6ToothIcon class="h-4 w-4 mr-1"></Cog6ToothIcon>
+                            <span class="text-xs font-bold">Progress</span>
+                          </div>
+                        </template>
                       </div>
                     </div>
                   </DisclosurePanel>
@@ -289,7 +302,7 @@
                 <div class="flex w-full items-center justify-center py-4">
                   <div class="w-full text-neutral-500 pointer-events-none">
                     <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
-                    <p class="text-md font-bold italic w-fit mx-auto">No Answer</p>
+                    <p class="text-md font-bold italic w-fit mx-auto text-neutral-500">No Answer</p>
                   </div>
                 </div>
               </template>
@@ -375,7 +388,7 @@
               <div class="flex w-full items-center justify-center py-4">
                 <div class="w-full text-neutral-500 pointer-events-none">
                   <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
-                  <p class="text-md font-bold italic w-fit mx-auto">No Comments</p>
+                  <p class="text-md font-bold italic w-fit mx-auto text-neutral-500">No Comments</p>
                 </div>
               </div>
             </template>
@@ -627,7 +640,14 @@ import {
   ListboxOption,
   ListboxOptions
 } from '@headlessui/vue'
-import { ArrowsUpDownIcon, CheckIcon, ChevronUpIcon, SparklesIcon, Squares2X2Icon } from '@heroicons/vue/24/solid'
+import {
+  ArrowsUpDownIcon,
+  CheckIcon,
+  ChevronUpIcon,
+  Cog6ToothIcon,
+  SparklesIcon,
+  Squares2X2Icon
+} from '@heroicons/vue/24/solid'
 
 export default {
   name: 'KnowledgeView',
@@ -660,7 +680,8 @@ export default {
     DisclosurePanel,
     ChevronUpIcon,
     SparklesIcon,
-    ShareIcon
+    ShareIcon,
+    Cog6ToothIcon
   },
   data () {
     return {
@@ -1259,6 +1280,16 @@ export default {
             console.error(err.message)
           })
       })
+    },
+    shareWisdom: function (wisdom) {
+      if (wisdom == null) return
+      navigator.clipboard.writeText('https://wikiric.netlify.app/apps/knowledge/' + wisdom.gUID)
+      this.$notify(
+        {
+          title: 'Link Copied!',
+          text: '',
+          type: 'info'
+        })
     }
   }
 }

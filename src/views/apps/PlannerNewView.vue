@@ -114,7 +114,7 @@
                                       :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
                                 <TrashIcon
                                   :active="active"
-                                  class="mr-2 h-5 w-5 stroke-neutral-900"
+                                  class="mr-2 h-5 w-5"
                                   aria-hidden="true"
                                 />
                                 Delete
@@ -127,7 +127,7 @@
                                 :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
                                 <ArrowsPointingOutIcon
                                   :active="active"
-                                  class="mr-2 h-5 w-5 stroke-neutral-900"
+                                  class="mr-2 h-5 w-5"
                                   aria-hidden="true"
                                 />
                                 Move
@@ -219,7 +219,7 @@
                                           :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
                                     <CheckIcon
                                       :active="active"
-                                      class="mr-2 h-5 w-5 stroke-neutral-900"
+                                      class="mr-2 h-5 w-5"
                                       aria-hidden="true"
                                     />
                                     Finish
@@ -230,7 +230,7 @@
                                           :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
                                     <TrashIcon
                                       :active="active"
-                                      class="mr-2 h-5 w-5 stroke-neutral-900"
+                                      class="mr-2 h-5 w-5"
                                       aria-hidden="true"
                                     />
                                     Delete
@@ -241,7 +241,7 @@
                                     title="Options"
                                     class="items-center cursor-pointer group p_card_menu_item text-neutral-900 hover:text-white hover:bg-zinc-800 hover:bg-opacity-60">
                                     <ShareIcon
-                                      class="mr-2 h-5 w-5 stroke-neutral-900"
+                                      class="mr-2 h-5 w-5"
                                       aria-hidden="true"
                                     />
                                     Share
@@ -292,7 +292,7 @@
                                     :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
                                     <ArrowsPointingOutIcon
                                       :active="active"
-                                      class="mr-2 h-5 w-5 stroke-neutral-900"
+                                      class="mr-2 h-5 w-5"
                                       aria-hidden="true"
                                     />
                                     Move
