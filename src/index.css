@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer components {
-    * {
+    h1, h2, h3, h4, h5, h6, p {
         @apply text-neutral-300;
     }
 
@@ -67,8 +67,8 @@
         @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-zinc-700 text-neutral-400 my-2;
     }
 
-    .markedView hr {
-        @apply my-6 h-[4px] w-full;
+    hr {
+        @apply mb-6 h-[4px] w-full border-[1px] border-neutral-600 bg-neutral-600;
     }
 
     .markedView > :last-child {

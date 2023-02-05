@@ -2,8 +2,8 @@
   <div id="clarifier_chatroom_view_elem"
        class="bg-zinc-900 w-screen h-full absolute overflow-hidden">
     <div class="fixed top-0 left-0 w-full h-full">
-      <div id="sidebar"
-           class="sidebar bg-zinc-900 darkergray-on-small h-[calc(100%-60px)] relative top-[60px]"
+      <div id="sidebar" ref="sidebar"
+           class="sidebar bg-zinc-900 darkergray-on-small h-full relative top-[60px]"
            style="z-index: 100">
         <div style="height: calc(100% - 60px)"
              class="sidebar_bg">
@@ -19,11 +19,14 @@
                 style="color: white; margin-top: 5px">
               <li>
                 <div class="sb_link" v-on:click="disconnect(); this.$router.push('/apps/clarifier')">
-                  <div class="c_lightgray orange-hover">
+                  <div class="c_lightgray orange-hover"
+                       v-tooltip.right="{
+                       content: 'Exit',
+                       disabled: sidebar.active,
+                     }">
                     <i class="sb_link_icon bi bi-x-square"></i>
                     <span class="sb_link_text">Exit</span>
                   </div>
-                  <span class="sidebar_tooltip">Exit</span>
                 </div>
               </li>
               <li style="opacity: 0.5">
@@ -32,7 +35,6 @@
                     <i class="sb_link_icon bi bi-tools"></i>
                     <span class="sb_link_text">Settings</span>
                   </div>
-                  <span class="sidebar_tooltip">Settings</span>
                 </div>
               </li>
             </ul>
@@ -46,15 +48,18 @@
             Activity&nbsp;-&nbsp;{{ this.$store.state.clarifierSessions.length }}
           </span>
           </div>
-          <div id="channel_section" class="channel_section"
-               style="height: calc(100% - 60px - 100px); width: 100%; z-index: 4;
-                    color: white; overflow-y: auto; overflow-x: clip;
-                    padding-bottom: 20px; margin-top: 10px">
+          <div id="channel_section" class="channel_section overflow-y-auto"
+               style="height: calc(100% - 60px - 100px); z-index: 4;
+                      padding-bottom: 20px; margin-top: 10px">
             <div v-for="group in this.$store.state.clarifierSessions" :key="group"
                  class="channel_link"
                  style="position: relative; font-weight: bold; font-size: 125%">
               <a class="font-bold text-white orange-hover" style="text-decoration: none"
-                 v-on:click="connectToGroup(group.id)">
+                 v-on:click="connectToGroup(group.id)"
+                 v-tooltip.right="{
+                   content: group.title,
+                   disabled: sidebar.active,
+                 }">
                 <div class="c_lightgray orange-hover"
                      style="height: 50px; display: flex; align-items: center;">
                   <div style="width: 50px; height: 100%; position: relative;
@@ -75,12 +80,11 @@
                 </span>
                 </div>
               </a>
-              <span class="channel_tooltip">{{ group.title }}</span>
             </div>
           </div>
         </div>
       </div>
-      <div id="sidebar2"
+      <div id="sidebar2" ref="sidebar2"
            style="margin-top: 60px" v-show="canShowSidebar"
            class="sidebar2 bg-zinc-700 lg:rounded-tl">
         <div class="h-full relative">
@@ -308,7 +312,7 @@
                   <div class="message" :id="msg.gUID">
                     <template v-if="msg.separator === true">
                       <div class="headerline pointer-events-none text-neutral-500">
-                        <span class="text-xs">{{ getHumanReadableDateText(msg.time) }}</span>
+                        <span class="text-xs">{{ getHumanReadableDateText(msg.ts, false, true) }}</span>
                       </div>
                     </template>
                     <!-- Chat Avatar and Date -->
@@ -331,7 +335,7 @@
                         <div style="color: gray; font-size: 80%; padding-left: 10px"
                              class="flex gap-x-1">
                           <div style="pointer-events: none">
-                            {{ getHumanReadableDateText(msg.time, true) }}
+                            {{ getHumanReadableDateText(msg.ts, true) }}
                           </div>
                           <template v-if="msg.isEncrypted === true">
                             <i v-if="msg.decryptionFailed === false" class="bi bi-shield-lock ms-1"
@@ -361,7 +365,7 @@
                       <div style="min-width: 42px; max-width: 42px">
                         <template v-if="msg.header === false">
                           <div class="msg_time" style="pointer-events: none">
-                            {{ msg.time.toLocaleTimeString('de-DE').substring(0, 5).replace(' ', '&nbsp;') }}
+                            {{ msg.time.toLocaleString().replace(' ', '&nbsp;') }}
                           </div>
                         </template>
                       </div>
@@ -506,7 +510,7 @@
                                       :plugins="plugins"
                                       :style="{maxWidth: mediaMaxWidth}"/>
                             <p class="text-xs text-neutral-500">
-                              {{ getHumanReadableDateText(new Date(msg.source.time), true) }}
+                              {{ getHumanReadableDateText(msg.source.time, true) }}
                             </p>
                           </div>
                           <Markdown :id="'msg_' + msg.gUID"
@@ -1309,6 +1313,7 @@ import markdownItMermaid from 'markdown-it-mermaid'
 import mermaid from 'mermaid'
 import 'highlight.js/styles/base16/google-dark.css'
 import * as QRCode from 'easyqrcodejs'
+import { DateTime } from 'luxon'
 // Icons
 import { ChartBarIcon, EyeIcon, GifIcon, PhoneIcon, QrCodeIcon, VideoCameraIcon } from '@heroicons/vue/24/solid'
 import {
@@ -1418,6 +1423,9 @@ export default {
       userActivityIdle: [],
       timer: null,
       timerIdle: null,
+      sidebar: {
+        active: true
+      },
       plugins: [
         {
           plugin: markdownItMermaid
@@ -2207,7 +2215,7 @@ export default {
       message.mType = 'Text'
       message.apiResponse = false
       // Process timestamp
-      message.time = new Date(message.ts)
+      message.time = DateTime.fromISO(message.ts)
       // Process reserved keywords
       if (message.msg.includes('[s:EditNotification]') === true && message.src === '_server') {
         message.mType = 'EditNotification'
@@ -2258,7 +2266,7 @@ export default {
       if (message.apiResponse !== true) {
         if (this.last_message.src === message.src) {
           // If the sources are identical, check if the time was similar
-          let timeDiff = message.time.getTime() - this.last_message.time.getTime()
+          let timeDiff = message.time.toMillis() - this.last_message.time.toMillis()
           timeDiff = (Math.abs((timeDiff) / 1000) / 60)
           // If the message is 3 minutes or older put the message header
           message.header = timeDiff >= 3
@@ -2276,9 +2284,9 @@ export default {
       }
       // Do we need to add a separator since a new day began?
       message.seperator = false
-      const msgDay = message.time.getDate()
-      const msgMonth = message.time.getMonth()
-      const msgYear = message.time.getFullYear()
+      const msgDay = message.time.day
+      const msgMonth = message.time.month
+      const msgYear = message.time.year
       if (this.last_message) {
         if (msgYear > this.last_message.msgYear ||
           msgMonth > this.last_message.msgMonth ||
@@ -2659,21 +2667,23 @@ export default {
       this.new_subchat_name = ''
     },
     toggleSidebar: function () {
-      this.handleSidebarToggle(document.getElementById('sidebar'))
+      this.handleSidebarToggle(this.$refs.sidebar, true)
     },
     toggleSidebar2: function () {
-      this.handleSidebarToggle(document.getElementById('sidebar2'))
+      this.handleSidebarToggle(this.$refs.sidebar2)
     },
     toggleMemberSidebar: function () {
       this.handleSidebarToggle(document.getElementById('member_section'))
     },
-    handleSidebarToggle: function (element) {
+    handleSidebarToggle: function (element, setSidebarVariable = false) {
       if (element.classList.contains('active')) {
         if (window.innerWidth >= 1025) this.showSidebar2()
         element.classList.remove('active')
+        if (setSidebarVariable) this.sidebar.active = false
       } else {
         this.hideSidebar2()
         element.classList.add('active')
+        if (setSidebarVariable) this.sidebar.active = true
       }
     },
     auto_grow: function () {
@@ -2698,14 +2708,18 @@ export default {
       }
     },
     showSidebar: function () {
-      const sidebar = document.getElementById('sidebar')
+      const sidebar = this.$refs.sidebar
       if (!sidebar) return
-      if (!sidebar.classList.contains('active')) sidebar.classList.add('active')
+      if (!sidebar.classList.contains('active')) {
+        sidebar.classList.add('active')
+        this.sidebar.active = true
+      }
     },
     hideSidebar: function () {
-      const sidebar = document.getElementById('sidebar')
+      const sidebar = this.$refs.sidebar
       if (!sidebar) return
-      if (sidebar.classList.contains('active')) sidebar.classList.remove('active')
+      sidebar.classList.remove('active')
+      this.sidebar.active = false
     },
     showSidebar2: function () {
       const sidebar = document.getElementById('sidebar2')
@@ -4157,28 +4171,49 @@ export default {
         this.focusComment()
       }, 0)
     },
-    getHumanReadableDateText: function (date, withTime = false) {
-      const date2 = new Date()
-      const diffTime = Math.abs(date2 - date)
-      let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-      if (date.getDate() === date2.getDate() &&
-        date.getMonth() === date2.getMonth() &&
-        date.getFullYear() === date2.getFullYear()) {
-        diffDays = 0
-      }
+    getHumanReadableDateText: function (date, withTime = false, fullDate = false) {
+      const time = DateTime.fromISO(date).toLocaleString(DateTime.TIME_24_SIMPLE)
+      const start = DateTime.fromISO(DateTime.fromISO(date).toISODate())
+      const end = DateTime.fromISO(DateTime.now().toISODate())
+      const diffDays = Math.ceil(end.diff(start) / (1000 * 60 * 60 * 24))
       let suffix = ''
       if (withTime) {
-        suffix = ', ' + date.toLocaleTimeString('de-DE')
+        suffix = ', ' + time
       }
-      if (diffDays === 0) {
-        return 'Today' + suffix
-      } else if (diffDays === 1) {
-        return 'Yesterday' + suffix
-      } else if (diffDays === 2) {
-        return '2 days ago' + suffix
-      } else {
-        return date.toLocaleDateString('de-DE') + suffix
+      let returnString
+      switch (diffDays) {
+        case -5:
+          returnString = 'In 5 days' + suffix
+          break
+        case -4:
+          returnString = 'In 4 days' + suffix
+          break
+        case -3:
+          returnString = 'In 3 days' + suffix
+          break
+        case -2:
+          returnString = 'In 2 days' + suffix
+          break
+        case -1:
+          returnString = 'Tomorrow' + suffix
+          break
+        case 0:
+          returnString = 'Today' + suffix
+          break
+        case 1:
+          returnString = 'Yesterday' + suffix
+          break
+        case 2:
+          returnString = '2 days ago' + suffix
+          break
+        default:
+          if (!fullDate) {
+            returnString = start.toLocaleString(DateTime.DATE_MED) + suffix
+          } else {
+            returnString = start.toLocaleString(DateTime.DATE_HUGE) + suffix
+          }
       }
+      return returnString
     },
     gotoPlanner: function () {
       this.$router.push('/apps/plannernew?src=' + this.getSession())
@@ -4364,12 +4399,12 @@ export default {
 .channel_section {
   -ms-overflow-style: none;
   scrollbar-width: none;
+  @apply text-neutral-200;
 }
 
 .sidebar {
   position: fixed;
   width: 55px;
-  overflow-x: clip;
   transition: ease-in-out all 0.2s;
 }
 
@@ -4431,27 +4466,15 @@ export default {
   opacity: 1;
 }
 
-.sidebar_tooltip {
-  position: fixed;
-  left: 55px;
-  transform: translateY(-36px);
-  opacity: 0;
-  pointer-events: none;
-}
-
+.sidebar_tooltip,
 .channel_tooltip {
-  position: fixed;
-  transform: translateY(-47px) translateX(54px);
   opacity: 0;
   pointer-events: none;
 }
 
 .sb_link:hover .sidebar_tooltip,
 .channel_link:hover .channel_tooltip {
-  opacity: 1;
-  background-color: #192129;
-  padding: 5px 10px 5px 10px;
-  border-radius: 10px;
+  @apply opacity-100 py-2 px-3 rounded bg-zinc-900 border-2 border-zinc-600 z-[800];
 }
 
 @media only screen and (max-width: 1024px) {

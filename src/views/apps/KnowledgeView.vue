@@ -7,41 +7,59 @@
         <div class="text-neutral-400 h-full">
           <div class="sidebar_button rounded-xl">
             <div v-on:click="clickedBack()"
+                 v-tooltip.right="{
+                       content: 'Exit'
+                     }"
                  class="cursor-pointer text-red-600 hover:text-red-500 p-2 my-2">
               <XMarkIcon class="h-6 w-6"></XMarkIcon>
             </div>
-            <div class="sidebar_tooltip">Exit</div>
           </div>
           <div class="my-2 border-y border-neutral-700">
             <div class="sidebar_button rounded-xl">
               <div v-on:click="reactToMessage(wisdom, '+')"
+                   v-tooltip.right="{
+                       content: 'Upvote'
+                     }"
                    class="cursor-pointer hover:text-neutral-200 p-2 my-2">
                 <HandThumbUpIcon class="h-6 w-6"></HandThumbUpIcon>
               </div>
-              <div class="sidebar_tooltip">Upvote</div>
             </div>
             <div class="sidebar_button rounded-xl">
               <div v-on:click="reactToMessage(wisdom, '-')"
+                   v-tooltip.right="{
+                       content: 'Downvote'
+                     }"
                    class="cursor-pointer hover:text-neutral-200 p-2 my-2">
                 <HandThumbDownIcon class="h-6 w-6"></HandThumbDownIcon>
               </div>
-              <div class="sidebar_tooltip">Downvote</div>
             </div>
             <div class="sidebar_button rounded-xl">
               <div v-on:click="reactToMessage(wisdom, '⭐')"
+                   v-tooltip.right="{
+                       content: 'Wow!'
+                     }"
                    class="cursor-pointer hover:text-neutral-200 p-2 my-2">
                 <StarIcon class="h-6 w-6"></StarIcon>
               </div>
-              <div class="sidebar_tooltip">Wow!</div>
+            </div>
+            <div class="sidebar_button rounded-xl">
+              <div class="cursor-pointer hover:text-neutral-200 p-2 my-2"
+                   v-tooltip.right="{
+                       content: 'Share'
+                     }">
+                <ShareIcon class="h-6 w-6"></ShareIcon>
+              </div>
             </div>
           </div>
           <div v-if="wisdom.copyContent != null"
                class="sidebar_button rounded-xl">
             <div v-on:click="copy(wisdom.copyContent)"
+                 v-tooltip.right="{
+                       content: 'QuickCopy'
+                     }"
                  class="cursor-pointer hover:text-neutral-200 p-2 my-2">
               <ClipboardIcon class="h-6 w-6"></ClipboardIcon>
             </div>
-            <div class="sidebar_tooltip">QuickCopy</div>
           </div>
         </div>
       </div>
@@ -151,7 +169,7 @@
               <PencilSquareIcon class="h-6 w-6"></PencilSquareIcon>
             </div>
           </div>
-          <hr class="text-neutral-700 opacity-100 mb-3 mt-1">
+          <hr class="mb-3 mt-1">
           <!-- Main Content -->
           <template v-if="wisdom.desc">
             <Markdown class="markedView"
@@ -192,9 +210,6 @@
                            class="bg-zinc-900 p-2 text-neutral-400 w-full rounded cursor-pointer hover:brightness-125 relative">
                         <div class="flex w-full mb-1 text-xs text-neutral-400">
                           <p>{{ task.author }}</p>
-                          <p class="ml-auto">
-                            {{ getHumanReadableDateText(new Date(parseInt(task.cdate, 16) * 1000)) }}
-                          </p>
                         </div>
                         <div class="text-neutral-300 py-1 pointer-events-none">
                           <p class="font-bold">{{ task.t }}</p>
@@ -242,12 +257,14 @@
                           <div
                             class="absolute top-0 left-0 bottom-0 right-0 bg-zinc-900 bg-opacity-50 hover:bg-opacity-0"></div>
                         </template>
-                        <div class="flex w-full mb-1 text-xs text-neutral-400">
+                        <div class="flex w-full mb-1 text-xs text-neutral-300 items-center">
                           <template v-if="task.priority === 'high'">
                             <SparklesIcon class="w-4 h-4 mr-2 text-amber-600"></SparklesIcon>
                           </template>
-                          <p>{{ task.result.author }}</p>
-                          <p class="ml-auto">{{ getHumanReadableDateText(new Date(task.result.cdate)) }}</p>
+                          <div>
+                            <p>{{ task.result.author }}</p>
+                            <p class="ml-auto text-neutral-400">{{ getHumanReadableDateText(task.result.cdate) }}</p>
+                          </div>
                         </div>
                         <div class="text-neutral-300 py-1 pointer-events-none">
                           <p class="font-bold">{{ task.result.t }}</p>
@@ -438,30 +455,24 @@
       <div id="rightbar"
            class="h-full w-[350px] overflow-y-auto hidden xl:block">
         <div class="rounded-xl text-neutral-300 p-2 mr-2 mt-2 bg-zinc-700">
-          <table class="border-none mb-2 pointer-events-none">
-            <tr>
-              <th class="text-neutral-400 text-xs pr-2">Author</th>
-              <td class="text-sm">{{ wisdom.author }}</td>
-            </tr>
-            <tr>
-              <th class="text-neutral-400 text-xs pr-2">Source</th>
-              <td class="text-sm">{{ knowledge.t }}</td>
-            </tr>
-            <tr>
-              <th class="text-neutral-400 text-xs pr-2">Date</th>
-              <td class="text-sm">{{ getHumanReadableDateText(new Date(wisdom.cdate), true) }}</td>
-            </tr>
-          </table>
+          <div class="border-none mb-2 pointer-events-none">
+            <div class="text-neutral-400 text-xs pr-2 font-bold">Author</div>
+            <div class="text-sm mb-2">{{ wisdom.author }}</div>
+            <div class="text-neutral-400 text-xs pr-2 font-bold">Source</div>
+            <div class="text-sm mb-2">{{ knowledge.t }}</div>
+            <div class="text-neutral-400 text-xs pr-2 font-bold">Date</div>
+            <div class="text-sm">{{ getHumanReadableDateText(wisdom.cdate, true, true) }}</div>
+          </div>
           <template v-if="!this.$store.getters.hasSeenWisdomTutorial()">
             <div id="wisdomTutorial"
                  class="rounded-xl relative my-4 text-neutral-300">
-              <div class="bg-slate-700 rounded-t-xl p-2">
+              <div class="bg-neutral-700 rounded-t-xl p-2">
                 <XMarkIcon v-on:click="dismissTutorial()"
                            class="h-6 w-6 absolute top-2 right-2 hover:text-white cursor-pointer hover:bg-zinc-600 rounded-xl">
                 </XMarkIcon>
                 <div class="font-bold ml-1">Hey!</div>
               </div>
-              <div class="bg-slate-800 rounded-b-xl p-3 text-sm text-justify">
+              <div class="bg-neutral-800 rounded-b-xl p-3 text-sm text-justify">
                 Welcome to the the new Wisdom Viewer, now with less distraction!
                 <br><br>
                 Find out about how things work, rate articles and enjoy the power of
@@ -594,6 +605,7 @@ import Markdown from 'vue3-markdown-it'
 import markdownItMermaid from 'markdown-it-mermaid'
 import 'highlight.js/styles/hybrid.css'
 import mermaid from 'mermaid'
+import { DateTime } from 'luxon'
 import {
   ChatBubbleLeftEllipsisIcon,
   ClipboardIcon,
@@ -601,6 +613,7 @@ import {
   HandThumbDownIcon,
   HandThumbUpIcon,
   PencilSquareIcon,
+  ShareIcon,
   StarIcon,
   TagIcon,
   XMarkIcon
@@ -646,7 +659,8 @@ export default {
     DisclosureButton,
     DisclosurePanel,
     ChevronUpIcon,
-    SparklesIcon
+    SparklesIcon,
+    ShareIcon
   },
   data () {
     return {
@@ -1176,28 +1190,49 @@ export default {
         return title
       }
     },
-    getHumanReadableDateText: function (date, withTime = false) {
-      const date2 = new Date()
-      const diffTime = Math.abs(date2 - date)
-      let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-      if (date.getDate() === date2.getDate() &&
-        date.getMonth() === date2.getMonth() &&
-        date.getFullYear() === date2.getFullYear()) {
-        diffDays = 0
-      }
+    getHumanReadableDateText: function (date, withTime = true, fullDate = false) {
+      const time = DateTime.fromISO(date).toLocaleString(DateTime.TIME_24_SIMPLE)
+      const start = DateTime.fromISO(DateTime.fromISO(date).toISODate())
+      const end = DateTime.fromISO(DateTime.now().toISODate())
+      const diffDays = Math.ceil(end.diff(start) / (1000 * 60 * 60 * 24))
       let suffix = ''
       if (withTime) {
-        suffix = ', ' + date.toLocaleTimeString('de-DE')
+        suffix = ', ' + time
       }
-      if (diffDays === 0) {
-        return 'Today' + suffix
-      } else if (diffDays === 1) {
-        return 'Yesterday' + suffix
-      } else if (diffDays === 2) {
-        return '2 days ago' + suffix
-      } else {
-        return date.toLocaleDateString('de-DE') + suffix
+      let returnString
+      switch (diffDays) {
+        case -5:
+          returnString = 'In 5 days' + suffix
+          break
+        case -4:
+          returnString = 'In 4 days' + suffix
+          break
+        case -3:
+          returnString = 'In 3 days' + suffix
+          break
+        case -2:
+          returnString = 'In 2 days' + suffix
+          break
+        case -1:
+          returnString = 'Tomorrow' + suffix
+          break
+        case 0:
+          returnString = 'Today' + suffix
+          break
+        case 1:
+          returnString = 'Yesterday' + suffix
+          break
+        case 2:
+          returnString = '2 days ago' + suffix
+          break
+        default:
+          if (!fullDate) {
+            returnString = start.toLocaleString(DateTime.DATE_MED) + suffix
+          } else {
+            returnString = start.toLocaleString(DateTime.DATE_HUGE) + suffix
+          }
       }
+      return returnString
     },
     finishQuestion: async function (wisdom, comment) {
       if (wisdom == null) return
@@ -1240,7 +1275,7 @@ export default {
 }
 
 .sidebar_button:hover .sidebar_tooltip {
-  @apply opacity-100 py-2 px-3 rounded bg-zinc-800;
+  @apply opacity-100 py-2 px-3 rounded bg-zinc-900 border-2 border-zinc-600 z-[800];
 }
 
 .comment .comment_react {
