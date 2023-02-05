@@ -7,7 +7,7 @@
     <div class="text-white"
          style="width: 250px; height: 50px; position: absolute; top: 38%; left: 10%; margin: -25px 0 0 -125px;">
       <div>
-        <p class="fw-bold text-white">You can find us on those platforms:</p>
+        <p class="font-bold text-white">You can find us on those platforms:</p>
         <div class="text-white">
           <button title="SoundCloud"
                   class="btn bi-cloud-fill btn-lg muArrow" style="color: white;"
@@ -26,18 +26,18 @@
     <div class="text-white"
          style="width: 250px; height: 50px; position: absolute; top: 80%; left: 50%; margin: -25px 0 0 -125px;">
       <div style="display: flex">
-        <button class="btn btn-warning btn-lg muArrow fw-bold mt-3"
+        <button class="btn btn-warning btn-lg muArrow font-bold mt-3"
                 v-on:click="gotoArtist('graffitifalls')"
                 style="width: 200px; height: 50px">
           Check 'em out!
         </button>
-        <button class="btn btn-dark btn-lg muArrow fw-bold mt-3"
+        <button class="btn btn-dark btn-lg muArrow font-bold mt-3"
                 v-on:click="scrollTo('cloudday')"
                 style="width: 50px; height: 50px">
           <i class="bi bi-box-arrow-down"></i>
         </button>
       </div>
-      <button class="btn btn-success btn-lg muArrow fw-bold mt-3"
+      <button class="btn btn-success btn-lg muArrow font-bold mt-3"
               v-on:click="gotoShop"
               style="width: 250px; height: 50px">
         Buy Tickets <i class="bi bi-ticket ps-2"></i>
@@ -49,11 +49,11 @@
        :style="{ backgroundImage: 'url('+require('@/assets/'+'cloudday/clouddaybannerformatted.png')+')',
        backgroundPosition: 'center top', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <div style="min-height: 10vh"></div>
-    <div class="d-flex">
+    <div class="flex">
       <div class="container text-white">
-        <h2 class="fw-bold">Featured Artist:</h2>
-        <p class="fw-bold" style="font-size: 400%">CLOUDDAY</p>
-        <div class="d-flex mt-2">
+        <h2 class="font-bold">Featured Artist:</h2>
+        <p class="font-bold" style="font-size: 400%">CLOUDDAY</p>
+        <div class="flex mt-2">
           <div class="mb-2" style="text-align: justify; text-justify: inter-word; width: 250px">
             <p>
               Vocals as soft as clouds, but lyrics hitting as hard as lightning.
@@ -81,7 +81,7 @@
               <button
                 class="btn mdArrow" v-on:click="scrollTo('pg1')"
                 style="margin-left: 150px">
-                <span class="fw-bold lead" style="color: white">
+                <span class="font-bold lead" style="color: white">
                   Discover Orochi
                 </span>
                 <br>
@@ -101,9 +101,9 @@
   <div id="pg1" style="min-height: 100vh; background-color: #080808; position: relative">
     <div class="container" style="position: relative;">
       <div style="display: flex; justify-content: center; align-items: center; position: relative; top: 20vh">
-        <div class="align-items-center justify-content-between text-light p-3">
+        <div class="items-center justify-content-between text-light p-3">
           <section class="mt-2">
-            <h1 class="fw-bold m-3 d-flex">
+            <h1 class="font-bold m-3 flex">
               <i class="bi bi-stars" style="font-size: 200%"></i><br>
               Welcome.<br>
             </h1>
@@ -111,10 +111,10 @@
           </section>
           <hr>
           <section class="d-md-flex">
-            <h1 class="fw-bold text-start">
+            <h1 class="font-bold text-start">
               Unleash your <span style="color: darkred; font-size: 200%">POTENTIAL</span>
             </h1>
-            <h3 class="text-end fw-bold">
+            <h3 class="text-end font-bold">
               Whether you're a total beginner or a professional... <br><br>
               We've got you covered.
             </h3>
@@ -130,16 +130,16 @@
   <div id="pg2" style="min-height: 100vh; position: relative" :style="{ backgroundImage: bg2 }">
     <div class="container" style="position: relative;">
       <div style="display: flex; justify-content: center; align-items: center; position: relative; top: 20vh">
-        <div class="align-items-center justify-content-between text-light p-3">
+        <div class="items-center justify-content-between text-light p-3">
           <section class="container mt-5">
             <h1 style="font-weight: bold; color: white">Be part of the collective.</h1>
           </section>
           <hr>
           <section class="d-md-flex">
-            <h1 class="fw-bold text-start">
+            <h1 class="font-bold text-start">
               Enjoy <span style="font-size: 200%">DIVERSITY</span>
             </h1>
-            <h3 class="text-end fw-bold">
+            <h3 class="text-end font-bold">
               Vocalists, producers, graphics designers and video producers...<br><br>
               From <span style="font-size: 200%">19</span> countries<br>across the world.
             </h3>
@@ -157,13 +157,13 @@
     <section class="container">
       <div style="display: flex; justify-content: center; align-items: center; padding-top: 20vh">
         <div class="d-md-flex text-light p-3">
-          <h1 class="fw-bold text-start">
+          <h1 class="font-bold text-start">
           <span style="color: white; font-size: 200%">
                 Join now.<br>
                 0R0CHI Batsuzoku
               </span>
           </h1>
-          <div class="d-flex ms-5">
+          <div class="flex ms-5">
             <div class="text-center">
               <button title="Soundcloud"
                       class="btn bi-cloud-fill btn-lg muArrow"
@@ -187,32 +187,32 @@
             </div>
             <div class="ms-5">
               <button v-show="!isLoggedIn"
-                      class="btn btn-outline-light btn-lg muArrow fw-bold"
+                      class="btn btn-outline-light btn-lg muArrow font-bold"
                       v-on:click="gotoLogin()"
                       style="width: 200px">
                 Login
               </button>
               <br>
               <button v-show="!isLoggedIn"
-                      class="btn btn-outline-light btn-lg muArrow fw-bold mt-3"
+                      class="btn btn-outline-light btn-lg muArrow font-bold mt-3"
                       v-on:click="gotoRegister()"
                       style="width: 200px">
                 Register
               </button>
               <button v-show="isLoggedIn"
-                      class="btn btn-outline-light btn-lg muArrow fw-bold mt-3"
+                      class="btn btn-outline-light btn-lg muArrow font-bold mt-3"
                       v-on:click="gotoAccount()"
                       style="width: 200px">
                 Account
               </button>
               <br>
-              <button class="btn btn-outline-light btn-lg muArrow fw-bold mt-3"
+              <button class="btn btn-outline-light btn-lg muArrow font-bold mt-3"
                       v-on:click="gotoShop()"
                       style="width: 200px">
                 Shop
               </button>
               <br>
-              <button class="btn btn-outline-light btn-lg muArrow fw-bold mt-3"
+              <button class="btn btn-outline-light btn-lg muArrow font-bold mt-3"
                       v-on:click="scrollTo('root')"
                       style="width: 200px">
                 Beam me up

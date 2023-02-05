@@ -11,7 +11,8 @@
                 <div class="py-1 shadow">
                   <div class="flex items-center">
                     <div v-on:click="clickedBack()"
-                         class="h-full ml-4 mr-2 px-2 py-4 rounded-xl text-center text-gray-300 hover:text-orange-500 cursor-pointer">
+                         class="h-full ml-4 mr-2 px-2 py-4 rounded-xl text-center text-neutral-300
+                                hover:text-orange-500 cursor-pointer">
                       <i class="sb_link_icon bi bi-x-square text-xl"></i>
                     </div>
                     <div class="w-full overflow-x-hidden pr-2">
@@ -19,7 +20,7 @@
                         <div class="text-xl border-l border-gray-300 pl-5 text-neutral-300 font-bold">
                           {{ this.knowledge.t }}
                         </div>
-                        <div class="text-sm border-l border-gray-300 pl-5 text-gray-300 text-neutral-400">
+                        <div class="text-sm border-l border-gray-300 pl-5 text-neutral-300 text-neutral-400">
                           {{ this.knowledge.desc }}
                         </div>
                       </div>
@@ -28,15 +29,15 @@
                 </div>
                 <div class="py-2">
                   <div class="px-3 py-2 rounded-lg flex items-center relative">
-                    <MagnifyingGlassIcon class="w-8 h-8 mx-1 text-neutral-300 absolute translate-x-1"/>
+                    <MagnifyingGlassIcon class="w-6 h-6 mx-2 text-neutral-300 absolute translate-x-1"/>
                     <input id="search-field" type="text"
-                           class="search-field py-4 pl-12 pr-4 bg-neutral-900 h-8 border-2 border-zinc-700"
+                           class="search-field py-6 pl-10 pr-4 bg-zinc-900 h-8 border-2 border-zinc-700"
                            placeholder="Search..."
                            v-on:keyup.enter="searchWisdom()"
                            v-model="queryText">
                   </div>
                   <div style="width: 100%; height: 35px; padding-top: 5px;
-                      display: flex; position: relative; align-items: center">
+                              display: flex; position: relative; align-items: center">
                     <span class="font-bold text-neutral-300 pointer-events-none ml-5">Categories</span>
                     <button class="text-white btn-no-outline"
                             style="position: absolute; right: 15px"
@@ -72,13 +73,13 @@
                   <div class="flex">
                     <button v-on:click="writeWisdom('ask')"
                             class="border-orange-500 hover:bg-orange-600 border-2
-                                   rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 mr-3 w-1/2">
+                                   rounded-xl py-1 px-2 text-neutral-200 hover:text-neutral-200 mr-3 w-1/2">
                       <i class="bi bi-question-lg mr-2"></i>
                       Ask
                     </button>
                     <button v-on:click="writeWisdom('teach')"
                             class="border-indigo-500 hover:bg-indigo-600 border-2
-                                   rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 w-1/2">
+                                   rounded-xl py-1 px-2 text-neutral-200 hover:text-neutral-200 w-1/2">
                       <i class="bi bi-lightbulb small mr-2"></i>
                       Teach
                     </button>
@@ -94,7 +95,7 @@
                   </p>
                   <div class="flex w-full overflow-x-auto pt-1 mb-2">
                     <div v-for="author in topWriters.contributors" :key="author.username"
-                         class="mr-4 text-neutral-400 shadow shadow-black rounded-xl">
+                         class="mr-4 text-neutral-400">
                       <div class="bg-zinc-700 rounded-t-xl py-2 px-3 pointer-events-none">
                         <p class="text-xl">{{ author.username }}</p>
                       </div>
@@ -114,12 +115,14 @@
                   <div class="flex w-full overflow-x-auto pt-1 mb-2 gap-x-2 pb-4">
                     <div v-for="task in questions" :key="task.uID"
                          v-on:click="gotoWisdom(task.result.gUID)"
-                         class="text-neutral-400 w-full rounded-xl cursor-pointer hover:brightness-150 relative min-w-[250px]">
+                         class="text-neutral-400 w-full rounded-xl cursor-pointer hover:brightness-150
+                                relative min-w-[250px]">
                       <div class="bg-zinc-800 text-neutral-300 rounded-t py-1 px-3 pointer-events-none">
                         <p class="font-bold">{{ task.result.t }}</p>
                       </div>
                       <div
-                        class="bg-zinc-700 text-neutral-300 rounded-b py-1 px-3 pointer-events-none max-h-[11em] overflow-y-hidden">
+                        class="bg-zinc-700 text-neutral-300 rounded-b py-1 px-3 pointer-events-none
+                               max-h-[11em] overflow-y-hidden">
                         <div class="flex items-center">
                           <p class="text-sm">{{ task.result.desc }}</p>
                         </div>
@@ -132,30 +135,30 @@
                   </div>
                 </div>
                 <div class="px-2 ml-2">
-                  <div class="flex w-full justify-content-center items-center p-2">
+                  <div class="flex w-full justify-center items-center p-2">
                     <div id="d3wordcloud"></div>
                   </div>
                 </div>
               </template>
               <template v-if="noResults">
-                <div class="flex w-full justify-content-center items-center text-gray-300 p-3 md:mt-10">
+                <div class="flex w-full justify-center items-center text-neutral-300 p-3 md:mt-10">
                   <div>
                     <p class="pointer-events-none text-center">No Results for...</p>
-                    <p class="text-gray-400 text-center"> {{ querySubmission }} </p>
-                    <p class="text-gray-400 pointer-events-none mt-3 text-center border-t border-t-gray-400 pt-3">
+                    <p class="text-neutral-400 text-center"> {{ querySubmission }} </p>
+                    <p class="text-neutral-400 pointer-events-none mt-3 text-center border-t border-t-gray-400 pt-3">
                       Ask a question or teach people!
                     </p>
                     <div class="mt-2">
                       <div class="flex">
                         <button v-on:click="writeWisdom('ask')"
                                 class="border-orange-500 hover:bg-orange-600 border-2
-                                   rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 mr-3 w-1/2">
+                                   rounded-xl py-1 px-2 text-neutral-200 hover:text-neutral-200 mr-3 w-1/2">
                           <i class="bi bi-question-lg mr-2"></i>
                           Ask
                         </button>
                         <button v-on:click="writeWisdom('teach')"
                                 class="border-indigo-500 hover:bg-indigo-600 border-2
-                                   rounded-xl py-1 px-2 text-gray-200 hover:text-gray-200 w-1/2">
+                                   rounded-xl py-1 px-2 text-neutral-200 hover:text-neutral-200 w-1/2">
                           <i class="bi bi-lightbulb small mr-2"></i>
                           Teach
                         </button>
@@ -174,17 +177,18 @@
                        class="result cursor-pointer">
                     <template v-if="result.priority === 'low'">
                       <div
-                        class="absolute top-0 left-0 bottom-0 right-0 bg-neutral-900 bg-opacity-50 hover:bg-opacity-0"></div>
+                        class="absolute top-0 left-0 bottom-0 right-0
+                               bg-zinc-900 bg-opacity-50 hover:bg-opacity-0"></div>
                     </template>
                     <div class="text-neutral-400 flex items-center text-sm">
                       <template v-if="result.priority === 'high'">
                         <SparklesIcon class="w-5 h-5 mr-2 text-amber-600"></SparklesIcon>
                       </template>
                       <div class="flex text-sm">
-                        <span class="pr-2 border-r-2 border-r-neutral-600">{{
-                            getHumanReadableDateText(new Date(result.result.cdate), true)
-                          }}</span>
-                        <span class="px-2">{{ result.result.author }}</span>
+                        <div class="pr-2 border-r-2 border-r-neutral-600">
+                          {{ getHumanReadableDateText(new Date(result.result.cdate), true) }}
+                        </div>
+                        <div class="px-2">{{ result.result.author }}</div>
                       </div>
                       <div class="pointer-events-none ml-auto flex items-center">
                         <div v-if="result.result.reacts != null" class="flex">
@@ -219,17 +223,14 @@
                       </div>
                     </div>
                     <div class="w-full py-4 px-1">
-                      <Markdown class="markedFinder"
-                                :source="'# ' + result.result.t"
-                                :plugins="plugins"></Markdown>
-                      <Markdown class="text-gray-400 markedFinder text-base"
-                                :source="result.result.desc"
-                                :plugins="plugins"></Markdown>
+                      <p class="text-lg font-bold text-neutral-200">{{ result.result.t }}</p>
+                      <p>{{ result.result.desc }}</p>
                     </div>
                     <div class="flex">
                       <template v-if="result.result.copyContent != null">
                         <ClipboardIcon
-                          class="w-10 h-8 text-yellow-500 flex items-center px-2 border-2 border-yellow-500 rounded-lg mr-1">
+                          class="w-10 h-8 text-yellow-500 flex items-center px-2
+                                 border-2 border-yellow-500 rounded-lg mr-1">
                         </ClipboardIcon>
                       </template>
                       <template v-for="cat in result.result.categories" :key="cat">
@@ -257,27 +258,27 @@
     <template v-else>
       <div class="h-full">
         <div class="backdrop-blur p-10 backdrop-brightness-75 h-full">
-          <div class="text-gray-300 mb-5 pointer-events-none">
+          <div class="text-neutral-300 mb-5 pointer-events-none">
             <span class="text-5xl font-bold">Create new Knowledge Hub</span>
           </div>
           <form class="flex" @submit.prevent="createKnowledge">
-            <div class="text-gray-300 w-96 ml-5">
+            <div class="text-neutral-300 w-96 ml-5">
               <label for="title" class="text-3xl mb-2">Title</label>
               <br>
-              <input type="text" id="title" class="rounded text-xl w-full p-2 bg-neutral-400 bg-opacity-25"
+              <input type="text" id="title" class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
                      required v-model="titleCreation">
               <br>
               <label for="description" class="mt-3 mb-2 text-3xl">Description</label>
               <br>
               <textarea type="text" rows="3" id="description"
-                        class="rounded text-xl w-full p-2 bg-neutral-400 bg-opacity-25"
+                        class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
                         v-model="descriptionCreation"></textarea>
             </div>
-            <div class="text-gray-300 w-96 ml-5">
+            <div class="text-neutral-300 w-96 ml-5">
               <label for="keywords" class="text-3xl mb-2 mr-3">Keywords</label>
-              <span class="text-gray-500">Comma separated</span>
+              <span class="text-neutral-500">Comma separated</span>
               <br>
-              <input type="text" id="keywords" class="rounded text-xl w-full p-2 bg-neutral-400 bg-opacity-25"
+              <input type="text" id="keywords" class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
                      v-model="keywordsCreation">
               <br>
               <button type="submit"
@@ -299,7 +300,7 @@
           <label for="new_category" class="text-2xl mb-2">Category:</label>
           <br>
           <input type="text" id="new_category" v-model="newCategory"
-                 class="search-field py-1 px-2 bg-neutral-900 text-lg border-2 border-neutral-800"
+                 class="search-field py-1 px-2 bg-zinc-900 text-lg border-2 border-neutral-800"
                  v-on:keyup.enter="addCategory()">
           <br>
           <button v-on:click="addCategory()"
@@ -323,7 +324,7 @@
             <label for="wisTitle" class="text-xl font-bold">Title:</label>
             <br>
             <input type="text" id="wisTitle" v-model="wisTitle"
-                   class="bg-neutral-900 rounded-xl w-full py-2 px-3">
+                   class="bg-zinc-900 rounded-xl w-full py-2 px-3">
             <br>
             <div class="block lg:flex w-full">
               <div class="lg:w-1/2">
@@ -332,19 +333,21 @@
                 <Listbox v-model="wisCategories" multiple id="wisCategories">
                   <div class="relative mt-1">
                     <ListboxButton
-                      class="bg-neutral-900 w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
-                    >
+                      class="bg-zinc-900 w-full relative cursor-default rounded-lg py-2 pl-3
+                             pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500
+                             focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75
+                             focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
                       <template v-if="wisCategories.length > 0">
-                        <div class="block truncate font-bold text-gray-300">
+                        <div class="block truncate font-bold text-neutral-300">
                           {{ wisCategories.map((cat) => cat.category).join(', ') }}
                         </div>
                       </template>
                       <template v-else>
-                        <span class="block truncate font-bold text-gray-500">Select...</span>
+                        <span class="block truncate font-bold text-neutral-500">Select...</span>
                       </template>
                       <div
                         class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                        <ArrowsUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true"/>
+                        <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
                       </div>
                     </ListboxButton>
                     <transition
@@ -352,8 +355,9 @@
                       leave-from-class="opacity-100"
                       leave-to-class="opacity-0">
                       <ListboxOptions
-                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-neutral-800 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                      >
+                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-zinc-800
+                               py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5
+                               focus:outline-none sm:text-sm">
                         <ListboxOption
                           v-slot="{ active, selected }"
                           v-for="cat in knowledge.categories"
@@ -363,7 +367,7 @@
                         >
                           <li
                             :class="[ active ? 'bg-gray-700' : '',
-                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-gray-200' ]">
+                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-neutral-200' ]">
                             <div
                               :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
                               {{ cat.category }}
@@ -384,24 +388,24 @@
                 <label for="wisKeywords" class="text-xl mt-2 font-bold">Keywords:</label>
                 <br>
                 <input type="text" id="wisKeywords" v-model="wisKeywords"
-                       class="bg-neutral-900 rounded-xl py-2 px-3 w-full">
+                       class="bg-zinc-900 rounded-xl py-2 px-3 w-full">
               </div>
             </div>
             <label for="wisDescription" class="text-xl mt-2 font-bold">Description:</label>
             <br>
             <textarea type="text" id="wisDescription" v-model="wisDescription" rows="20"
-                      class="bg-neutral-900 rounded-xl w-full py-2 px-3"></textarea>
+                      class="bg-zinc-900 rounded-xl w-full py-2 px-3"></textarea>
             <br>
             <label for="wisCopyContent" class="text-xl mt-2 font-bold">Copy Content:</label>
             <br>
             <textarea type="text" id="wisCopyContent" v-model="wisCopyContent" rows="5"
-                      class="bg-neutral-900 rounded-xl w-full py-2 px-3"></textarea>
+                      class="bg-zinc-900 rounded-xl w-full py-2 px-3"></textarea>
           </div>
           <div class="hidden md:block w-[46%] ml-2">
             <p class="text-xl font-bold pointer-events-none">Preview:</p>
-            <div class="bg-neutral-900 rounded-xl p-2 cursor-not-allowed">
-              <Markdown :source="'# ' + wisTitle" class="w-full markedFinder" :plugins="plugins"></Markdown>
-              <Markdown :source="wisDescription" class="w-full mt-4 markedFinder" :plugins="plugins"></Markdown>
+            <div class="bg-zinc-900 rounded-xl p-2 cursor-not-allowed">
+              <Markdown :source="'# ' + wisTitle" class="w-full markedView" :plugins="plugins"></Markdown>
+              <Markdown :source="wisDescription" class="w-full mt-4 markedView" :plugins="plugins"></Markdown>
             </div>
             <div class="flex mt-2 mb-4 w-full">
               <div class="mb-3 ml-auto text-black font-bold">
@@ -1099,90 +1103,18 @@ export default {
   width: 100%;
 }
 
-.markedFinder p {
-  @apply mb-4;
-}
-
-.markedFinder a {
-  @apply underline;
-}
-
-.markedFinder ul {
-  @apply list-disc list-inside mb-2;
-}
-
-.markedFinder ol {
-  @apply list-decimal list-inside mb-2;
-}
-
-.markedFinder pre {
-  @apply mb-2;
-}
-
-.markedFinder table {
-  @apply mb-4;
-}
-
-.markedFinder th, .markedFinder td {
-  @apply p-2 border border-slate-700;
-}
-
-.markedFinder tr {
-  @apply hover:bg-neutral-800;
-}
-
-.markedFinder h1 {
-  @apply text-xl font-bold;
-}
-
-.markedFinder h2 {
-  @apply text-base my-4 font-bold;
-}
-
-.markedFinder h3 {
-  @apply text-base my-4 font-bold;
-}
-
-.markedFinder h4 {
-  @apply text-base my-2 font-bold;
-}
-
-.markedFinder h5 {
-  @apply text-base my-2 font-bold;
-}
-
-.markedFinder h6 {
-  @apply text-base my-1 font-bold;
-}
-
-.markedFinder p code {
-  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-neutral-700 text-neutral-400 my-2;
-}
-
-.markedFinder hr {
-  @apply my-6 h-[4px] w-full;
-}
-
-.markedFinder > :last-child {
-  @apply mb-0 !important;
-}
-
-.markedFinder > :first-child {
-  @apply mt-0 !important;
-}
-
 .gray-hover:hover {
-  @apply bg-neutral-700 text-neutral-200;
+  @apply bg-zinc-700 text-neutral-200;
   cursor: pointer;
   border-radius: 10px;
 }
 
 .kf_category {
-  @apply font-bold text-xs text-neutral-400 bg-black bg-opacity-40 cursor-default mb-1 flex items-center text-center px-3 rounded-full hover:border-gray-100 hover:text-gray-100 h-8;
+  @apply font-bold text-xs text-neutral-400 bg-black bg-opacity-40 cursor-default mb-1 flex items-center text-center px-3 rounded-full hover:border-gray-100 hover:text-neutral-100 h-8;
 }
 
 .result {
-  @apply my-1 relative text-gray-300 px-3 py-3 border-y border-y-zinc-700;
+  @apply my-1 relative text-neutral-300 px-3 py-3 border-y border-y-zinc-700;
 }
 
 .result:hover {

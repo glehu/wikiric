@@ -7,7 +7,7 @@
           This form is more than just a form, it's a script waiting to be finished by you, character by character being
           typed ( <i class="bi bi-keyboard"/> ) into those fields. You're writing your own story, after all.
         </p>
-        <p class="text-white text-center fw-light d-md-none">
+        <p class="text-white text-center  d-md-none">
           [ For the best experience, use a large screen by using a desktop PC for example. ]
         </p>
         <form
@@ -21,14 +21,14 @@
           @submit.prevent="handleSubmit">
           <input type="hidden" name="form-name" value="form_artistsubmission"/>
           <p>
-            <label for="artist_name" class="fw-bold h2">Name:</label><br>
+            <label for="artist_name" class="font-bold h2">Name:</label><br>
             <input id="artist_name" v-model="formData.name_value" type="text" name="name_value" style="width: 100%"
-                   class="fw-bold form-control" required/>
+                   class="font-bold form-control" required/>
           </p>
           <div class="wrapper">
             <p>
-              <label for="artist_type" class="fw-bold h2">Type:</label><br>
-              <select id="artist_type" name="type_value" v-model="formData.type_value" class="fw-bold form-control"
+              <label for="artist_type" class="font-bold h2">Type:</label><br>
+              <select id="artist_type" name="type_value" v-model="formData.type_value" class="font-bold form-control"
                       style="width: 100%" required>
                 <option>Band</option>
                 <option>Singer-Songwriter</option>
@@ -44,9 +44,9 @@
             <div v-if="typeFilled">
               <div v-if="formData.type_value !== 'Visual Artist'">
                 <p>
-                  <label for="artist_style" class="fw-bold h2">Typically:</label><br>
+                  <label for="artist_style" class="font-bold h2">Typically:</label><br>
                   <select id="artist_style" name="style_value" v-model="formData.style_value"
-                          class="fw-bold form-control"
+                          class="font-bold form-control"
                           style="width: 100%">
                     <option>Blues</option>
                     <option>Dubstep</option>
@@ -71,9 +71,9 @@
               </div>
               <div v-if="formData.type_value === 'Visual Artist'">
                 <p>
-                  <label for="artist_style_visual" class="fw-bold h2">Typically:</label><br>
+                  <label for="artist_style_visual" class="font-bold h2">Typically:</label><br>
                   <select id="artist_style_visual" name="style_visual_value" v-model="formData.style_visual_value"
-                          class="fw-bold form-control"
+                          class="font-bold form-control"
                           style="width: 100%">
                     <option>Paintings</option>
                     <option>Digital Art</option>
@@ -85,39 +85,39 @@
             </div>
           </div>
           <p>
-            <label for="artist_lore" class="fw-bold h2">Your Lore:</label><br>
+            <label for="artist_lore" class="font-bold h2">Your Lore:</label><br>
             <textarea id="artist_lore" name="lore_value" v-model="formData.lore_value" style="width: 100%; height: 15ch"
-                      class="fw-bold form-control"></textarea>
+                      class="font-bold form-control"></textarea>
           </p>
           <p>
-            <label for="artist_soundcloud" class="fw-bold h2">SoundCloud:</label><br>
+            <label for="artist_soundcloud" class="font-bold h2">SoundCloud:</label><br>
             <input id="artist_soundcloud" v-model="formData.soundcloud_value" type="text" name="soundcloud_value"
                    style="width: 100%"
-                   class="fw-bold form-control"/>
+                   class="font-bold form-control"/>
           </p>
           <p>
-            <label for="artist_spotify" class="fw-bold h2">Spotify:</label><br>
+            <label for="artist_spotify" class="font-bold h2">Spotify:</label><br>
             <input id="artist_spotify" v-model="formData.spotify_value" type="text" name="spotify_value"
                    style="width: 100%"
-                   class="fw-bold form-control"/>
+                   class="font-bold form-control"/>
           </p>
           <p>
-            <label for="artist_youtube" class="fw-bold h2">Youtube:</label><br>
+            <label for="artist_youtube" class="font-bold h2">Youtube:</label><br>
             <input id="artist_youtube" v-model="formData.youtube_value" type="text" name="youtube_value"
                    style="width: 100%"
-                   class="fw-bold form-control"/>
+                   class="font-bold form-control"/>
           </p>
           <p>
-            <label for="artist_instagram" class="fw-bold h2">Instagram:</label><br>
+            <label for="artist_instagram" class="font-bold h2">Instagram:</label><br>
             <input id="artist_instagram" v-model="formData.instagram_value" type="text" name="instagram_value"
                    style="width: 100%"
-                   class="fw-bold form-control"/>
+                   class="font-bold form-control"/>
           </p>
           <p>
-            <label for="artist_email" class="fw-bold h2">Email:</label><br>
+            <label for="artist_email" class="font-bold h2">Email:</label><br>
             <input id="artist_email" v-model="formData.email_value" type="email" name="email_value"
                    style="width: 100%"
-                   class="fw-bold form-control"/>
+                   class="font-bold form-control"/>
           </p>
           <!-- FORM END -->
           <p class="text-white text-end">
@@ -129,7 +129,7 @@
         </form>
       </div>
       <div>
-        <p class="h3 text-white fw-bold"><i class="bi bi-file-earmark-text"></i> Episode 1: Becoming one of us</p>
+        <p class="h3 text-white font-bold"><i class="bi bi-file-earmark-text"></i> Episode 1: Becoming one of us</p>
         <hr style="color:white">
         <p class="text-white text-center" style="font-style: italic">
           You're a representative for yourself, your band, your collective or organisation.

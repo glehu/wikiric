@@ -1,6 +1,5 @@
 <template>
-  <div class="h-full w-full md:flex items-center justify-center"
-       style="min-height: 100vh; min-width: 100vw; max-width: 100vw; overflow-x: hidden"
+  <div class="h-screen w-screen md:flex items-center justify-center overflow-x-hidden"
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-adrien-olichon-2387819.jpg')+')',
               backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <form class="login md:flex pt-[60px]" @submit.prevent="login">
@@ -11,7 +10,7 @@
                  style="border-radius: 1rem; background: #131313">
               <div class="p-4 text-center">
                 <div class="md:mt-0">
-                  <h2 class="fw-bold mb-2 text-uppercase text-4xl mb-4">
+                  <h2 class="font-bold mb-2 text-uppercase text-4xl mb-4">
                     Sign In
                   </h2>
                   <div class="mb-4">
@@ -19,7 +18,7 @@
                       required
                       v-model="user.email"
                       type="email"
-                      class="text-black py-1 px-2 rounded placeholder-neutral-500"
+                      class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 bg-zinc-700"
                       placeholder="Email"
                       autocomplete="username"
                     />
@@ -29,7 +28,7 @@
                       required
                       v-model="user.password"
                       type="password"
-                      class="text-black py-1 px-2 rounded placeholder-neutral-500"
+                      class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 bg-zinc-700"
                       placeholder="Password"
                       autocomplete="current-password"
                     />
@@ -62,7 +61,7 @@
               <div class="p-4 text-center">
                 <div class="md:mt-0">
                   <p class="pointer-events-none">Sign in via</p>
-                  <h1 class="fw-bold text-4xl"
+                  <h1 class="font-bold text-4xl"
                       style="pointer-events: none">
                     MetaMask
                   </h1>
@@ -90,7 +89,7 @@
               <div class="p-4 text-center">
                 <div class="md:mt-0">
                   <p class="pointer-events-none">Sign in via</p>
-                  <h1 class="fw-bold text-4xl"
+                  <h1 class="font-bold text-4xl"
                       style="pointer-events: none">
                     Phantom
                   </h1>

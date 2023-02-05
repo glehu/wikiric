@@ -88,7 +88,7 @@
            style="text-align: justify; text-justify: inter-word; margin: auto">
         <p style="color: white">
           Creative minds need head-space, so let
-          <span class="fw-bolder" style="font-size: 150%">us</span>
+          <span class="font-bold" style="font-size: 150%">us</span>
           do the dirty work instead. Nothing feels as good as being able to express yourself.
         </p>
         <ul>

@@ -2,19 +2,19 @@
   <div class="preferences" style="min-height: 100vh; background-color: #131313">
     <div style="min-height: 60px"></div>
     <div class="container mt-5" style="width: 100vw; justify-items: center; display: grid; text-align: center">
-      <h1 class="fw-bold text-gray-300 text-5xl mb-2">
+      <h1 class="font-bold text-neutral-300 text-5xl mb-2">
         Hey, no running in the hallways!
       </h1>
-      <h2 class="text-gray-400 text-3xl">
+      <h2 class="text-neutral-400 text-3xl">
         You must accept the usage of cookies to visit this website.
       </h2>
-      <button class="btn text-gray-400 text-decoration-underline"
+      <button class="btn text-neutral-400 text-decoration-underline"
               v-on:click="toggleExplanation('cookieExplanation')">
         What's that?
       </button>
       <div id="cookieExplanation" style="display: none">
         <hr style="color: white">
-        <p class="text-gray-400 my-3">
+        <p class="text-neutral-400 my-3">
           Cookies (data stored locally on your device) are required for this website.
           <br>Without those, the website cannot operate as intended, and worse, the cookie monster will be saddened.
         </p>
@@ -29,7 +29,7 @@
                 v-on:click="revokeCookieAllowances">
           <span>Reject<br>Cookies</span>
         </button>
-        <div class="mt-2 text-gray-400">
+        <div class="mt-2 text-neutral-400">
           By rejecting all cookies you are also revoking your rights to the usage of this website.
         </div>
       </template>

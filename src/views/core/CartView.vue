@@ -4,7 +4,7 @@
     <section
       class="container">
       <div class="text-light p-3">
-        <h1 class="fw-bold d-flex">
+        <h1 class="font-bold flex">
           Shopping Cart, Total: {{ cartTotal }} €
         </h1>
         <br>
@@ -24,19 +24,19 @@
                v-for="item in this.$store.state.cart" :key="item"
                style="background: black; color: white">
             <div class="card-title">
-              <h3 class="fw-bold m-3">
+              <h3 class="font-bold m-3">
                 {{ item.description }}
               </h3>
             </div>
             <div class="card-body">
               <hr>
-              <div class="d-flex">
+              <div class="flex">
                 <button title="Remove from cart" class="btn btn-outline-danger"
                         v-on:click="this.removeItem(item)">
                   <i class="bi bi-x-lg"></i> Remove
                 </button>
               </div>
-              <p class="text-end fw-bold lead">
+              <p class="text-end font-bold lead">
                 {{ item.amount }}x {{ item.price }} €
               </p>
               <hr>

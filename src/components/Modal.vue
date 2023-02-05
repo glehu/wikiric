@@ -18,7 +18,7 @@ export default {
            aria-describedby="modalDescription"
       >
         <header
-          class="modal-header bg-neutral-900 z-50"
+          class="modal-header bg-zinc-900 z-50"
           id="modalTitle"
         >
           <slot name="header">
@@ -104,6 +104,7 @@ export default {
 }
 
 .modal-backdrop {
+  z-index: 999;
   position: fixed;
   top: 0;
   bottom: 0;
@@ -141,7 +142,7 @@ export default {
   left: 0;
   width: 100%;
   height: 52px;
-  @apply font-bold text-lg border-b-4 border-b-zinc-700;
+  @apply font-bold text-lg border-b-4 border-b-zinc-700 items-center pl-4;
 }
 
 .modal-body {

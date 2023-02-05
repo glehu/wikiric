@@ -1,7 +1,7 @@
 <template>
   <div class="supercenter text-white" style="width: 350px">
     <div id="404" class="text-center mb-4">
-      <p class="fw-bold doHover" style="font-size: 400%;">404</p>
+      <p class="font-bold doHover" style="font-size: 400%;">404</p>
       <p class="doHover" style="color: gray; font-size: 200%;">(╯°□°）╯︵ ┻━┻</p>
       <div id="message" class="my-2">
         <strong class="text-xl">
@@ -19,7 +19,7 @@
     </div>
     <hr style="color: white">
     <div id="links" class="text-center mt-2">
-      <p class="fw-bold underline">
+      <p class="font-bold underline">
         <i class="bi bi-house mx-2"/><a :href="'/'">Homepage</a>
         <i class="bi bi-chat-dots mx-2 ms-3"/><a :href="'/apps/clarifier'">Clarifier</a>
       </p>

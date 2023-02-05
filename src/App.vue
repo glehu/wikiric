@@ -1,13 +1,13 @@
 <template>
-  <div id="root" class="home">
-    <Disclosure as="nav" class="backdrop-blur-xl fixed-top"
-                v-slot="{ open }" id="global_nav">
+  <div id="root" class="home z-0">
+    <Disclosure as="nav" class="backdrop-blur-xl fixed top-0 z-20 w-full"
+                v-slot="{ open }" id="global_nav" :ref="'global_nav'">
       <div class="px-4">
         <div class="relative flex items-center justify-between"
              style="height: 60px; max-height: 60px; min-height: 60px">
           <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
             <DisclosureButton
-              class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+              class="inline-flex items-center justify-center p-2 rounded-md text-neutral-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
               <span class="sr-only">Open main menu</span>
               <Bars3Icon v-if="!open" class="block h-6 w-6" aria-hidden="true"/>
               <XMarkIcon v-else class="block h-6 w-6" aria-hidden="true"/>
@@ -24,7 +24,7 @@
                 <template v-for="item in navigation" :key="item.name">
                   <div v-if="item.main"
                        v-on:click="$router.push(item.href)"
-                       :class="[item.current ? 'bg-neutral-900 text-white' : 'text-neutral-300 hover:bg-neutral-700 hover:text-white', 'px-3 py-2 rounded-md text-sm font-medium cursor-pointer']"
+                       :class="[item.current ? 'bg-zinc-900 text-white' : 'text-neutral-300 hover:bg-zinc-700 hover:text-white', 'px-3 py-2 rounded-md text-sm font-medium cursor-pointer']"
                        :aria-current="item.current ? 'page' : undefined">
                     {{ item.name }}
                   </div>
@@ -32,7 +32,7 @@
                 <Combobox v-model="navSelected" class="ml-2">
                   <div class="relative">
                     <div
-                      class="relative w-full cursor-default overflow-hidden rounded-lg bg-neutral-400 text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
+                      class="relative w-full cursor-default overflow-hidden rounded-lg bg-zinc-400 text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
                     >
                       <div class="relative flex items-center">
                         <ComboboxInput
@@ -47,7 +47,7 @@
                       <ComboboxButton
                         class="absolute inset-y-0 right-0 flex items-center pr-2"
                       >
-                        <ArrowsUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true"/>
+                        <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
                       </ComboboxButton>
                     </div>
                     <TransitionRoot
@@ -60,7 +60,7 @@
                       >
                         <div
                           v-if="filteredNav.length === 0 && navQuery !== ''"
-                          class="relative cursor-default select-none py-2 px-4 text-gray-700"
+                          class="relative cursor-default select-none py-2 px-4 text-neutral-700"
                         >
                           Nothing found.
                         </div>
@@ -109,7 +109,7 @@
                   class="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                   <span class="sr-only">Open user menu</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                       stroke="currentColor" class="w-8 h-8 rounded-full text-gray-400 p-1 hover:text-white">
+                       stroke="currentColor" class="w-8 h-8 rounded-full text-neutral-400 p-1 hover:text-white">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
                   </svg>
@@ -126,19 +126,19 @@
                   <template v-if="isLoggedIn">
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="$router.push('/account')"
-                         :class="[active ? 'bg-neutral-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
+                         :class="[active ? 'bg-zinc-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
                         Your Profile
                       </a>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="$router.push('/preferences')"
-                         :class="[active ? 'bg-neutral-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
+                         :class="[active ? 'bg-zinc-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
                         Settings
                       </a>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="logout()"
-                         :class="[active ? 'bg-neutral-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
+                         :class="[active ? 'bg-zinc-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
                         Sign Out
                       </a>
                     </MenuItem>
@@ -146,13 +146,13 @@
                   <template v-else>
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="$router.push('/login?redirect=/account')"
-                         :class="[active ? 'bg-neutral-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
+                         :class="[active ? 'bg-zinc-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
                         <i class="bi bi-key mr-3"></i> Sign In
                       </a>
                     </MenuItem>
                     <MenuItem v-slot="{ active }">
                       <a v-on:click="$router.push('/register?redirect=/account')"
-                         :class="[active ? 'bg-neutral-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
+                         :class="[active ? 'bg-zinc-300' : '', 'block px-4 py-2 text-sm text-neutral-700 cursor-pointer']">
                         <i class="bi bi-person-plus mr-3"></i> Sign Up
                       </a>
                     </MenuItem>
@@ -168,7 +168,7 @@
           <template v-for="item in navigation" :key="item.name">
             <DisclosureButton v-if="item.main" as="a"
                               v-on:click="$router.push(item.href)"
-                              :class="[item.current ? 'bg-neutral-900 text-white' : 'text-neutral-300 hover:bg-neutral-700 hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium cursor-pointer']"
+                              :class="[item.current ? 'bg-zinc-900 text-white' : 'text-neutral-300 hover:bg-zinc-700 hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium cursor-pointer']"
                               :aria-current="item.current ? 'page' : undefined">
               {{ item.name }}
             </DisclosureButton>
@@ -178,7 +178,7 @@
     </Disclosure>
     <!-- More Than A Dream -->
     <div id="router_view_elem"
-         class="absolute top-0 left-0 w-full bg-zinc-900">
+         class="relative top-0 left-0 w-full bg-zinc-900 z-10">
       <router-view/>
     </div>
     <notifications position="bottom right"/>

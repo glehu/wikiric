@@ -6,7 +6,7 @@
            margin: auto">
         <div class="p-2">
           <!-- Who -->
-          <span class="h2 fw-bold" style="pointer-events: none">
+          <span class="h2 font-bold" style="pointer-events: none">
             <i class="bi bi-fingerprint"/> What/Who is wikiric.xyz?
           </span>
           <br>This website is part of a project being worked on by
@@ -15,7 +15,7 @@
           <a :href="'https://github.com/glehu/CWO_ERP'" style="color: white">CWO_DB</a>,
           the back-end, database and API hub handling everything being shown on this website.
           <!-- Why -->
-          <br><br><span class="h2 fw-bold" style="pointer-events: none">
+          <br><br><span class="h2 font-bold" style="pointer-events: none">
             <i class="bi bi-fingerprint"/> What is the purpose of this?
           </span>
           <br>I&nbsp;want to make the world a better place, pursuing my dreams by helping others.
@@ -34,7 +34,7 @@
         </p>
       </div>
       <div class="text-center mb-5" style="margin: 20px">
-        <p class="h1 fw-bold pb-3">More Info:</p>
+        <p class="h1 font-bold pb-3">More Info:</p>
         <button title="V i s i o n"
                 class="btn btn-outline-light"
                 style="font-size: 250%; width: 250px; margin-bottom: 40px"

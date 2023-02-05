@@ -4,8 +4,8 @@
     <section
       class="container">
       <div class="text-light p-3">
-        <div class="d-flex">
-          <h1 class="fw-bold">
+        <div class="flex">
+          <h1 class="font-bold">
             Invoices
           </h1>
           <button class="btn btn-outline-warning ms-5" v-on:click="loadInvoices()">Show Invoices</button>
@@ -20,7 +20,7 @@
             <div class="card text-center mb-5"
                  style="background: black; color: white">
               <div class="card-title">
-                <h3 class="fw-bold m-3">
+                <h3 class="font-bold m-3">
                   <span>
                     <i class="bi bi-file-earmark-text ms-md-5"/>
                     {{ JSON.parse(invoice).text }}
@@ -50,29 +50,29 @@
               <table class="invoice_status">
                 <tr>
                   <th scope="row">Total:</th>
-                  <td><span class="h2 fw-bold">
+                  <td><span class="h2 font-bold">
                     {{ JSON.parse(invoice).grossTotal }} €
                   </span>
                   </td>
                 </tr>
                 <tr>
                   <th scope="row">Paid:</th>
-                  <td><span class="h2 fw-bold">
+                  <td><span class="h2 font-bold">
                     {{ getPaidAmount(JSON.parse(invoice).grossPaid) }}
                   </span>
                   </td>
                 </tr>
                 <tr>
                   <th scope="row">Status:</th>
-                  <td><span class="h2 fw-bold">
+                  <td><span class="h2 font-bold">
                     {{ JSON.parse(invoice).statusText }}
                   </span>
                   </td>
                 </tr>
               </table>
-              <div class="text-start text-black fw-bold p-2 m-3" style="border-radius: 1rem; background: white">
+              <div class="text-start text-black font-bold p-2 m-3" style="border-radius: 1rem; background: white">
                 Customer Note:
-                <span class="ms-2 fw-bolder lead">
+                <span class="ms-2 font-bold lead">
                   {{ JSON.parse(invoice).customerNote }}
                 </span>
               </div>

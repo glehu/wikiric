@@ -9,7 +9,7 @@
           style="width: 300px; height: 300px" alt="">
       </div>
       <div style="text-align: justify; text-justify: inter-word; width: 300px">
-        <p class="h1 fw-bold text-white">Graffiti Falls</p>
+        <p class="h1 font-bold text-white">Graffiti Falls</p>
         <p class="text-white fw-lighter">
           We are a somerset based band, we play many genres of music ranging from mellow acoustic songs to a gritty
           blues style. The band is formed from 4 members, Gus with vocals and guitar, Sam on guitar, Joe on drums and
@@ -25,7 +25,7 @@
           style="width: 300px; height: 300px" alt="">
       </div>
       <div>
-        <p class="fw-bold text-white">You can find us on those platforms:</p>
+        <p class="font-bold text-white">You can find us on those platforms:</p>
         <div class="text-white">
           <button title="SoundCloud"
                   class="btn bi-cloud-fill btn-lg muArrow" style="color: white;"
@@ -47,7 +47,7 @@
           style="width: 300px; height: 300px" alt="">
       </div>
       <div style="text-align: justify; text-justify: inter-word; width: 300px">
-        <p class="h3 fw-bold text-white">Studio Work</p>
+        <p class="h3 font-bold text-white">Studio Work</p>
         <p class="text-white fw-lighter">
           We have been to several studios to record singles and also music videos, thus having many plans for recording
           in the future, most of which will be done in local studios around the area. We are in the early process of

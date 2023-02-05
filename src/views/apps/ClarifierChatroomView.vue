@@ -4,7 +4,7 @@
     <div class="fixed top-0 left-0 w-full h-full">
       <div id="sidebar"
            class="sidebar bg-zinc-900 darkergray-on-small h-[calc(100%-60px)] relative top-[60px]"
-           style="z-index: 1000">
+           style="z-index: 100">
         <div style="height: calc(100% - 60px)"
              class="sidebar_bg">
           <!-- #### Tools #### -->
@@ -53,7 +53,7 @@
             <div v-for="group in this.$store.state.clarifierSessions" :key="group"
                  class="channel_link"
                  style="position: relative; font-weight: bold; font-size: 125%">
-              <a class="fw-bold text-white orange-hover" style="text-decoration: none"
+              <a class="font-bold text-white orange-hover" style="text-decoration: none"
                  v-on:click="connectToGroup(group.id)">
                 <div class="c_lightgray orange-hover"
                      style="height: 50px; display: flex; align-items: center;">
@@ -91,14 +91,14 @@
               <div id="home_subc" class="subchat bg-zinc-800"
                    v-on:click="gotoSubchat(null, false)">
                 <i v-show="hasUnread(null)" id="home_notify"
-                   class="bi bi-chat-quote-fill relative left-0 z-[500] text-orange-500"></i>
+                   class="bi bi-chat-quote-fill relative left-0 z-50 text-orange-500"></i>
                 <HomeIcon class="h-5 w-5"></HomeIcon>
                 <span class="relative left-[20px]">Home</span>
               </div>
             </div>
             <div style="width: 100%; height: 35px; padding-top: 5px"
                  class="px-2 flex relative items-center justify-between">
-              <span class="fw-bold c_lightgray nopointer">Subchats</span>
+              <span class="font-bold c_lightgray nopointer">Subchats</span>
               <button class="text-white btn-no-outline"
                       title="New Subchat"
                       v-on:click="showNewSubchatWindow">
@@ -112,7 +112,7 @@
                  style="display: flex"
                  v-on:click="gotoSubchat(subchat.guid)">
               <i v-show="hasUnread(subchat.guid)" :id="subchat.guid + '_notify'"
-                 class="bi bi-chat-quote-fill relative left-0 z-[500] text-orange-500"></i>
+                 class="bi bi-chat-quote-fill relative left-0 z-50 text-orange-500"></i>
               <template v-if="subchat.type === 'screenshare'">
                 <WindowIcon class="h-5 w-5"></WindowIcon>
               </template>
@@ -177,11 +177,11 @@
                 <div v-if="isStreamingVideo"
                      id="stream_nav"
                      class="text-xl flex items-center ml-6">
-                  <h2 class="fw-bold text-neutral-300">
+                  <h2 class="font-bold text-neutral-300">
                     {{ streamDuration }}
                   </h2>
                   <button v-on:click="stopScreenshare"
-                          class="btn btn-sm gray-hover c_lightgray ml-6"
+                          class="gray-hover c_lightgray ml-6"
                           style="border: 1px solid rgba(255,0,0,0.5);
                              border-radius: 10px;">
                     <span style="font-weight: bold">Hang Up</span>
@@ -221,7 +221,7 @@
                         aspect-ratio: 16 / 9"
                    class="flex">
                 <div v-if="!isStreamingVideo"
-                     class="d-flex"
+                     class="flex"
                      style="pointer-events: none;
                           position: absolute;
                           width: 100%; height: 100%;
@@ -265,7 +265,7 @@
               <div v-if="!isStreamingVideo && (this.currentSubchat.type === 'screenshare')"
                    style="position: absolute; top: 10px; right: 10px" class="text-end">
                 <button v-on:click="startScreenshare()"
-                        class="btn btn-sm gray-hover
+                        class="gray-hover
                            c_lightgray"
                         style="position: relative;
                              margin-left: 20px; margin-top: 10px;
@@ -277,7 +277,7 @@
                 <template v-for="user in this.members" :key="user">
                   <template v-if="user.id !== userId">
                     <button v-on:click="startScreenshare(user.id)"
-                            class="btn btn-sm gray-hover c_lightgray"
+                            class="gray-hover c_lightgray"
                             style="position: relative;
                                    margin-left: 20px; margin-top: 10px;
                                    border: 1px solid rgba(174, 174, 183, 0.25);
@@ -298,11 +298,11 @@
                    style="flex-direction: column-reverse">
                 <div id="init_loading" style="display: none">
                   <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
-                  <span class="ms-2 fw-bold c_lightgray">Initializing...</span>
+                  <span class="ms-2 font-bold c_lightgray">Initializing...</span>
                 </div>
                 <div id="loading" style="display: none">
                   <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
-                  <span class="ms-2 fw-bold c_lightgray">Connecting...</span>
+                  <span class="ms-2 font-bold c_lightgray">Connecting...</span>
                 </div>
                 <template v-for="msg in messages" :key="msg.gUID">
                   <div class="message" :id="msg.gUID">
@@ -313,11 +313,8 @@
                     </template>
                     <!-- Chat Avatar and Date -->
                     <template v-if="msg.header === true">
-                      <div style="position: relative;
-                            display: flex;
-                            height: 30px;
-                            align-items: center"
-                           class="mt-2">
+                      <div style="height: 30px"
+                           class="mt-2 relative flex items-center">
                         <i v-if="msg.src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
                         <i v-else class="sender_avatar bi bi-person-circle"></i>
                         <template v-if="msg.iurl !== ''">
@@ -326,15 +323,16 @@
                                style="width: 42px; height: 42px; border-radius: 100%;
                                     position: absolute; top: 8px; left: -7px">
                         </template>
-                        <span class="orange-hover text-neutral-200"
-                              style="font-weight: bold"
-                              @click.stop="showUserProfileFromName(msg.src)">
-                    {{ msg.src }}
-                  </span>
-                        <div style="color: gray; font-size: 80%; padding-left: 10px">
-                    <span style="pointer-events: none">
-                      {{ getHumanReadableDateText(msg.time, true) }}
-                    </span>
+                        <div class="orange-hover text-neutral-200"
+                             style="font-weight: bold"
+                             @click.stop="showUserProfileFromName(msg.src)">
+                          {{ msg.src }}
+                        </div>
+                        <div style="color: gray; font-size: 80%; padding-left: 10px"
+                             class="flex gap-x-1">
+                          <div style="pointer-events: none">
+                            {{ getHumanReadableDateText(msg.time, true) }}
+                          </div>
                           <template v-if="msg.isEncrypted === true">
                             <i v-if="msg.decryptionFailed === false" class="bi bi-shield-lock ms-1"
                                title="Decrypted Message"></i>
@@ -346,9 +344,9 @@
                           </template>
                           <template v-if="msg.apiResponse === true">
                             <i class="bi bi-gear ms-1 c_orange" title="API Response"></i>
-                            <span style="pointer-events: none" class="ms-1">
-                          {{ msg.mType }}
-                        </span>
+                            <div style="pointer-events: none" class="ms-1">
+                              {{ msg.mType }}
+                            </div>
                           </template>
                           <template v-if="msg.mType === 'Task'">
                             <div class="ms-1 translate-y-1 c_orange h-4 w-4 inline-flex items-center justify-center"
@@ -374,37 +372,38 @@
                         </div>
                       </template>
                       <!-- #### MESSAGE OPTIONS #### -->
-                      <div v-if="msg.mType !== 'CryptError' && !msg.src.startsWith('_server')" class="msg_options">
-                        <div class="bg-zinc-900 rounded mr-1">
-                          <button title="Reply" class="btn btn-sm text-neutral-400 orange-hover"
+                      <div v-if="msg.mType !== 'CryptError' && !msg.src.startsWith('_server')"
+                           class="msg_options gap-x-2">
+                        <div class="bg-zinc-700 rounded gap-x-4 flex px-2 py-1">
+                          <button title="Reply" class="orange-hover"
                                   v-on:click="replyToMessage(msg)">
-                            <i class="bi bi-reply-fill"></i>
+                            <i class="bi bi-reply-fill text-inherit"></i>
                           </button>
                           <template v-if="msg.editable === true">
-                            <button title="Edit" class="btn btn-sm text-neutral-400 orange-hover"
+                            <button title="Edit" class="orange-hover"
                                     v-on:click="editMessage(msg)">
-                              <i class="bi bi-pencil-fill"></i>
+                              <i class="bi bi-pencil-fill text-inherit"></i>
                             </button>
-                            <button title="Remove" class="btn btn-sm text-neutral-400 orange-hover"
+                            <button title="Remove" class="orange-hover"
                                     v-on:click="editMessage(msg, true)">
-                              <i class="bi bi-trash-fill"></i>
+                              <i class="bi bi-trash-fill text-inherit"></i>
                             </button>
                           </template>
                         </div>
-                        <div class="bg-zinc-900 rounded mr-1">
-                          <button title="Upvote" class="btn btn-sm text-neutral-400 orange-hover"
+                        <div class="bg-zinc-700 rounded gap-x-4 flex px-2 py-1">
+                          <button title="Upvote" class="orange-hover"
                                   v-on:click="reactToMessage(msg, '+')">
-                            <i class="bi bi-hand-thumbs-up"></i>
+                            <i class="bi bi-hand-thumbs-up text-inherit"></i>
                           </button>
-                          <button title="Downvote" class="btn btn-sm text-neutral-400 orange-hover"
+                          <button title="Downvote" class="orange-hover"
                                   v-on:click="reactToMessage(msg, '-')">
-                            <i class="bi bi-hand-thumbs-down"></i>
+                            <i class="bi bi-hand-thumbs-down text-inherit"></i>
                           </button>
                         </div>
-                        <div class="bg-zinc-900 rounded mr-1">
-                          <button title="Awesome!" class="btn btn-sm text-neutral-400 orange-hover"
+                        <div class="bg-zinc-700 rounded gap-x-4 flex px-2 py-1">
+                          <button title="Awesome!" class="orange-hover"
                                   v-on:click="reactToMessage(msg, '⭐')">
-                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill text-inherit"></i>
                           </button>
                         </div>
                       </div>
@@ -501,7 +500,7 @@
                               Reply to {{ msg.source.src }}:
                             </p>
                             <Markdown :id="'rsr_' + msg.gUID"
-                                      class="py-1 px-2 w-fit mb-1"
+                                      class="py-1 px-2 w-fit mb-1 markedView"
                                       :source="msg.source.msg"
                                       :breaks="true"
                                       :plugins="plugins"
@@ -511,7 +510,7 @@
                             </p>
                           </div>
                           <Markdown :id="'msg_' + msg.gUID"
-                                    class="clientMessage"
+                                    class="clientMessage markedView"
                                     :source="msg.msg"
                                     :breaks="true"
                                     :plugins="plugins"/>
@@ -520,7 +519,7 @@
                       <!-- #### CLIENT MESSAGE #### -->
                       <template v-else>
                         <Markdown :id="'msg_' + msg.gUID"
-                                  class="clientMessage"
+                                  class="clientMessage markedView"
                                   :source="msg.msg"
                                   :breaks="true"
                                   :plugins="plugins"/>
@@ -543,7 +542,7 @@
                       </div>
                     </div>
                     <div :id="'edit_' + msg.gUID" class="hidden w-full justify-center">
-                      <div class="text-sm p-2 bg-neutral-900 rounded mt-2 mb-1 text-center flex items-center">
+                      <div class="text-sm p-2 bg-zinc-900 rounded mt-2 mb-1 text-center flex items-center">
                         <div class="ml-2 mr-4 text-neutral-400 pointer-events-none">
                           <template v-if="isEditingMessage">Edit</template>
                           <template v-else-if="isReplyingToMessage">Reply</template>
@@ -619,7 +618,7 @@
                 <div id="imgflip_toolbar_boxtools"
                      style="display: flex; opacity: 0; transition: 0.5s ease opacity">
                   <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
-                    <div class="c_darkgray ms-2 fw-bold"
+                    <div class="c_darkgray ms-2 font-bold"
                          style="font-size: 150%; pointer-events: none">
                       |
                     </div>
@@ -665,18 +664,18 @@
                       <i class="bi bi-arrows-move" style="font-size: 75%; color: black"></i>
                     </div>
                     <textarea :id="'imgflip_draggableText_' + box.id" rows="1" cols="8"
-                              class="fw-bold draggable_meme_text border-2 border-black"></textarea>
+                              class="font-bold draggable_meme_text border-2 border-black"></textarea>
                   </div>
                 </div>
               </template>
               <template v-else-if="isFillingImgflipTemplate.mode === 'top-bottom'">
                 <input id="imgflip_topText"
                        style="bottom: 80px; background-color: rgba(255, 255, 255, 0.5);"
-                       class="text-center fw-bold imgflip_text"
+                       class="text-center font-bold imgflip_text"
                        placeholder="Top Text">
                 <input id="imgflip_bottomText"
                        style="bottom: 10px; background-color: rgba(255, 255, 255, 0.5);"
-                       class="text-center fw-bold imgflip_text"
+                       class="text-center font-bold imgflip_text"
                        placeholder="Bottom Text"
                        v-on:keyup.enter="submitImgflipMeme">
               </template>
@@ -763,7 +762,7 @@
       <div id="member_section" style="margin-top: 60px"
            class="member_section bg-zinc-700 rounded-tl-lg border-l-2 border-l-zinc-900">
         <div style="width: 100%; height: 50px; display: flex; align-items: center">
-        <span class="fw-bold member_count c_lightgray nopointer"
+        <span class="font-bold member_count c_lightgray nopointer"
               style="padding-left: 20px">
           Members&nbsp;-&nbsp;{{ getMemberCount() }}
         </span>
@@ -825,7 +824,7 @@
                                 position: absolute; left: -4px">
         </template>
         <div style="display: block">
-          <h2 class="fw-bold text-2xl">
+          <h2 class="font-bold text-2xl">
             {{ viewedUserProfile.usr }}
           </h2>
           <div title="This member's messages are being End-to-End encrypted"
@@ -877,15 +876,15 @@
         </span>
       </div>
       <!-- #### ROLE ADDER #### -->
-      <div class="user_role b_darkergray align-items-center"
+      <div class="user_role b_darkergray items-center"
            v-show="isAddingRole" @click.stop>
         <div style="position: relative">
           <i class="bi bi-x-lg lead" style="cursor: pointer; position: absolute; right: 0" title="Close"
              v-on:click="isAddingRole = false"></i>
-          <h4 class="fw-bold">Add a new Role</h4>
+          <h4 class="font-bold">Add a new Role</h4>
           <input id="new_role"
                  type="text"
-                 class="fw-bold b_darkergray my-4"
+                 class="font-bold b_darkergray my-4"
                  style="height: 4ch; padding-left: 1ch; color: white; width: calc(100% - 1ch);
                         border: 1px solid white; border-radius: 10px"
                  v-model="new_role"
@@ -897,7 +896,7 @@
         <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Badges</h5>
         <template v-if="this.viewedUserProfile.badges == null || this.viewedUserProfile.badges.length < 1">
           <div style="border: 1px solid gray; border-radius: 10px; width: 100%; padding: 10%"
-               class="c_lightgray text-center align-items-center pointer-events-none">
+               class="c_lightgray text-center items-center pointer-events-none">
             <i class="bi bi-award-fill lead"></i>
             <br>Keep communicating to earn badges!
           </div>
@@ -941,7 +940,7 @@
              class="b_darkergray"
              style="width: 100px; height: 100px; border-radius: 100%">
         <div class="block ml-2">
-          <h2 class="fw-bold text-2xl">
+          <h2 class="font-bold text-2xl">
             {{ viewedUserProfile.usr }}
           </h2>
           <div title="This member's messages are being End-to-End encrypted"
@@ -978,7 +977,7 @@
          class="flex items-center">
       <input id="gif_query"
              type="text"
-             class="fw-bold b_darkergray rounded-lg px-2 py-1"
+             class="font-bold b_darkergray rounded-lg px-2 py-1"
              style="height: 34px; color: white; border: none"
              v-model="gif_query_string"
              :placeholder="'Search on GIPHY'"
@@ -991,11 +990,11 @@
   <div class="session_settings bg-zinc-700 shadow"
        style="overflow-x: hidden; overflow-y: auto"
        v-show="isViewingSessionSettings" @click.stop>
-    <div style="position: relative; padding-top: 10px; width: 100%">
+    <div style="position: relative; width: 100%">
       <i class="bi bi-x-lg lead orange-hover"
          style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideAllWindows()"></i>
-      <h2 class="fw-bold nopointer text-xl mb-2">Session Settings</h2>
+      <h2 class="font-bold nopointer text-xl mb-2">Session Settings</h2>
       <div style="display: flex; width: 100%; margin-bottom: 10px">
         <img class="b_darkergray" style="min-width: 80px; width: 80px; min-height: 80px; height: 80px;
              border-radius: 20px"
@@ -1013,25 +1012,25 @@
         <span class="jetb ms-2">Uploading...</span>
       </div>
       <hr class="c_lightgray my-2">
-      <h4 class="c_lightgray fw-bold text-lg nopointer">
+      <h4 class="c_lightgray font-bold text-lg nopointer">
         Reward Program
       </h4>
-      <p style="margin: 0; font-size: 75%" class="c_lightgray mb-3">
+      <p style="font-size: 75%" class="c_lightgray mb-3">
         Communicate to unlock powerful upgrades for your Clarifier group!
       </p>
       <div style="display: flex; align-items: center"
            class="c_lightgray mb-2">
-        <span class="b_purple fw-bold nopointer"
+        <span class="b_purple font-bold nopointer"
               style="border-radius: 5px; padding: 0 4px 4px 4px;
                      margin-right: 5px">
           Rank {{ chatroom.rank }}
         </span>
-        <span class="b_purple fw-bold nopointer"
+        <span class="b_purple font-bold nopointer"
               style="border-radius: 5px; padding: 0 4px 4px 4px;
                      margin-right: 5px">
           {{ chatroom.rankDescription }}
         </span>
-        <button class="btn fw-bold golden-hover golden-hover-glow"
+        <button class="btn font-bold golden-hover golden-hover-glow"
                 style="border-radius: 5px; padding: 0 6px 4px 4px"
                 v-on:click="upgradeChatroom()">
           <i class="bi bi-lightning-charge-fill"></i>
@@ -1043,7 +1042,7 @@
       </div>
       <div style="overflow-y: auto; font-size: 75%"
            class="c_lightgray">
-        <div class="d-flex gap-1 mb-1" style="width: 100%">
+        <div class="flex gap-1 mb-1" style="width: 100%">
           <template v-if="chatroom.rank < 2">
             <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
                  class="text-center">
@@ -1055,7 +1054,7 @@
             <div style="border: 2px solid rebeccapurple; border-radius: 10px; padding: 20px"
                  class="text-center">
               <i class="bi bi-award-fill lead"></i>
-              <br><span class="fw-bold">Badges</span>
+              <br><span class="font-bold">Badges</span>
             </div>
           </template>
           <template v-if="chatroom.rank < 3">
@@ -1069,7 +1068,7 @@
             <div style="border: 2px solid rebeccapurple; border-radius: 10px; padding: 20px"
                  class="text-center">
               <i class="bi bi-book-half lead"></i>
-              <br><span class="fw-bold">Knowledge</span>
+              <br><span class="font-bold">Knowledge</span>
             </div>
           </template>
           <div style="border: 2px dotted gray; border-radius: 10px; padding: 20px"
@@ -1091,12 +1090,12 @@
       <!-- #### New Subchat #### -->
       <div class="new_subchat" style="overflow: hidden; padding: 5px">
         <div style="position: relative; padding-top: 10px; width: 100%">
-          <label for="new_subchat_name" class="fw-bold lead c_lightgray">Name:</label>
+          <label for="new_subchat_name" class="font-bold lead c_lightgray">Name:</label>
           <input v-model="new_subchat_name"
                  id="new_subchat_name" type="text"
                  class="mt-2 b_darkergray text-white p-2 ps-3"
                  style="width: 100%; border: none; border-radius: 20px">
-          <label class="fw-bold lead mt-4 c_lightgray" style="width: 100%">Create:</label>
+          <label class="font-bold lead mt-4 c_lightgray" style="width: 100%">Create:</label>
           <button v-on:click="createSubchatroom('text')"
                   id="new_subchat_type_text" class="btn darkbutton mt-2 text-neutral-400"
                   style="width: 100%; text-align: left; display: flex;
@@ -1142,7 +1141,7 @@
     <div style="position: relative; padding-top: 10px; width: 100%">
       <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="closeUploadingSnippet()"></i>
-      <h2 class="fw-bold text-2xl mb-4">File Upload</h2>
+      <h2 class="font-bold text-2xl mb-4">File Upload</h2>
       <template v-if="uploadFileType !== ''">
         <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px">
           <img v-if="uploadFileType.includes('image')"
@@ -1177,7 +1176,7 @@
                          border-radius: 1em; margin: auto"
                   title="Send"
                   v-on:click="addMessage">
-            <span class="fw-bold"><i class="bi bi-send mr-2"></i>Submit</span>
+            <span class="font-bold"><i class="bi bi-send mr-2"></i>Submit</span>
             <span style="margin-left: 10px" class="c_lightgray"> {{ this.uploadFileType }}</span>
           </button>
         </div>
@@ -1243,15 +1242,15 @@
     v-show="isViewingBadges"
     @close="hideAllWindows()">
     <template v-slot:header>
-      <h2 class="fw-bold">Badge Hub</h2>
+      <h2 class="font-bold">Badge Hub</h2>
       <div style="display: flex; align-items: center; margin: 0 40px 0 40px"
            class="c_lightgray mb-2">
-        <div class="b_purple fw-bold nopointer"
+        <div class="b_purple font-bold nopointer"
              style="border-radius: 5px; padding: 0 4px 4px 4px;
                     margin-right: 5px">
           Rank {{ chatroom.rank }}
         </div>
-        <div class="b_purple fw-bold nopointer"
+        <div class="b_purple font-bold nopointer"
              style="border-radius: 5px; padding: 0 4px 4px 4px;
                     margin-right: 5px">
           {{ chatroom.rankDescription }}
@@ -1274,7 +1273,7 @@
     v-show="isTransferring"
     @close="hideAllWindows()">
     <template v-slot:header>
-      <h2 class="fw-bold text-2xl">Transfer</h2>
+      <h2 class="font-bold text-2xl">Transfer</h2>
     </template>
     <template v-slot:body>
       <div class="md:flex">
@@ -1288,7 +1287,7 @@
           </ol>
           <div class="flex mt-4 items-center">
             <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
-            <span class="ml-2 fw-bold c_lightgray">Waiting...</span>
+            <span class="ml-2 font-bold c_lightgray">Waiting...</span>
           </div>
         </div>
       </div>
@@ -4199,7 +4198,7 @@ export default {
 }
 
 .b_darkergray {
-  @apply bg-neutral-900;
+  @apply bg-zinc-900;
 }
 
 .c_darkergray {
@@ -4211,7 +4210,7 @@ export default {
 }
 
 .c_darkgray {
-  @apply text-gray-800;
+  @apply text-neutral-800;
 }
 
 .b_gray {
@@ -4219,7 +4218,7 @@ export default {
 }
 
 .c_gray {
-  @apply text-gray-700;
+  @apply text-neutral-700;
 }
 
 .c_lightgray {
@@ -4294,7 +4293,7 @@ export default {
 .giphygrid,
 .session_settings {
   position: fixed;
-  z-index: 1001;
+  z-index: 800;
   bottom: 80px;
   right: 12px;
   color: white;
@@ -4305,7 +4304,6 @@ export default {
 }
 
 .user_role {
-  z-index: 1001;
   color: white;
   width: 250px;
   padding: 5px 20px;
@@ -4380,7 +4378,7 @@ export default {
   width: 0;
   height: calc(100% - 60px);
   position: fixed;
-  z-index: 999;
+  z-index: 90;
   top: 0;
   left: 55px;
   overflow-x: clip;
@@ -4396,7 +4394,7 @@ export default {
   overflow-x: clip;
   overflow-y: auto;
   color: white;
-  z-index: 1000;
+  z-index: 100;
   position: absolute;
   right: 0;
   height: calc(100% - 60px);
@@ -4443,8 +4441,7 @@ export default {
 
 .channel_tooltip {
   position: fixed;
-  left: 54px;
-  transform: translateY(-47px);
+  transform: translateY(-47px) translateX(54px);
   opacity: 0;
   pointer-events: none;
 }
@@ -4469,7 +4466,7 @@ export default {
   }
 
   .sidebar.active, .sidebar2.active, .member_section.active {
-    @apply backdrop-blur-xl bg-neutral-900 bg-opacity-75;
+    @apply backdrop-blur-xl bg-zinc-900 bg-opacity-75;
   }
 
   .darkergray-on-small {
@@ -4630,7 +4627,7 @@ export default {
 }
 
 .darkbutton {
-  @apply bg-neutral-900;
+  @apply bg-zinc-900;
 }
 
 .darkbutton:hover {
@@ -4742,7 +4739,7 @@ export default {
   min-height: 100%;
   align-items: center;
   justify-content: center;
-  z-index: 9999
+  z-index: 999
 }
 
 .imgflip_text {
@@ -4802,74 +4799,6 @@ export default {
 
 <style>
 
-.clientMessage p {
-  @apply mb-4;
-}
-
-.clientMessage > :last-child {
-  @apply mb-0 !important;
-}
-
-.clientMessage > :first-child {
-  @apply mt-0 !important;
-}
-
-.clientMessage table {
-  @apply mb-4;
-}
-
-.clientMessage th, .clientMessage td {
-  @apply p-2 border border-slate-700;
-}
-
-.clientMessage tr {
-  @apply hover:bg-neutral-800;
-}
-
-.clientMessage ul {
-  @apply list-disc list-inside mb-2;
-}
-
-.clientMessage ol {
-  @apply list-decimal list-inside mb-2;
-}
-
-.clientMessage pre {
-  @apply mb-2;
-}
-
-.clientMessage p code {
-  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-neutral-700 text-neutral-400 my-2;
-}
-
-.clientMessage hr {
-  @apply my-6 h-[4px] w-full;
-}
-
-.clientMessage a {
-  @apply underline;
-}
-
-.clientMessage h1 {
-  @apply text-4xl my-8;
-}
-
-.clientMessage h2 {
-  @apply text-3xl my-6;
-}
-
-.clientMessage h3 {
-  @apply text-2xl my-4;
-}
-
-.clientMessage h4 {
-  @apply text-xl my-2;
-}
-
-.clientMessage h5 {
-  @apply text-lg my-1;
-}
-
 .clientMessage img {
   @apply my-2;
 }
@@ -4881,7 +4810,7 @@ export default {
 
 .headerline:before,
 .headerline:after {
-  @apply bg-neutral-500;
+  @apply bg-zinc-500;
   content: "";
   display: inline-block;
   height: 1px;

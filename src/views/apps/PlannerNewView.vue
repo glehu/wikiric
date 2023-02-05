@@ -24,7 +24,7 @@
       </div>
     </div>
     <div class="bg-zinc-900 w-[calc(100%-42px)] h-full overflow-hidden">
-      <div class="flex m-2 h-[42px] relative top-0 gap-xl-4">
+      <div class="flex m-2 h-[42px] fixed gap-xl-4">
         <div class="flex items-center cursor-pointer hover:bg-zinc-800 p-2 rounded-md"
              v-on:click="$router.back()">
           <div class="h-full mr-3 px-1 rounded-xl text-neutral-300 flex items-center">
@@ -74,7 +74,7 @@
       </div>
       <template v-if="!isListView">
         <div id="board"
-             class="h-full w-full flex p-1 overflow-x-auto overflow-y-auto">
+             class="h-full w-full flex p-1 overflow-x-auto overflow-y-auto fixed translate-y-[60px]">
           <template v-if="boxes.length > 0">
             <template v-for="box in boxes" :key="box.box.uID">
               <div class="p_card box_container" style="margin-bottom: 312px !important"
@@ -111,10 +111,10 @@
                           <div class="px-1 py-1">
                             <MenuItem v-slot="{ active }">
                               <button v-on:click="finishTask(box.box, true)"
-                                      :class="[active ? 'p_card_menu_active' : 'text-gray-900','group p_card_menu_item']">
+                                      :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
                                 <TrashIcon
                                   :active="active"
-                                  class="mr-2 h-5 w-5"
+                                  class="mr-2 h-5 w-5 stroke-neutral-900"
                                   aria-hidden="true"
                                 />
                                 Delete
@@ -124,10 +124,10 @@
                           <div class="px-1 py-1">
                             <MenuItem v-slot="{ active }">
                               <button
-                                :class="[active ? 'p_card_menu_active' : 'text-gray-900','group p_card_menu_item']">
+                                :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
                                 <ArrowsPointingOutIcon
                                   :active="active"
-                                  class="mr-2 h-5 w-5"
+                                  class="mr-2 h-5 w-5 stroke-neutral-900"
                                   aria-hidden="true"
                                 />
                                 Move
@@ -150,7 +150,7 @@
                                       bg-opacity-25 justify-between rounded">
                             <CalendarIcon class="w-4 h-4 mr-1"></CalendarIcon>
                             <div class="text-xs font-bold">
-                              {{ getHumanReadableDateText(new Date(task.dueDate)) }}
+                              {{ getHumanReadableDateText(task.dueDate) }}
                             </div>
                           </div>
                         </template>
@@ -216,10 +216,10 @@
                               <div class="px-1 py-1">
                                 <MenuItem v-slot="{ active }">
                                   <button v-on:click="finishTask(task)"
-                                          :class="[active ? 'p_card_menu_active' : 'text-gray-900','group p_card_menu_item']">
+                                          :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
                                     <CheckIcon
                                       :active="active"
-                                      class="mr-2 h-5 w-5"
+                                      class="mr-2 h-5 w-5 stroke-neutral-900"
                                       aria-hidden="true"
                                     />
                                     Finish
@@ -227,10 +227,10 @@
                                 </MenuItem>
                                 <MenuItem v-slot="{ active }">
                                   <button v-on:click="finishTask(task, true)"
-                                          :class="[active ? 'p_card_menu_active' : 'text-gray-900','group p_card_menu_item']">
+                                          :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
                                     <TrashIcon
                                       :active="active"
-                                      class="mr-2 h-5 w-5"
+                                      class="mr-2 h-5 w-5 stroke-neutral-900"
                                       aria-hidden="true"
                                     />
                                     Delete
@@ -239,9 +239,9 @@
                                 <Menu as="div" class="relative inline-block text-left w-full">
                                   <MenuButton
                                     title="Options"
-                                    class="items-center cursor-pointer group p_card_menu_item text-gray-900 hover:text-white hover:bg-zinc-800 hover:bg-opacity-60">
+                                    class="items-center cursor-pointer group p_card_menu_item text-neutral-900 hover:text-white hover:bg-zinc-800 hover:bg-opacity-60">
                                     <ShareIcon
-                                      class="mr-2 h-5 w-5"
+                                      class="mr-2 h-5 w-5 stroke-neutral-900"
                                       aria-hidden="true"
                                     />
                                     Share
@@ -289,10 +289,10 @@
                               <div class="px-1 py-1">
                                 <MenuItem v-slot="{ active }">
                                   <button
-                                    :class="[active ? 'p_card_menu_active' : 'text-gray-900','group p_card_menu_item']">
+                                    :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
                                     <ArrowsPointingOutIcon
                                       :active="active"
-                                      class="mr-2 h-5 w-5"
+                                      class="mr-2 h-5 w-5 stroke-neutral-900"
                                       aria-hidden="true"
                                     />
                                     Move
@@ -396,12 +396,12 @@
       </template>
       <template v-else>
         <div id="list"
-             class="h-full w-full py-2 pl-2 pr-3 overflow-y-auto">
+             class="h-full w-full py-2 pl-2 pr-3 overflow-y-auto fixed translate-y-[60px]">
           <template v-if="boxes.length > 0">
             <table class="w-full table-auto bg-zinc-800"
                    style="margin-bottom: 312px !important">
               <thead>
-              <tr class="text-neutral-300 text-lg border-b-[1px] border-b-zinc-600">
+              <tr class="text-neutral-300 text-lg border-b-[1px] border-b-zinc-600 text-left">
                 <th class="p-2">State</th>
                 <th class="p-2">Title</th>
                 <th class="p-2">Description</th>
@@ -465,7 +465,7 @@
                       <td class="p-2"></td>
                     </template>
                     <template v-if="task.dueDate && task.dueDate !== ''">
-                      <td class="p-2 text-sm">{{ getHumanReadableDateText(new Date(task.dueDate)) }}</td>
+                      <td class="p-2 text-sm">{{ getHumanReadableDateText(task.dueDate) }}</td>
                     </template>
                     <template v-else>
                       <td class="p-2 text-neutral-500 text-xs">(No&nbsp;Due&nbsp;Date)</td>
@@ -634,7 +634,7 @@
               </div>
             </div>
             <template v-if="showingTaskRelated.comments == null">
-              <div class="flex w-full items-center justify-content-center py-4">
+              <div class="flex w-full items-center justify-center py-4">
                 <div class="w-full text-neutral-400 pointer-events-none">
                   <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
                   <p class="text-md font-bold italic w-fit mx-auto">No Comments</p>
@@ -803,7 +803,7 @@
     </template>
   </modal>
   <template v-if="isSearching">
-    <div class="absolute top-[60px] right-1 p_card mt-2"
+    <div class="fixed top-[60px] right-1 p_card mt-2"
          style="box-shadow: 0 0 6px 4px rgb(23 23 23 / 1)">
       <div class="p_card_header_section relative text-neutral-300 flex items-center p-2 font-bold w-full">
         <span>Filter</span>
@@ -1011,6 +1011,7 @@ import modal from '../../components/Modal.vue'
 import FullCalendar from '@fullcalendar/vue3'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import { DateTime } from 'luxon'
 
 export default {
   name: 'PlannerNewView',
@@ -1104,8 +1105,7 @@ export default {
           plugin: markdownItMermaid
         }
       ],
-      results: [],
-      luxon: null
+      results: []
     }
   },
   computed: {
@@ -1120,9 +1120,6 @@ export default {
         return ''
       }
     }
-  },
-  created () {
-    this.luxon = require('luxon')
   },
   mounted () {
     this.renderMermaidInit()
@@ -1347,7 +1344,7 @@ export default {
             this.showingTask.dueDate = combinedDateTime
           }
           // Add time either way
-          combinedDateTime += 'T' + this.showingTask.dueTimeFormatted + 'Z'
+          combinedDateTime += 'T' + this.showingTask.dueTimeFormatted
         } else {
           if (combinedDateTime !== '') {
             combinedDateTime += 'T00:00:00Z'
@@ -1479,9 +1476,9 @@ export default {
       const tTask = task
       if (tTask.dueDate) {
         try {
-          const dateSplit = new Date(tTask.dueDate).toISOString().split('T')
-          tTask.dueDateFormatted = dateSplit[0]
-          tTask.dueTimeFormatted = dateSplit[1].substring(0, dateSplit[1].length - 5)
+          const lDT = DateTime.fromISO(tTask.dueDate)
+          tTask.dueDateFormatted = lDT.toISODate()
+          tTask.dueTimeFormatted = lDT.toLocaleString(DateTime.TIME_24_WITH_SECONDS)
         } catch (e) {
           console.error(e.message)
           tTask.dueDateFormatted = ''
@@ -1796,15 +1793,6 @@ export default {
           })
       })
     },
-    getTaskDueDate: function (task) {
-      if (task.dueDate && task.dueDate !== '') {
-        let dateString = new Date(task.dueDate).toLocaleString('de-DE')
-        dateString = dateString.substring(0, dateString.length - 3)
-        return dateString
-      } else {
-        return ''
-      }
-    },
     searchWisdom: async function () {
       this.resetLastSelection()
       this.selection.row = -1
@@ -2043,17 +2031,13 @@ export default {
       }
     },
     getHumanReadableDateText: function (date, withTime = true) {
-      const date2 = new Date()
-      const diffTime = date2 - date
-      let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-      if (date.getDate() === date2.getDate() &&
-        date.getMonth() === date2.getMonth() &&
-        date.getFullYear() === date2.getFullYear()) {
-        diffDays = 0
-      }
+      const time = DateTime.fromISO(date).toLocaleString(DateTime.TIME_24_SIMPLE)
+      const start = DateTime.fromISO(DateTime.fromISO(date).toISODate())
+      const end = DateTime.fromISO(DateTime.now().toISODate())
+      const diffDays = Math.ceil(end.diff(start) / (1000 * 60 * 60 * 24))
       let suffix = ''
       if (withTime) {
-        suffix = ', ' + date.toLocaleTimeString()
+        suffix = ', ' + time
       }
       let returnString
       switch (diffDays) {
@@ -2082,7 +2066,7 @@ export default {
           returnString = '2 days ago' + suffix
           break
         default:
-          returnString = date.toLocaleDateString() + suffix
+          returnString = start.toISODate() + suffix
       }
       return returnString
     },

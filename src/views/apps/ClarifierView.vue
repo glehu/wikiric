@@ -4,18 +4,16 @@
     <div class="wrapper min-h-full w-full">
       <!-- Active Sessions -->
       <div class="col-span-1 lg:col-span-2 xl:h-full">
-        <div class="row d-flex justify-content-center align-items-center xl:h-full">
+        <div class="row flex justify-center items-center xl:h-full">
           <div class="w-full xl:h-full">
             <div class="text-white p-2 rounded-lg xl:w-full xl:h-full">
-              <div class="mt-md-0 xl:flex lg:justify-between w-full xl:h-full lg:gap-x-2">
+              <div class="md:mt-0 xl:flex lg:justify-between w-full xl:h-full lg:gap-x-2">
                 <div class="w-full xl:h-full mb-2 p-2 bg-zinc-700 rounded-lg">
                   <div class="m-2">
-                    <div class="pointer-events-none mb-4">
-                      <div class="flex items-end justify-between">
-                        <h1 class="fw-bold text-3xl text-gray-300">
-                          Friends
-                        </h1>
-                      </div>
+                    <div class="flex items-end justify-between pointer-events-none mb-4">
+                      <h1 class="font-bold text-3xl text-neutral-300">
+                        Friends
+                      </h1>
                     </div>
                   </div>
                   <!-- -->
@@ -51,7 +49,7 @@
                 <div class="w-full xl:h-full mb-2 p-2 bg-zinc-700 rounded-lg">
                   <div class="pointer-events-none m-2 mb-4">
                     <div class="flex items-end justify-between">
-                      <h1 class="fw-bold text-3xl text-gray-300">
+                      <h1 class="font-bold text-3xl text-neutral-300">
                         Groups
                       </h1>
                       <div class="text-end text-neutral-300">
@@ -109,11 +107,11 @@
       </div>
       <!-- Join or Create a new Session -->
       <div class="mb-4">
-        <div class="row d-flex justify-content-center align-items-center">
+        <div class="row flex justify-center items-center">
           <div class="w-full max-w-xl">
             <div class="text-white mx-4 p-4 rounded-lg">
-              <div class="mt-md-0">
-                <h1 class="fw-bold mb-2 text-3xl text-gray-300"
+              <div class="md:mt-0">
+                <h1 class="font-bold mb-2 text-3xl text-neutral-300"
                     style="pointer-events: none">
                   Add or Join
                 </h1>
@@ -134,18 +132,18 @@
                 <button id="btn_join_session"
                         :ref="'btn_join_session'"
                         disabled
-                        class="btn btn-outline-light border-2 border-zinc-700"
+                        class="rounded border-2 border-zinc-700 text-neutral-200"
                         style="max-height: 6ch; height: 6ch"
                         v-on:click="join()">
-                  <span class="fw-bold lead">Join</span>
+                  <span class="font-bold lead">Join</span>
                 </button>
                 <button id="btn_create_session"
                         :ref="'btn_create_session'"
                         disabled
-                        class="btn btn-outline-light border-2 border-zinc-700"
+                        class="rounded border-2 border-zinc-700 text-neutral-200"
                         style="max-height: 6ch; height: 6ch"
                         v-on:click="create()">
-                  <span class="fw-bold lead">Create</span>
+                  <span class="font-bold lead">Create</span>
                 </button>
               </div>
             </div>
@@ -371,7 +369,7 @@ export default {
 <style scoped>
 
 .b_darkergray {
-  @apply bg-neutral-900;
+  @apply bg-zinc-900;
 }
 
 .c_darkergray {
@@ -383,7 +381,7 @@ export default {
 }
 
 .c_darkgray {
-  @apply text-gray-800;
+  @apply text-neutral-800;
 }
 
 .b_gray {
@@ -391,11 +389,11 @@ export default {
 }
 
 .c_gray {
-  @apply text-gray-700;
+  @apply text-neutral-700;
 }
 
 .c_lightgray {
-  @apply text-gray-400;
+  @apply text-neutral-400;
 }
 
 .b_orange {

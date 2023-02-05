@@ -7,7 +7,7 @@
         <div class="px-3 pt-2" style="display: flex; justify-content: space-between">
           <div style="display: flex">
             <i class="h2 bi bi-cloud-upload text-white d-none d-lg-flex"/>
-            <p class="h2 ps-2 fw-bold text-white jetb">API Dashboard</p>
+            <p class="h2 ps-2 font-bold text-white jetb">API Dashboard</p>
           </div>
           <p id="clock" class="ps-5 text-white text-end jetb">{{ time }}</p>
         </div>
@@ -15,7 +15,7 @@
       <div id="settings" class="mt-5 shadow-box" style="width: 100%; border-radius: 1em">
         <div id="_server_ip" class="ps-2">
           <label class="text-white jetb" for="server_ip">Server IP Address</label><br>
-          <input class="ms-3 fw-bold big-on-small" id="server_ip"
+          <input class="ms-3 font-bold big-on-small" id="server_ip"
                  style="height: 4ch; background: black; color: white">
           <button title="Save Setting" class="btn text-white" v-on:click="updateServerIP">
             <i class="bi bi-layer-backward px-1" style="font-size: 150%"/> Save
@@ -23,7 +23,7 @@
         </div>
         <div id="_server_token" class="ps-2">
           <label class="text-white jetb" for="server_ip">Token</label><br>
-          <input class="ms-3 fw-bold big-on-small" id="server_token"
+          <input class="ms-3 font-bold big-on-small" id="server_token"
                  style="height: 4ch; background: black; color: white">
           <button title="Save Setting" class="btn text-white" v-on:click="updateServerToken">
             <i class="bi bi-layer-backward px-1" style="font-size: 150%"/> Save
@@ -34,7 +34,7 @@
         </div>
         <div id="_fcm_token" class="ps-2">
           <label class="text-white jetb" for="fcm_token">FCM Token</label><br>
-          <input class="ms-3 fw-bold big-on-small" id="fcm_token"
+          <input class="ms-3 font-bold big-on-small" id="fcm_token"
                  style="height: 4ch; background: black; color: white">
         </div>
       </div>
@@ -64,7 +64,7 @@
           <hr style="color: white">
           <p class="jetb">Send POST requests to
             <span class="ms-1" style="display: inline-block">
-              <span class="fw-bold" style="font-size: 115%"
+              <span class="font-bold" style="font-size: 115%"
                     @click="copyMockDestination">
                 {{ this.endpoint }}
               </span>
@@ -74,27 +74,27 @@
           <h4 class="jetb">Configuration</h4>
           <!-- Return Type -->
           <div class="config_wrapper d-block">
-            <label for="return_type" class="fw-bold jetb">Return&nbsp;Type:</label>
+            <label for="return_type" class="font-bold jetb">Return&nbsp;Type:</label>
             <select id="return_type" name="return_type" v-model="mockConfig.return_type"
-                    class="fw-bold jetb text-black ms-2">
+                    class="font-bold jetb text-black ms-2">
               <option>Message</option>
               <option>HTTP Code</option>
             </select>
             <!-- Message Type if Message -->
             <div v-if="mockConfig.return_type === 'Message'">
-              <label for="message_type" class="fw-bold jetb">Message&nbsp;Type:</label>
+              <label for="message_type" class="font-bold jetb">Message&nbsp;Type:</label>
               <select id="message_type" name="message_type" v-model="mockConfig.message_type"
-                      class="fw-bold jetb text-black ms-2">
+                      class="font-bold jetb text-black ms-2">
                 <option>Same Message</option>
                 <option>Fixed Message</option>
               </select>
             </div>
             <!-- Content Type if Fixed Message Type -->
             <div>
-              <label for="content_type" class="fw-bold jetb">Content&nbsp;Type:</label>
+              <label for="content_type" class="font-bold jetb">Content&nbsp;Type:</label>
               <select id="content_type" name="content_type"
                       v-model="mockConfig.content_type"
-                      class="fw-bold jetb text-black ms-2"
+                      class="font-bold jetb text-black ms-2"
                       v-on:change="setCodeMode">
                 <option>text/xml</option>
                 <option>text/plain</option>
@@ -104,9 +104,9 @@
             </div>
             <!-- Return HTTP Code if HTTP Code -->
             <div v-if="mockConfig.return_type === 'HTTP Code'">
-              <label for="return_code" class="fw-bold jetb">Return&nbsp;Code:</label>
+              <label for="return_code" class="font-bold jetb">Return&nbsp;Code:</label>
               <select id="return_code" name="return_code" v-model="mockConfig.return_code"
-                      class="fw-bold jetb text-black ms-2">
+                      class="font-bold jetb text-black ms-2">
                 <optgroup label="Success Codes">
                   <option>200 OK</option>
                   <option>201 Created</option>
@@ -121,22 +121,22 @@
               </select>
             </div>
             <!-- Return Type -->
-            <label for="return_delay" class="fw-bold jetb">Return&nbsp;Delay:</label>
+            <label for="return_delay" class="font-bold jetb">Return&nbsp;Delay:</label>
             <input type="number" id="return_delay" name="return_delay" v-model="mockConfig.return_delay"
-                   class="fw-bold jetb text-black ms-2"
+                   class="font-bold jetb text-black ms-2"
                    style="width: 6ch"
             >
             <select id="return_delay_unit" name="return_delay_unit" v-model="mockConfig.return_delay_unit"
-                    class="fw-bold jetb text-black ms-2" style="width: auto">
+                    class="font-bold jetb text-black ms-2" style="width: auto">
               <option>Milliseconds</option>
               <option>Seconds</option>
             </select>
           </div>
           <!-- Return Redirect -->
           <div v-if="mockConfig.return_type === 'Message'">
-            <label for="return_redirect" class="fw-bold jetb">Redirect:</label>
+            <label for="return_redirect" class="font-bold jetb">Redirect:</label>
             <input id="return_redirect" name="return_redirect" v-model="mockConfig.return_redirect"
-                   class="fw-bold jetb text-black ms-2"
+                   class="font-bold jetb text-black ms-2"
             >
           </div>
           <!-- Return Message if Fixed Message Type -->

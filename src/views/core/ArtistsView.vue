@@ -15,14 +15,14 @@
             <i class="bi bi-lightning text-white h1 mx-2"/>
           </div>
         </div>
-        <h1 class="text-white mb-4 fw-bold">Discover. Learn. Improve.</h1>
+        <h1 class="text-white mb-4 font-bold">Discover. Learn. Improve.</h1>
         <h3 class="text-white mb-3">Welcome to the Artist Hub</h3>
         <hr style="color: white">
         <p class="text-white mb-4" style="text-align: justify; text-justify: inter-word; width: 100%">
           Fresh, organic picks out of the garden, whose sole purpose is to please your sonic portals to the world.
           Creative juices sizzling out of excitement, unable to contain themselves any longer, just for you.
         </p>
-        <p class="text-white text-end mt-5 fw-light" style="font-style: italic">
+        <p class="text-white text-end mt-5 " style="font-style: italic">
           <i class="bi bi-quote"></i> Let's celebrate this moment, where hearts touch and souls connect. -&nbsp;sincerely,&nbsp;wiki.
         </p>
         <hr style="color: white">
@@ -32,19 +32,19 @@
         <button title="Become one of us"
                 class="btn bi-file-earmark-text btn-lg muArrow" style="color: white;"
                 v-on:click="gotoArtistSubmission">
-          <span class="ms-2 small">Episode 1: Becoming one of us <span class="fw-light small ms-1">(Click Me!)</span></span>
+          <span class="ms-2 small">Episode 1: Becoming one of us <span class=" small ms-1">(Click Me!)</span></span>
         </button>
       </div>
       <!-- Artists -->
       <div>
         <div id="indie" class="mt-3">
-          <p class="h3 fw-bold text-white text-center">Indie / Rock</p>
+          <p class="h3 font-bold text-white text-center">Indie / Rock</p>
           <hr style="color: white">
           <div>
             <!-- Graffiti Falls -->
             <div class="card-subtitle text-white">
               <div class="card-body">
-                <h3 class="card-title fw-bold text-light">
+                <h3 class="card-title font-bold text-light">
                   Graffiti Falls
                 </h3>
                 <p class="card-text cardtext">
@@ -72,7 +72,7 @@
             <!-- CLOUDDAY -->
             <div class="card-subtitle text-white mt-2">
               <div class="card-body">
-                <h3 class="card-title fw-bold text-light">
+                <h3 class="card-title font-bold text-light">
                   CLOUDDAY
                 </h3>
                 <p class="card-text cardtext">
@@ -97,12 +97,12 @@
           </div>
         </div>
         <div id="hiphop" class="mt-3">
-          <p class="h3 fw-bold text-white text-center">Hip-Hop / Rap</p>
+          <p class="h3 font-bold text-white text-center">Hip-Hop / Rap</p>
           <hr style="color: white">
           <!-- Casper: TFD -->
           <div class="card-subtitle text-white mt-2">
             <div class="card-body">
-              <h3 class="card-title fw-bold text-light">
+              <h3 class="card-title font-bold text-light">
                 Casper: TFD
               </h3>
               <p class="card-text cardtext">
@@ -130,7 +130,7 @@
           <!-- Krag / Kräuteraggro / Blütenaggressivität -->
           <div class="card-subtitle text-white mt-2">
             <div class="card-body">
-              <h3 class="card-title fw-bold text-light">
+              <h3 class="card-title font-bold text-light">
                 Krag / Kräuteraggro / Blütenaggressivität
               </h3>
               <p class="card-text cardtext">

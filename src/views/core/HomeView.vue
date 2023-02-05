@@ -3,7 +3,7 @@
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <div
-      class="text-gray-200 w-full h-full flex pt-[60px] py-8 overflow-x-hidden">
+      class="text-neutral-200 w-full h-full flex pt-[60px] py-8 overflow-x-hidden">
       <div class="w-full h-full relative p-8">
         <div class="w-full"><!-- Demo Wrapper -->
           <div
@@ -16,9 +16,7 @@
               </p>
               <p
                 class="text-neutral-200 font-bold mb-4 py-2 text-2xl md:text-4xl w-fit pointer-events-none">
-                Powered by wikiric and
-                <span class="text-fuchsia-500 px-2 py-1 rounded-full backdrop-blur">{{ userCount }}</span>
-                others.
+                Powered by wikiric and {{ userCount }} others.
               </p>
               <p class="text-neutral-300 font-bold text-xl w-full pointer-events-none">
                 A secure and responsive environment for communities,
@@ -35,7 +33,7 @@
                 class="muArrow font-bold rounded text-xl text-start text-black px-4 py-3 bg-fuchsia-500"
                 v-on:click="gotoClarifier()">
                 Join the
-                <br><span class="text-2xl md:text-3xl">Communities</span>
+                <br><span class="text-2xl md:text-3xl text-black">Communities</span>
               </button>
               <button
                 class="muArrow font-bold rounded text-xl text-start text-neutral-300 px-4 py-3 border-2 border-neutral-300 backdrop-blur"
@@ -49,7 +47,7 @@
         <template class="hidden md:block">
           <div
             class="absolute bottom-0 left-0 p-4 ml-4">
-            <div class="text-center cursor-pointer hover:bg-neutral-900 p-4 rounded-full text-neutral-300"
+            <div class="text-center cursor-pointer hover:bg-zinc-900 p-4 rounded-full text-neutral-300"
                  v-on:click="scrollTo('firstSection')">
               <p class="font-bold">Explore</p>
               <i class="bi bi-arrow-down text-2xl"></i>

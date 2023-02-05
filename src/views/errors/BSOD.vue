@@ -41,7 +41,7 @@
     </div>
     <hr style="color: white">
     <div id="links" class="text-center">
-      <p class="fw-bold underline">
+      <p class="font-bold underline">
         <i class="bi bi-house mx-2"/><a :href="'/'">Homepage</a>
         <i class="bi bi-chat-dots mx-2 ms-3"/><a :href="'/apps/clarifier'">Clarifier</a>
       </p>

@@ -4,14 +4,14 @@
     <section class="container" style="align-items: center; display: flex">
       <div class="row">
         <div class="d-md-flex" style="margin-top: 70px">
-          <button class="btn text-dark fw-bold" v-on:click="getItems()">
+          <button class="btn text-dark font-bold" v-on:click="getItems()">
             <div class="card bg-light text-dark animEmp">
               <div class="card-body text-center">
                 <div class="h1 mb-2">
                   <i class="bi bi-bag"></i>
                 </div>
                 <h3 class="card-title">Items</h3>
-                <p class="fw-bold text-dark">View Items</p>
+                <p class="font-bold text-dark">View Items</p>
               </div>
             </div>
           </button>
@@ -20,7 +20,7 @@
           <button class="btn text-white animRot" title="Change Artist" v-on:click="console.log('')">
             <i class="bi bi-arrow-clockwise h1"></i>
           </button>
-          <h1 class="fw-bold text-white">{{ this.artist }}</h1>
+          <h1 class="font-bold text-white">{{ this.artist }}</h1>
         </div>
       </div>
     </section>
@@ -33,7 +33,7 @@
              v-for="item in shopItemList" :key="item"
              style="background: black; color: white">
           <div class="card-title">
-            <h3 class="fw-bold ms-3 mt-3">
+            <h3 class="font-bold ms-3 mt-3">
               {{ JSON.parse(item).description }}
             </h3>
           </div>
@@ -43,7 +43,7 @@
           <div class="card-footer">
             {{ JSON.parse(item).info }}
             <hr>
-            <div class="d-flex">
+            <div class="flex">
               <button class="btn btn-outline-light"
                       v-on:click="putInCart(JSON.parse(item))">
                 <abbr title="Add to cart."><i class="bi bi-cart"></i></abbr> <span class="hide_on_big">Add</span>
@@ -56,7 +56,7 @@
                      type="number" value="1" min="1" max="99" size="2"
                      style="border-radius: 1rem">
             </div>
-            <p class="text-end fw-bold lead">
+            <p class="text-end font-bold lead">
               {{ JSON.parse((JSON.parse(item).prices[0])).gp }} €
             </p>
           </div>

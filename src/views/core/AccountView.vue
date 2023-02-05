@@ -5,7 +5,7 @@
     <section class="container">
       <div style="min-height: 5ch"></div>
       <div class="text-light p-3">
-        <h2 class="fw-bold my-3 d-flex doHover" style="overflow: hidden">
+        <h2 class="font-bold my-3 flex doHover" style="overflow: hidden">
           <i class="bi bi-stars" style="font-size: 200%"></i><br>
           Hey, {{ this.$store.state.username.split('@')[0] }}.<br><br>
         </h2>
@@ -19,7 +19,7 @@
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="gotoPlanner">
-                    <i class="bi bi-wrench-adjustable-circle p-1"></i><span class="fw-bold"> Planner</span>
+                    <i class="bi bi-wrench-adjustable-circle p-1"></i><span class="font-bold"> Planner</span>
                   </button>
                   <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">Kanban Board</h3>
                 </div>
@@ -27,7 +27,7 @@
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="gotoClarifier">
-                    <i class="bi bi-chat-dots p-1"></i><span class="fw-bold"> Clarifier</span>
+                    <i class="bi bi-chat-dots p-1"></i><span class="font-bold"> Clarifier</span>
                   </button>
                   <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">Communication</h3>
                 </div>
@@ -35,7 +35,7 @@
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="gotoAPI">
-                    <i class="bi bi-hurricane"/><span class="fw-bold"> Mockingbird</span>
+                    <i class="bi bi-hurricane"/><span class="font-bold"> Mockingbird</span>
                   </button>
                   <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">SOAP/REST API Testing</h3>
                 </div>
@@ -49,19 +49,19 @@
                 class="container">
                 <div class="d-md-flex justify-content-between text-white mt-3"
                      style="border-radius: 1rem;">
-                  <div class="d-flex">
+                  <div class="flex">
                     <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                             v-on:click="showCart">
-                      <i class="bi bi-cart p-1"></i><span class="fw-bold"> Cart</span>
+                      <i class="bi bi-cart p-1"></i><span class="font-bold"> Cart</span>
                     </button>
                     <div class="d-lg-flex">
-                      <div class="d-flex">
+                      <div class="flex">
                         <i class="bi bi-stack ms-3"></i>
                         <p class="ms-2">
                           {{ this.$store.state.cart.length }} Items
                         </p>
                       </div>
-                      <div class="d-flex">
+                      <div class="flex">
                         <i class="bi bi-cash-stack ms-3"></i>
                         <p class="ms-2">
                           {{ cartTotal }} €
@@ -78,7 +78,7 @@
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="gotoInvoices">
-                    <i class="bi bi-journal-text p-1"></i><span class="fw-bold"> Invoices</span>
+                    <i class="bi bi-journal-text p-1"></i><span class="font-bold"> Invoices</span>
                   </button>
                   <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">Your Invoices</h3>
                 </div>
@@ -89,7 +89,7 @@
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="gotoPreferences">
-                    <i class="bi bi-wrench p-1"></i><span class="fw-bold"> Preferences</span>
+                    <i class="bi bi-wrench p-1"></i><span class="font-bold"> Preferences</span>
                   </button>
                   <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">Cookies & Trackers</h3>
                 </div>
@@ -100,7 +100,7 @@
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="gotoThirdPartyAccounts">
-                    <i class="bi bi-people p-1"></i><span class="fw-bold"> Accounts</span>
+                    <i class="bi bi-people p-1"></i><span class="font-bold"> Accounts</span>
                   </button>
                   <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">3rd Party Accounts</h3>
                 </div>
@@ -111,7 +111,7 @@
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="logout">
-                    <i class="bi bi-door-open p-1"></i><span class="fw-bold"> Logout</span>
+                    <i class="bi bi-door-open p-1"></i><span class="font-bold"> Logout</span>
                   </button>
                   <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">See you soon</h3>
                 </div>

@@ -5,11 +5,11 @@
       <h1>Imgflip</h1>
       <label for="imgflip_user">Username</label><br>
       <input v-model="username"
-             class="ms-3 fw-bold big-on-small c_lightgray" id="imgflip_user"
+             class="ms-3 font-bold big-on-small c_lightgray" id="imgflip_user"
              style="height: 4ch; background: black">
       <br><label for="imgflip_pass">Password</label><br>
       <input v-model="password"
-             type="password" class="ms-3 fw-bold big-on-small c_lightgray" id="imgflip_pass"
+             type="password" class="ms-3 font-bold big-on-small c_lightgray" id="imgflip_pass"
              style="height: 4ch; background: black">
       <br>
       <button title="Save Setting" class="btn btn-outline-success ms-3 mt-2"

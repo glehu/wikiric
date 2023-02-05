@@ -139,7 +139,7 @@
           </div>
           <div class="flex">
             <template v-if="this.wisdom.t">
-              <Markdown class="markedView text-neutral-200 font-bold"
+              <Markdown class="markedView"
                         :source="'# ' + wisdom.t"
                         :plugins="plugins"></Markdown>
             </template>
@@ -154,7 +154,7 @@
           <hr class="text-neutral-700 opacity-100 mb-3 mt-1">
           <!-- Main Content -->
           <template v-if="wisdom.desc">
-            <Markdown class="markedView text-neutral-300"
+            <Markdown class="markedView"
                       :source="wisdom.desc"
                       :plugins="plugins"></Markdown>
           </template>
@@ -269,7 +269,7 @@
           <div id="wisdomComments" class="w-full">
             <template v-if="wisdom.type === 'question'">
               <template v-if="related.answers == null">
-                <div class="flex w-full items-center justify-content-center py-4">
+                <div class="flex w-full items-center justify-center py-4">
                   <div class="w-full text-neutral-500 pointer-events-none">
                     <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
                     <p class="text-md font-bold italic w-fit mx-auto">No Answer</p>
@@ -355,7 +355,7 @@
               Write a comment
             </label>
             <template v-if="related.comments == null">
-              <div class="flex w-full items-center justify-content-center py-4">
+              <div class="flex w-full items-center justify-center py-4">
                 <div class="w-full text-neutral-500 pointer-events-none">
                   <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
                   <p class="text-md font-bold italic w-fit mx-auto">No Comments</p>
@@ -1230,78 +1230,6 @@ export default {
 </script>
 
 <style>
-
-.markedView p {
-  @apply mb-4;
-}
-
-.markedView a {
-  @apply underline;
-}
-
-.markedView ul {
-  @apply list-disc list-inside mb-2;
-}
-
-.markedView ol {
-  @apply list-decimal list-inside mb-2;
-}
-
-.markedView pre {
-  @apply mb-2;
-}
-
-.markedView table {
-  @apply mb-4;
-}
-
-.markedView th, .markedView td {
-  @apply p-2 border border-slate-700;
-}
-
-.markedView tr {
-  @apply hover:bg-zinc-800;
-}
-
-.markedView h1 {
-  @apply text-3xl my-8 font-bold;
-}
-
-.markedView h2 {
-  @apply text-2xl my-6 font-bold;
-}
-
-.markedView h3 {
-  @apply text-xl my-4 font-bold;
-}
-
-.markedView h4 {
-  @apply text-xl my-2 font-bold;
-}
-
-.markedView h5 {
-  @apply text-lg my-2 font-bold;
-}
-
-.markedView h6 {
-  @apply text-lg my-1 font-bold;
-}
-
-.markedView p code {
-  @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-zinc-700 text-neutral-400 my-2;
-}
-
-.markedView hr {
-  @apply my-6 h-[4px] w-full;
-}
-
-.markedView > :last-child {
-  @apply mb-0 !important;
-}
-
-.markedView > :first-child {
-  @apply mt-0 !important;
-}
 
 .sidebar_tooltip {
   @apply absolute translate-x-12 -translate-y-12 opacity-0 font-bold pointer-events-none;

@@ -1,3 +1,81 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    * {
+        @apply text-neutral-300;
+    }
+
+    .markedView p {
+        @apply mb-4;
+    }
+
+    .markedView a {
+        @apply underline;
+    }
+
+    .markedView ul {
+        @apply list-disc list-inside mb-2;
+    }
+
+    .markedView ol {
+        @apply list-decimal list-inside mb-2;
+    }
+
+    .markedView pre {
+        @apply mb-2;
+    }
+
+    .markedView table {
+        @apply mb-4;
+    }
+
+    .markedView th, .markedView td {
+        @apply p-2 border border-slate-700;
+    }
+
+    .markedView tr {
+        @apply hover:bg-zinc-800;
+    }
+
+    .markedView h1 {
+        @apply text-3xl mb-6 mt-10 font-bold text-neutral-200;
+    }
+
+    .markedView h2 {
+        @apply text-2xl mb-6 mt-8 font-bold text-neutral-200;
+    }
+
+    .markedView h3 {
+        @apply text-xl mb-4 mt-8 font-bold text-neutral-200;
+    }
+
+    .markedView h4 {
+        @apply text-xl mb-4 mt-8 font-bold text-neutral-200;
+    }
+
+    .markedView h5 {
+        @apply text-lg mb-4 mt-6 font-bold text-neutral-200;
+    }
+
+    .markedView h6 {
+        @apply text-lg my-2 font-bold text-neutral-200;
+    }
+
+    .markedView p code {
+        @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-zinc-700 text-neutral-400 my-2;
+    }
+
+    .markedView hr {
+        @apply my-6 h-[4px] w-full;
+    }
+
+    .markedView > :last-child {
+        @apply mb-0 !important;
+    }
+
+    .markedView > :first-child {
+        @apply mt-0 !important;
+    }
+}

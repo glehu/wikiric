@@ -1,6 +1,6 @@
 <template>
-  <div class="h-full w-full md:flex items-center justify-center pt-[60px]">
-    <form class="register flex"
+  <div class="h-screen w-screen md:flex items-center justify-center overflow-x-hidden">
+    <form class="register md:flex pt-[60]"
           @submit.prevent="register">
       <template v-if="metamask.account === '' && phantom.account === ''">
         <section>
@@ -9,8 +9,8 @@
               <div class="text-white border-[1px] border-neutral-600 h-full"
                    style="border-radius: 1rem; background: #131313">
                 <div class="p-5 text-center">
-                  <div class="mt-md-0">
-                    <h1 class="fw-bold mb-4 text-4xl"
+                  <div class="md:mt-0">
+                    <h1 class="font-bold mb-4 text-4xl"
                         style="pointer-events: none">
                       REGISTER
                     </h1>
@@ -49,7 +49,7 @@
                         required
                         v-model="user.username"
                         type="text"
-                        class="text-black py-1 px-2 rounded placeholder-neutral-600 placeholder-wave"
+                        class="text-black py-1 px-2 rounded placeholder-neutral-600"
                         placeholder="Username"
                       />
                     </div>
@@ -73,7 +73,7 @@
                 <div class="p-5 text-center">
                   <div class="md:mt-0">
                     <p class="pointer-events-none">Register via</p>
-                    <h1 class="fw-bold text-4xl"
+                    <h1 class="font-bold text-4xl"
                         style="pointer-events: none">
                       MetaMask
                     </h1>
@@ -98,7 +98,7 @@
                           required
                           v-model="user.username"
                           type="text"
-                          class="text-black py-1 px-2 rounded placeholder-neutral-600 placeholder-wave"
+                          class="text-black py-1 px-2 rounded placeholder-neutral-600"
                           placeholder="Username"
                         />
                       </div>
@@ -124,7 +124,7 @@
                 <div class="p-5 text-center">
                   <div class="md:mt-0">
                     <p class="pointer-events-none">Register via</p>
-                    <h1 class="fw-bold text-4xl"
+                    <h1 class="font-bold text-4xl"
                         style="pointer-events: none">
                       Phantom
                     </h1>
@@ -148,7 +148,7 @@
                           required
                           v-model="user.username"
                           type="text"
-                          class="text-black py-1 px-2 rounded placeholder-neutral-600 placeholder-wave"
+                          class="text-black py-1 px-2 rounded placeholder-neutral-600"
                           placeholder="Username"
                         />
                       </div>
