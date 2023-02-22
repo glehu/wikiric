@@ -1,8 +1,7 @@
 <template>
   <div class="invoices">
-    <div style="min-height: 10vh"></div>
     <section
-      class="container">
+      class="container mt-[60px]">
       <div class="text-light p-3">
         <div class="flex">
           <h1 class="font-bold">
@@ -12,7 +11,9 @@
         </div>
       </div>
     </section>
-    <div v-show="!emptyInvoices" id="invoicesSection" :style="{ backgroundImage: bg }" style="min-height: 100vh">
+    <div v-show="!emptyInvoices" id="invoicesSection"
+         class="min-h-[100dvh]"
+         :style="{ backgroundImage: bg }">
       <section>
         <div class="mt-4" style="min-height: 3vh"></div>
         <div class="container">

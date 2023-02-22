@@ -10,11 +10,6 @@ const routes = [
     component: Home
   },
   {
-    path: '/discover',
-    name: 'WDiscover',
-    component: () => import('../views/core/DiscoverView.vue')
-  },
-  {
     path: '/about',
     name: 'WAbout',
     component: () => import('../views/info/AboutView.vue')
@@ -79,16 +74,6 @@ const routes = [
     name: 'WInvoices',
     component: () => import('../views/core/InvoicesView.vue'),
     meta: { requiresAuth: true }
-  },
-  {
-    path: '/artists/graffitifalls',
-    name: 'WGraffiti Falls',
-    component: () => import('../views/artists/GraffitiFallsView.vue')
-  },
-  {
-    path: '/artists',
-    name: 'WArtists',
-    component: () => import('../views/core/ArtistsView.vue')
   },
   {
     path: '/submissions/artist',

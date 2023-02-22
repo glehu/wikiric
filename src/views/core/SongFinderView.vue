@@ -1,6 +1,5 @@
 <template>
-  <div style="min-height: 10vh"></div>
-  <div class="text-center text-white">
+  <div class="text-center text-white mt-[60px]">
     <div class="card-subtitle container">
       <div class="card-body">
         <input

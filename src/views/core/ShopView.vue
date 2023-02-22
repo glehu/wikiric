@@ -3,7 +3,7 @@
     <!-- Box View -->
     <section class="container" style="align-items: center; display: flex">
       <div class="row">
-        <div class="d-md-flex" style="margin-top: 70px">
+        <div class="md:flex" style="margin-top: 70px">
           <button class="btn text-dark font-bold" v-on:click="getItems()">
             <div class="card bg-light text-dark animEmp">
               <div class="card-body text-center">
@@ -25,7 +25,9 @@
       </div>
     </section>
   </div>
-  <section id="itemsSection" style="min-height: 100vh" :style="{ backgroundImage: bg }">
+  <section id="itemsSection"
+           class="min-h-[100dvh]"
+           :style="{ backgroundImage: bg }">
     <div class="container">
       <div style="height: 80px"></div>
       <div class="wrapper">

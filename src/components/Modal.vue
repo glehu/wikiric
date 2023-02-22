@@ -12,13 +12,13 @@ export default {
 <template>
   <transition name="modal-fade">
     <div class="modal-backdrop">
-      <div class="modal bg-zinc-700 c_lightgray"
+      <div class="modal medium_bg c_lightgray"
            role="dialog"
            aria-labelledby="modalTitle"
            aria-describedby="modalDescription"
       >
         <header
-          class="modal-header bg-zinc-900 z-50"
+          class="modal-header darkest_bg z-50"
           id="modalTitle"
         >
           <slot name="header">
@@ -117,15 +117,13 @@ export default {
 }
 
 .modal {
-  @apply rounded-lg;
+  @apply rounded-lg max-h-[calc(90dvh-60px)] max-w-[95dvw];
   box-shadow: black 2px 2px 10px 1px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   height: fit-content;
-  max-height: calc(95vh - 60px);
   width: fit-content;
-  max-width: 95vw;
   top: unset;
   left: unset;
   transform: translateY(30px);

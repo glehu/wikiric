@@ -7,7 +7,7 @@
           This form is more than just a form, it's a script waiting to be finished by you, character by character being
           typed ( <i class="bi bi-keyboard"/> ) into those fields. You're writing your own story, after all.
         </p>
-        <p class="text-white text-center  d-md-none">
+        <p class="text-white text-center  md:hidden">
           [ For the best experience, use a large screen by using a desktop PC for example. ]
         </p>
         <form

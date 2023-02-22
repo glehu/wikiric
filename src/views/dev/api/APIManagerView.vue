@@ -1,12 +1,11 @@
 <template>
   <div
-    style="min-height: 100vh; background-color: #131313; overflow-x: clip">
-    <div style="min-height: 10vh"></div>
-    <div class="container">
+    style="min-height: 100%; background-color: #131313; overflow-x: clip">
+    <div class="container mt-[60px]">
       <div id="title" class="shadow-box" style="width: 100%; border: 2px solid white; border-radius: 1em">
         <div class="px-3 pt-2" style="display: flex; justify-content: space-between">
           <div style="display: flex">
-            <i class="h2 bi bi-cloud-upload text-white d-none d-lg-flex"/>
+            <i class="h2 bi bi-cloud-upload text-white hidden lg:flex"/>
             <p class="h2 ps-2 font-bold text-white jetb">API Dashboard</p>
           </div>
           <p id="clock" class="ps-5 text-white text-end jetb">{{ time }}</p>
@@ -73,7 +72,7 @@
           </p>
           <h4 class="jetb">Configuration</h4>
           <!-- Return Type -->
-          <div class="config_wrapper d-block">
+          <div class="config_wrapper block">
             <label for="return_type" class="font-bold jetb">Return&nbsp;Type:</label>
             <select id="return_type" name="return_type" v-model="mockConfig.return_type"
                     class="font-bold jetb text-black ms-2">
@@ -157,7 +156,6 @@
               <span class="jetb ms-2">Communicating with Server...</span>
             </span>
           </div>
-          <div style="min-height: 10vh"></div>
         </div>
       </div>
     </div>

@@ -53,7 +53,7 @@
                         placeholder="Username"
                       />
                     </div>
-                    <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
+                    <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
                             type="submit">
                       Register
                     </button>
@@ -84,7 +84,7 @@
                     </div>
                     <template v-if="metamask.account === ''">
                       <div>
-                        <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
+                        <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
                                 type="button"
                                 v-on:click="handleMetaMaskLogin()">
                           Connect
@@ -102,7 +102,7 @@
                           placeholder="Username"
                         />
                       </div>
-                      <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
+                      <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
                               type="submit"
                               v-show="metamask.account !== ''">
                         Register
@@ -134,7 +134,7 @@
                     </div>
                     <template v-if="phantom.account === ''">
                       <div>
-                        <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
+                        <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
                                 type="button"
                                 v-on:click="handlePhantomLogin()">
                           Connect
@@ -152,7 +152,7 @@
                           placeholder="Username"
                         />
                       </div>
-                      <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
+                      <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
                               type="submit"
                               v-show="phantom.account !== ''">
                         Register

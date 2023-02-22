@@ -18,7 +18,7 @@
                       required
                       v-model="user.email"
                       type="email"
-                      class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 bg-zinc-700"
+                      class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 medium_bg"
                       placeholder="Email"
                       autocomplete="username"
                     />
@@ -28,13 +28,13 @@
                       required
                       v-model="user.password"
                       type="password"
-                      class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 bg-zinc-700"
+                      class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 medium_bg"
                       placeholder="Password"
                       autocomplete="current-password"
                     />
                   </div>
                   <!--<p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#">Forgot password?</a></p>-->
-                  <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
+                  <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
                           type="button"
                           v-on:click="login()">
                     Login
@@ -70,7 +70,7 @@
                          class="w-full h-full py-2"
                          alt="MetaMask Icon">
                   </div>
-                  <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
+                  <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
                           type="button"
                           v-on:click="handleMetaMaskLogin">
                     Connect
@@ -97,7 +97,7 @@
                     <img src='@/assets/phantom/phantom-icon-purple.svg' alt="Phantom Logo"
                          class="h-full w-full py-3">
                   </div>
-                  <button class="rounded py-2 px-4 bg-zinc-700 m-1 hover:bg-zinc-800 my-4"
+                  <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
                           type="button"
                           v-on:click="handlePhantomLogin">
                     Connect

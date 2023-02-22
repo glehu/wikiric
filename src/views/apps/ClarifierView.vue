@@ -1,6 +1,6 @@
 <template>
   <div id="clarifier_view_elem"
-       class="bg-zinc-900 w-screen h-[calc(100%-60px)] absolute top-[60px] overflow-x-hidden overflow-y-auto">
+       class="darkest_bg w-screen h-[calc(100%-60px)] absolute top-[60px] overflow-x-hidden overflow-y-auto">
     <div class="wrapper min-h-full w-full">
       <!-- Active Sessions -->
       <div class="col-span-1 lg:col-span-2 xl:h-full">
@@ -8,7 +8,7 @@
           <div class="w-full xl:h-full">
             <div class="text-white p-2 rounded-lg xl:w-full xl:h-full">
               <div class="md:mt-0 xl:flex lg:justify-between w-full xl:h-full lg:gap-x-2">
-                <div class="w-full xl:h-full mb-2 p-2 bg-zinc-700 rounded-lg">
+                <div class="w-full xl:h-full mb-2 p-2 medium_bg rounded-lg">
                   <div class="m-2">
                     <div class="flex items-end justify-between pointer-events-none mb-4">
                       <h1 class="font-bold text-3xl text-neutral-300">
@@ -21,7 +21,7 @@
                     <template v-for="friend in friends" :key="friend">
                       <div class="w-full h-20 flex items-center pt-1 my-1">
                         <div v-on:click="joinActive(friend.chatroom.guid)"
-                             class="w-full h-20 p-2 cursor-pointer bg-zinc-700 text-neutral-300
+                             class="w-full h-20 p-2 cursor-pointer medium_bg text-neutral-300
                                     flex items-center
                                     hover:brightness-125 hover:rounded hover:text-white">
                           <div v-show="hasUnread(friend.chatroom.guid)"
@@ -46,7 +46,7 @@
                     </template>
                   </div>
                 </div>
-                <div class="w-full xl:h-full mb-2 p-2 bg-zinc-700 rounded-lg">
+                <div class="w-full xl:h-full mb-2 p-2 medium_bg rounded-lg">
                   <div class="pointer-events-none m-2 mb-4">
                     <div class="flex items-end justify-between">
                       <h1 class="font-bold text-3xl text-neutral-300">
@@ -73,7 +73,7 @@
                       <template v-if="group.type !== 'direct'">
                         <div class="flex items-center h-20 pt-1 my-1">
                           <div
-                            class="text-neutral-300 h-20 hover:text-white bg-zinc-700
+                            class="text-neutral-300 h-20 hover:text-white medium_bg
                                    hover:brightness-125 cursor-pointer hover:rounded p-2 w-full"
                             style="display: flex; align-items: center; justify-items: center"
                             v-on:click="joinActive(group.id)">
@@ -92,7 +92,7 @@
                           <button class="text-neutral-300 ml-2 h-20 flex items-center justify-center"
                                   title="Remove Group"
                                   v-on:click="this.removeGroup(group)">
-                            <i class="bi bi-x-lg p-2 rounded-xl bg-zinc-800 bg-opacity-50
+                            <i class="bi bi-x-lg p-2 rounded-xl dark_bg bg-opacity-50
                                     hover:brightness-125"></i>
                           </button>
                         </div>
@@ -125,14 +125,14 @@
                        v-on:input="checkInput()"
                        v-on:keyup="checkInput()"
                        placeholder="Invite ID or Name..."
-                       class="font-bold px-2 py-1 my-3 bg-zinc-800 text-neutral-300 rounded-lg
-                                border-2 border-zinc-700 placeholder-neutral-400"
+                       class="font-bold px-2 py-1 my-3 dark_bg text-neutral-300 rounded-lg
+                                border-2 border-zinc-600 placeholder-neutral-400"
                        style="width: 100%; font-size: 150%"
                        v-on:keyup.enter="joinOrCreate()">
                 <button id="btn_join_session"
                         :ref="'btn_join_session'"
                         disabled
-                        class="rounded border-2 border-zinc-700 text-neutral-200"
+                        class="rounded border-2 border-zinc-600 text-neutral-200"
                         style="max-height: 6ch; height: 6ch"
                         v-on:click="join()">
                   <span class="font-bold lead">Join</span>
@@ -140,7 +140,7 @@
                 <button id="btn_create_session"
                         :ref="'btn_create_session'"
                         disabled
-                        class="rounded border-2 border-zinc-700 text-neutral-200"
+                        class="rounded border-2 border-zinc-600 text-neutral-200"
                         style="max-height: 6ch; height: 6ch"
                         v-on:click="create()">
                   <span class="font-bold lead">Create</span>
@@ -369,7 +369,7 @@ export default {
 <style scoped>
 
 .b_darkergray {
-  @apply bg-zinc-900;
+  @apply darkest_bg;
 }
 
 .c_darkergray {

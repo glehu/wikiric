@@ -1,9 +1,9 @@
 <template>
   <div id="clarifier_chatroom_view_elem"
-       class="bg-zinc-900 w-screen h-full absolute overflow-hidden">
+       class="darkest_bg w-screen h-full absolute overflow-hidden">
     <div class="fixed top-0 left-0 w-full h-full">
       <div id="sidebar" ref="sidebar"
-           class="sidebar bg-zinc-900 darkergray-on-small h-full relative top-[60px]"
+           class="sidebar darkest_bg darkergray-on-small h-full relative top-[60px]"
            style="z-index: 100">
         <div style="height: calc(100% - 60px)"
              class="sidebar_bg">
@@ -86,13 +86,13 @@
       </div>
       <div id="sidebar2" ref="sidebar2"
            style="margin-top: 60px" v-show="canShowSidebar"
-           class="sidebar2 bg-zinc-700 lg:rounded-tl">
+           class="sidebar2 medium_bg lg:rounded-tl">
         <div class="h-full relative">
           <!-- #### SUBCHATS #### -->
           <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden"
                class="c_lightgray px-2">
             <div style="height: 50px; align-items: center; display: flex">
-              <div id="home_subc" class="subchat bg-zinc-800"
+              <div id="home_subc" class="subchat dark_bg"
                    v-on:click="gotoSubchat(null, false)">
                 <i v-show="hasUnread(null)" id="home_notify"
                    class="bi bi-chat-quote-fill relative left-0 z-50 text-orange-500"></i>
@@ -164,19 +164,19 @@
         <template v-if="overlayType === 'msg'">
           <div id="chat_section"
                class="chat_section w-full h-full overflow-clip
-                      bg-zinc-700 rounded-tl-lg lg:rounded-tl-none lg:rounded-tr-lg border-r-zinc-900 border-r-2">
+                      medium_bg rounded-tl-lg lg:rounded-tl-none lg:rounded-tr-lg">
             <!-- #### CHAT HEADER #### -->
-            <div class="chat_header bg-zinc-700">
+            <div class="chat_header medium_bg">
               <div
                 style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%; align-items: center">
                 <div style="margin-left: 10px"
-                     class="orange-hover"
+                     class="orange-hover text-neutral-200"
                      v-on:click="gotoSubchat(null, false)">
                   {{ chatroom.t }}
                 </div>
                 <div v-if="isSubchat === true" class="nopointer">
-                  <span style="margin-left: 10px"><i class="bi bi-caret-right"></i></span>
-                  <span style="margin-left: 10px">{{ currentSubchat.t }}</span>
+                  <span style="margin-left: 10px"><i class="bi bi-caret-right text-neutral-200"></i></span>
+                  <span style="margin-left: 10px" class="text-neutral-200">{{ currentSubchat.t }}</span>
                 </div>
                 <div v-if="isStreamingVideo"
                      id="stream_nav"
@@ -187,7 +187,7 @@
                   <button v-on:click="stopScreenshare"
                           class="gray-hover c_lightgray ml-6"
                           style="border: 1px solid rgba(255,0,0,0.5);
-                             border-radius: 10px;">
+                                 border-radius: 10px;">
                     <span style="font-weight: bold">Hang Up</span>
                   </button>
                 </div>
@@ -295,10 +295,10 @@
             </div>
             <!-- #### MESSAGES #### -->
             <div class="h-[calc(100%-130px)] max-h-[calc(100%-130px)] overflow-hidden
-                        bg-zinc-800 lg:rounded-tl-lg">
+                        bright_bg lg:rounded-tl-lg">
               <div id="messages_section" :ref="'messages_section'"
                    class="messages_section relative flex h-full
-                        overflow-y-auto overflow-x-hidden"
+                          overflow-y-auto overflow-x-hidden"
                    style="flex-direction: column-reverse">
                 <div id="init_loading" style="display: none">
                   <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
@@ -308,11 +308,13 @@
                   <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
                   <span class="ms-2 font-bold c_lightgray">Connecting...</span>
                 </div>
-                <template v-for="msg in messages" :key="msg.gUID">
-                  <div class="message" :id="msg.gUID">
+                <template v-for="msg in messages" :key="msg.guid">
+                  <div class="message" :id="msg.guid">
                     <template v-if="msg.separator === true">
-                      <div class="headerline pointer-events-none text-neutral-500">
-                        <span class="text-xs">{{ getHumanReadableDateText(msg.ts, false, true) }}</span>
+                      <div class="headerline pointer-events-none">
+                        <span class="text-xs text-neutral-300">
+                          {{ getHumanReadableDateText(msg.ts, false, true) }}
+                        </span>
                       </div>
                     </template>
                     <!-- Chat Avatar and Date -->
@@ -323,7 +325,7 @@
                         <i v-else class="sender_avatar bi bi-person-circle"></i>
                         <template v-if="msg.iurl !== ''">
                           <img :src="getImg(msg.iurl, true)" alt="?"
-                               class="bg-zinc-900"
+                               class="darkest_bg"
                                style="width: 42px; height: 42px; border-radius: 100%;
                                     position: absolute; top: 8px; left: -7px">
                         </template>
@@ -332,8 +334,7 @@
                              @click.stop="showUserProfileFromName(msg.src)">
                           {{ msg.src }}
                         </div>
-                        <div style="color: gray; font-size: 80%; padding-left: 10px"
-                             class="flex gap-x-1">
+                        <div class="flex gap-x-2 text-neutral-400 text-xs ml-3">
                           <div style="pointer-events: none">
                             {{ getHumanReadableDateText(msg.ts, true) }}
                           </div>
@@ -378,7 +379,7 @@
                       <!-- #### MESSAGE OPTIONS #### -->
                       <div v-if="msg.mType !== 'CryptError' && !msg.src.startsWith('_server')"
                            class="msg_options gap-x-2">
-                        <div class="bg-zinc-700 rounded gap-x-4 flex px-2 py-1">
+                        <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
                           <button title="Reply" class="orange-hover"
                                   v-on:click="replyToMessage(msg)">
                             <i class="bi bi-reply-fill text-inherit"></i>
@@ -394,7 +395,7 @@
                             </button>
                           </template>
                         </div>
-                        <div class="bg-zinc-700 rounded gap-x-4 flex px-2 py-1">
+                        <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
                           <button title="Upvote" class="orange-hover"
                                   v-on:click="reactToMessage(msg, '+')">
                             <i class="bi bi-hand-thumbs-up text-inherit"></i>
@@ -404,7 +405,7 @@
                             <i class="bi bi-hand-thumbs-down text-inherit"></i>
                           </button>
                         </div>
-                        <div class="bg-zinc-700 rounded gap-x-4 flex px-2 py-1">
+                        <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
                           <button title="Awesome!" class="orange-hover"
                                   v-on:click="reactToMessage(msg, '⭐')">
                             <i class="bi bi-star-fill text-inherit"></i>
@@ -498,23 +499,25 @@
                                        class="clientMessage"/>
                       </template>
                       <template v-else-if="msg.mType === 'Reply'">
-                        <div class="w-full h-full">
-                          <div class="mb-3 mt-2 pl-2 text-neutral-400 border-l-4 border-l-slate-700">
-                            <p class="mb-2 text-sm">
-                              Reply to {{ msg.source.src }}:
-                            </p>
-                            <Markdown :id="'rsr_' + msg.gUID"
-                                      class="py-1 px-2 w-fit mb-1 markedView"
+                        <div>
+                          <div class="mb-4 pl-2 text-neutral-400 border-l-8 border-l-zinc-900">
+                            <div class="flex items-center justify-between mb-2 px-2 py-1 rounded darkest_bg">
+                              <p class="text-xs text-neutral-400 font-bold pointer-events-none">
+                                Reply to {{ msg.source.src }}:
+                              </p>
+                              <p class="text-xs font-bold text-neutral-400 pointer-events-none">
+                                {{ getHumanReadableDateText(msg.source.time, true) }}
+                              </p>
+                            </div>
+                            <Markdown :id="'rsr_' + msg.guid"
+                                      class="py-1 px-2 w-fit mb-1 clientMessage markedView"
                                       :source="msg.source.msg"
                                       :breaks="true"
                                       :plugins="plugins"
                                       :style="{maxWidth: mediaMaxWidth}"/>
-                            <p class="text-xs text-neutral-500">
-                              {{ getHumanReadableDateText(msg.source.time, true) }}
-                            </p>
                           </div>
-                          <Markdown :id="'msg_' + msg.gUID"
-                                    class="clientMessage markedView"
+                          <Markdown :id="'msg_' + msg.guid"
+                                    class="clientMessage markedView w-fit"
                                     :source="msg.msg"
                                     :breaks="true"
                                     :plugins="plugins"/>
@@ -522,7 +525,7 @@
                       </template>
                       <!-- #### CLIENT MESSAGE #### -->
                       <template v-else>
-                        <Markdown :id="'msg_' + msg.gUID"
+                        <Markdown :id="'msg_' + msg.guid"
                                   class="clientMessage markedView"
                                   :source="msg.msg"
                                   :breaks="true"
@@ -533,10 +536,10 @@
                          style="display: flex; margin: 10px 0 0 42px">
                       <div v-for="reaction in msg.reacts" :key="reaction.src"
                            style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                           class="bg-zinc-900 c_lightgray gray-hover"
+                           class="darkest_bg c_lightgray gray-hover"
                            :title="reaction.src.toString() + ' reacted to this message.'"
                            v-on:click="reactToMessage(msg, reaction.t)"
-                           :id="'react_' + msg.gUID + '_' + reaction.t">
+                           :id="'react_' + msg.guid + '_' + reaction.t">
                         <i v-if="reaction.t === '+'"
                            class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
                         <i v-else-if="reaction.t === '-'"
@@ -545,8 +548,8 @@
                         {{ reaction.src.length }}
                       </div>
                     </div>
-                    <div :id="'edit_' + msg.gUID" class="hidden w-full justify-center">
-                      <div class="text-sm p-2 bg-zinc-900 rounded mt-2 mb-1 text-center flex items-center">
+                    <div :id="'edit_' + msg.guid" class="hidden w-full justify-center">
+                      <div class="text-sm p-2 darkest_bg rounded mt-2 mb-1 text-center flex items-center">
                         <div class="ml-2 mr-4 text-neutral-400 pointer-events-none">
                           <template v-if="isEditingMessage">Edit</template>
                           <template v-else-if="isReplyingToMessage">Reply</template>
@@ -685,7 +688,7 @@
               </template>
             </div>
             <!-- #### USER INPUT FIELD #### -->
-            <div class="bg-zinc-800"
+            <div class="bright_bg"
                  style="display: inline-flex;
                         width: 100%;
                         min-height: 80px;
@@ -704,9 +707,22 @@
               <div style="bottom: 0; left: 10px; opacity: 1"
                    class="scroll_to_bottom flex items-center px-1 overflow-clip">
                 <template v-if="userActivity.length > 0">
-                  <ChartBarIcon class="h-3 w-3 text-neutral-400"></ChartBarIcon>
-                  <div class="flex items-center divide-x divide-neutral-600">
+                  <ChartBarIcon class="h-3 w-3 text-neutral-300"></ChartBarIcon>
+                  <div class="flex items-center divide-x divide-zinc-800">
                     <template v-for="user in userActivity" :key="user">
+                      <div class="px-2">
+                  <span class="text-neutral-300 cursor-pointer hover:text-white font-normal"
+                        @click.stop="showUserProfileFromName(user.user)">
+                    {{ user.user }}
+                  </span>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+                <template v-if="userActivityIdle.length > 0">
+                  <EyeIcon class="h-3 w-3 text-neutral-400"></EyeIcon>
+                  <div class="flex items-center divide-x divide-zinc-800">
+                    <template v-for="user in userActivityIdle" :key="user">
                       <div class="px-2">
                   <span class="text-neutral-400 cursor-pointer hover:text-white font-normal"
                         @click.stop="showUserProfileFromName(user.user)">
@@ -716,22 +732,9 @@
                     </template>
                   </div>
                 </template>
-                <template v-if="userActivityIdle.length > 0">
-                  <EyeIcon class="h-3 w-3 text-neutral-500"></EyeIcon>
-                  <div class="flex items-center divide-x divide-neutral-600">
-                    <template v-for="user in userActivityIdle" :key="user">
-                      <div class="px-2">
-                  <span class="text-neutral-500 cursor-pointer hover:text-white font-normal"
-                        @click.stop="showUserProfileFromName(user.user)">
-                    {{ user.user }}
-                  </span>
-                      </div>
-                    </template>
-                  </div>
-                </template>
               </div>
               <textarea id="new_comment" :ref="'new_comment'"
-                        class="new_comment bg-zinc-600 py-2 px-3 placeholder-neutral-400"
+                        class="new_comment medium_bg py-2 px-3 placeholder-neutral-400"
                         type="text"
                         v-model="new_message"
                         maxlength="5000"
@@ -739,14 +742,14 @@
                         v-on:keyup="auto_grow"
                         v-on:click="hideAllSidebars"></textarea>
               <button id="send_image_button"
-                      class="message_button send_image_button bg-zinc-600 hover:brightness-200
+                      class="message_button send_image_button medium_bg hover:brightness-200
                              flex justify-center items-center"
                       style="position: absolute; right: 50px; border-radius: 0"
                       title="Send Files"
                       v-on:click="toggleUploadingSnippet">
                 <DocumentArrowUpIcon class="text-neutral-300 h-6 w-6"></DocumentArrowUpIcon>
               </button>
-              <button class="message_button bg-zinc-600 hover:brightness-200 flex justify-center items-center"
+              <button class="message_button medium_bg hover:brightness-200 flex justify-center items-center"
                       style="position: absolute; right: 10px; border-radius: 0 6px 6px 0"
                       title="Search on GIPHY"
                       v-on:click="toggleSelectingGIF">
@@ -757,14 +760,14 @@
         </template>
         <template v-else-if="overlayType === 'knowledgefinder'"
                   class="h-[calc(100%-60px)] w-full translate-y-[60px] overflow-clip
-                         bg-zinc-900 lg:rounded-xl sm:border-[1px] sm:border-[rgba(174,174,183,0.25)]">
+                         darkest_bg lg:rounded-xl sm:border-[1px] sm:border-[rgba(174,174,183,0.25)]">
           <knowledgefinder :isoverlay="true" :srcguid="getSession()"
                            @close="setOverlay('msg'); prepareInputField()"/>
         </template>
       </div>
       <!-- #### MEMBERS #### -->
       <div id="member_section" style="margin-top: 60px"
-           class="member_section bg-zinc-700 rounded-tl-lg border-l-2 border-l-zinc-900">
+           class="member_section darkest_bg">
         <div style="width: 100%; height: 50px; display: flex; align-items: center">
         <span class="font-bold member_count c_lightgray nopointer"
               style="padding-left: 20px">
@@ -787,7 +790,7 @@
             </i>
             <template v-if="usr.iurl != null">
               <img :src="getImg(usr.iurl, true)" alt="?"
-                   class="bg-zinc-900"
+                   class="darkest_bg"
                    style="width: 40px; height: 40px; border-radius: 100%;
                                 position: absolute; top: 4px; left: 6px">
             </template>
@@ -823,7 +826,7 @@
         <i class="bi bi-person-circle" style="font-size: 400%; margin-right: 15px"></i>
         <template v-if="viewedUserProfile.iurl != null">
           <img :src="getImg(viewedUserProfile.iurl, true)" alt="?"
-               class="bg-zinc-900"
+               class="darkest_bg"
                style="width: 75px; height: 75px; border-radius: 100%;
                                 position: absolute; left: -4px">
         </template>
@@ -868,7 +871,7 @@
       <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Roles</h5>
       <div style="display: flex; flex-wrap: wrap">
         <div v-for="role in this.viewedUserProfile.roles" :key="role"
-             class="bg-zinc-800"
+             class="dark_bg"
              style="border-radius: 5px; padding: 0 6px 4px 6px; margin-right: 1ch; margin-bottom: 1ch">
           <i v-show="isEditingRoles" class="bi bi-x-circle-fill orange-hover"
              style="margin-right: 4px"></i>
@@ -908,7 +911,7 @@
         <template v-else>
           <div class="w-full grid grid-cols-2 gap-3 mb-4">
             <div v-for="badge in this.viewedUserProfile.badges" :key="badge.handle"
-                 class="c_lightgray text-center rounded-xl border-2 border-zinc-700 py-1 px-2 hover:bg-zinc-700">
+                 class="c_lightgray text-center rounded-xl border-2 border-zinc-600 py-1 px-2 hover:medium_bg">
               <div class="pointer-events-none">
                 <div v-if="badge.handle.startsWith('msg')"
                      style="font-size: 150%">
@@ -966,7 +969,7 @@
     </template>
   </modal>
   <!-- #### GIF SELECTION #### -->
-  <div class="giphygrid bg-zinc-700 p-3 h-full"
+  <div class="giphygrid medium_bg p-3 h-full"
        style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
     <div style="height: calc(100% - 50px); width: 100%; overflow-x: clip; overflow-y: auto"
          class="b_darkergray rounded-lg">
@@ -991,7 +994,7 @@
     </div>
   </div>
   <!-- #### Settings #### -->
-  <div class="session_settings bg-zinc-700 shadow"
+  <div class="session_settings medium_bg shadow"
        style="overflow-x: hidden; overflow-y: auto"
        v-show="isViewingSessionSettings" @click.stop>
     <div style="position: relative; width: 100%">
@@ -1015,12 +1018,11 @@
         <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
         <span class="jetb ms-2">Uploading...</span>
       </div>
-      <hr class="c_lightgray my-2">
-      <h4 class="c_lightgray font-bold text-lg nopointer">
+      <h4 class="text-neutral-300 font-bold text-lg nopointer mt-2">
         Reward Program
       </h4>
       <p style="font-size: 75%" class="c_lightgray mb-3">
-        Communicate to unlock powerful upgrades for your Clarifier group!
+        Communicate to unlock powerful upgrades for your group!
       </p>
       <div style="display: flex; align-items: center"
            class="c_lightgray mb-2">
@@ -1081,6 +1083,15 @@
             <br><span>T.B.A.</span>
           </div>
         </div>
+      </div>
+      <div class="mt-2 p-2 rounded dark_bg">
+        <h4 class="text-neutral-300 font-bold text-lg nopointer">
+          Restoration
+        </h4>
+        <button class="mt-2 rounded bg-red-700 hover:bg-red-900 font-bold text-black p-2"
+                v-on:click="generateRSAKeyPair(getChatGUID(),true)">
+          Replace Encryption Key
+        </button>
       </div>
     </div>
   </div>
@@ -1665,7 +1676,7 @@ export default {
       if (message.mType === 'EditNotification') {
         const response = JSON.parse(message.msg)
         if (response.uniMessageGUID == null) return
-        const index = this.messages.findIndex(msg => msg.gUID === response.uniMessageGUID)
+        const index = this.messages.findIndex(msg => msg.guid === response.uniMessageGUID)
         if (response.newContent !== '') {
           // Edit message
           try {
@@ -1690,7 +1701,7 @@ export default {
       if (message.mType === 'ReactNotification') {
         const response = JSON.parse(message.msg)
         if (response.uniMessageGUID == null) return
-        const index = this.messages.findIndex(msg => msg.gUID === response.uniMessageGUID)
+        const index = this.messages.findIndex(msg => msg.guid === response.uniMessageGUID)
         // Edit message
         try {
           // Check if message already contains a reaction of this type
@@ -1775,7 +1786,7 @@ export default {
           editPayloadMessage = ''
         }
         const payload = JSON.stringify({
-          uniMessageGUID: this.messageEditing.gUID,
+          uniMessageGUID: this.messageEditing.guid,
           newContent: editPayloadMessage
         })
         this.addMessagePar('[c:EDIT<JSON]' + payload)
@@ -2962,9 +2973,9 @@ export default {
       if (this.isEditingMessage !== true) {
         return
       }
-      const msg = document.getElementById(this.messageEditing.gUID)
+      const msg = document.getElementById(this.messageEditing.guid)
       if (msg != null) msg.style.backgroundColor = ''
-      const editElem = document.getElementById('edit_' + this.messageEditing.gUID)
+      const editElem = document.getElementById('edit_' + this.messageEditing.guid)
       if (editElem != null) editElem.style.display = 'none'
       this.isEditingMessage = false
       this.messageEditing = {}
@@ -2978,9 +2989,9 @@ export default {
       if (this.isReplyingToMessage !== true) {
         return
       }
-      const msg = document.getElementById(this.messageReplyingTo.gUID)
+      const msg = document.getElementById(this.messageReplyingTo.guid)
       if (msg != null) msg.style.backgroundColor = ''
-      const editElem = document.getElementById('edit_' + this.messageReplyingTo.gUID)
+      const editElem = document.getElementById('edit_' + this.messageReplyingTo.guid)
       if (editElem != null) editElem.style.display = 'none'
       this.isReplyingToMessage = false
       this.messageReplyingTo = {}
@@ -3291,7 +3302,7 @@ export default {
     },
     reactToMessage: function (msg, t) {
       const payload = JSON.stringify({
-        uniMessageGUID: msg.gUID,
+        uniMessageGUID: msg.guid,
         type: t
       })
       this.addMessagePar('[c:REACT<JSON]' + payload)
@@ -3299,7 +3310,7 @@ export default {
     editMessage: function (msg, remove = false) {
       if (remove === true) {
         const payload = JSON.stringify({
-          uniMessageGUID: msg.gUID,
+          uniMessageGUID: msg.guid,
           newContent: ''
         })
         this.addMessagePar('[c:EDIT<JSON]' + payload)
@@ -3312,8 +3323,8 @@ export default {
         this.focusComment(true)
         setTimeout(() => {
           this.auto_grow()
-          document.getElementById(msg.gUID).style.backgroundColor = '#192129'
-          const editElem = document.getElementById('edit_' + this.messageEditing.gUID)
+          document.getElementById(msg.guid).style.backgroundColor = '#192129'
+          const editElem = document.getElementById('edit_' + this.messageEditing.guid)
           if (editElem != null) editElem.style.display = 'flex'
         }, 0)
       }
@@ -3326,8 +3337,8 @@ export default {
       this.focusComment(true)
       setTimeout(() => {
         this.auto_grow()
-        document.getElementById(msg.gUID).style.backgroundColor = '#192129'
-        const editElem = document.getElementById('edit_' + this.messageReplyingTo.gUID)
+        document.getElementById(msg.guid).style.backgroundColor = '#192129'
+        const editElem = document.getElementById('edit_' + this.messageReplyingTo.guid)
         if (editElem != null) editElem.style.display = 'flex'
       }, 0)
     },
@@ -3365,11 +3376,11 @@ export default {
       if (lastReadTS == null) lastReadTS = 0
       return lastReadTS < lastMessageTS
     },
-    generateRSAKeyPair: async function (uniChatroomGUID) {
+    generateRSAKeyPair: async function (uniChatroomGUID, force = false) {
       if (uniChatroomGUID == null || uniChatroomGUID === '') return
       // Check if we already have a PrivKey for this chat GUID
       const clarifierKeyPair = this.$store.getters.getClarifierKeyPair(uniChatroomGUID)
-      if (clarifierKeyPair != null) return false
+      if (force === false && clarifierKeyPair != null) return false
       // Generate key pair
       const keyPair = await window.crypto.subtle.generateKey(
         {
@@ -3388,6 +3399,8 @@ export default {
       const content = JSON.stringify({
         pubKeyPEM: await this.exportRSAPubKey(keyPair.publicKey)
       })
+      const updateFun = this.getClarifierMetaData
+      const getMessagesFun = this.getClarifierMessages
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
@@ -3395,6 +3408,18 @@ export default {
           url: 'm5/pubkey/' + uniChatroomGUID,
           body: content
         })
+          .then(() => (updateFun()))
+          .then(() => (getMessagesFun()))
+          .then(() => {
+            if (force === true) {
+              this.$notify(
+                {
+                  title: 'Encryption Key Replaced',
+                  text: '',
+                  type: 'info'
+                })
+            }
+          })
           .then(resolve)
           .catch((err) => console.error(err.message))
       })
@@ -3634,7 +3659,7 @@ export default {
       chat.style.position = 'fixed'
       chat.style.top = '0px'
       chat.style.left = '0'
-      chat.style.height = '100vh'
+      chat.style.height = '100dvh'
       chat.style.zIndex = '9999'
       const sidebar = document.getElementById('sidebar')
       sidebar.style.display = 'none'
@@ -4236,7 +4261,7 @@ export default {
 }
 
 .b_darkergray {
-  @apply bg-zinc-900;
+  @apply darkest_bg;
 }
 
 .c_darkergray {
@@ -4309,7 +4334,7 @@ export default {
 
 .gray-hover:hover,
 .active_gray {
-  @apply bg-zinc-600 rounded-md;
+  @apply bright_bg rounded-md;
   cursor: pointer;
 }
 
@@ -4335,10 +4360,7 @@ export default {
   bottom: 80px;
   right: 12px;
   color: white;
-  max-width: calc(100vw - 24px);
-  width: 400px;
-  max-height: calc(100% - 200px);
-  @apply rounded-lg bg-zinc-600 p-4;
+  @apply rounded-lg darkest_bg p-4 w-[400px] max-w-[calc(100dvw-24px)] max-h-[calc(100%-200px)];
 }
 
 .user_role {
@@ -4352,7 +4374,7 @@ export default {
 .serverMessage {
   text-wrap: normal;
   word-wrap: break-word;
-  @apply bg-zinc-900 rounded-r-lg rounded-bl-lg p-3 my-2 text-lg font-bold italic text-neutral-300;
+  @apply dark_bg rounded-r-lg rounded-bl-lg p-3 my-2 text-lg font-bold italic text-neutral-300;
   text-align: center;
 }
 
@@ -4366,16 +4388,13 @@ export default {
 .new_comment {
   position: absolute;
   left: 10px;
-  width: calc(100% - 100px);
   color: white;
   border-color: transparent;
   border-radius: 6px 0 0 6px;
   resize: none;
   overflow-x: hidden;
   overflow-y: auto;
-  height: 40px;
-  min-height: 40px;
-  max-height: calc(100vh - 150px);
+  @apply h-[40px] min-h-[40px] max-h-[calc(100dvh-150px)] w-[calc(100%-100px)];
 }
 
 .new_comment:focus {
@@ -4477,7 +4496,7 @@ export default {
 
 .sb_link:hover .sidebar_tooltip,
 .channel_link:hover .channel_tooltip {
-  @apply opacity-100 py-2 px-3 rounded bg-zinc-900 border-2 border-zinc-600 z-[800];
+  @apply opacity-100 py-2 px-3 rounded darkest_bg border-2 border-zinc-600 z-[800];
 }
 
 @media only screen and (max-width: 1024px) {
@@ -4492,11 +4511,11 @@ export default {
   }
 
   .sidebar.active, .sidebar2.active, .member_section.active {
-    @apply backdrop-blur-xl bg-zinc-900 bg-opacity-75;
+    @apply backdrop-blur-xl darkest_bg bg-opacity-75;
   }
 
   .darkergray-on-small {
-    @apply bg-zinc-900 border-r-neutral-700;
+    @apply darkest_bg border-r-neutral-700;
   }
 
   .darkergray-on-small.active {
@@ -4616,7 +4635,6 @@ export default {
 
 .chat_header {
   height: 50px;
-  box-shadow: 0 20px 10px -15px rgb(39 39 42);
   font-weight: bold;
   font-size: 125%;
   color: white;
@@ -4633,19 +4651,15 @@ export default {
   cursor: pointer;
   width: 100%;
   height: 36px;
-  @apply px-2 rounded;
+  @apply px-2 rounded text-neutral-300;
 }
 
 .subchat:hover {
-  @apply bg-zinc-500 bg-opacity-50;
+  @apply bg-zinc-500 bg-opacity-50 text-neutral-100;
 }
 
 .subchat.active {
-  @apply bg-zinc-500 bg-opacity-75;
-}
-
-.subchat.active span {
-  color: white;
+  @apply bg-zinc-500 bg-opacity-75 text-white;
 }
 
 .nopointer {
@@ -4653,7 +4667,7 @@ export default {
 }
 
 .darkbutton {
-  @apply bg-zinc-900 px-2 py-2;
+  @apply darkest_bg px-2 py-2;
 }
 
 .darkbutton:hover {
@@ -4666,13 +4680,13 @@ export default {
 }
 
 .message:hover {
-  @apply bg-zinc-900 bg-opacity-25;
+  @apply brightest_bg bg-opacity-25;
 }
 
 .msg_options {
   height: 30px;
   position: absolute;
-  right: 0;
+  right: 42px;
   transform: translateY(-30px);
   z-index: 100;
   display: flex;
@@ -4684,12 +4698,12 @@ export default {
 
 .msg_time {
   opacity: 0;
-  color: gray;
   font-size: 80%;
   height: 100%;
   width: 100%;
   display: flex;
-  align-items: center
+  align-items: center;
+  @apply text-neutral-300;
 }
 
 .message:hover .msg_time,
@@ -4702,7 +4716,7 @@ export default {
   position: relative;
   max-width: calc(100% - 42px);
   margin: 0 !important;
-  @apply text-neutral-200 rounded-r-lg rounded-bl-lg px-2 py-0.5 bg-zinc-700;
+  @apply text-neutral-200 rounded-r-lg rounded-bl-lg px-2 py-1 medium_bg;
 }
 
 .send_image_button.active {
@@ -4747,7 +4761,7 @@ export default {
 
 .user_tagger,
 .imgflip_selector {
-  @apply rounded-md p-0 bg-zinc-800;
+  @apply rounded-md p-0 dark_bg;
   position: absolute;
   bottom: 80px;
   left: 10px;
@@ -4856,7 +4870,7 @@ export default {
 }
 
 .user_profile_button {
-  @apply text-neutral-300 rounded bg-zinc-700 py-1 px-2 mr-1 hover:brightness-90;
+  @apply text-neutral-300 rounded medium_bg py-1 px-2 mr-1 hover:brightness-90;
 }
 
 </style>

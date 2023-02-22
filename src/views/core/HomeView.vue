@@ -7,20 +7,21 @@
       <div class="w-full h-full relative p-8">
         <div class="w-full"><!-- Demo Wrapper -->
           <div
-            class="w-full h-full items-center justify-center flex pl-4 py-4 border-l-[4px] rounded-r-md border-dotted border-l-fuchsia-500 backdrop-blur md:backdrop-blur-none">
+            class="w-full h-full items-center justify-center flex pl-4 py-4 border-l-[4px] rounded-r-md
+                          border-dotted border-l-fuchsia-500 backdrop-blur-xl">
             <div style="pointer-events: inherit"
                  class="rounded-2xl w-full h-full">
               <p
-                class="text-neutral-200 font-bold text-5xl md:text-7xl xl:text-8xl w-fit pointer-events-none">
-                Web3 Collaboration
+                class="text-neutral-200 text-5xl font-bold md:text-7xl xl:text-8xl w-fit pointer-events-none">
+                <span class="text-fuchsia-500">Web3</span> <span class="">Collaboration</span>
               </p>
               <p
                 class="text-neutral-200 font-bold mb-4 py-2 text-2xl md:text-4xl w-fit pointer-events-none">
                 Powered by wikiric and {{ userCount }} others.
               </p>
-              <p class="text-neutral-300 font-bold text-xl w-full pointer-events-none">
-                A secure and responsive environment for communities,
-                projects and ideas.
+              <p class="text-neutral-200 font-bold text-2xl w-full pointer-events-none">
+                A secure and responsive environment
+                for communities, projects and ideas.
                 <br>Bridging the gap between Web2 and Web3.
               </p>
             </div>
@@ -47,7 +48,7 @@
         <template class="hidden md:block">
           <div
             class="absolute bottom-0 left-0 p-4 ml-4">
-            <div class="text-center cursor-pointer hover:bg-zinc-900 p-4 rounded-full text-neutral-300"
+            <div class="text-center cursor-pointer hover:darkest_bg p-4 rounded-full text-neutral-300"
                  v-on:click="scrollTo('firstSection')">
               <p class="font-bold">Explore</p>
               <i class="bi bi-arrow-down text-2xl"></i>

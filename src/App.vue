@@ -24,7 +24,7 @@
                 <template v-for="item in navigation" :key="item.name">
                   <div v-if="item.main"
                        v-on:click="$router.push(item.href)"
-                       :class="[item.current ? 'bg-zinc-900 text-white' : 'text-neutral-300 hover:bg-zinc-700 hover:text-white', 'px-3 py-2 rounded-md text-sm font-medium cursor-pointer']"
+                       :class="[item.current ? 'darkest_bg text-white' : 'text-neutral-300 hover:medium_bg hover:text-white', 'px-3 py-2 rounded-md text-sm font-medium cursor-pointer']"
                        :aria-current="item.current ? 'page' : undefined">
                     {{ item.name }}
                   </div>
@@ -168,7 +168,7 @@
           <template v-for="item in navigation" :key="item.name">
             <DisclosureButton v-if="item.main" as="a"
                               v-on:click="$router.push(item.href)"
-                              :class="[item.current ? 'bg-zinc-900 text-white' : 'text-neutral-300 hover:bg-zinc-700 hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium cursor-pointer']"
+                              :class="[item.current ? 'darkest_bg text-white' : 'text-neutral-300 hover:medium_bg hover:text-white', 'block px-3 py-2 rounded-md text-base font-medium cursor-pointer']"
                               :aria-current="item.current ? 'page' : undefined">
               {{ item.name }}
             </DisclosureButton>
@@ -177,8 +177,10 @@
       </DisclosurePanel>
     </Disclosure>
     <!-- More Than A Dream -->
-    <div id="router_view_elem"
-         class="relative top-0 left-0 w-full bg-zinc-900 z-10">
+    <div id="router_view_elem" ref="router_view_elem"
+         class="relative top-0 left-0 z-10
+                w-[100dvw] h-[100dvh]
+                darkest_bg">
       <router-view/>
     </div>
     <notifications position="bottom right"/>
@@ -311,6 +313,7 @@ export default {
         keywordSearch.select()
       }
     })
+    /* Dynamic resizing with dvw (dynamic viewport width) and dvh (dyn. v. height)
     const elem = document.getElementById('router_view_elem')
     if (elem) {
       elem.style.minHeight = (window.innerHeight * 0.01 * 100).toString() + 'px'
@@ -321,6 +324,7 @@ export default {
         elem.style.minHeight = (window.innerHeight * 0.01 * 100).toString() + 'px'
       }
     })
+     */
   },
   data () {
     return {

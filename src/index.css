@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 @layer components {
-    h1, h2, h3, h4, h5, h6, p {
-        @apply text-neutral-300;
+    h1, h2, h3, h4, h5, h6, p, td, th, li {
+        @apply text-neutral-200;
     }
 
     .markedView p {
@@ -23,6 +23,10 @@
         @apply list-decimal list-inside mb-2;
     }
 
+    .markedView ul, ol, table {
+        @apply mb-4
+    }
+
     .markedView pre {
         @apply mb-2;
     }
@@ -31,12 +35,12 @@
         @apply mb-4;
     }
 
-    .markedView th, .markedView td {
-        @apply p-2 border border-slate-700;
+    .markedView th {
+        @apply p-2 text-neutral-200 font-bold border border-b-2 border-zinc-500 darkest_bg;
     }
 
-    .markedView tr {
-        @apply hover:bg-zinc-800;
+    .markedView td {
+        @apply p-2 border border-zinc-500 dark_bg;
     }
 
     .markedView h1 {
@@ -63,12 +67,12 @@
         @apply text-lg my-2 font-bold text-neutral-200;
     }
 
-    .markedView p code {
-        @apply py-0.5 px-1 rounded-md mx-1 font-bold bg-zinc-700 text-neutral-400 my-2;
+    .markedView code {
+        @apply py-0.5 px-1 rounded-md border border-zinc-500 text-neutral-300 my-2 dark_bg;
     }
 
     hr {
-        @apply mb-6 h-[4px] w-full border-[1px] border-neutral-600 bg-neutral-600;
+        @apply my-6 h-[4px] w-full border-[1px] border-zinc-500 bg-zinc-500;
     }
 
     .markedView > :last-child {
@@ -77,5 +81,25 @@
 
     .markedView > :first-child {
         @apply mt-0 !important;
+    }
+
+    .brightest_bg {
+        @apply bg-zinc-500
+    }
+
+    .bright_bg {
+        @apply bg-zinc-600;
+    }
+
+    .medium_bg {
+        @apply bg-zinc-700;
+    }
+
+    .dark_bg {
+        @apply bg-zinc-800;
+    }
+
+    .darkest_bg {
+        @apply bg-zinc-900;
     }
 }

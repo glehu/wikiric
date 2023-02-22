@@ -1,7 +1,9 @@
 <template>
-  <div class="preferences" style="min-height: 100vh; background-color: #131313">
+  <div class="preferences w-full h-full"
+       style="background-color: #131313">
     <div style="min-height: 60px"></div>
-    <div class="container mt-5" style="width: 100vw; justify-items: center; display: grid; text-align: center">
+    <div class="container mt-5 w-full"
+         style="justify-items: center; display: grid; text-align: center">
       <h1 class="font-bold text-neutral-300 text-5xl mb-2">
         Hey, no running in the hallways!
       </h1>

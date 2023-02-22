@@ -1,8 +1,8 @@
 <template>
   <div class="pb-2">
     <template v-if="showingTask">
-      <div class="w-full sm:w-[412px] bg-zinc-700 p-2 rounded">
-        <div class="w-full bg-zinc-900 p-2 rounded">
+      <div class="w-full sm:w-[412px] medium_bg p-2 rounded">
+        <div class="w-full darkest_bg p-2 rounded">
           <template v-if="showingTask.categories">
             <div class="flex mb-2 items-center">
               <template v-for="cat in showingTask.categories" :key="cat">
@@ -42,8 +42,8 @@
         </div>
       </div>
       <div class="mt-2 text-neutral-300">
-        <button v-on:click="this.$router.push('/apps/knowledge/' + showingTask.gUID)"
-                class="py-2 px-3 rounded bg-zinc-800 hover:bg-zinc-900">
+        <button v-on:click="this.$router.push('/apps/knowledge/' + showingTask.guid)"
+                class="py-2 px-3 rounded dark_bg hover:darkest_bg">
           <span class="font-bold text-sm mr-1">Open</span>
           <i class="bi bi-arrow-up-right text-sm"></i>
         </button>
@@ -167,11 +167,11 @@ export default {
 }
 
 .p_markdown th, .p_markdown td {
-  @apply p-2 border border-zinc-700;
+  @apply p-2 border border-zinc-600;
 }
 
 .p_markdown tr {
-  @apply hover:bg-zinc-800;
+  @apply hover:dark_bg;
 }
 
 .p_markdown_xl_only h1,

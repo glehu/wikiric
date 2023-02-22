@@ -1,5 +1,5 @@
 <template>
-  <div style="min-height: 100vh"
+  <div class="h-full w-full"
        :style="{backgroundImage: 'url('+require('@/assets/'+'account/pexels-dexter-fernandes-2646237.jpg')+')',
        backgroundPosition: 'center top', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <section class="container">
@@ -15,29 +15,29 @@
               <h3 class="p-1">Apps</h3>
               <section
                 class="container">
-                <div class="d-md-flex justify-content-between text-white mt-3"
+                <div class="md:flex justify-between text-white mt-3"
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="gotoPlanner">
                     <i class="bi bi-wrench-adjustable-circle p-1"></i><span class="font-bold"> Planner</span>
                   </button>
-                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">Kanban Board</h3>
+                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">Kanban Board</h3>
                 </div>
-                <div class="d-md-flex justify-content-between text-white mt-3"
+                <div class="md:flex justify-between text-white mt-3"
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="gotoClarifier">
                     <i class="bi bi-chat-dots p-1"></i><span class="font-bold"> Clarifier</span>
                   </button>
-                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">Communication</h3>
+                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">Communication</h3>
                 </div>
-                <div class="d-md-flex justify-content-between text-white mt-3"
+                <div class="md:flex justify-between text-white mt-3"
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="gotoAPI">
                     <i class="bi bi-hurricane"/><span class="font-bold"> Mockingbird</span>
                   </button>
-                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">SOAP/REST API Testing</h3>
+                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">SOAP/REST API Testing</h3>
                 </div>
               </section>
             </div>
@@ -47,14 +47,14 @@
               <h3 class="p-1">What's next?</h3>
               <section
                 class="container">
-                <div class="d-md-flex justify-content-between text-white mt-3"
+                <div class="md:flex justify-between text-white mt-3"
                      style="border-radius: 1rem;">
                   <div class="flex">
                     <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                             v-on:click="showCart">
                       <i class="bi bi-cart p-1"></i><span class="font-bold"> Cart</span>
                     </button>
-                    <div class="d-lg-flex">
+                    <div class="lg:flex">
                       <div class="flex">
                         <i class="bi bi-stack ms-3"></i>
                         <p class="ms-2">
@@ -69,51 +69,51 @@
                       </div>
                     </div>
                   </div>
-                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">Your Cart</h3>
+                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">Your Cart</h3>
                 </div>
               </section>
               <section
                 class="container">
-                <div class="d-md-flex justify-content-between text-white mt-3"
+                <div class="md:flex justify-between text-white mt-3"
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="gotoInvoices">
                     <i class="bi bi-journal-text p-1"></i><span class="font-bold"> Invoices</span>
                   </button>
-                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">Your Invoices</h3>
+                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">Your Invoices</h3>
                 </div>
               </section>
               <section
                 class="container">
-                <div class="d-md-flex justify-content-between text-white mt-3"
+                <div class="md:flex justify-between text-white mt-3"
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="gotoPreferences">
                     <i class="bi bi-wrench p-1"></i><span class="font-bold"> Preferences</span>
                   </button>
-                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">Cookies & Trackers</h3>
+                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">Cookies & Trackers</h3>
                 </div>
               </section>
               <section
                 class="container">
-                <div class="d-md-flex justify-content-between text-white mt-3"
+                <div class="md:flex justify-between text-white mt-3"
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="gotoThirdPartyAccounts">
                     <i class="bi bi-people p-1"></i><span class="font-bold"> Accounts</span>
                   </button>
-                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">3rd Party Accounts</h3>
+                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">3rd Party Accounts</h3>
                 </div>
               </section>
               <section
                 class="container">
-                <div class="d-md-flex justify-content-between text-white mt-3"
+                <div class="md:flex justify-between text-white mt-3"
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="logout">
                     <i class="bi bi-door-open p-1"></i><span class="font-bold"> Logout</span>
                   </button>
-                  <h3 class="d-none d-lg-block text-end" style="font-weight: lighter">See you soon</h3>
+                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">See you soon</h3>
                 </div>
               </section>
             </div>
