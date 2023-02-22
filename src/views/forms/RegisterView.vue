@@ -242,7 +242,7 @@ export default {
         if (redirect) {
           this.$router.push('/login?redirect=' + redirect)
         } else {
-          this.$router.push('/login?redirect=/account')
+          this.$router.push('/login?redirect=/apps/clarifier')
         }
       } else {
         this.user.email = ''
