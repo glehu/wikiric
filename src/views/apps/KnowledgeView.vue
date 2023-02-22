@@ -474,7 +474,7 @@
                       class="text-neutral-400 dark_bg rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-between flex items-center">
                       <p class="text-neutral-400 text-xs mr-2">
                         {{ getHumanReadableDateText(comment.cdate, true) }}</p>
-                      <p class="">{{ comment.author }}</p>
+                      <p class="text-sm">{{ comment.author }}</p>
                     </div>
                   </div>
                 </div>
@@ -535,7 +535,7 @@
       Edit
     </template>
     <template v-slot:body>
-      <div class="flex w-[90dvw] max-h-[90dvh] gap-x-2 px-2">
+      <div class="flex w-[90dvw] max-h-[90dvh] gap-x-4 px-2">
         <div class="w-full md:w-1/2">
           <label for="wisTitle" class="text-xl font-bold">Title:</label>
           <br>

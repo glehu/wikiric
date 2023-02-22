@@ -2,9 +2,9 @@
   <div id="knowledgeFinder"
        class="bright_bg w-full h-full absolute overflow-hidden rounded-tr-lg">
     <template v-if="knowledgeExists">
-      <div class="h-full w-full p-3">
+      <div class="h-full w-full">
         <template v-if="!isViewingWisdom">
-          <div class="md:grid md:grid-cols-2 xl:grid-cols-3 w-full h-fit md:h-full md:gap-x-3">
+          <div class="md:grid md:grid-cols-2 xl:grid-cols-3 w-full h-fit md:h-full md:gap-x-3 p-3">
             <div id="knowledgeFinder_sidebar"
                  class="h-full rounded-lg overflow-hidden medium_bg">
               <div class="h-full relative">

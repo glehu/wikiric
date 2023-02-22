@@ -12,13 +12,13 @@ export default {
 <template>
   <transition name="modal-fade">
     <div class="modal-backdrop">
-      <div class="modal medium_bg c_lightgray"
+      <div class="modal bright_bg c_lightgray"
            role="dialog"
            aria-labelledby="modalTitle"
            aria-describedby="modalDescription"
       >
         <header
-          class="modal-header darkest_bg z-50"
+          class="modal-header dark_bg z-50"
           id="modalTitle"
         >
           <slot name="header">
@@ -51,56 +51,8 @@ export default {
 </template>
 
 <style>
-.b_purple {
-  background-color: #68349b;
-}
-
-.c_purple {
-  color: #68349b;
-}
-
-.b_darkblue {
-  background-color: #041830;
-}
-
-.c_darkblue {
-  color: #041830;
-}
-
-.b_darkgray {
-  @apply bg-slate-700;
-}
-
-.c_darkgray {
-  color: #192129;
-}
-
-.b_darkergray {
-  background-color: #131313;
-}
-
-.c_darkergray {
-  color: #131313;
-}
-
-.b_gray {
-  background-color: #293139;
-}
-
-.c_gray {
-  color: #293139;
-}
-
 .c_lightgray {
   color: #aeaeb7;
-}
-
-.b_orange {
-  background-color: #ff5d37;
-}
-
-.c_orange {
-  color: #ff5d37;
 }
 
 .modal-backdrop {
@@ -140,7 +92,7 @@ export default {
   left: 0;
   width: 100%;
   height: 52px;
-  @apply font-bold text-lg border-b-4 border-b-zinc-700 items-center pl-4;
+  @apply font-bold text-lg border-b-4 border-b-zinc-800 items-center pl-4;
 }
 
 .modal-body {
@@ -148,6 +100,7 @@ export default {
   padding: 12px;
   max-height: 100%;
   overflow-y: auto;
+  @apply pt-4;
 }
 
 .modal-footer {

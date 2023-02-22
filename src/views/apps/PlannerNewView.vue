@@ -1,9 +1,9 @@
 <template>
   <div class="flex w-screen h-screen pt-[60px]">
     <div id="sidebar"
-         class="active h-full p_sidebar_left medium_bg border-r border-zinc-600 relative">
+         class="active h-full p_sidebar_left bright_bg border-r border-zinc-600 relative">
       <div class="w-full h-[calc(100%-20px)] relative">
-        <div class="grid grid-cols-3 m-2 h-[42px]">
+        <div class="grid grid-cols-2 m-2 h-[42px]">
           <div class="flex items-center cursor-pointer hover:darkest_bg hover:bg-opacity-50 p-2 rounded-md"
                v-on:click="$router.back()">
             <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
@@ -13,13 +13,22 @@
               Exit
             </div>
           </div>
+          <div class="flex items-center cursor-pointer hover:darkest_bg hover:bg-opacity-50 p-2 rounded-md"
+               v-on:click="toggleSidebar()">
+            <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
+              <i class="sb_link_icon bi bi-caret-left text-xl"></i>
+            </div>
+            <div class="font-bold text-neutral-300">
+              Collapse
+            </div>
+          </div>
         </div>
         <template v-if="calendarOptions">
           <FullCalendar :options="calendarOptions" class="w-[calc(100%-20px)] h-[calc(100%-64px)] text-neutral-300"/>
         </template>
       </div>
       <div
-        class="p_sidebar_toggler absolute w-6 right-0 top-0 bottom-0 hover:bright_bg cursor-pointer flex items-center justify-center overflow-hidden"
+        class="p_sidebar_toggler absolute w-6 right-0 top-0 bottom-0 hover:brightest_bg cursor-pointer flex items-center justify-center overflow-hidden"
         v-on:click="toggleSidebar">
       </div>
     </div>
@@ -149,7 +158,7 @@
                   <div v-for="task in box.tasks" :key="task.task.uID" class="p-1 task_container"
                        :ref="'taskcontainer_' + task.task.uID" :id="'taskcontainer_' + task.task.uID">
                     <div :ref="'task_' + task.task.uID" :id="'task_' + task.task.uID"
-                         class="p_task darkest_bg bg-opacity-75 rounded flex items-center relative cursor-pointer">
+                         class="p_task">
                       <div class="w-full h-full rounded py-1 px-1" v-on:click="openTask(task.task)">
                         <template v-if="task.task.dueDate && task.task.dueDate !== ''">
                           <div class="flex items-center text-neutral-300 p-2 mt-1 mx-1 mb-2 bg-orange-700
@@ -588,13 +597,14 @@
     <template v-slot:body>
       <div class="w-full sm:w-[540px] flex h-full relative">
         <div class="w-full h-full mr-1" v-if="!isShowingTaskHistory">
-          <div class="w-full dark_bg p-2 rounded">
+          <div class="w-full medium_bg p-2 rounded">
             <template v-if="showingTask.categories">
               <div class="flex mb-2 items-center">
                 <template v-for="cat in showingTask.categories" :key="cat">
                   <div v-if="JSON.parse(cat).category != null"
-                       class="text-neutral-400 border-[1px] border-zinc-600 flex items-center
-                              py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm darkest_bg">
+                       class="text-neutral-400 border-[1px] border-zinc-600
+                              flex items-center py-0.5 px-1 rounded mr-1
+                              mb-1 pointer-events-none text-sm darkest_bg">
                     {{ JSON.parse(cat).category }}
                   </div>
                 </template>
@@ -609,14 +619,15 @@
           </div>
           <div class="w-full my-2">
             <div class="flex items-center justify-between">
-              <label for="task_view_datetime" class="text-neutral-400 text-sm font-bold hidden sm:block">
+              <label for="task_view_datetime"
+                     class="text-neutral-300 text-sm font-bold hidden sm:block">
                 Due Date
               </label>
               <input id="task_view_datetime" type="date" class="p_input ml-auto" style="color-scheme: dark;"
                      v-model="showingTask.dueDateFormatted">
               <input id="task_view_time" type="time" class="p_input ml-1" style="color-scheme: dark;"
                      v-model="showingTask.dueTimeFormatted">
-              <button class="rounded-lg dark_bg hover:darkest_bg py-2 px-2 ml-1 text-xs text-neutral-400"
+              <button class="rounded-lg medium_bg hover:dark_bg py-2 px-2 ml-1 text-xs text-neutral-300"
                       v-on:click="setTaskDueDate()">
                 Update
               </button>
@@ -624,7 +635,7 @@
           </div>
           <div class="w-full my-2">
             <div class="flex items-center justify-between">
-              <div class="text-neutral-400 text-sm font-bold">Collaborators</div>
+              <div class="text-neutral-300 text-sm font-bold">Collaborators</div>
               <template v-if="showingTask.collaborators && showingTask.collaborators.length > 0">
                 <template v-for="collaborator in showingTask.collaborators" :key="collaborator">
                   <div v-if="JSON.parse(collaborator) != null"
@@ -645,7 +656,12 @@
               <Listbox v-model="sharing.collaborators" multiple id="collabos" class="w-full">
                 <div class="relative my-2">
                   <ListboxButton
-                    class="dark_bg w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                    class="medium_bg w-full relative cursor-default rounded-lg py-2 pl-3
+                           pr-10 text-left shadow-md focus:outline-none
+                           focus-visible:border-indigo-500 focus-visible:ring-2
+                           focus-visible:ring-white focus-visible:ring-opacity-75
+                           focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300
+                           sm:text-sm"
                   >
                     <template v-if="sharing.collaborators.length > 0">
                       <div class="block truncate font-bold text-neutral-300">
@@ -692,13 +708,13 @@
                   </transition>
                 </div>
               </Listbox>
-              <button class="rounded-lg dark_bg hover:darkest_bg py-2 px-2 ml-1 text-xs text-neutral-400 h-fit"
+              <button class="rounded-lg dark_bg hover:darkest_bg py-3 px-2 ml-1 text-xs text-neutral-400 h-fit"
                       v-on:click="addTaskCollaborators()">
                 Add
               </button>
             </div>
           </div>
-          <div id="wisdomComments" class="w-full mt-4 dark_bg p-2 rounded">
+          <div id="wisdomComments" class="w-full mt-4 py-2 rounded">
             <div class="w-full">
               <textarea type="text" id="input_comment" v-model="showingTaskComment" rows="1"
                         placeholder="Write a comment"
@@ -709,7 +725,7 @@
                 <Squares2X2Icon class="h-6 w-6"></Squares2X2Icon>
               </div>
             </div>
-            <template v-if="showingTaskRelated.comments == null">
+            <template v-if="!showingTaskRelated.comments || showingTaskRelated.comments.length < 1">
               <div class="flex w-full items-center justify-center py-4">
                 <div class="w-full text-neutral-400 pointer-events-none">
                   <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
@@ -725,7 +741,8 @@
                 </p>
               </div>
               <div v-for="comment in showingTaskRelated.comments" :key="comment.uID"
-                   class="mb-2 w-full medium_bg rounded-r-xl rounded-l-lg border-b-2 border-r-2 border-b-zinc-600 border-r-zinc-600">
+                   class="mb-2 w-full medium_bg rounded-r-xl rounded-l-lg border-b-2
+                          border-r-2 border-b-zinc-500 border-r-zinc-500 comment">
                 <Markdown :source="comment.desc"
                           class="text-neutral-300 w-full markedView py-1 px-2"
                           :plugins="plugins"></Markdown>
@@ -733,8 +750,8 @@
                   <div
                     class="text-neutral-400 ml-auto dark_bg rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-between flex items-center">
                     <p class="text-neutral-500 text-xs mr-2">
-                      {{ getHumanReadableDateText(comment.cdate).replace(' ', '&nbsp;') }}</p>
-                    <p class="">{{ comment.author }}</p>
+                      {{ getHumanReadableDateText(comment.cdate) }}</p>
+                    <p class="text-sm">{{ comment.author }}</p>
                   </div>
                 </div>
               </div>
@@ -2333,7 +2350,7 @@ export default {
 }
 
 .p_sidebar_left > .p_sidebar_toggler {
-  @apply medium_bg hover:bright_bg;
+  @apply bright_bg hover:brightest_bg;
 }
 
 .p_sidebar_left.active {
@@ -2356,7 +2373,8 @@ export default {
 }
 
 .p_task {
-  @apply mb-1 mx-1 w-[calc(100%-0.5rem)]
+  @apply mb-1 mx-1 w-[calc(100%-0.5rem)] medium_bg rounded
+  flex items-center relative cursor-pointer;
 }
 
 #board {

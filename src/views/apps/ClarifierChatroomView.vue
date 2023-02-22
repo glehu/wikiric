@@ -554,7 +554,7 @@
                           <template v-if="isEditingMessage">Edit</template>
                           <template v-else-if="isReplyingToMessage">Reply</template>
                         </div>
-                        <div class="flex py-1 px-2 bg-blue-600 bg-opacity-20 rounded">
+                        <div class="flex py-1 px-2 medium_bg rounded">
                           <div v-on:click="this.addMessage()" class="text-white cursor-pointer mr-1 font-bold">
                             [Enter]
                           </div>
@@ -3323,7 +3323,7 @@ export default {
         this.focusComment(true)
         setTimeout(() => {
           this.auto_grow()
-          document.getElementById(msg.guid).style.backgroundColor = '#192129'
+          document.getElementById(msg.guid).style.backgroundColor = '#71717A'
           const editElem = document.getElementById('edit_' + this.messageEditing.guid)
           if (editElem != null) editElem.style.display = 'flex'
         }, 0)
