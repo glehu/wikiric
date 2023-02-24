@@ -696,7 +696,7 @@ export default {
       }
       // Focus search field
       const input = document.getElementById('search-field')
-      input.focus()
+      if (input) input.focus()
       // Whose knowledge are we trying to see? Return if there is no source
       let srcGUID = this.srcguid
       let from = 'clarifier'
@@ -813,6 +813,14 @@ export default {
       if (this.querySubmission == null || this.querySubmission === '') {
         this.emptyState = true
         this.noResults = false
+        const queryObj = {}
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+          get: (searchParams, prop) => searchParams.get(prop)
+        })
+        if (params.kguid) queryObj.kguid = params.kguid
+        this.$router.replace({
+          query: queryObj
+        })
         await this.getTopContributors()
         await this.getRecentKeywords()
         await this.getRecentCategories()
@@ -1236,9 +1244,9 @@ export default {
     },
     getRecentQuestions: async function () {
       this.questions = []
-      await this.searchWisdom('type:question state:false question', true)
       return new Promise((resolve) => {
-        resolve()
+        this.searchWisdom('type:question state:false question', true)
+          .then(() => resolve())
       })
     }
   }
