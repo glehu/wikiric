@@ -687,15 +687,7 @@
               </template>
             </div>
             <!-- #### USER INPUT FIELD #### -->
-            <div class="bright_bg"
-                 style="display: inline-flex;
-                        width: 100%;
-                        min-height: 80px;
-                        position: relative;
-                        bottom: 0;
-                        padding-bottom: 20px;
-                        flex-direction: column-reverse"
-                 v-if="overlayType === 'msg'">
+            <div class="bright_bg input_section" v-if="overlayType === 'msg'">
               <button class="c_lightgray text-center scroll_to_bottom orange-hover"
                       id="scroll_to_bottom"
                       v-on:click="scrollToBottom">
@@ -4394,8 +4386,18 @@ export default {
   position: relative;
 }
 
-.new_comment {
+.input_section {
+  display: inline-flex;
+  width: 100%;
+  min-height: 80px;
   position: absolute;
+  bottom: 0;
+  padding-bottom: 20px;
+  flex-direction: column-reverse;
+}
+
+.new_comment {
+  position: relative;
   left: 10px;
   color: white;
   border-color: transparent;

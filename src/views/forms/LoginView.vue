@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[100dvh] w-full md:flex items-center justify-center overflow-x-hidden"
+  <div class="h-full w-full md:flex items-center justify-center overflow-x-hidden"
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-adrien-olichon-2387819.jpg')+')',
               backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <form class="login md:flex pt-[60px]" @submit.prevent="login">

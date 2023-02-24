@@ -319,12 +319,12 @@ export default {
     })
     const elem = document.getElementById('router_view_elem')
     if (elem) {
-      elem.style.height = Math.floor(window.innerHeight * 0.999).toString() + 'px'
+      elem.style.height = Math.floor(window.innerHeight * 1).toString() + 'px'
     }
     window.addEventListener('resize', function () {
       const elem = document.getElementById('router_view_elem')
       if (elem) {
-        elem.style.height = Math.floor(window.innerHeight * 0.999).toString() + 'px'
+        elem.style.height = Math.floor(window.innerHeight * 1).toString() + 'px'
       }
     })
   },
