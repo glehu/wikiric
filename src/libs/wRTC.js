@@ -177,7 +177,7 @@ const WRTC = {
         new RTCSessionDescription(answer)
       )
     } catch (e) {
-      console.error(e.message)
+      console.debug(e.message)
     }
     peerConnection.isAccepted = true
     this.peerConnections.set(remoteId, peerConnection)
@@ -223,7 +223,7 @@ const WRTC = {
           await peerConnection.addIceCandidate(null)
         }
       } catch (e) {
-        console.error('Error adding received ice candidate', e)
+        console.debug('Error adding received ice candidate', e)
       }
       this.peerConnections.set(remoteId, peerConnection)
     }

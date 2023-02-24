@@ -1,6 +1,6 @@
 <template>
   <div id="clarifier_chatroom_view_elem"
-       class="darkest_bg w-screen h-full absolute overflow-hidden">
+       class="darkest_bg w-full h-full absolute overflow-hidden">
     <div class="fixed top-0 left-0 w-full h-full">
       <div id="sidebar" ref="sidebar"
            class="sidebar darkest_bg darkergray-on-small h-full relative top-[60px]"
@@ -72,7 +72,7 @@
                          style="border-radius: 10px; margin-left: 1px;
                               width: 40px; height: 40px; z-index: 6"
                          v-bind:src="getImg(group.img,true)"
-                         :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
+                         :alt="getImgAlt(group.title)"/>
                   </div>
                   <span class="sb_link_text text-nowrap"
                         style="position: absolute; left: 36px;">
@@ -160,7 +160,7 @@
       </div>
       <div id="clarifier_chatroom" :ref="'clarifier_chatroom'"
            class="clarifier_chatroom flex overflow-clip mt-[60px]"
-           v-on:click="closeModals">
+           v-on:click="closeModals()">
         <template v-if="overlayType === 'msg'">
           <div id="chat_section"
                class="chat_section w-full h-full overflow-clip
@@ -184,8 +184,8 @@
                   <h2 class="font-bold text-neutral-300">
                     {{ streamDuration }}
                   </h2>
-                  <button v-on:click="stopScreenshare"
-                          class="gray-hover c_lightgray ml-6"
+                  <button v-on:click="stopScreenshare()"
+                          class="gray-hover c_lightgray ml-6 px-2 py-1"
                           style="border: 1px solid rgba(255,0,0,0.5);
                                  border-radius: 10px;">
                     <span style="font-weight: bold">Hang Up</span>
@@ -195,20 +195,20 @@
               <button class="btn-no-outline c_lightgray"
                       style="position: absolute; right: 90px"
                       title="Show Settings"
-                      v-on:click="toggleSessionSettings">
+                      v-on:click="toggleSessionSettings()">
                 <i class="sb_link_icon bi bi-wrench orange-hover" style="height: 25px; width: 25px"></i>
               </button>
               <button class="btn-no-outline c_lightgray member_section_toggler"
                       style="position: absolute; right: 50px"
                       title="Show Subchats"
-                      v-on:click="toggleSidebar2">
+                      v-on:click="toggleSidebar2()">
                 <i class="sb_link_icon bi bi-chat-square-dots orange-hover"
                    style="height: 25px; width: 25px"></i>
               </button>
               <button class="btn-no-outline c_lightgray member_section_toggler"
                       style="position: absolute; right: 10px"
                       title="Show Members"
-                      v-on:click="toggleMemberSidebar">
+                      v-on:click="toggleMemberSidebar()">
                 <i class="bi bi-people orange-hover" style="height: 25px; width: 25px"></i>
               </button>
             </div>
@@ -269,8 +269,7 @@
               <div v-if="!isStreamingVideo && (this.currentSubchat.type === 'screenshare')"
                    style="position: absolute; top: 10px; right: 10px" class="text-end">
                 <button v-on:click="startScreenshare()"
-                        class="gray-hover
-                           c_lightgray"
+                        class="gray-hover c_lightgray px-2 py-1"
                         style="position: relative;
                              margin-left: 20px; margin-top: 10px;
                              border: 1px solid #ff5d37;
@@ -281,7 +280,7 @@
                 <template v-for="user in this.members" :key="user">
                   <template v-if="user.id !== userId">
                     <button v-on:click="startScreenshare(user.id)"
-                            class="gray-hover c_lightgray"
+                            class="gray-hover c_lightgray px-2 py-1"
                             style="position: relative;
                                    margin-left: 20px; margin-top: 10px;
                                    border: 1px solid rgba(174, 174, 183, 0.25);
@@ -1668,7 +1667,7 @@ export default {
         method: 'post',
         url: 'm5/subscribe/' + uniChatroomGUID,
         body: content
-      }).catch((err) => console.error(err.message))
+      }).catch((err) => console.debug(err.message))
     },
     showMessage: async function (msg) {
       const message = await this.processRawMessage(msg)
@@ -1688,7 +1687,7 @@ export default {
               mermaid.init()
             }, 0)
           } catch (e) {
-            console.error(e.message)
+            console.debug(e.message)
           }
         } else {
           // Delete message
@@ -1754,7 +1753,7 @@ export default {
             }, 0)
           }
         } catch (e) {
-          console.error(e.message)
+          console.debug(e.message)
         }
         return
       }
@@ -1997,7 +1996,7 @@ export default {
             }, 0)
           ))
           .then(resolve)
-          .catch((err) => console.error(err.message))
+          .catch((err) => console.debug(err.message))
       })
     },
     processMetaDataResponse: async function (isSubchat = false) {
@@ -2096,8 +2095,10 @@ export default {
         method: 'get',
         url: 'm5/getmessages/' + sessionID + parameters
       })
-        .then((data) => (this.processMessagesResponse(data.result, lazyLoad)))
-        .catch((err) => console.error(err.message))
+        .then((data) => {
+          this.processMessagesResponse(data.result, lazyLoad)
+        })
+        .catch((err) => console.debug(err.message))
     },
     processMessagesResponse: async function (data, lazyLoad = false) {
       if (data.messages == null) {
@@ -2176,7 +2177,7 @@ export default {
                   videoElem.setAttribute('controls', '')
                   if (streamLocal) stream = streamLocal
                 } catch (e) {
-                  console.error(e.message)
+                  console.debug(e.message)
                 }
               }
               await this.acceptWebRTCOffer(rtcOffer, stream)
@@ -2340,7 +2341,7 @@ export default {
           message.msg = tmp.msg
           message.msgURL = tmp.url
         } catch (e) {
-          console.error('Image Message Parsing Error')
+          console.debug('Image Message Parsing Error')
         }
       } else if (message.mType === 'Reply') {
         try {
@@ -2348,7 +2349,7 @@ export default {
           message.msg = tmp.reply
           message.source = tmp.src
         } catch (e) {
-          console.error('Image Message Parsing Error')
+          console.debug('Image Message Parsing Error')
         }
       }
       message.tagActive = message.msg.includes('@' + this.$store.state.username) === true
@@ -2408,7 +2409,7 @@ export default {
             await this.encryptPayload(JSON.stringify(payload))
           )
         })
-        .catch((err) => console.error(err.message))
+        .catch((err) => console.debug(err.message))
     },
     getRandomJoke: function (text) {
       let url = 'https://api.humorapi.com/jokes/random?api-key=d47f7eca7f694765adc6389f6ce17ba9'
@@ -2436,7 +2437,7 @@ export default {
               })
           }
         })
-        .catch((err) => console.error(err.message))
+        .catch((err) => console.debug(err.message))
     },
     sendSelectedGIF: async function (url) {
       const payload = {
@@ -2456,7 +2457,7 @@ export default {
       )
         .then((res) => res.json())
         .then((data) => (this.gifSelection = data.data))
-        .catch((err) => console.error(err.message))
+        .catch((err) => console.debug(err.message))
     },
     getImgFlipSelection: function () {
       fetch(
@@ -2467,7 +2468,7 @@ export default {
       )
         .then((res) => res.json())
         .then((data) => (this.imgflipSelection = data.data.memes))
-        .catch((err) => console.error(err.message))
+        .catch((err) => console.debug(err.message))
     },
     submitImgflipMeme: function (boxes = []) {
       const url = 'https://api.imgflip.com/caption_image'
@@ -2537,7 +2538,7 @@ export default {
           textTwo.value = ''
           this.focusComment()
         })
-        .catch((err) => console.error(err.message))
+        .catch((err) => console.debug(err.message))
     },
     handleImgflipSubmissionResponse: async function (response) {
       if (response.success !== true) {
@@ -2662,7 +2663,7 @@ export default {
       })
         .then(() => this.hideUserProfile())
         .then(() => this.getClarifierMetaData(this.getSession(), false, true))
-        .catch((err) => console.error(err.message))
+        .catch((err) => console.debug(err.message))
     },
     hideUserProfile: function () {
       this.isViewingUserProfile = false
@@ -3090,6 +3091,13 @@ export default {
         return ret
       }
     },
+    getImgAlt: function (title) {
+      if (!title || title === '') {
+        return '?'
+      } else {
+        return title.substring(0, 1)
+      }
+    },
     getBase64: function (file) {
       return new Promise(function (resolve, reject) {
         const reader = new FileReader()
@@ -3115,7 +3123,7 @@ export default {
         body: content
       })
         .then(() => (updateFun()))
-        .catch((err) => console.error(err.message))
+        .catch((err) => console.debug(err.message))
         .finally(() => (disableLoadingFun()))
     },
     toggleElement: function (id, display = 'block') {
@@ -3173,7 +3181,7 @@ export default {
         .then((data) => (response = data.result))
         .then(() => this.getClarifierMetaData(mainSessionGUID, false, true))
         .then(() => this.gotoSubchat(response.guid))
-        .catch((err) => console.error(err.message))
+        .catch((err) => console.debug(err.message))
     },
     gotoSubchat: async function (subchatGUID, subchatMode = true) {
       if (subchatGUID == null) {
@@ -3247,7 +3255,7 @@ export default {
     },
     handleUploadSnippetError: function (errorMessage = '') {
       this.toggleElement('confirm_snippet_loading', 'flex')
-      console.error(errorMessage)
+      console.debug(errorMessage)
       this.$notify(
         {
           title: 'File Not Uploaded',
@@ -3421,7 +3429,7 @@ export default {
             }
           })
           .then(resolve)
-          .catch((err) => console.error(err.message))
+          .catch((err) => console.debug(err.message))
       })
     },
     arrayBufferToString: function (buf) {
@@ -3630,7 +3638,7 @@ export default {
         this.streamStartTime = Math.floor(Date.now() / 1000)
         this.startTimeCounter()
       } catch (err) {
-        console.error('Error: ' + err)
+        console.debug('Error: ' + err)
       }
     },
     stopScreenshare: function () {
@@ -3659,7 +3667,7 @@ export default {
       chat.style.position = 'fixed'
       chat.style.top = '0px'
       chat.style.left = '0'
-      chat.style.height = '100dvh'
+      chat.style.height = '100%'
       chat.style.zIndex = '9999'
       const sidebar = document.getElementById('sidebar')
       sidebar.style.display = 'none'
@@ -3767,8 +3775,9 @@ export default {
       let pos2 = 0
       let pos3 = 0
       let pos4 = 0
-      if (document.getElementById(element.id + '_anchor')) {
-        document.getElementById(element.id + '_anchor').onmousedown = dragMouseDown
+      const elem = document.getElementById(element.id + '_anchor')
+      if (elem) {
+        elem.onmousedown = dragMouseDown
       } else {
         element.onmousedown = dragMouseDown
       }
@@ -3911,7 +3920,7 @@ export default {
       })
         .then(() => this.getClarifierMetaData(this.getSession(), false, true))
         .then(() => this.markActiveSubchat())
-        .catch((err) => console.error(err.message))
+        .catch((err) => console.debug(err.message))
     },
     distributeBadges: function () {
       this.$Worker.execute({
@@ -3921,7 +3930,7 @@ export default {
       })
         .then(() => this.getClarifierMetaData(this.getSession(), false, true))
         .then(() => this.markActiveSubchat())
-        .catch((err) => console.error(err.message))
+        .catch((err) => console.debug(err.message))
     },
     getBadges: function (username) {
       this.$Worker.execute({
@@ -3930,7 +3939,7 @@ export default {
         url: 'm2/badges/get/' + username
       })
         .then((data) => (this.setUserBadges(data.result)))
-        .catch((err) => console.error(err.message))
+        .catch((err) => console.debug(err.message))
     },
     setUserBadges: function (response) {
       this.viewedUserProfile.badges = []
@@ -4158,7 +4167,7 @@ export default {
           })
         })
         .catch((err) => {
-          console.error(err.message)
+          console.debug(err.message)
           if (foundDirect) return
           // Create new one
           this.$Worker.execute({
@@ -4394,7 +4403,7 @@ export default {
   resize: none;
   overflow-x: hidden;
   overflow-y: auto;
-  @apply h-[40px] min-h-[40px] max-h-[calc(100dvh-150px)] w-[calc(100%-100px)];
+  @apply h-[40px] min-h-[40px] max-h-[calc(100%-150px)] w-[calc(100%-100px)];
 }
 
 .new_comment:focus {

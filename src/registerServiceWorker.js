@@ -26,7 +26,7 @@ if (process.env.NODE_ENV === 'production') {
       console.log('No internet connection found. App is running in offline mode.')
     },
     error (error) {
-      console.error('Error during Service Worker registration:', error)
+      console.debug('Error during Service Worker registration:', error)
     }
   })
   register(`${process.env.BASE_URL}service-worker.js`, {
@@ -52,7 +52,7 @@ if (process.env.NODE_ENV === 'production') {
       console.log('No internet connection found. App is running in offline mode.')
     },
     error (error) {
-      console.error('Error during Service Worker registration:', error)
+      console.debug('Error during Service Worker registration:', error)
     }
   })
 }

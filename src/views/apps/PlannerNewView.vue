@@ -1,7 +1,7 @@
 <template>
-  <div class="flex w-screen h-screen pt-[60px]">
+  <div class="flex w-full h-full pt-[60px]">
     <div id="sidebar"
-         class="active h-full p_sidebar_left bright_bg border-r border-zinc-600 relative">
+         class="active h-[calc(100dvh-60px)] p_sidebar_left bright_bg border-r border-zinc-600 relative">
       <div class="w-full h-[calc(100%-20px)] relative">
         <div class="grid grid-cols-2 m-2 h-[42px]">
           <div class="flex items-center cursor-pointer hover:darkest_bg hover:bg-opacity-50 p-2 rounded-md"
@@ -468,42 +468,43 @@
       </template>
       <template v-else>
         <div id="list"
-             class="h-full w-full pb-2 pl-2 pr-3 overflow-y-auto fixed translate-y-[60px]">
+             class="h-full w-full pb-2 pl-2 pr-4 overflow-y-auto fixed translate-y-[60px]">
           <template v-if="boxes.length > 0">
             <table class="w-full table-auto darkest_bg"
                    style="margin-bottom: 312px !important">
               <thead>
-              <tr class="text-neutral-300 text-lg border-b-[1px] border-b-zinc-600 text-left">
+              <tr class="text-neutral-300 text-left">
                 <th class="p-2">State</th>
                 <th class="p-2">Title</th>
                 <th class="p-2">Description</th>
                 <th class="p-2">Categories</th>
                 <th class="p-2">Due&nbsp;Date</th>
                 <th class="p-2">Collaborators</th>
-                <th class="p-2">Author</th>
+                <th class="p-2 pr-4">Author</th>
               </tr>
               </thead>
               <tbody class="divide-y divide-zinc-500">
               <template v-for="box in boxes" :key="box.box.uID">
                 <tr class="text-neutral-300 z-10 list_boxcontainer my-1"
                     :ref="'list_box_' + box.box.uID" :id="'list_box_' + box.box.uID">
-                  <td class="px-2 py-4 sticky top-0 darkest_bg border-y-[1px] border-y-zinc-400"></td>
-                  <td class="px-2 py-4 sticky top-0 darkest_bg border-y-[1px] border-y-zinc-400"></td>
-                  <td class="px-2 py-4 sticky top-0 darkest_bg border-y-[1px] border-y-zinc-400 font-bold text-2xl">
-                    {{ box.box.t }}
+                  <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
+                  <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
+                  <td class="px-2 py-4 sticky top-0 darkest_bg">
+                    <div class="font-bold text-2xl flex items-center justify-between">
+                      <p>{{ box.box.t }}</p>
+                      <template v-if="box.tasks">
+                        <div class="font-bold flex items-center cursor-default ml-4"
+                             :title="'Tasks: ' + box.tasks.length">
+                          <InboxIcon class="h-5 w-5 mr-2"></InboxIcon>
+                          <p>{{ box.tasks.length }}</p>
+                        </div>
+                      </template>
+                    </div>
                   </td>
-                  <td class="px-2 py-4 sticky top-0 darkest_bg border-y-[1px] border-y-zinc-400">
-                    <template v-if="box.tasks">
-                      <div class="font-bold flex items-center cursor-default w-full justify-end"
-                           :title="'Tasks: ' + box.tasks.length">
-                        <InboxIcon class="h-5 w-5 mr-2"></InboxIcon>
-                        <p>{{ box.tasks.length }}</p>
-                      </div>
-                    </template>
-                  </td>
-                  <td class="px-2 py-4 sticky top-0 darkest_bg border-y-[1px] border-y-zinc-400"></td>
-                  <td class="px-2 py-4 sticky top-0 darkest_bg border-y-[1px] border-y-zinc-400"></td>
-                  <td class="px-2 py-4 sticky top-0 darkest_bg border-y-[1px] border-y-zinc-400"></td>
+                  <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
+                  <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
+                  <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
+                  <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
                 </tr>
                 <template v-if="box.tasks">
                   <tr v-for="task in box.tasks" :key="task.task.uID"
@@ -1164,6 +1165,7 @@ export default {
         categories: []
       },
       inputComment: null,
+      isWritingComment: false,
       isShowingTask: false,
       isShowingTaskHistory: false,
       isSharingTask: false,
@@ -1289,7 +1291,7 @@ export default {
             resolve()
           })
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
             this.knowledgeExists = false
           })
       })
@@ -1340,7 +1342,7 @@ export default {
             resolve()
           })
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },
@@ -1354,6 +1356,7 @@ export default {
     },
     newTaskKeyUp: async function (box, id = '') {
       const ev = event
+      if (ev.repeat) return
       if (ev.key === 'Enter') {
         if (ev.shiftKey) return
         if (this.newTask.name.trim() !== '') {
@@ -1398,7 +1401,7 @@ export default {
           })
           .then(() => resolve)
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
             this.noResults = true
           })
       })
@@ -1486,7 +1489,7 @@ export default {
           })
           .then(() => resolve())
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
             this.noResults = true
           })
       })
@@ -1542,7 +1545,7 @@ export default {
                 text: 'Maybe you aren\'t the owner or a collaborator of this task?',
                 type: 'error'
               })
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },
@@ -1581,7 +1584,7 @@ export default {
           tTask.dueDateFormatted = lDT.toISODate()
           tTask.dueTimeFormatted = lDT.toLocaleString(DateTime.TIME_24_WITH_SECONDS)
         } catch (e) {
-          console.error(e.message)
+          console.debug(e.message)
           tTask.dueDateFormatted = ''
           tTask.dueTimeFormatted = ''
         }
@@ -1614,12 +1617,13 @@ export default {
             resolve()
           })
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },
     handleEnter: async function () {
       const ev = event
+      if (ev.repeat) return
       if (ev.key === 'Enter') {
         if (ev.shiftKey) return
         ev.preventDefault()
@@ -1631,7 +1635,10 @@ export default {
       }
     },
     submitComment: async function () {
-      await this.postComment()
+      if (!this.isWritingComment) {
+        this.isWritingComment = true
+        await this.postComment()
+      }
     },
     postComment: async function () {
       if (this.showingTaskComment.trim() === '') return
@@ -1659,7 +1666,10 @@ export default {
           })
           .then(() => resolve())
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
+          })
+          .finally(() => {
+            this.isWritingComment = false
           })
       })
     },
@@ -1890,7 +1900,7 @@ export default {
           })
           .then(() => resolve())
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },
@@ -1966,7 +1976,7 @@ export default {
           })
           .then(() => resolve())
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },
@@ -2077,7 +2087,7 @@ export default {
             }
           })
           .then(resolve())
-          .catch((err) => console.error(err.message))
+          .catch((err) => console.debug(err.message))
       })
     },
     shareTask: async function () {
@@ -2106,7 +2116,7 @@ export default {
           })
           .then(() => resolve)
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },
@@ -2206,7 +2216,7 @@ export default {
           ))
           .then(() => resolve)
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },
@@ -2374,7 +2384,8 @@ export default {
 
 .p_task {
   @apply mb-1 mx-1 w-[calc(100%-0.5rem)] medium_bg rounded
-  flex items-center relative cursor-pointer;
+  flex items-center relative cursor-pointer
+  border-2 border-zinc-500 border-opacity-75;
 }
 
 #board {

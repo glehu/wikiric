@@ -26,7 +26,7 @@
     </section>
   </div>
   <section id="itemsSection"
-           class="min-h-[100dvh]"
+           class="h-full"
            :style="{ backgroundImage: bg }">
     <div class="container">
       <div style="height: 80px"></div>

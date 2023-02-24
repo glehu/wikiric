@@ -2,7 +2,7 @@
   <div class="pb-2">
     <template v-if="showingTask">
       <div class="w-full sm:w-[412px] medium_bg p-2 rounded">
-        <div class="w-full darkest_bg p-2 rounded">
+        <div class="w-full dark_bg p-2 rounded">
           <template v-if="showingTask.categories">
             <div class="flex mb-2 items-center">
               <template v-for="cat in showingTask.categories" :key="cat">
@@ -41,7 +41,7 @@
           </div>
         </div>
       </div>
-      <div class="mt-2 text-neutral-300">
+      <div class="m-2 text-neutral-300">
         <button v-on:click="this.$router.push('/apps/knowledge/' + showingTask.guid)"
                 class="py-2 px-3 rounded dark_bg hover:darkest_bg">
           <span class="font-bold text-sm mr-1">Open</span>
@@ -119,7 +119,7 @@ export default {
             resolve()
           })
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },

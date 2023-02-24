@@ -52,16 +52,15 @@
               </div>
             </div>
           </div>
-          <div v-if="wisdom.copyContent != null"
-               class="sidebar_button rounded-xl">
+          <template v-if="wisdom.copyContent && wisdom.copyContent !== ''">
             <div v-on:click="copy(wisdom.copyContent)"
                  v-tooltip.right="{
                        content: 'QuickCopy'
                      }"
-                 class="cursor-pointer hover:text-neutral-200 p-2 my-2">
+                 class="cursor-pointer hover:text-neutral-200 p-2 my-2 sidebar_button rounded-xl">
               <ClipboardIcon class="h-6 w-6"></ClipboardIcon>
             </div>
-          </div>
+          </template>
         </div>
       </div>
       <div id="main" class="h-full w-full flex justify-center overflow-y-auto pb-10 overflow-x-hidden mr-2 pr-1">
@@ -155,8 +154,8 @@
             </div>
           </div>
           <div class="xl:hidden dark_bg p-2 mb-2 w-fit rounded-md">
-            <p class="m-0">{{ wisdom.author }}</p>
-            <p class="m-0 text-sm">
+            <p class="m-0 text-neutral-200">{{ wisdom.author }}</p>
+            <p class="m-0 text-sm text-neutral-300">
               {{ getHumanReadableDateText(wisdom.cdate, true, true) }}
             </p>
           </div>
@@ -172,10 +171,11 @@
                v-on:click="gotoComments()"
                class="flex w-full items-center cursor-pointer my-2">
             <p
-              class="px-1 py-0.5 border-2 border-emerald-700 text-emerald-500 font-bold rounded-md w-fit">
+              class="px-1 py-0.5 border-2 border-emerald-600 text-neutral-200 bg-emerald-900
+                     font-bold rounded-md w-fit">
               Answered
             </p>
-            <div class="text-neutral-400 ml-2 text-sm">(Click to see the answer)</div>
+            <div class="text-neutral-400 ml-2 text-xs">(Click to scroll to the answer)</div>
           </div>
           <div class="medium_bg p-2 rounded">
             <div class="flex">
@@ -335,12 +335,12 @@
               </template>
               <template v-else>
                 <div class="flex items-center mt-2 pt-2 mb-2 pointer-events-none">
-                  <p class="text-emerald-500 text-xl font-bold">
+                  <p class="text-neutral-300 text-xl font-bold">
                     Answer:
                   </p>
                 </div>
                 <div v-for="comment in related.answers" :key="comment.uID"
-                     class="border-l-4 border-l-emerald-600 pl-4">
+                     class="border-l-8 border-l-emerald-600 pl-4">
                   <div class="mb-2 w-full dark_bg rounded-r-xl rounded-l-lg border-b-2
                             border-r-2 border-b-zinc-600 border-r-zinc-600 comment">
                     <div v-if="comment.reacts" class="px-2 pt-2 flex">
@@ -482,7 +482,7 @@
                   v-if="wisdom.type === 'question' && wisdom.finished !== true && wisdom.author === this.$store.state.username">
                   <div class="mb-4 mt-1 w-full flex">
                     <button v-on:click="finishQuestion(wisdom, comment)"
-                            class="text-emerald-700 hover:text-black border-2 border-emerald-700 hover:bg-emerald-700
+                            class="text-emerald-500 hover:text-black border-2 border-emerald-500 hover:bg-emerald-700
                                    rounded-lg px-1 py-0.5 font-bold ml-auto transition-colors">
                       Mark as Answer
                     </button>
@@ -540,7 +540,7 @@
           <label for="wisTitle" class="text-xl font-bold">Title:</label>
           <br>
           <input type="text" id="wisTitle" v-model="wisTitle"
-                 class="darkest_bg rounded-md w-full py-2 px-3">
+                 class="medium_bg rounded-md w-full py-2 px-3 text-neutral-200">
           <br>
           <div class="block lg:flex w-full">
             <div class="lg:w-1/2">
@@ -549,7 +549,7 @@
               <Listbox v-model="wisCategories" multiple id="wisCategories">
                 <div class="relative mt-1">
                   <ListboxButton
-                    class="darkest_bg w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                    class="medium_bg w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
                   >
                     <template v-if="wisCategories.length > 0">
                       <div class="block truncate font-bold text-neutral-300">
@@ -601,14 +601,14 @@
               <label for="wisKeywords" class="text-xl mt-2 font-bold">Keywords:</label>
               <br>
               <input type="text" id="wisKeywords" v-model="wisKeywords"
-                     class="darkest_bg rounded-md py-2 px-3 w-full">
+                     class="medium_bg rounded-md py-2 px-3 w-full text-neutral-200">
             </div>
           </div>
           <label for="wisDescription" class="text-xl mt-2 font-bold">Description:</label>
           <br>
           <div class="rounded-md w-full overflow-hidden">
             <textarea type="text" id="wisDescription" v-model="wisDescription"
-                      rows="20" class="w-full darkest_bg py-2 px-3"></textarea>
+                      rows="20" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
           </div>
           <br>
           <div class="block md:hidden flex mt-2 w-full">
@@ -629,12 +629,12 @@
           <br>
           <div class="rounded-md w-full overflow-hidden">
             <textarea type="text" id="wisCopyContent" v-model="wisCopyContent"
-                      rows="5" class="w-full darkest_bg py-2 px-3"></textarea>
+                      rows="5" class="w-full medium_bg py-2 px-3"></textarea>
           </div>
         </div>
         <div class="hidden md:block w-1/2">
           <p class="text-xl font-bold pointer-events-none">Preview:</p>
-          <div class="darkest_bg rounded-md p-2 cursor-not-allowed">
+          <div class="medium_bg rounded-md p-2 cursor-not-allowed">
             <Markdown :source="'# ' + wisTitle" class="w-full markedView" :plugins="plugins"></Markdown>
             <Markdown :source="wisDescription" class="w-full mt-4 markedView" :plugins="plugins"></Markdown>
           </div>
@@ -857,7 +857,7 @@ export default {
             resolve()
           })
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },
@@ -910,7 +910,7 @@ export default {
             resolve()
           })
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },
@@ -938,7 +938,7 @@ export default {
           })
           .then(() => resolve)
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },
@@ -992,7 +992,7 @@ export default {
           })
           .then(() => resolve)
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },
@@ -1022,7 +1022,7 @@ export default {
                 text: 'Maybe you aren\'t the owner of the Wisdom.',
                 type: 'error'
               })
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },
@@ -1066,7 +1066,7 @@ export default {
             resolve()
           })
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
             this.knowledgeExists = false
           })
       })
@@ -1097,9 +1097,8 @@ export default {
     },
     submitComment: function () {
       if (!this.isWritingComment) {
+        this.isWritingComment = true
         this.postComment(this.wisComment)
-      } else {
-        this.postComment(this.wisDescription, this.wisTitle)
       }
     },
     postComment: async function (comment, title = '') {
@@ -1139,7 +1138,10 @@ export default {
           })
           .then(() => resolve())
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
+          })
+          .finally(() => {
+            this.isWritingComment = false
           })
       })
     },
@@ -1239,7 +1241,7 @@ export default {
           })
           .then(() => resolve())
           .catch((err) => {
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },
@@ -1323,7 +1325,7 @@ export default {
                 text: 'Maybe you aren\'t the owner or a collaborator of this question?',
                 type: 'error'
               })
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     },

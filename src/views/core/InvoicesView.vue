@@ -12,7 +12,7 @@
       </div>
     </section>
     <div v-show="!emptyInvoices" id="invoicesSection"
-         class="min-h-[100dvh]"
+         class="h-full"
          :style="{ backgroundImage: bg }">
       <section>
         <div class="mt-4" style="min-height: 3vh"></div>

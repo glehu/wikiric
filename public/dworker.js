@@ -108,6 +108,7 @@ onmessage = function (e) {
   } else if (msg.action.substring(0, 3) === 'api') {
     if (!msg.url || !msg.method || (msg.action !== 'api-http' && !_t)) {
       e.ports[0].postMessage({
+        error: new Error('invalid request or unauthorized'),
         success: false,
         errorMessage: 'invalid request or unauthorized'
       })
@@ -137,20 +138,32 @@ onmessage = function (e) {
       _endpoint + prefix + msg.url,
       config
     )
-      .then((res) => {
-        res.json()
-          .then((data) => {
-            e.ports[0].postMessage({
-              success: true,
-              result: data
-            })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Failed API request (or no response)')
+        }
+        res.text()
+          .then(text => {
+            try {
+              const data = JSON.parse(text)
+              e.ports[0].postMessage({
+                success: true,
+                result: data
+              })
+            } catch (err) {
+              e.ports[0].postMessage({
+                success: true,
+                result: text
+              })
+            }
           })
-          .catch((err) => {
-            e.ports[0].postMessage({
-              success: false,
-              errorMessage: err.message
-            })
-          })
+      })
+      .catch((err) => {
+        e.ports[0].postMessage({
+          error: new Error(err.message),
+          success: false,
+          errorMessage: err.message
+        })
       })
   } else if (msg.action === 'wss_auth') {
     e.ports[0].postMessage({

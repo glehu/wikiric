@@ -1,186 +1,188 @@
-<template class="w-screen overflow-hidden">
-  <div class="flex w-full min-h-[750px] h-screen items-center justify-center"
-       :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
+<template>
+  <div class="h-full w-full overflow-x-hidden overflow-y-scroll">
+    <div class="flex min-h-[750px] h-[100dvh] items-center justify-center"
+         :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div
-      class="text-neutral-200 w-full h-full flex pt-[60px] py-8 overflow-x-hidden">
-      <div class="w-full h-full relative p-8">
-        <div class="w-full"><!-- Demo Wrapper -->
-          <div
-            class="w-full h-full items-center justify-center flex pl-4 py-4 border-l-[4px] rounded-r-md
+      <div
+        class="text-neutral-200 w-full h-full flex pt-[60px] py-8 overflow-x-hidden">
+        <div class="w-full h-full relative p-8">
+          <div class="w-full"><!-- Demo Wrapper -->
+            <div
+              class="w-full h-full items-center justify-center flex pl-4 py-4 border-l-[4px] rounded-r-md
                           border-dotted border-l-fuchsia-500 backdrop-blur-xl">
-            <div style="pointer-events: inherit"
-                 class="rounded-2xl w-full h-full">
-              <p
-                class="text-neutral-200 text-5xl font-bold md:text-7xl xl:text-8xl w-fit pointer-events-none">
-                <span class="text-fuchsia-500">Web3</span> <span class="">Collaboration</span>
-              </p>
-              <p
-                class="text-neutral-200 font-bold mb-4 py-2 text-2xl md:text-4xl w-fit pointer-events-none">
-                Powered by wikiric and {{ userCount }} others.
-              </p>
-              <p class="text-neutral-200 font-bold text-2xl w-full pointer-events-none">
-                A secure and responsive environment
-                for communities, projects and ideas.
-                <br>Bridging the gap between Web2 and Web3.
-              </p>
+              <div style="pointer-events: inherit"
+                   class="rounded-2xl w-full h-full">
+                <p
+                  class="text-neutral-200 text-5xl font-bold md:text-7xl xl:text-8xl w-fit pointer-events-none">
+                  <span class="text-fuchsia-500">Web3</span> <span class="">Collaboration</span>
+                </p>
+                <p
+                  class="text-neutral-200 font-bold mb-4 py-2 text-2xl md:text-4xl w-fit pointer-events-none">
+                  Powered by wikiric and {{ userCount }} others.
+                </p>
+                <p class="text-neutral-200 font-bold text-2xl w-full pointer-events-none">
+                  A secure and responsive environment
+                  for communities, projects and ideas.
+                  <br>Bridging the gap between Web2 and Web3.
+                </p>
+              </div>
+            </div>
+          </div><!-- Demo Wrapper End -->
+          <div class="relative mt-12">
+            <div class="flex w-full justify-center md:justify-start">
+              <div class="relative grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-center w-full md:w-fit">
+                <button
+                  class="muArrow font-bold rounded text-xl text-start text-black px-4 py-3 bg-fuchsia-500"
+                  v-on:click="gotoClarifier()">
+                  Join the
+                  <br><span class="text-2xl md:text-3xl text-black">Communities</span>
+                </button>
+                <button
+                  class="muArrow font-bold rounded text-xl text-start text-neutral-300 px-4 py-3 border-2 border-neutral-300 backdrop-blur"
+                  v-on:click="gotoKnowledgeFinder()">
+                  Browse the
+                  <br><span class="text-2xl md:text-3xl">Knowledge</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div><!-- Demo Wrapper End -->
-        <div class="relative mt-12">
-          <div class="flex w-full justify-center md:justify-start">
-            <div class="relative grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-center w-full md:w-fit">
-              <button
-                class="muArrow font-bold rounded text-xl text-start text-black px-4 py-3 bg-fuchsia-500"
-                v-on:click="gotoClarifier()">
-                Join the
-                <br><span class="text-2xl md:text-3xl text-black">Communities</span>
-              </button>
-              <button
-                class="muArrow font-bold rounded text-xl text-start text-neutral-300 px-4 py-3 border-2 border-neutral-300 backdrop-blur"
-                v-on:click="gotoKnowledgeFinder()">
-                Browse the
-                <br><span class="text-2xl md:text-3xl">Knowledge</span>
-              </button>
+          <template class="hidden md:block">
+            <div
+              class="absolute bottom-0 left-0 p-4 ml-4">
+              <div class="text-center cursor-pointer hover:darkest_bg p-4 rounded-full text-neutral-300"
+                   v-on:click="scrollTo('firstSection')">
+                <p class="font-bold">Explore</p>
+                <i class="bi bi-arrow-down text-2xl"></i>
+              </div>
             </div>
-          </div>
+          </template>
+          <template class="hidden md:block">
+            <div
+              class="absolute bottom-0 right-0 p-4 mr-8 mb-8 border-b-[4px] border-r-[4px] border-dotted border-b-fuchsia-500 border-r-fuchsia-500">
+              <div class="text-center text-neutral-300">
+                <p class="font-bold text-4xl pointer-events-none">wikiric</p>
+              </div>
+            </div>
+          </template>
         </div>
-        <template class="hidden md:block">
-          <div
-            class="absolute bottom-0 left-0 p-4 ml-4">
-            <div class="text-center cursor-pointer hover:darkest_bg p-4 rounded-full text-neutral-300"
-                 v-on:click="scrollTo('firstSection')">
-              <p class="font-bold">Explore</p>
-              <i class="bi bi-arrow-down text-2xl"></i>
-            </div>
-          </div>
-        </template>
-        <template class="hidden md:block">
-          <div
-            class="absolute bottom-0 right-0 p-4 mr-8 mb-8 border-b-[4px] border-r-[4px] border-dotted border-b-fuchsia-500 border-r-fuchsia-500">
-            <div class="text-center text-neutral-300">
-              <p class="font-bold text-4xl pointer-events-none">wikiric</p>
-            </div>
-          </div>
-        </template>
       </div>
     </div>
-  </div>
-  <div id="firstSection"
-       style="color: white; width: 100%;
+    <div id="firstSection"
+         style="color: white; width: 100%;
               display: flex; padding: 20px 5vw 20px 5vw;
               border-bottom: 4px dotted #192129"
-       class="b_darkergray">
-    <div style="width: 100%" class="wrapper mt-[60px]"><!-- Demo Wrapper -->
-      <div style="width: 100%; display: flex; justify-content: center">
-        <img src='@/assets/clarifier/clarifier_e2e_demo.png' alt=""
-             style="width: 80%; border-radius: 10px; background-color: #101010">
-      </div>
-      <div style="width: 100%; display: flex; align-items: center; justify-content: center">
-        <p class="demotext c_lightgray">
-          You don't trust anonymous strangers? Good.
-          <br>Each Message is End-to-End encrypted for your privacy.
-          <br>
-          <br>Look for the shield icon (<i class="bi bi-shield-lock"></i>) to make sure nobody can sniff around.
-          <br>
-          <br>
-          <i class="bi bi-box lead p-1"></i>
-          <span class="lead">
+         class="b_darkergray">
+      <div style="width: 100%" class="wrapper mt-[60px]"><!-- Demo Wrapper -->
+        <div style="width: 100%; display: flex; justify-content: center">
+          <img src='@/assets/clarifier/clarifier_e2e_demo.png' alt=""
+               style="width: 80%; border-radius: 10px; background-color: #101010">
+        </div>
+        <div style="width: 100%; display: flex; align-items: center; justify-content: center">
+          <p class="demotext c_lightgray">
+            You don't trust anonymous strangers? Good.
+            <br>Each Message is End-to-End encrypted for your privacy.
+            <br>
+            <br>Look for the shield icon (<i class="bi bi-shield-lock"></i>) to make sure nobody can sniff around.
+            <br>
+            <br>
+            <i class="bi bi-box lead p-1"></i>
+            <span class="lead">
             Contain and protect.
           </span>
-        </p>
-      </div>
-    </div><!-- Demo Wrapper End -->
-  </div>
-  <div style="color: white; width: 100%;
+          </p>
+        </div>
+      </div><!-- Demo Wrapper End -->
+    </div>
+    <div style="color: white; width: 100%;
               display: flex; padding: 20px 5vw 20px 5vw;
               border-bottom: 4px dotted #192129;"
-       class="b_darkergray">
-    <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
-      <div style="width: 100%; display: flex; align-items: center; justify-content: center">
-        <p class="demotext c_lightgray">
-          Create as many Subchats as you need. For any purpose imaginable.
-          <br>With just a few clicks you can easily set up your Group to fit your needs.
-          <br>
-          <br>
-          <i class="bi bi-boxes lead p-1"></i>
-          <span class="lead">
+         class="b_darkergray">
+      <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
+        <div style="width: 100%; display: flex; align-items: center; justify-content: center">
+          <p class="demotext c_lightgray">
+            Create as many Subchats as you need. For any purpose imaginable.
+            <br>With just a few clicks you can easily set up your Group to fit your needs.
+            <br>
+            <br>
+            <i class="bi bi-boxes lead p-1"></i>
+            <span class="lead">
             Keeping things organized, efficiently.
           </span>
-        </p>
-      </div>
-      <div style="width: 100%; display: flex; justify-content: center">
-        <img src='@/assets/clarifier/clarifier_subchat_demo.png' alt=""
-             style="width: 80%; border-radius: 10px; background-color: #101010">
-      </div>
-    </div><!-- Demo Wrapper End -->
-  </div>
-  <div style="color: white; width: 100%;
+          </p>
+        </div>
+        <div style="width: 100%; display: flex; justify-content: center">
+          <img src='@/assets/clarifier/clarifier_subchat_demo.png' alt=""
+               style="width: 80%; border-radius: 10px; background-color: #101010">
+        </div>
+      </div><!-- Demo Wrapper End -->
+    </div>
+    <div style="color: white; width: 100%;
               display: flex; padding: 20px 5vw 20px 5vw;
               border-bottom: 4px dotted #192129;"
-       class="b_darkergray">
-    <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
-      <div style="width: 100%; display: flex; justify-content: center">
-        <img src='@/assets/clarifier/clarifier_member_demo.png' alt=""
-             style="width: 80%; border-radius: 10px; background-color: #101010">
-      </div>
-      <div style="width: 100%; display: flex; align-items: center; justify-content: center">
-        <p class="demotext c_lightgray">
-          Manage your Group's members and add roles to categorize them!
-          <br>Invite new people by clicking on the invite button
-          and sending them the link.
-          <br>
-          <br>
-          <i class="bi bi-people lead p-1"></i>
-          <span class="lead">
+         class="b_darkergray">
+      <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
+        <div style="width: 100%; display: flex; justify-content: center">
+          <img src='@/assets/clarifier/clarifier_member_demo.png' alt=""
+               style="width: 80%; border-radius: 10px; background-color: #101010">
+        </div>
+        <div style="width: 100%; display: flex; align-items: center; justify-content: center">
+          <p class="demotext c_lightgray">
+            Manage your Group's members and add roles to categorize them!
+            <br>Invite new people by clicking on the invite button
+            and sending them the link.
+            <br>
+            <br>
+            <i class="bi bi-people lead p-1"></i>
+            <span class="lead">
             Gather your friends or (business) partners.
           </span>
-        </p>
-      </div>
-    </div><!-- Demo Wrapper End -->
-  </div>
-  <div style="color: white; width: 100%;
+          </p>
+        </div>
+      </div><!-- Demo Wrapper End -->
+    </div>
+    <div style="color: white; width: 100%;
               display: flex; padding: 20px 5vw 20px 5vw;
               border-bottom: 4px dotted #192129;"
-       class="b_darkergray">
-    <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
-      <div style="width: 100%; display: flex; align-items: center; justify-content: center">
-        <p class="demotext c_lightgray">
-          Don't worry, you can send your memes here, too. We got you covered.
-          <br>
-          <br>
-          <i class="bi bi-file-arrow-up lead p-1"></i>
-          <span class="lead">
+         class="b_darkergray">
+      <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
+        <div style="width: 100%; display: flex; align-items: center; justify-content: center">
+          <p class="demotext c_lightgray">
+            Don't worry, you can send your memes here, too. We got you covered.
+            <br>
+            <br>
+            <i class="bi bi-file-arrow-up lead p-1"></i>
+            <span class="lead">
             Share images and audio files drag'n'drop style.
           </span>
-        </p>
-      </div>
-      <div style="width: 100%; display: flex; justify-content: center">
-        <img src='@/assets/clarifier/clarifier_file_demo.png' alt=""
-             style="width: 75%; border-radius: 10px; background-color: #101010">
-      </div>
-    </div><!-- Demo Wrapper End -->
-  </div>
-  <div style="color: white; width: 100%;
+          </p>
+        </div>
+        <div style="width: 100%; display: flex; justify-content: center">
+          <img src='@/assets/clarifier/clarifier_file_demo.png' alt=""
+               style="width: 75%; border-radius: 10px; background-color: #101010">
+        </div>
+      </div><!-- Demo Wrapper End -->
+    </div>
+    <div style="color: white; width: 100%;
               display: flex; padding: 20px 5vw 20px 5vw"
-       class="b_darkergray">
-    <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
-      <div style="width: 100%; display: flex; justify-content: center">
-        <img src='@/assets/clarifier/clarifier_gif_demo.png' alt=""
-             style="width: 75%; border-radius: 10px; background-color: #101010">
-      </div>
-      <div style="width: 100%; display: flex; align-items: center; justify-content: center">
-        <p class="demotext c_lightgray">
-          GIFs. GIFs for everybody.
-          <br>
-          <br>
-          <i class="bi bi-camera-video lead p-1"></i>
-          <span class="lead">
+         class="b_darkergray">
+      <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
+        <div style="width: 100%; display: flex; justify-content: center">
+          <img src='@/assets/clarifier/clarifier_gif_demo.png' alt=""
+               style="width: 75%; border-radius: 10px; background-color: #101010">
+        </div>
+        <div style="width: 100%; display: flex; align-items: center; justify-content: center">
+          <p class="demotext c_lightgray">
+            GIFs. GIFs for everybody.
+            <br>
+            <br>
+            <i class="bi bi-camera-video lead p-1"></i>
+            <span class="lead">
             Reaction GIFs and way more, powered by GIPHY.
           </span>
-        </p>
-      </div>
-    </div><!-- Demo Wrapper End -->
+          </p>
+        </div>
+      </div><!-- Demo Wrapper End -->
+    </div>
   </div>
 </template>
 
@@ -213,13 +215,12 @@ export default {
           url: 'm2/count'
         })
           .then((data) => {
-            console.log(data.result)
             if (data.success) this.userCount = data.result
             resolve()
           })
           .catch((err) => {
             if (err.message) return
-            console.error(err.message)
+            console.debug(err.message)
           })
       })
     }

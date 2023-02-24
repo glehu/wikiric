@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen w-screen md:flex items-center justify-center overflow-x-hidden">
+  <div class="h-[100dvh] w-full md:flex items-center justify-center overflow-x-hidden">
     <form class="register md:flex pt-[60]"
           @submit.prevent="register">
       <template v-if="metamask.account === '' && phantom.account === ''">

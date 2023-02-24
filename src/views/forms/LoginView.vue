@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen w-screen md:flex items-center justify-center overflow-x-hidden"
+  <div class="h-[100dvh] w-full md:flex items-center justify-center overflow-x-hidden"
        :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-adrien-olichon-2387819.jpg')+')',
               backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
     <form class="login md:flex pt-[60px]" @submit.prevent="login">
@@ -174,21 +174,23 @@ export default {
       } else {
         this.user.accountType = 'email'
       }
-      const response = await this.$Worker.execute({
+      this.$Worker.execute({
         action: 'login',
         u: Base64.encode(u + ':' + p)
       })
-      if (!response.success) {
-        this.$notify(
-          {
-            title: 'Login Failed',
-            text: 'Check Credentials or Register.',
-            type: 'error'
-          })
-        this.user.password = ''
-        return
-      }
-      this.processLogin(response)
+        .then((data) => {
+          this.processLogin(data)
+        })
+        .catch((err) => {
+          this.$notify(
+            {
+              title: 'Login Failed',
+              text: 'Check Credentials or Register.',
+              type: 'error'
+            })
+          this.user.password = ''
+          console.debug(err.message)
+        })
     },
     processLogin (response) {
       this.user.username = response.result.username
