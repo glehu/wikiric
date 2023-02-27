@@ -1,16 +1,16 @@
 <template>
-  <div class="preferences w-full h-full"
+  <div class="preferences w-full h-full pt-[60px] px-8 pb-8
+              flex items-center justify-center"
        style="background-color: #131313">
-    <div style="min-height: 60px"></div>
     <div class="container mt-5 w-full"
          style="justify-items: center; display: grid; text-align: center">
-      <h1 class="font-bold text-neutral-300 text-5xl mb-2">
+      <h1 class="font-bold text-neutral-200 text-5xl mb-8">
         Hey, no running in the hallways!
       </h1>
-      <h2 class="text-neutral-400 text-3xl">
+      <h2 class="text-neutral-300 text-2xl">
         You must accept the usage of cookies to visit this website.
       </h2>
-      <button class="btn text-neutral-400 text-decoration-underline"
+      <button class="text-neutral-400 my-4"
               v-on:click="toggleExplanation('cookieExplanation')">
         What's that?
       </button>
@@ -22,16 +22,19 @@
         </p>
         <hr style="color: white">
       </div>
-      <button style="font-size: 200%" class="btn btn-lg btn-outline-success mt-4" v-on:click="confirm">
+      <button class="my-4 font-bold text-3xl text-emerald-400
+                     border-2 border-emerald-400 p-2 rounded-md"
+              v-on:click="confirm">
         Accept Cookies
       </button>
       <!-- #### REVOKE #### -->
       <template v-if="generalCookieAllowance">
-        <button class="btn btn-lg btn-outline-danger mt-5"
+        <button class="my-4 font-bold text-xl text-red-400
+                       border-2 border-red-400 p-2 rounded-md"
                 v-on:click="revokeCookieAllowances">
-          <span>Reject<br>Cookies</span>
+          Reject Cookies
         </button>
-        <div class="mt-2 text-neutral-400">
+        <div class="text-neutral-400">
           By rejecting all cookies you are also revoking your rights to the usage of this website.
         </div>
       </template>
