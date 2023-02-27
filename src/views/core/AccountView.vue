@@ -7,7 +7,7 @@
       <div class="text-light p-3">
         <h2 class="font-bold my-3 flex doHover" style="overflow: hidden">
           <i class="bi bi-stars" style="font-size: 200%"></i><br>
-          Hey, {{ this.$store.state.username.split('@')[0] }}.<br><br>
+          Hey, {{ $store.state.username.split('@')[0] }}.<br><br>
         </h2>
         <div class="wrapper">
           <div id="apps">
@@ -58,7 +58,7 @@
                       <div class="flex">
                         <i class="bi bi-stack ms-3"></i>
                         <p class="ms-2">
-                          {{ this.$store.state.cart.length }} Items
+                          {{ $store.state.cart.length }} Items
                         </p>
                       </div>
                       <div class="flex">

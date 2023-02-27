@@ -21,7 +21,7 @@
         <div class="mt-4" style="min-height: 3vh"></div>
         <div class="container wrapper">
           <div class="card"
-               v-for="item in this.$store.state.cart" :key="item"
+               v-for="item in $store.state.cart" :key="item"
                style="background: black; color: white">
             <div class="card-title">
               <h3 class="font-bold m-3">

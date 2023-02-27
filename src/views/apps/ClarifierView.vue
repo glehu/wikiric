@@ -14,9 +14,8 @@
                       <h1 class="font-bold text-3xl text-neutral-300 pointer-events-none">
                         Friends
                       </h1>
-                      <button class="px-2 py-1 rounded-md dark_bg opacity-50 cursor-not-allowed"
-                              v-on:click="isAddingFriend = true"
-                              disabled>
+                      <button class="px-2 py-1 rounded-md dark_bg hover:darkest_bg opacity-50"
+                              v-on:click="isAddingFriend = true">
                         <span class="text-neutral-300">
                           Add Friend
                         </span>
@@ -87,10 +86,15 @@
                                    hover:brightness-125 cursor-pointer hover:rounded p-2 w-full"
                               style="display: flex; align-items: center; justify-items: center"
                               v-on:click="joinActive(group.id)">
-                              <img class="b_darkergray"
-                                   style="width: 40px; height: 40px; border-radius: 10px"
-                                   v-bind:src="getImg(group.img,true)"
-                                   :alt="getImgAlt(group.title)"/>
+                              <template v-if="group.img && group.img !== ''">
+                                <img class="w-[40px] h-[40px] z-10 rounded-lg"
+                                     v-bind:src="getImg(group.img,true)" :alt="getImgAlt(group.title)"/>
+                              </template>
+                              <template v-else>
+                                <div class="darkest_bg flex items-center justify-center w-[40px] h-[40px] z-10 rounded-lg">
+                                  {{ getImgAlt(group.title) }}
+                                </div>
+                              </template>
                               <h5 class="sb_link_text text-nowrap"
                                   style="margin: 0 0 0 10px; font-weight: bold">
                                 &nbsp;{{ group.title }}
@@ -101,7 +105,7 @@
                             </div>
                             <button class="text-neutral-300 ml-2 h-20 flex items-center justify-center"
                                     title="Remove Group"
-                                    v-on:click="this.removeGroup(group)">
+                                    v-on:click="removeGroup(group)">
                               <i class="bi bi-x-lg p-2 rounded-xl dark_bg bg-opacity-50
                                     hover:brightness-125"></i>
                             </button>
@@ -246,7 +250,7 @@ export default {
       if (!title || title === '') {
         return '?'
       } else {
-        return title.substring(0, 1)
+        return title.substring(0, 2)
       }
     },
     join: function () {
@@ -419,6 +423,12 @@ export default {
           this.isAddingFriend = false
           this.friendName = ''
           this.getNotifications()
+          this.$notify(
+            {
+              title: 'Request Sent!',
+              text: 'Waiting for approval.',
+              type: 'info'
+            })
         })
         .catch((err) => {
           console.debug(err.message)

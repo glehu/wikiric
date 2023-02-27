@@ -7,7 +7,7 @@
         class="text-neutral-200 w-full h-full flex pt-[60px] py-8 overflow-x-hidden">
         <div class="w-full h-full relative p-8">
           <div class="w-full"><!-- Demo Wrapper -->
-            <div
+            <div style="transform: translate3d(0, 0, 0)"
               class="w-full h-full items-center justify-center flex pl-4 py-4 border-l-[4px] rounded-r-md
                           border-dotted border-l-fuchsia-500 backdrop-blur-xl">
               <div style="pointer-events: inherit"
@@ -38,7 +38,7 @@
                   <br><span class="text-2xl md:text-3xl text-black">Communities</span>
                 </button>
                 <button
-                  class="muArrow font-bold rounded text-xl text-start text-neutral-300 px-4 py-3 border-2 border-neutral-300 backdrop-blur"
+                  class="muArrow font-bold rounded text-xl text-start text-neutral-300 px-4 py-3 border-2 border-neutral-300"
                   v-on:click="gotoKnowledgeFinder()">
                   Browse the
                   <br><span class="text-2xl md:text-3xl">Knowledge</span>

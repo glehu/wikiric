@@ -479,7 +479,7 @@
                   </div>
                 </div>
                 <template
-                  v-if="wisdom.type === 'question' && wisdom.finished !== true && wisdom.author === this.$store.state.username">
+                  v-if="wisdom.type === 'question' && wisdom.finished !== true && wisdom.author === $store.state.username">
                   <div class="mb-4 mt-1 w-full flex">
                     <button v-on:click="finishQuestion(wisdom, comment)"
                             class="text-emerald-500 hover:text-black border-2 border-emerald-500 hover:bg-emerald-700

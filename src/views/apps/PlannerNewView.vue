@@ -339,7 +339,7 @@
                                         </div>
                                       </div>
                                       <div class="px-1 py-1">
-                                        <template v-for="group in this.$store.state.clarifierSessions" :key="group">
+                                        <template v-for="group in $store.state.clarifierSessions" :key="group">
                                           <MenuItem v-slot="{ active }" class="mb-1">
                                             <button v-on:click="showShareTask(group, task.task)"
                                                     :class="[active ? 'p_card_menu_active' : 'text-neutral-300','group p_card_menu_item p-1']">
@@ -838,7 +838,7 @@
                     </div>
                   </div>
                   <div class="px-1 py-1">
-                    <template v-for="group in this.$store.state.clarifierSessions" :key="group">
+                    <template v-for="group in $store.state.clarifierSessions" :key="group">
                       <MenuItem v-slot="{ active }" class="mb-1">
                         <button v-on:click="showShareTask(group)"
                                 :class="[active ? 'p_card_menu_active' : 'text-neutral-300','group p_card_menu_item p-1']">

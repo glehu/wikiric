@@ -7,7 +7,6 @@
            style="z-index: 100">
         <div style="height: calc(100% - 60px)"
              class="sidebar_bg">
-          <!-- #### Tools #### -->
           <div style="height: 140px; overflow-x: clip; position: relative">
             <div style="width: 100%; height: 35px; padding-top: 10px">
               <span class="sb_link_text c_lightgray nopointer">Menu</span>
@@ -39,21 +38,20 @@
               </li>
             </ul>
           </div>
-          <!-- #### GROUPS #### -->
           <div style="width: 100%; position: relative; z-index: 3"
                class="sb_fold">
             <hr class="c_lightgray"
                 style="width: 75%; margin: auto auto 10px;">
             <span class="sb_link_text c_lightgray nopointer">
-            Activity&nbsp;-&nbsp;{{ this.$store.state.clarifierSessions.length }}
+            Activity&nbsp;-&nbsp;{{ $store.state.clarifierSessions.length }}
           </span>
           </div>
           <div id="channel_section" class="channel_section overflow-y-auto"
                style="height: calc(100% - 60px - 100px); z-index: 4;
                       padding-bottom: 20px; margin-top: 10px">
-            <div v-for="group in this.$store.state.clarifierSessions" :key="group"
+            <div v-for="group in $store.state.clarifierSessions" :key="group"
                  class="channel_link"
-                 style="position: relative; font-weight: bold; font-size: 125%">
+                 style="position: relative; font-weight: bold">
               <a class="font-bold text-white orange-hover" style="text-decoration: none"
                  v-on:click="connectToGroup(group.id)"
                  v-tooltip.right="{
@@ -68,11 +66,15 @@
                          style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5"
                          class="bg-green-500 rounded-r">
                     </div>
-                    <img class="b_darkergray"
-                         style="border-radius: 10px; margin-left: 1px;
-                              width: 40px; height: 40px; z-index: 6"
-                         v-bind:src="getImg(group.img,true)"
-                         :alt="getImgAlt(group.title)"/>
+                    <template v-if="group.img && group.img !== ''">
+                      <img class="w-[40px] h-[40px] z-10 rounded-lg"
+                           v-bind:src="getImg(group.img,true)" :alt="getImgAlt(group.title)"/>
+                    </template>
+                    <template v-else>
+                      <div class="medium_bg flex items-center justify-center w-[40px] h-[40px] z-10 rounded-lg">
+                        {{ getImgAlt(group.title) }}
+                      </div>
+                    </template>
                   </div>
                   <span class="sb_link_text text-nowrap"
                         style="position: absolute; left: 36px;">
@@ -88,7 +90,6 @@
            style="margin-top: 60px" v-show="canShowSidebar"
            class="sidebar2 medium_bg lg:rounded-tl">
         <div class="h-full relative">
-          <!-- #### SUBCHATS #### -->
           <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden"
                class="c_lightgray px-2">
             <div style="height: 50px; align-items: center; display: flex">
@@ -129,7 +130,6 @@
               <span class="relative left-[20px]">{{ subchat.t }}</span>
             </div>
           </div>
-          <!-- #### Clarifier Rank Benefits ####-->
           <template v-if="this.chatroom.rank > 1">
             <div class="absolute bottom-0 w-full p-2 text-neutral-300 border-t-2 border-t-neutral-800">
               <template v-if="this.chatroom.rank > 3">
@@ -165,7 +165,6 @@
           <div id="chat_section"
                class="chat_section w-full h-full overflow-clip
                       medium_bg rounded-tl-lg lg:rounded-tl-none lg:rounded-tr-lg">
-            <!-- #### CHAT HEADER #### -->
             <div class="chat_header medium_bg">
               <div
                 style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%; align-items: center">
@@ -292,7 +291,6 @@
                 </template>
               </div>
             </div>
-            <!-- #### MESSAGES #### -->
             <div class="h-[calc(100%-130px)] max-h-[calc(100%-130px)] overflow-hidden
                         bright_bg lg:rounded-tl-lg">
               <div id="messages_section" :ref="'messages_section'"
@@ -316,19 +314,23 @@
                         </span>
                       </div>
                     </template>
-                    <!-- Chat Avatar and Date -->
                     <template v-if="msg.header === true">
                       <div style="height: 30px"
                            class="mt-2 relative flex items-center">
-                        <i v-if="msg.src.startsWith('_server')" class="sender_avatar bi bi-broadcast"></i>
-                        <i v-else class="sender_avatar bi bi-person-circle"></i>
-                        <template v-if="msg.iurl !== ''">
-                          <img :src="getImg(msg.iurl, true)" alt="?"
-                               class="darkest_bg"
-                               style="width: 42px; height: 42px; border-radius: 100%;
-                                    position: absolute; top: 8px; left: -7px">
+                        <template v-if="msg.src.startsWith('_server')">
+                          <SignalIcon class="sender_avatar translate-y-[10px]"/>
                         </template>
-                        <div class="orange-hover text-neutral-200"
+                        <template v-else>
+                          <template v-if="msg.iurl && msg.iurl !== ''">
+                            <img :src="getImg(msg.iurl, true)" alt="?"
+                                 class="sender_avatar translate-y-[10px]">
+                          </template>
+                          <template v-else>
+                            <UserCircleIcon class="sender_avatar translate-y-[10px]">
+                            </UserCircleIcon>
+                          </template>
+                        </template>
+                        <div class="orange-hover text-neutral-200 ml-[10px]"
                              style="font-weight: bold"
                              @click.stop="showUserProfileFromName(msg.src)">
                           {{ msg.src }}
@@ -361,7 +363,7 @@
                         </div>
                       </div>
                     </template>
-                    <div class="message_body" style="width: 100%; display: flex; position: relative">
+                    <div class="message_body">
                       <div style="min-width: 42px; max-width: 42px">
                         <template v-if="msg.header === false">
                           <div class="msg_time" style="pointer-events: none">
@@ -371,11 +373,10 @@
                       </div>
                       <template v-if="msg.tagActive === true">
                         <div style="position: absolute; height: 100%; width: 5px; left: -15px;
-                       border-radius: 5px; z-index: 5; box-shadow: 0 0 15px 0 #ff5d37"
+                                    border-radius: 5px; z-index: 5; box-shadow: 0 0 15px 0 #ff5d37"
                              class="b_orange">
                         </div>
                       </template>
-                      <!-- #### MESSAGE OPTIONS #### -->
                       <div v-if="msg.mType !== 'CryptError' && !msg.src.startsWith('_server')"
                            class="msg_options gap-x-2">
                         <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
@@ -411,7 +412,6 @@
                           </button>
                         </div>
                       </div>
-                      <!-- #### LOGIN NOTIFICATION MESSAGE #### -->
                       <template v-if="msg.mType === 'RegistrationNotification'">
                         <div class="serverMessage">
                           {{ msg.msg.trim() }}
@@ -430,7 +430,7 @@
                             Leaderboard
                             <i class="bi bi-award"></i>
                           </h4>
-                          <table class="table-borderless leaderboard-table text-start"
+                          <table class="table-auto leaderboard-table text-start"
                                  style="width: 100%; height: 100%; padding: 5px">
                             <tr style="pointer-events: none;
                                  height: 2ch;
@@ -453,7 +453,6 @@
                           </div>
                         </div>
                       </template>
-                      <!-- #### CLIENT GIF MESSAGE #### -->
                       <template v-else-if="msg.mType === 'GIF'">
                         <div class="clientMessage">
                           <img :src="msg.msgURL"
@@ -467,7 +466,6 @@
                           </div>
                         </div>
                       </template>
-                      <!-- #### CLIENT IMAGE (SnippetBase) #### -->
                       <template v-else-if="msg.mType === 'Image'">
                         <div class="clientMessage">
                           <img :src="msg.msgURL"
@@ -477,7 +475,6 @@
                                v-on:click="openURL(msg.msgURL)">
                         </div>
                       </template>
-                      <!-- #### CLIENT AUDIO (SnippetBase) #### -->
                       <template v-else-if="msg.mType === 'Audio'">
                         <div class="clientMessage">
                           <audio controls preload="auto"
@@ -487,7 +484,6 @@
                           </audio>
                         </div>
                       </template>
-                      <!-- #### CLIENT MESSAGE #### -->
                       <template v-else-if="msg.mType === 'Joke'">
                         <p class="clientMessage">
                           {{ msg.msg }}
@@ -522,7 +518,6 @@
                                     :plugins="plugins"/>
                         </div>
                       </template>
-                      <!-- #### CLIENT MESSAGE #### -->
                       <template v-else>
                         <Markdown :id="'msg_' + msg.guid"
                                   class="clientMessage markedView"
@@ -531,8 +526,8 @@
                                   :plugins="plugins"/>
                       </template>
                     </div>
-                    <div v-if="msg.reacts.length > 0"
-                         style="display: flex; margin: 10px 0 0 42px">
+                    <div v-if="msg.reacts && msg.reacts.length > 0"
+                         style="display: flex; margin: 10px 0 0 50px">
                       <div v-for="reaction in msg.reacts" :key="reaction.src"
                            style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
                            class="darkest_bg c_lightgray gray-hover"
@@ -686,7 +681,6 @@
                        v-on:keyup.enter="submitImgflipMeme">
               </template>
             </div>
-            <!-- #### USER INPUT FIELD #### -->
             <div class="bright_bg input_section" v-if="overlayType === 'msg'">
               <button class="c_lightgray text-center scroll_to_bottom orange-hover"
                       id="scroll_to_bottom"
@@ -756,7 +750,6 @@
                            @close="setOverlay('msg'); prepareInputField()"/>
         </template>
       </div>
-      <!-- #### MEMBERS #### -->
       <div id="member_section" style="margin-top: 60px"
            class="member_section darkest_bg">
         <div style="width: 100%; height: 50px; display: flex; align-items: center">
@@ -773,17 +766,15 @@
         </div>
         <div style="padding: 5px">
           <div v-for="usr in this.mainMembers" :key="usr"
-               style="padding-left: 10px; position: relative; display: flex; align-items: center"
-               class="user_badge"
+               class="user_badge px-2 py-1 relative flex items-center"
                v-on:click="showUserProfile(usr)">
-            <i class="bi bi-person-circle"
-               style="font-size: 200%">
-            </i>
-            <template v-if="usr.iurl != null">
+            <template v-if="usr.iurl && usr.iurl !== ''">
               <img :src="getImg(usr.iurl, true)" alt="?"
-                   class="darkest_bg"
-                   style="width: 40px; height: 40px; border-radius: 100%;
-                                position: absolute; top: 4px; left: 6px">
+                   class="sender_avatar">
+            </template>
+            <template v-else>
+              <UserCircleIcon class="sender_avatar">
+              </UserCircleIcon>
             </template>
             <span style="font-weight: bold; margin-left: 14px">
               <template v-if="usr.online">
@@ -806,22 +797,22 @@
       </div>
     </div>
   </div>
-  <!-- #### USER PROFILE #### -->
   <div class="user_profile overflow-x-hidden overflow-y-auto"
        v-show="isViewingUserProfile" @click.stop>
     <div class="relative h-full">
       <i class="bi bi-x-lg lead orange-hover"
          style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideAllWindows()"></i>
-      <div style="display: flex; align-items: center">
-        <i class="bi bi-person-circle" style="font-size: 400%; margin-right: 15px"></i>
-        <template v-if="viewedUserProfile.iurl != null">
+      <div class="flex items-center">
+        <template v-if="viewedUserProfile.iurl && viewedUserProfile.iurl !== ''">
           <img :src="getImg(viewedUserProfile.iurl, true)" alt="?"
-               class="darkest_bg"
-               style="width: 75px; height: 75px; border-radius: 100%;
-                                position: absolute; left: -4px">
+               class="sender_avatar_big">
         </template>
-        <div style="display: block">
+        <template v-else>
+          <UserCircleIcon class="sender_avatar_big">
+          </UserCircleIcon>
+        </template>
+        <div class="block ml-2">
           <h2 class="font-bold text-2xl">
             {{ viewedUserProfile.usr }}
           </h2>
@@ -834,8 +825,8 @@
           </div>
         </div>
       </div>
-      <div class="items-center flex">
-        <template v-if="viewedUserProfile.usr === this.$store.state.username">
+      <div class="items-center flex mt-3">
+        <template v-if="viewedUserProfile.usr === $store.state.username">
           <button class="user_profile_button"
                   v-on:click="isEditingProfile = true">
             <i class="bi bi-pencil mr-2"></i>Edit Profile
@@ -858,7 +849,6 @@
           </button>
         </template>
       </div>
-      <!-- #### MEMBER ROLES #### -->
       <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Roles</h5>
       <div style="display: flex; flex-wrap: wrap">
         <div v-for="role in this.viewedUserProfile.roles" :key="role"
@@ -873,7 +863,6 @@
           <i class="bi bi-plus-circle"></i>
         </span>
       </div>
-      <!-- #### ROLE ADDER #### -->
       <div class="user_role b_darkergray items-center"
            v-show="isAddingRole" @click.stop>
         <div style="position: relative">
@@ -959,7 +948,6 @@
     <template v-slot:footer>
     </template>
   </modal>
-  <!-- #### GIF SELECTION #### -->
   <div class="giphygrid medium_bg p-3 h-full"
        style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
     <div style="height: calc(100% - 50px); width: 100%; overflow-x: clip; overflow-y: auto"
@@ -984,7 +972,6 @@
            style="width: 90px; height: 10px" class="ml-2"/>
     </div>
   </div>
-  <!-- #### Settings #### -->
   <div class="session_settings medium_bg shadow"
        style="overflow-x: hidden; overflow-y: auto"
        v-show="isViewingSessionSettings" @click.stop>
@@ -992,11 +979,17 @@
       <i class="bi bi-x-lg lead orange-hover"
          style="cursor: pointer; position:absolute; right: 0" title="Close"
          v-on:click="hideAllWindows()"></i>
-      <h2 class="font-bold nopointer text-xl mb-2">Session Settings</h2>
+      <h2 class="font-bold nopointer text-xl mb-2">Group Settings</h2>
       <div style="display: flex; width: 100%; margin-bottom: 10px">
-        <img class="b_darkergray" style="min-width: 80px; width: 80px; min-height: 80px; height: 80px;
-             border-radius: 20px"
-             v-bind:src="getImg(chatroom.imgGUID, true)" :alt="'&nbsp;'"/>
+        <template v-if="chatroom.imgGUID && chatroom.imgGUID !== ''">
+          <img class="w-[80px] h-[80px] z-10 rounded-lg"
+               v-bind:src="getImg(chatroom.imgGUID,true)" :alt="getImgAlt(chatroom.t)"/>
+        </template>
+        <template v-else>
+          <div class="medium_bg flex items-center justify-center w-[80px] h-[80px] z-10 rounded-lg">
+            {{ getImgAlt(chatroom.t) }}
+          </div>
+        </template>
         <div class="drop_zone" style="margin-left: 10px" id="drop_zone" :ref="'drop_zone'"
              v-on:drop="handleFileSelectDrop()" v-on:dragover="handleDragOver()">
           Upload a picture!
@@ -1093,7 +1086,6 @@
       New Subchat
     </template>
     <template v-slot:body>
-      <!-- #### New Subchat #### -->
       <div class="new_subchat" style="overflow: hidden; padding: 5px">
         <div style="position: relative; padding-top: 10px; width: 100%">
           <label for="new_subchat_name" class="font-bold lead c_lightgray">Name:</label>
@@ -1141,7 +1133,6 @@
     <template v-slot:footer>
     </template>
   </modal>
-  <!-- #### File Upload (SnippetBase) #### -->
   <div class="session_settings shadow" style="overflow-x: hidden; overflow-y: auto"
        v-show="isUploadingSnippet" @click.stop>
     <div style="position: relative; padding-top: 10px; width: 100%">
@@ -1283,7 +1274,7 @@
     </template>
     <template v-slot:body>
       <div class="md:flex">
-        <div id="transfer_qrcode"><!--AutoGeneratedQRCodes--></div>
+        <div id="transfer_qrcode"></div>
         <div class="mt-4 md:mt-0 md:mx-4">
           <p class="text-xl">Guide:</p>
           <ol class="list-decimal list-inside">
@@ -1317,12 +1308,21 @@ import 'highlight.js/styles/base16/google-dark.css'
 import * as QRCode from 'easyqrcodejs'
 import { DateTime } from 'luxon'
 // Icons
-import { ChartBarIcon, EyeIcon, GifIcon, PhoneIcon, QrCodeIcon, VideoCameraIcon } from '@heroicons/vue/24/solid'
+import {
+  ChartBarIcon,
+  EyeIcon,
+  GifIcon,
+  PhoneIcon,
+  QrCodeIcon,
+  UserCircleIcon,
+  VideoCameraIcon
+} from '@heroicons/vue/24/solid'
 import {
   BookOpenIcon,
   DocumentArrowUpIcon,
   HashtagIcon,
   HomeIcon,
+  SignalIcon,
   TrophyIcon,
   ViewColumnsIcon,
   WindowIcon
@@ -1349,7 +1349,9 @@ export default {
     EyeIcon,
     HashtagIcon,
     WindowIcon,
-    HomeIcon
+    HomeIcon,
+    SignalIcon,
+    UserCircleIcon
   },
   data () {
     return {
@@ -1927,6 +1929,7 @@ export default {
       }
     },
     addMessagePar: function (text, closeGIFSelection = false) {
+      if (!this.connection) return
       if (text !== '') this.connection.send(text)
       if (closeGIFSelection) this.isViewingGIFSelection = false
     },
@@ -3087,7 +3090,7 @@ export default {
       if (!title || title === '') {
         return '?'
       } else {
-        return title.substring(0, 1)
+        return title.substring(0, 2)
       }
     },
     getBase64: function (file) {
@@ -4126,12 +4129,6 @@ export default {
       }
     },
     gotoDirectMessages: async function (username) {
-      const users = [this.$store.state.username, username]
-      const content = JSON.stringify({
-        title: '',
-        type: 'direct',
-        directMessageUsernames: users
-      })
       this.hideAllWindows()
       // First check if there is already a direct message server
       let foundDirect = false
@@ -4142,7 +4139,7 @@ export default {
         url: 'm5/direct/' + username + '?all=true'
       })
         .then((data) => {
-          if (data.result.chatrooms.length > 0) {
+          if (data.result.chatrooms && data.result.chatrooms.length > 0) {
             foundDirect = true
             newId = data.result.chatrooms[0].guid
             this.connectToGroup(newId, true)
@@ -4150,27 +4147,12 @@ export default {
         })
         .then(() => {
           if (foundDirect) return
-          // Create new one
-          this.$Worker.execute({
-            action: 'api',
-            method: 'post',
-            url: 'm5/createchatroom',
-            body: content
-          })
+          this.sendFriendRequest(username)
         })
         .catch((err) => {
           console.debug(err.message)
           if (foundDirect) return
-          // Create new one
-          this.$Worker.execute({
-            action: 'api',
-            method: 'post',
-            url: 'm5/createchatroom',
-            body: content
-          })
-            .then((data) => {
-              this.connectToGroup(data.result.guid, true)
-            })
+          this.sendFriendRequest(username)
         })
     },
     connectToGroup: function (chatroomId, novisual = false) {
@@ -4246,6 +4228,30 @@ export default {
     },
     getSimpleTime: function (ts) {
       return DateTime.fromISO(ts).toLocaleString(DateTime.TIME_SIMPLE)
+    },
+    sendFriendRequest: function (name) {
+      const username = name.trim()
+      if (username === '') return
+      this.$Worker.execute({
+        action: 'api',
+        method: 'get',
+        url: 'm2/befriend/' + username
+      })
+        .then((data) => {
+          console.log(data)
+          this.isAddingFriend = false
+          this.friendName = ''
+          this.getNotifications()
+          this.$notify(
+            {
+              title: 'Request Sent!',
+              text: 'Waiting for approval.',
+              type: 'info'
+            })
+        })
+        .catch((err) => {
+          console.debug(err.message)
+        })
     }
   }
 }
@@ -4621,11 +4627,17 @@ export default {
   height: 35px;
 }
 
+.sender_avatar_big,
 .sender_avatar {
-  font-size: 200%;
-  padding-right: 10px;
-  position: relative;
-  top: 15px
+  @apply rounded-full overflow-hidden;
+}
+
+.sender_avatar {
+  @apply w-[40px] h-[40px];
+}
+
+.sender_avatar_big {
+  @apply w-[80px] h-[80px];
 }
 
 .drop_zone {
@@ -4686,7 +4698,7 @@ export default {
 }
 
 .message {
-  padding: 0 25px 0 15px;
+  padding: 0 15px 0 10px;
   @apply text-neutral-200 my-[1px];
 }
 
@@ -4882,6 +4894,10 @@ export default {
 
 .user_profile_button {
   @apply text-neutral-300 rounded medium_bg py-1 px-2 mr-1 hover:brightness-90;
+}
+
+.message_body {
+  @apply w-full relative flex pl-[10px];
 }
 
 </style>

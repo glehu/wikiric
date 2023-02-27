@@ -351,7 +351,7 @@
     </template>
     <template v-else>
       <div class="h-full">
-        <div class="backdrop-blur p-10 backdrop-brightness-75 h-full">
+        <div class="p-10 h-full">
           <div class="text-neutral-300 mb-5 pointer-events-none">
             <span class="text-5xl font-bold">Create new Knowledge Hub</span>
           </div>
