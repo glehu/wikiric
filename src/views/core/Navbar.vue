@@ -358,7 +358,7 @@ export default {
       this.$Worker.execute({
         action: 'api',
         method: 'get',
-        url: 'm8/notifications/dismiss/'
+        url: 'm8/notifications/dismiss'
       })
         .then(() => this.getNotifications())
     }

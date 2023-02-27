@@ -318,7 +318,7 @@
                       <div style="height: 30px"
                            class="mt-2 relative flex items-center">
                         <template v-if="msg.src.startsWith('_server')">
-                          <SignalIcon class="sender_avatar translate-y-[10px]"/>
+                          <SignalIcon class="sender_avatar translate-y-[10px]"></SignalIcon>
                         </template>
                         <template v-else>
                           <template v-if="msg.iurl && msg.iurl !== ''">
