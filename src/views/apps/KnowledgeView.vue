@@ -610,7 +610,7 @@
           </div>
           <label for="wisDescription" class="text-xl mt-2 font-bold">Description:</label>
           <br>
-          <div class="rounded-md w-full overflow-hidden">
+          <div class="w-full">
             <textarea type="text" id="wisDescription" v-model="wisDescription"
                       rows="20" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
           </div>

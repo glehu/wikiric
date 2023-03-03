@@ -777,11 +777,11 @@
             </template>
             <div class="w-[40px] h-[40px] absolute flex items-end justify-end">
               <template v-if="usr.online">
-                <div class="w-[12px] h-[12px] rounded-full bg-green-500 border-2 border-zinc-900"
+                <div class="w-[13px] h-[13px] rounded-full bg-green-500 border-2 border-zinc-900"
                      v-tooltip.top="{ content: 'Active' }"></div>
               </template>
               <template v-else>
-                <div class="w-[12px] h-[12px] rounded-full bg-zinc-500 border-2 border-zinc-900"
+                <div class="w-[13px] h-[13px] rounded-full bg-zinc-500 border-2 border-zinc-900"
                      v-tooltip.top="{ content: 'Absent' }"></div>
               </template>
             </div>

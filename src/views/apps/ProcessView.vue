@@ -1,7 +1,8 @@
 <template>
   <div id="processViewer" ref="processViewer"
        class="medium_bg w-full h-full absolute overflow-hidden rounded-tr-lg">
-    <div class="text-neutral-300 w-full min-h-[50px] max-h-[50px] px-2 flex items-center medium_bg">
+    <div class="text-neutral-300 w-full min-h-[50px] max-h-[50px] px-2 flex items-center medium_bg
+                divide-x-2 divide-neutral-600">
       <div class="sidebar_button bright_bg rounded-xl w-fit mr-2">
         <div v-on:click="clickedBack()"
              v-tooltip="{ content: 'Exit' }"
@@ -9,11 +10,13 @@
           <XMarkIcon class="h-6 w-6"></XMarkIcon>
         </div>
       </div>
-      <div class="sidebar_button bright_bg rounded-xl w-fit mr-2">
-        <div v-on:click="clickedBack()"
-             v-tooltip="{ content: 'Generate Documentation' }"
-             class="cursor-pointer hover:text-neutral-200 p-2">
-          <DocumentArrowDownIcon class="h-6 w-6"></DocumentArrowDownIcon>
+      <div class="flex items-center pl-2">
+        <div class="sidebar_button bright_bg rounded-xl w-fit mr-2">
+          <div v-on:click="generateDocumentation()"
+               v-tooltip="{ content: 'Generate Documentation' }"
+               class="cursor-pointer hover:text-neutral-200 p-2">
+            <DocumentArrowDownIcon class="h-6 w-6"></DocumentArrowDownIcon>
+          </div>
         </div>
       </div>
       <div class="darkest_bg rounded p-2 ml-auto">
@@ -29,7 +32,7 @@
         <div class="grid grid-cols-1 gap-0 w-full">
           <template v-for="segment in processEvents" :key="segment.event.uID">
             <div class="flex text-sm segment">
-              <div class="h-full overflow-hidden pr-8 relative">
+              <div class="h-full pr-8 relative">
                 <template v-if="segment.event.mode === 'start'">
                   <div class="absolute rounded-r-md darkest_bg flex items-center justify-center p-1">
                     <RocketLaunchIcon class="w-[16px] h-[16px] text-neutral-300"></RocketLaunchIcon>
@@ -40,8 +43,44 @@
                     <BoltIcon class="w-[16px] h-[16px] text-neutral-300"></BoltIcon>
                   </div>
                 </template>
-                <div class="absolute flex h-full items-center w-[40px]">
-                  <EllipsisVerticalIcon class="text-neutral-200 mt-6 segmentSettings"></EllipsisVerticalIcon>
+                <div class="absolute flex h-full items-center">
+                  <Menu as="div" class="absolute inline-block text-left">
+                    <MenuButton
+                      title="Options"
+                      class="hover:darkest_bg p-1 bg-opacity-50 text-neutral-200 rounded-full
+                             flex items-center cursor-pointer">
+                      <EllipsisVerticalIcon class="h-7 w-7 segmentSettings"></EllipsisVerticalIcon>
+                    </MenuButton>
+                    <transition
+                      enter-active-class="transition duration-100 ease-out"
+                      enter-from-class="transform scale-95 opacity-0"
+                      enter-to-class="transform scale-100 opacity-100"
+                      leave-active-class="transition duration-75 ease-in"
+                      leave-from-class="transform scale-100 opacity-100"
+                      leave-to-class="transform scale-95 opacity-0"
+                    >
+                      <MenuItems
+                        class="p_card_menu_list dark_bg"
+                      >
+                        <div class="px-1 py-1">
+                          <MenuItem v-slot="{ active }">
+                            <button v-on:click="deleteEvent(segment.event)"
+                                    class="flex text-neutral-300 p-2"
+                                    :class="
+                                      [active ? 'medium_bg' : '']
+                                    ">
+                              <TrashIcon
+                                :active="active"
+                                class="mr-2 h-5 w-5"
+                                aria-hidden="true"
+                              />
+                              <span class="font-bold">Delete</span>
+                            </button>
+                          </MenuItem>
+                        </div>
+                      </MenuItems>
+                    </transition>
+                  </Menu>
                 </div>
                 <div class="pathIndicator"></div>
               </div>
@@ -128,12 +167,48 @@
                 <div class="w-full h-fit ml-8 my-2 grid grid-cols-1">
                   <template v-for="altEvent in segment.alternatives" :key="altEvent.uID">
                     <div class="flex text-sm w-full segment">
-                      <div class="h-full overflow-hidden pr-8 relative">
+                      <div class="h-full pr-8 relative">
                         <div class="absolute rounded-r-md darkest_bg flex items-center justify-center p-1">
                           <BoltIcon class="w-[16px] h-[16px] text-neutral-300"></BoltIcon>
                         </div>
-                        <div class="absolute flex h-full items-center w-[40px]">
-                          <EllipsisVerticalIcon class="text-neutral-200 mt-6 segmentSettings"></EllipsisVerticalIcon>
+                        <div class="absolute flex h-full items-center">
+                          <Menu as="div" class="absolute inline-block text-left">
+                            <MenuButton
+                              title="Options"
+                              class="hover:darkest_bg p-1 bg-opacity-50 text-neutral-200 rounded-full
+                                     flex items-center cursor-pointer">
+                              <EllipsisVerticalIcon class="h-7 w-7 segmentSettings"></EllipsisVerticalIcon>
+                            </MenuButton>
+                            <transition
+                              enter-active-class="transition duration-100 ease-out"
+                              enter-from-class="transform scale-95 opacity-0"
+                              enter-to-class="transform scale-100 opacity-100"
+                              leave-active-class="transition duration-75 ease-in"
+                              leave-from-class="transform scale-100 opacity-100"
+                              leave-to-class="transform scale-95 opacity-0"
+                            >
+                              <MenuItems
+                                class="p_card_menu_list dark_bg"
+                              >
+                                <div class="px-1 py-1">
+                                  <MenuItem v-slot="{ active }">
+                                    <button v-on:click="deleteEvent(altEvent)"
+                                            class="flex text-neutral-300 p-2"
+                                            :class="
+                                      [active ? 'medium_bg' : '']
+                                    ">
+                                      <TrashIcon
+                                        :active="active"
+                                        class="mr-2 h-5 w-5"
+                                        aria-hidden="true"
+                                      />
+                                      <span class="font-bold">Delete</span>
+                                    </button>
+                                  </MenuItem>
+                                </div>
+                              </MenuItems>
+                            </transition>
+                          </Menu>
                         </div>
                         <div class="pathIndicator"></div>
                       </div>
@@ -216,7 +291,7 @@
         Attach Process to "{{ writingSource.t }}"
       </template>
       <template v-slot:body>
-        <div class="flex w-full md:w-[540px]" style="max-height: 90vh">
+        <div class="flex w-full md:w-[540px]">
           <div class="w-full">
             <label for="processTitle" class="text-xl font-bold">Title:</label>
             <br>
@@ -248,6 +323,35 @@
       <template v-slot:footer>
       </template>
     </modal>
+    <modal @close="isViewingDocumentation = false"
+           v-show="isViewingDocumentation">
+      <template v-slot:header>
+        <p>Documentation</p>
+      </template>
+      <template v-slot:body>
+        <div class="w-[90vw] md:w-[70vw] max-w-[1000px] rounded overflow-hidden flex justify-center">
+          <div class="md:flex">
+            <div class="md:rounded-l dark_bg p-2">
+              <button class="flex items-center text-neutral-300 p-2 rounded-md hover:medium_bg"
+                      v-on:click="publishLesson()">
+                <PlusCircleIcon class="h-6 w-6 mr-2"></PlusCircleIcon>
+                <template v-if="!docExists">
+                  <span>Publish</span>
+                </template>
+                <template v-else>
+                  <span>Replace</span>
+                </template>
+              </button>
+            </div>
+            <Markdown class="markedView w-fit px-4 pt-2 pb-4 medium_bg md:rounded-r"
+                      :source="documentation"
+                      :plugins="plugins"></Markdown>
+          </div>
+        </div>
+      </template>
+      <template v-slot:footer>
+      </template>
+    </modal>
   </div>
 </template>
 
@@ -258,7 +362,8 @@ import markdownItMermaid from 'markdown-it-mermaid'
 import 'highlight.js/styles/hybrid.css'
 import mermaid from 'mermaid'
 import { DocumentArrowDownIcon, EllipsisVerticalIcon, XMarkIcon } from '@heroicons/vue/24/outline'
-import { BoltIcon, PlusCircleIcon, RocketLaunchIcon } from '@heroicons/vue/24/solid'
+import { BoltIcon, PlusCircleIcon, RocketLaunchIcon, TrashIcon } from '@heroicons/vue/24/solid'
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 
 export default {
   name: 'ProcessView',
@@ -276,7 +381,12 @@ export default {
     BoltIcon,
     RocketLaunchIcon,
     DocumentArrowDownIcon,
-    EllipsisVerticalIcon
+    EllipsisVerticalIcon,
+    TrashIcon,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuItems
   },
   data () {
     return {
@@ -288,6 +398,9 @@ export default {
       processKeywords: '',
       isWritingProcess: false,
       isEditingProcess: false,
+      isViewingDocumentation: false,
+      documentation: '',
+      docExists: false,
       writingSource: {
         guid: ''
       },
@@ -373,6 +486,9 @@ export default {
           .then((data) => {
             if (srcguidOverride === '') {
               if (data.result.path) this.processEvents = data.result.path
+              if (this.processEvents.length > 0) {
+                this.docExists = this.processEvents[0].event.wisdomUID !== -1
+              }
               this.renderMermaid()
               for (let i = 0; i < this.processEvents.length; i++) {
                 this.processEvents[i].event.hasNext = (i + 1 < this.processEvents.length)
@@ -487,18 +603,21 @@ export default {
         }
       }, 0)
     },
-    updateEvent: function (event) {
+    updateEvent: function (pEvent) {
       return new Promise((resolve) => {
+        let eventWisdomGUID = ''
+        if (pEvent.wisdomGUID) eventWisdomGUID = pEvent.wisdomGUID
         const payload = {
-          title: event.t.trim(),
-          description: event.desc.trim(),
-          keywords: event.keywords.trim(),
-          knowledgeGUID: this.knowledge.guid
+          title: pEvent.t.trim(),
+          description: pEvent.desc.trim(),
+          keywords: pEvent.keywords.trim(),
+          knowledgeGUID: this.knowledge.guid,
+          wisdomGUID: eventWisdomGUID
         }
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm9/create?mode=edit&guid=' + event.guid,
+          url: 'm9/create?mode=edit&guid=' + pEvent.guid,
           body: JSON.stringify(payload)
         })
           .then(() => (this.getProcessInformation()))
@@ -507,6 +626,84 @@ export default {
             console.debug(err.message)
           })
       })
+    },
+    deleteEvent: function (event) {
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm9/delete/' + event.guid
+        })
+          .then(() => (this.getProcessInformation()))
+          .then(() => resolve())
+          .catch((err) => {
+            console.debug(err.message)
+          })
+      })
+    },
+    generateDocumentation: function () {
+      if (this.processEvents.length < 1) return
+      return new Promise((resolve) => {
+        const payload = {
+          action: 'doc'
+        }
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm9/interact/' + this.processEvents[0].event.guid,
+          body: JSON.stringify(payload)
+        })
+          .then((data) => {
+            this.isViewingDocumentation = true
+            this.documentation = data.result
+          })
+          .then(() => this.renderMermaid())
+          .then(() => resolve())
+          .catch((err) => {
+            console.debug(err.message)
+          })
+      })
+    },
+    publishLesson: function () {
+      const mTitle = this.documentation.split('\n', 1)[0]
+      const mBody = this.documentation.split(mTitle)[1]
+      const payload = {
+        title: mTitle,
+        description: mBody,
+        knowledgeGUID: this.knowledge.guid,
+        keywords: 'documentations,docs,process,' + mTitle.replaceAll('#', '').trim(),
+        copyContent: '',
+        categories: []
+      }
+      // Create entry on the backend
+      const bodyPayload = JSON.stringify(payload)
+      let wisdomGUID = ''
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/teach',
+          body: bodyPayload
+        })
+          .then((data) => {
+            this.setWisdomGUIDForEvent(data.result)
+            wisdomGUID = data.result
+          })
+          .then(() => {
+            this.$router.push('/apps/knowledge/' + wisdomGUID + '?src=' + this.knowledge.guid)
+          })
+          .then(() => resolve)
+          .catch((err) => {
+            console.debug(err.message)
+            this.noResults = true
+          })
+      })
+    },
+    setWisdomGUIDForEvent: async function (guid) {
+      if (!guid || guid === '') return
+      const pEvent = this.processEvents[0].event
+      pEvent.wisdomGUID = guid
+      await this.updateEvent(pEvent)
     }
   }
 }
@@ -543,8 +740,15 @@ export default {
   @apply opacity-0;
 }
 
+.segmentSettings:focus,
+.segmentSettings:hover,
 .segment:hover .segmentSettings {
   @apply opacity-100;
+}
+
+.p_card_menu_list {
+  @apply absolute mt-2 origin-top-right divide-y divide-zinc-400 rounded-md
+  shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10;
 }
 
 </style>

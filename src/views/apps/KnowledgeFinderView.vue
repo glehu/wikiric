@@ -563,7 +563,7 @@
         Create Process
       </template>
       <template v-slot:body>
-        <div class="flex w-full md:w-[540px]" style="max-height: 90vh">
+        <div class="flex w-full md:w-[540px]">
           <div class="w-full">
             <label for="processTitle" class="text-xl font-bold">Title:</label>
             <br>
