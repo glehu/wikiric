@@ -109,6 +109,18 @@ const routes = [
     component: () => import('../views/apps/KnowledgeView'),
     meta: { requiresAuth: true }
   },
+  {
+    path: '/apps/editor/process/:id',
+    name: 'WProcess Editor',
+    component: () => import('../views/apps/ProcessEditorView'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/apps/process/:id',
+    name: 'WProcess',
+    component: () => import('../views/apps/ProcessView'),
+    meta: { requiresAuth: true }
+  },
   // ERROR HANDLING ROUTES --- MUST BE AT THE BOTTOM ---
   {
     path: '/bsod',

@@ -5,13 +5,13 @@
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
       <div
         class="text-neutral-200 w-full h-full flex pt-[60px] py-8 overflow-x-hidden">
-        <div class="w-full h-full relative p-8">
-          <div class="w-full"><!-- Demo Wrapper -->
+        <div class="w-full h-full relative">
+          <div class="w-full h-full"><!-- Demo Wrapper -->
             <div style="transform: translate3d(0, 0, 0)"
-              class="w-full h-full items-center justify-center flex pl-4 py-4 border-l-[4px] rounded-r-md
+              class="w-full h-full items-center justify-center flex px-4 py-4 border-l-8 rounded-r-md
                           border-dotted border-l-fuchsia-500 backdrop-blur-xl">
               <div style="pointer-events: inherit"
-                   class="rounded-2xl w-full h-full">
+                   class="rounded-2xl w-full h-full p-4">
                 <p
                   class="text-neutral-200 text-5xl font-bold md:text-7xl xl:text-8xl w-fit pointer-events-none">
                   <span class="text-fuchsia-500">Web3</span> <span class="">Collaboration</span>
@@ -20,50 +20,51 @@
                   class="text-neutral-200 font-bold mb-4 py-2 text-2xl md:text-4xl w-fit pointer-events-none">
                   Powered by wikiric and {{ userCount }} others.
                 </p>
-                <p class="text-neutral-200 font-bold text-2xl w-full pointer-events-none">
+                <p class="text-neutral-300 font-bold text-2xl w-full pointer-events-none">
                   A secure and responsive environment
                   for communities, projects and ideas.
                   <br>Bridging the gap between Web2 and Web3.
                 </p>
+                <div class="relative mt-12">
+                  <div class="flex w-full justify-center md:justify-start">
+                    <div class="relative grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-center w-full md:w-fit">
+                      <button
+                        class="muArrow font-bold rounded text-xl text-start text-black px-4 py-3 bg-fuchsia-500"
+                        v-on:click="gotoClarifier()">
+                        Join the
+                        <br><span class="text-2xl md:text-3xl text-black">Communities</span>
+                      </button>
+                      <button
+                        class="muArrow font-bold rounded text-xl text-start text-neutral-300 px-4 py-3 border-2 border-neutral-300"
+                        v-on:click="gotoKnowledgeFinder()">
+                        Browse the
+                        <br><span class="text-2xl md:text-3xl">Knowledge</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <template class="hidden md:block">
+                  <div
+                    class="absolute bottom-0 left-0 p-4 ml-4">
+                    <div class="text-center cursor-pointer hover:darkest_bg p-4 rounded-full text-neutral-300"
+                         v-on:click="scrollTo('firstSection')">
+                      <p class="font-bold">Explore</p>
+                      <i class="bi bi-arrow-down text-2xl"></i>
+                    </div>
+                  </div>
+                </template>
+                <template class="hidden md:block">
+                  <div
+                    class="absolute bottom-0 right-0 p-4 mr-8 mb-8 border-b-[4px] border-r-[4px]
+                           border-dotted border-b-fuchsia-500 border-r-fuchsia-500">
+                    <div class="text-center text-neutral-300">
+                      <p class="font-bold text-4xl pointer-events-none">wikiric</p>
+                    </div>
+                  </div>
+                </template>
               </div>
             </div>
           </div><!-- Demo Wrapper End -->
-          <div class="relative mt-12">
-            <div class="flex w-full justify-center md:justify-start">
-              <div class="relative grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-center w-full md:w-fit">
-                <button
-                  class="muArrow font-bold rounded text-xl text-start text-black px-4 py-3 bg-fuchsia-500"
-                  v-on:click="gotoClarifier()">
-                  Join the
-                  <br><span class="text-2xl md:text-3xl text-black">Communities</span>
-                </button>
-                <button
-                  class="muArrow font-bold rounded text-xl text-start text-neutral-300 px-4 py-3 border-2 border-neutral-300"
-                  v-on:click="gotoKnowledgeFinder()">
-                  Browse the
-                  <br><span class="text-2xl md:text-3xl">Knowledge</span>
-                </button>
-              </div>
-            </div>
-          </div>
-          <template class="hidden md:block">
-            <div
-              class="absolute bottom-0 left-0 p-4 ml-4">
-              <div class="text-center cursor-pointer hover:darkest_bg p-4 rounded-full text-neutral-300"
-                   v-on:click="scrollTo('firstSection')">
-                <p class="font-bold">Explore</p>
-                <i class="bi bi-arrow-down text-2xl"></i>
-              </div>
-            </div>
-          </template>
-          <template class="hidden md:block">
-            <div
-              class="absolute bottom-0 right-0 p-4 mr-8 mb-8 border-b-[4px] border-r-[4px] border-dotted border-b-fuchsia-500 border-r-fuchsia-500">
-              <div class="text-center text-neutral-300">
-                <p class="font-bold text-4xl pointer-events-none">wikiric</p>
-              </div>
-            </div>
-          </template>
         </div>
       </div>
     </div>

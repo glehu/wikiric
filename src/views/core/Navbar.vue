@@ -37,7 +37,8 @@
                       <ComboboxInput
                         id="cboxinput"
                         placeholder="ctrl-y"
-                        class="w-full border-none py-1 pl-3 pr-10 text-sm leading-5 text-neutral-900 focus:ring-0"
+                        class="w-full border-none py-1 pl-3 pr-10 text-sm leading-5 text-neutral-900 focus:ring-0
+                               medium_bg placeholder-neutral-400"
                         :displayValue="(nav) => nav.name"
                         @change="navQuery = $event.target.value"
                         v-on:keyup.enter="processCombo()"
@@ -55,11 +56,12 @@
                     leaveTo="opacity-0"
                   >
                     <ComboboxOptions
-                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md darkest_bg
+                             py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                     >
                       <div
                         v-if="filteredNav.length === 0 && navQuery !== ''"
-                        class="relative cursor-default select-none py-2 px-4 text-neutral-700"
+                        class="relative cursor-default select-none py-2 px-4 text-neutral-300"
                       >
                         Nothing found.
                       </div>
@@ -72,8 +74,8 @@
                         v-slot="{ selected, active }"
                       >
                         <li
-                          class="relative cursor-pointer select-none py-2 pl-10 pr-4 hover:text-blue-600"
-                          :class="{'bg-gray-300': active }"
+                          class="relative cursor-pointer select-none py-2 pl-10 pr-4 hover:text-neutral-200"
+                          :class="{'bright_bg': active }"
                           v-on:click="processCombo()"
                         >
                           <div

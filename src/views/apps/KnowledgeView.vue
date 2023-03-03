@@ -3,7 +3,8 @@
        class="bright_bg w-full h-full absolute overflow-hidden rounded-tr-lg">
     <div class="flex h-full w-full">
       <div id="sidebar"
-           class="h-full min-w-[40px] max-w-[40px] flex flex-col items-center overflow-y-auto ml-2">
+           class="h-full min-w-[40px] max-w-[40px] flex flex-col
+                  items-center overflow-y-auto ml-2">
         <div class="text-neutral-300 h-full">
           <div class="sidebar_button rounded-xl medium_bg">
             <div v-on:click="clickedBack()"
@@ -57,13 +58,16 @@
                  v-tooltip.right="{
                        content: 'QuickCopy'
                      }"
-                 class="cursor-pointer hover:text-neutral-200 p-2 my-2 sidebar_button rounded-xl">
+                 class="cursor-pointer hover:text-neutral-200 p-2 my-2
+                        sidebar_button rounded-xl">
               <ClipboardIcon class="h-6 w-6"></ClipboardIcon>
             </div>
           </template>
         </div>
       </div>
-      <div id="main" class="h-full w-full flex justify-center overflow-y-auto pb-10 overflow-x-hidden mr-2 pr-1">
+      <div id="main"
+           class="h-full w-full flex justify-center overflow-y-auto pb-10
+                  overflow-x-hidden mr-2 pr-1">
         <div class="h-fit w-full max-w-[1000px] px-3">
           <div id="taskstart" class="flex mb-2 items-center pt-3">
             <TagIcon class="text-neutral-300 h-5 w-5 mr-2"></TagIcon>
@@ -111,7 +115,7 @@
                 <template v-else>
                   <div class="px-2 py-1 rounded bg-red-800 flex w-fit pointer-events-none">
                     <Cog6ToothIcon class="h-4 w-4 mr-1 text-neutral-300"></Cog6ToothIcon>
-                    <span class="text-xs font-bold text-neutral-300">Progress</span>
+                    <span class="text-xs font-bold text-neutral-300">W.I.P.</span>
                   </div>
                 </template>
               </template>
@@ -179,7 +183,7 @@
           </div>
           <div class="medium_bg p-2 rounded">
             <div class="flex">
-              <template v-if="this.wisdom.t">
+              <template v-if="wisdom.t">
                 <Markdown class="markedView"
                           :source="'# ' + wisdom.t"
                           :plugins="plugins"></Markdown>
@@ -255,7 +259,7 @@
                         <template v-else>
                           <div class="px-1 py-1 rounded bg-red-800 flex w-24 mr-2 items-center">
                             <Cog6ToothIcon class="h-4 w-4 mr-1 text-neutral-300"></Cog6ToothIcon>
-                            <span class="text-xs font-bold text-neutral-300">Progress</span>
+                            <span class="text-xs font-bold text-neutral-300">W.I.P.</span>
                           </div>
                         </template>
                       </div>
@@ -504,7 +508,7 @@
             <div class="text-neutral-400 text-xs pr-2 font-bold">Date</div>
             <div class="text-sm">{{ getHumanReadableDateText(wisdom.cdate, true, true) }}</div>
           </div>
-          <template v-if="!this.$store.getters.hasSeenWisdomTutorial()">
+          <template v-if="!$store.getters.hasSeenWisdomTutorial()">
             <div id="wisdomTutorial"
                  class="rounded-xl relative my-4 text-neutral-300">
               <div class="bg-neutral-700 rounded-t-xl p-2">
@@ -702,6 +706,7 @@ export default {
     srcguid: String,
     chatguid: String
   },
+  emits: ['close'],
   components: {
     modal,
     Markdown,
@@ -769,7 +774,6 @@ export default {
     this.fetchData()
     this.initFunction()
   },
-  emits: ['close'],
   computed: {
     commentsText: function () {
       if (this.related.comments != null) {
@@ -822,7 +826,7 @@ export default {
       input.addEventListener('keydown', this.handleEnter, false)
       this.inputComment = input
       this.auto_grow()
-      // Set window height
+      // Set window padding
       const mainDiv = this.$refs.knowledgeViewer
       if (mainDiv) {
         if (!this.isoverlay) {

@@ -773,23 +773,32 @@
                    class="sender_avatar">
             </template>
             <template v-else>
-              <UserCircleIcon class="sender_avatar">
-              </UserCircleIcon>
+              <UserCircleIcon class="sender_avatar"></UserCircleIcon>
             </template>
-            <span style="font-weight: bold; margin-left: 14px">
+            <div class="w-[40px] h-[40px] absolute flex items-end justify-end">
+              <template v-if="usr.online">
+                <div class="w-[12px] h-[12px] rounded-full bg-green-500 border-2 border-zinc-900"
+                     v-tooltip.top="{ content: 'Active' }"></div>
+              </template>
+              <template v-else>
+                <div class="w-[12px] h-[12px] rounded-full bg-zinc-500 border-2 border-zinc-900"
+                     v-tooltip.top="{ content: 'Absent' }"></div>
+              </template>
+            </div>
+            <div class="font-bold ml-3">
               <template v-if="usr.online">
                 <span class="text-neutral-300">{{ usr.usr }}</span>
               </template>
               <template v-else>
                 <span class="text-neutral-500">{{ usr.usr }}</span>
               </template>
-          </span>
+            </div>
           </div>
-          <div style="padding-left: 15px; display: flex">
-            <button class="text-white btn-no-outline"
+          <div class="px-4 pt-2 flex">
+            <button class="text-neutral-300 btn-no-outline"
                     title="Invite"
                     v-on:click="invite()">
-              <i class="bi bi-person-plus lead orange-hover c_lightgray" style="font-size: 150%"></i>
+              <UserPlusIcon class="w-[24px] h-[24px]"></UserPlusIcon>
             </button>
             <span class="tooltip-mock-destination" :class="{'show':showInviteCopied}">Copied!</span>
           </div>
@@ -812,6 +821,16 @@
           <UserCircleIcon class="sender_avatar_big">
           </UserCircleIcon>
         </template>
+        <div class="w-[80px] h-[80px] absolute flex items-end justify-end">
+          <template v-if="viewedUserProfile.online">
+            <div class="w-[24px] h-[24px] rounded-full bg-green-500 border-2 border-zinc-900"
+                 v-tooltip.top="{ content: 'Active' }"></div>
+          </template>
+          <template v-else>
+            <div class="w-[24px] h-[24px] rounded-full bg-zinc-500 border-2 border-zinc-900"
+                 v-tooltip.top="{ content: 'Absent' }"></div>
+          </template>
+        </div>
         <div class="block ml-2">
           <h2 class="font-bold text-2xl">
             {{ viewedUserProfile.usr }}
@@ -1324,6 +1343,7 @@ import {
   HomeIcon,
   SignalIcon,
   TrophyIcon,
+  UserPlusIcon,
   ViewColumnsIcon,
   WindowIcon
 } from '@heroicons/vue/24/outline'
@@ -1351,7 +1371,8 @@ export default {
     WindowIcon,
     HomeIcon,
     SignalIcon,
-    UserCircleIcon
+    UserCircleIcon,
+    UserPlusIcon
   },
   data () {
     return {
@@ -4110,6 +4131,11 @@ export default {
     },
     setActiveMembers: function (members, override = true) {
       if (!members) return
+      for (let i = 0; i < this.mainMembers.length; i++) {
+        // Reset all members online state with this elegant solution
+        // which also automatically sets it for the current user
+        this.mainMembers[i].online = this.mainMembers[i].usr === this.$store.state.username
+      }
       for (let i = 0; i < members.length; i++) {
         for (let j = 0; j < this.mainMembers.length; j++) {
           if (this.mainMembers[j].usr === members[i]) {
@@ -4316,13 +4342,13 @@ export default {
 
 .tooltip-mock-destination {
   margin-left: 1ch;
-  color: #aeaeb7;
   display: inline-block;
   font-size: 16px;
   font-weight: bold;
   width: auto;
   opacity: 0;
   transform: translateY(10px);
+  @apply text-neutral-200;
 }
 
 .btn-no-outline {

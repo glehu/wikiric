@@ -308,9 +308,9 @@
                     </template>
                   </TabPanel>
                   <TabPanel id="processes_tab" ref="processes_tab">
-                    <div class="darkest_bg rounded p-3 m-3">
+                    <div class="darkest_bg rounded p-3 my-3">
                       <div class="flex items-center text-neutral-200">
-                        <BeakerIcon class="w-12 h-12 mr-3"></BeakerIcon>
+                        <BeakerIcon class="min-w-[60px] max-w-[60px] min-h-[60px] max-h-[60px] mr-3"></BeakerIcon>
                         <div>
                           <p class="text-2xl font-bold">Experimental Feature</p>
                           <p class="text-neutral-300 text-sm">
@@ -331,7 +331,31 @@
                       <template v-if="processes.length < 1">
                         <p class="medium_bg rounded text-neutral-400 p-4">No Processes</p>
                       </template>
-                      <template v-else></template>
+                      <template v-else>
+                        <template v-for="result in processes" :key="result">
+                          <div v-on:click="gotoProcess(result.guid)"
+                               class="result cursor-pointer">
+                            <div class="text-neutral-300 flex items-center text-sm">
+                              <div class="text-sm">
+                                <p class="text-neutral-200">
+                                  {{ result.author }}
+                                </p>
+                                <p class="text-neutral-300">
+                                  {{ result.cdate }}
+                                </p>
+                              </div>
+                            </div>
+                            <div class="w-full my-2">
+                              <div class="flex items-center overflow-hidden overflow-ellipsis">
+                                <p class="text-xl font-bold text-neutral-200 mb-2">
+                                  {{ result.t }}
+                                </p>
+                              </div>
+                              <p>{{ result.desc }}</p>
+                            </div>
+                          </div>
+                        </template>
+                      </template>
                     </div>
                   </TabPanel>
                 </TabPanels>
@@ -340,22 +364,26 @@
           </div>
         </template>
         <template v-else-if="isViewingWisdom">
-          <template v-if="wisdomGUID != null">
+          <template v-if="wisdomGUID != null && wisdomGUID !== ''">
             <wisdomviewer :isoverlay="true" :srcguid="wisdomGUID" :chatguid="srcguid"
-                          @close="wisdomGUID = undefined; isViewingWisdom = false"/>
+                          @close="wisdomGUID = ''; isViewingWisdom = false; getRecentKeywords"/>
           </template>
         </template>
         <template v-else-if="isViewingProcess">
+          <template v-if="processGUID != null && processGUID !== ''">
+            <processviewer :isoverlay="true" :srcguid="processGUID" :chatguid="srcguid"
+                           @close="processGUID = ''; isViewingProcess = false; getRecentKeywords"/>
+          </template>
         </template>
       </div>
     </template>
     <template v-else>
-      <div class="h-full">
-        <div class="p-10 h-full">
+      <div class="h-full w-full pt-[60px] bright_bg">
+        <div class="p-8 m-8 medium_bg rounded-md">
           <div class="text-neutral-300 mb-5 pointer-events-none">
             <span class="text-5xl font-bold">Create new Knowledge Hub</span>
           </div>
-          <form class="flex" @submit.prevent="createKnowledge">
+          <form class="flex" @submit.prevent="createKnowledge()">
             <div class="text-neutral-300 w-96 ml-5">
               <label for="title" class="text-3xl mb-2">Title</label>
               <br>
@@ -376,7 +404,8 @@
                      v-model="keywordsCreation">
               <br>
               <button type="submit"
-                      class="mt-3 py-2 px-3 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black">
+                      class="mt-3 py-2 px-3 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black
+                           font-bold text-lg">
                 Create
               </button>
             </div>
@@ -549,8 +578,16 @@
             <label for="processDescription" class="text-xl mt-2 font-bold">Description:</label>
             <br>
             <div class="rounded-md w-full overflow-hidden">
-            <textarea type="text" id="processDescription" v-model="processDescription"
-                      rows="20" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
+              <textarea type="text" id="processDescription" v-model="processDescription"
+                        rows="2" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
+            </div>
+            <div class="flex mt-2 mb-4 w-full">
+              <div class="mb-3 ml-auto text-black font-bold">
+                <button v-on:click="createProcess()"
+                        class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-400">
+                  Create
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -564,6 +601,7 @@
 <script>
 import modal from '../../components/Modal.vue'
 import wisdomviewer from '../../views/apps/KnowledgeView'
+import processviewer from '../../views/apps/ProcessView'
 import Markdown from 'vue3-markdown-it'
 import 'highlight.js/styles/hybrid.css'
 import {
@@ -606,6 +644,7 @@ export default {
   components: {
     modal,
     wisdomviewer,
+    processviewer,
     Markdown,
     Listbox,
     ListboxButton,
@@ -671,6 +710,7 @@ export default {
       isViewingWisdom: false,
       isViewingProcess: false,
       wisdomGUID: '',
+      processGUID: '',
       tabSelection: 'knowledge'
     }
   },
@@ -722,9 +762,10 @@ export default {
       } else {
         await this.getRecentKeywords()
       }
-      await this.getTopContributors(srcGUID)
-      await this.getRecentCategories()
-      await this.getRecentQuestions()
+      this.getTopContributors(srcGUID)
+      this.getRecentCategories()
+      this.getRecentQuestions()
+      this.getProcesses()
     },
     getClarifierChatroom: async function (sessionID) {
       if (!sessionID) return
@@ -1082,6 +1123,19 @@ export default {
         this.wisdomGUID = id
       }
     },
+    gotoProcess: function (id) {
+      if (id == null) return
+      if (!this.isoverlay) {
+        if (this.srcguid) {
+          this.$router.push('/apps/process/' + id + '?src=' + this.srcguid)
+        } else {
+          this.$router.push('/apps/process/' + id)
+        }
+      } else {
+        this.isViewingProcess = true
+        this.processGUID = id
+      }
+    },
     wordCloud: function (text, {
       size = group => group.length, // Given a grouping of words, returns the size factor for that word
       word = d => d, // Given an item of the data array, returns the word
@@ -1247,6 +1301,54 @@ export default {
       return new Promise((resolve) => {
         this.searchWisdom('type:question state:false question', true)
           .then(() => resolve())
+      })
+    },
+    getProcesses: async function () {
+      this.processes = []
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm9/processes/' + this.knowledge.guid
+        })
+          .then((data) => {
+            // Retrieve all boxes and tasks from server response
+            this.processes = data.result
+          })
+          .then(() => resolve())
+          .catch((err) => {
+            console.debug(err.message)
+          })
+      })
+    },
+    createProcess: async function () {
+      if (this.processTitle.trim() === '' && this.processDescription.trim() === '' && this.processKeywords.trim() === '') {
+        return
+      }
+      return new Promise((resolve) => {
+        const payload = {
+          title: this.processTitle.trim(),
+          description: this.processDescription.trim(),
+          keywords: this.processKeywords.trim(),
+          knowledgeGUID: this.knowledge.guid
+        }
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm9/create',
+          body: JSON.stringify(payload)
+        }).then((data) => {
+          console.log(data.result)
+          this.isWritingProcess = false
+          this.processTitle = ''
+          this.processDescription = ''
+          this.processKeywords = ''
+        })
+          .then(() => (this.getProcesses()))
+          .then(() => resolve())
+          .catch((err) => {
+            console.debug(err.message)
+          })
       })
     }
   }
