@@ -897,13 +897,13 @@ export default {
                 }
               }
             } else {
-              if (data.tasks) {
+              if (data.result.tasks) {
                 this.related.tasks = []
-                for (let i = 0; i < data.tasks.length; i++) {
-                  if (data.tasks[i].guid !== this.wisdom.guid) {
-                    data.tasks[i].t = this.formatTitle(data.tasks[i].t)
-                    data.tasks[i].cdate = DateTime.fromISO(data.tasks[i].cdate)
-                    this.related.tasks.push(data.tasks[i])
+                for (let i = 0; i < data.result.tasks.length; i++) {
+                  if (data.result.tasks[i].guid !== this.wisdom.guid) {
+                    data.result.tasks[i].t = this.formatTitle(data.result.tasks[i].t)
+                    data.result.tasks[i].cdate = DateTime.fromISO(data.result.tasks[i].cdate)
+                    this.related.tasks.push(data.result.tasks[i])
                   }
                 }
               }

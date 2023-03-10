@@ -31,14 +31,15 @@
               <Combobox v-model="navSelected" class="ml-2">
                 <div class="relative">
                   <div
-                    class="relative w-full cursor-default overflow-hidden rounded-lg bg-zinc-400 text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
+                    class="relative w-full cursor-default overflow-hidden
+                           text-left sm:text-sm"
                   >
                     <div class="relative flex items-center">
                       <ComboboxInput
                         id="cboxinput"
                         placeholder="ctrl-y"
-                        class="w-full border-none py-1 pl-3 pr-10 text-sm leading-5 text-neutral-900 focus:ring-0
-                               medium_bg placeholder-neutral-400"
+                        class="w-full border-1 border-zinc-900 text-sm leading-5 text-neutral-200 focus:ring-0
+                               medium_bg rounded-full placeholder-neutral-400 py-1 pl-3 pr-10 focus:outline-none"
                         :displayValue="(nav) => nav.name"
                         @change="navQuery = $event.target.value"
                         v-on:keyup.enter="processCombo()"
@@ -65,7 +66,6 @@
                       >
                         Nothing found.
                       </div>
-
                       <ComboboxOption
                         v-for="nav in filteredNav"
                         as="template"
@@ -255,6 +255,7 @@ import {
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 import { ArrowsUpDownIcon } from '@heroicons/vue/24/solid'
 import { DateTime } from 'luxon'
+import { toRaw } from 'vue'
 
 export default {
   name: 'Navbar',
@@ -278,7 +279,7 @@ export default {
     ArrowsUpDownIcon
   },
   methods: {
-    getNotifications: function (retrigger = false) {
+    getNotifications: function () {
       this.$Worker.execute({
         action: 'api',
         method: 'get',
@@ -291,13 +292,6 @@ export default {
         })
         .catch((err) => {
           console.debug(err.message)
-        })
-        .finally(() => {
-          if (retrigger) {
-            setTimeout(() => {
-              this.getNotifications(true)
-            }, 10000) // 10 Seconds
-          }
         })
     },
     handleNotificationClicked: function (notification) {
@@ -363,6 +357,17 @@ export default {
         url: 'm8/notifications/dismiss'
       })
         .then(() => this.getNotifications())
+    },
+    processCombo: function () {
+      setTimeout(() => {
+        const value = toRaw(this.navSelected)
+        if (value.href == null) {
+          return
+        }
+        this.$router.push(value.href)
+        this.navQuery = ''
+        this.navSelected = { name: '' }
+      }, 100)
     }
   },
   data () {
@@ -417,7 +422,13 @@ export default {
     }
   },
   mounted () {
-    this.getNotifications(true)
+    this.getNotifications()
+    const bc = new BroadcastChannel('connector')
+    bc.onmessage = event => {
+      if (event.data.type === 'notification') {
+        this.notifications.unshift(JSON.parse(event.data.obj))
+      }
+    }
   },
   computed: {
     bg () {

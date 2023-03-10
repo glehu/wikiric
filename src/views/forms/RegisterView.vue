@@ -1,13 +1,12 @@
 <template>
   <div class="h-full w-full md:flex items-center justify-center overflow-x-hidden">
-    <form class="register md:flex pt-[60]"
-          @submit.prevent="register">
+    <form class="register md:flex pt-[60px]"
+          @submit.prevent="register()">
       <template v-if="metamask.account === '' && phantom.account === ''">
-        <section>
+        <section class="flex justify-center">
           <div id="registration" class="container h-full p-3">
             <div class="justify-center items-center h-full">
-              <div class="text-white border-[1px] border-neutral-600 h-full"
-                   style="border-radius: 1rem; background: #131313">
+              <div class="bright_card">
                 <div class="p-5 text-center">
                   <div class="md:mt-0">
                     <h1 class="font-bold mb-4 text-4xl"
@@ -19,8 +18,9 @@
                         required
                         v-model="user.email"
                         type="email"
-                        class="text-black py-1 px-2 rounded placeholder-neutral-600"
+                        class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
                         placeholder="Email"
+                        autocomplete="user"
                       />
                     </div>
                     <div class="mb-4">
@@ -28,7 +28,7 @@
                         required
                         v-model="user.password"
                         type="password"
-                        class="text-black py-1 px-2 rounded placeholder-neutral-600"
+                        class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
                         placeholder="Password"
                         autocomplete="new-password"
                       />
@@ -38,7 +38,7 @@
                         required
                         v-model="user.passwordRpt"
                         type="password"
-                        class="text-black py-1 px-2 rounded placeholder-neutral-600"
+                        class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
                         placeholder="Confirm Password"
                         autocomplete="new-password"
                       />
@@ -49,11 +49,11 @@
                         required
                         v-model="user.username"
                         type="text"
-                        class="text-black py-1 px-2 rounded placeholder-neutral-600"
+                        class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
                         placeholder="Username"
                       />
                     </div>
-                    <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
+                    <button class="btn_bg_primary"
                             type="submit">
                       Register
                     </button>
@@ -65,11 +65,10 @@
         </section>
       </template>
       <template v-if="hasMetaMask && phantom.account === ''">
-        <section>
+        <section class="flex justify-center">
           <div id="metamask_registration" class="container h-full p-3">
             <div class="justify-center items-center h-full">
-              <div class="text-white border-[1px] border-neutral-600 h-full"
-                   style="border-radius: 1rem; background: #131313">
+              <div class="bright_card">
                 <div class="p-5 text-center">
                   <div class="md:mt-0">
                     <p class="pointer-events-none">Register via</p>
@@ -84,7 +83,7 @@
                     </div>
                     <template v-if="metamask.account === ''">
                       <div>
-                        <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
+                        <button class="btn_bg_primary"
                                 type="button"
                                 v-on:click="handleMetaMaskLogin()">
                           Connect
@@ -98,11 +97,11 @@
                           required
                           v-model="user.username"
                           type="text"
-                          class="text-black py-1 px-2 rounded placeholder-neutral-600"
+                          class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
                           placeholder="Username"
                         />
                       </div>
-                      <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
+                      <button class="btn_bg_primary"
                               type="submit"
                               v-show="metamask.account !== ''">
                         Register
@@ -116,11 +115,10 @@
         </section>
       </template>
       <template v-if="hasPhantom && metamask.account === ''">
-        <section>
+        <section class="flex justify-center">
           <div id="phantom_registration" class="container h-full p-3">
             <div class="justify-center items-center h-full">
-              <div class="text-white border-[1px] border-neutral-600 h-full"
-                   style="border-radius: 1rem; background: #131313">
+              <div class="bright_card">
                 <div class="p-5 text-center">
                   <div class="md:mt-0">
                     <p class="pointer-events-none">Register via</p>
@@ -134,7 +132,7 @@
                     </div>
                     <template v-if="phantom.account === ''">
                       <div>
-                        <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
+                        <button class="btn_bg_primary"
                                 type="button"
                                 v-on:click="handlePhantomLogin()">
                           Connect
@@ -148,11 +146,11 @@
                           required
                           v-model="user.username"
                           type="text"
-                          class="text-black py-1 px-2 rounded placeholder-neutral-600"
+                          class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
                           placeholder="Username"
                         />
                       </div>
-                      <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
+                      <button class="btn_bg_primary"
                               type="submit"
                               v-show="phantom.account !== ''">
                         Register
@@ -344,4 +342,9 @@ export default {
 .mdArrow:hover {
   top: +10px;
 }
+
+.bright_card {
+  @apply text-white border-[1px] border-neutral-600 h-full rounded-md medium_bg;
+}
+
 </style>

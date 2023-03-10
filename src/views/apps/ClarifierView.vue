@@ -147,7 +147,7 @@
                 <button id="btn_join_session"
                         :ref="'btn_join_session'"
                         disabled
-                        class="rounded border-2 border-zinc-600 text-neutral-200"
+                        class="rounded border-2 border-zinc-600 text-neutral-200 enabled:bg-indigo-600"
                         style="max-height: 6ch; height: 6ch"
                         v-on:click="join()">
                   <span class="font-bold lead">Join</span>
@@ -155,7 +155,7 @@
                 <button id="btn_create_session"
                         :ref="'btn_create_session'"
                         disabled
-                        class="rounded border-2 border-zinc-600 text-neutral-200"
+                        class="rounded border-2 border-zinc-600 text-neutral-200 enabled:bg-indigo-600"
                         style="max-height: 6ch; height: 6ch"
                         v-on:click="create()">
                   <span class="font-bold lead">Create</span>
@@ -331,12 +331,21 @@ export default {
               if (lastMessage.src !== '_server') {
                 const key = this.$store.getters.getClarifierKeyPair(data.result.chatrooms[i].guid)
                 if (key != null) {
-                  const decryptedMessage = await this.wcrypt.decryptPayload(lastMessage, userId, key)
-                  this.friends.push({
-                    chatroom: data.result.chatrooms[i],
-                    msg: lastMessage.src + ': ' + decryptedMessage.substring(0, 100).trim(),
-                    ts: new Date(lastMessage.ts)
-                  })
+                  try {
+                    const decryptedMessage = await this.wcrypt.decryptPayload(lastMessage, userId, key)
+                    this.friends.push({
+                      chatroom: data.result.chatrooms[i],
+                      msg: lastMessage.src + ': ' + decryptedMessage.substring(0, 100).trim(),
+                      ts: new Date(lastMessage.ts)
+                    })
+                  } catch (e) {
+                    console.debug(e.message)
+                    this.friends.push({
+                      chatroom: data.result.chatrooms[i],
+                      msg: '',
+                      ts: new Date(lastMessage.ts)
+                    })
+                  }
                 }
               } else {
                 this.friends.push({

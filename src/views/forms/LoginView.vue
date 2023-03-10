@@ -1,13 +1,10 @@
 <template>
-  <div class="h-full w-full md:flex items-center justify-center overflow-x-hidden"
-       :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-adrien-olichon-2387819.jpg')+')',
-              backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <form class="login md:flex pt-[60px]" @submit.prevent="login">
-      <section>
+  <div class="h-full w-full md:flex items-center justify-center overflow-x-hidden">
+    <form class="login grid grid-cols-1 md:flex pt-[60px]" @submit.prevent="login()">
+      <section class="flex justify-center">
         <div class="container p-3 h-full">
           <div class="justify-center items-center h-full">
-            <div class="text-white border-[1px] border-neutral-600 h-full"
-                 style="border-radius: 1rem; background: #131313">
+            <div class="bright_card">
               <div class="p-4 text-center">
                 <div class="md:mt-0">
                   <h2 class="font-bold mb-2 text-uppercase text-4xl mb-4">
@@ -18,7 +15,7 @@
                       required
                       v-model="user.email"
                       type="email"
-                      class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 medium_bg"
+                      class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
                       placeholder="Email"
                       autocomplete="username"
                     />
@@ -28,22 +25,22 @@
                       required
                       v-model="user.password"
                       type="password"
-                      class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 medium_bg"
+                      class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
                       placeholder="Password"
                       autocomplete="current-password"
                     />
                   </div>
                   <!--<p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#">Forgot password?</a></p>-->
-                  <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
+                  <button class="btn_bg_primary"
                           type="button"
                           v-on:click="login()">
                     Login
                   </button>
                   <div class="flex items-center justify-center w-full mt-5 gap-x-2">
-                    <p class="pointer-events-none text-neutral-400">No Account?</p>
+                    <p class="pointer-events-none text-neutral-300 text-sm">No Account?</p>
                     <button v-on:click="gotoRegister()"
                             type="button"
-                            class="text-white muArrow">
+                            class="text-white muArrow rounded dark_bg hover:darkest_bg px-2 py-1 ml-2">
                       Sign Up
                     </button>
                   </div>
@@ -53,11 +50,10 @@
           </div>
         </div>
       </section>
-      <section>
+      <section class="flex justify-center">
         <div id="metamask_registration" class="container h-full p-3">
           <div class="justify-center items-center h-full">
-            <div class="text-white border-[1px] border-neutral-600 h-full"
-                 style="border-radius: 1rem; background: #131313">
+            <div class="bright_card">
               <div class="p-4 text-center">
                 <div class="md:mt-0">
                   <p class="pointer-events-none">Sign in via</p>
@@ -70,7 +66,7 @@
                          class="w-full h-full py-2"
                          alt="MetaMask Icon">
                   </div>
-                  <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
+                  <button class="btn_bg_primary"
                           type="button"
                           v-on:click="handleMetaMaskLogin">
                     Connect
@@ -81,11 +77,10 @@
           </div>
         </div>
       </section>
-      <section>
+      <section class="flex justify-center">
         <div id="phantom_registration" class="container h-full p-3">
           <div class="justify-center items-center h-full">
-            <div class="text-white border-[1px] border-neutral-600 h-full"
-                 style="border-radius: 1rem; background: #131313">
+            <div class="bright_card">
               <div class="p-4 text-center">
                 <div class="md:mt-0">
                   <p class="pointer-events-none">Sign in via</p>
@@ -97,7 +92,7 @@
                     <img src='@/assets/phantom/phantom-icon-purple.svg' alt="Phantom Logo"
                          class="h-full w-full py-3">
                   </div>
-                  <button class="rounded py-2 px-4 medium_bg m-1 hover:dark_bg my-4"
+                  <button class="btn_bg_primary"
                           type="button"
                           v-on:click="handlePhantomLogin">
                     Connect
@@ -265,4 +260,9 @@ export default {
 .muArrow:hover {
   top: -5px;
 }
+
+.bright_card {
+  @apply text-white border-[1px] border-neutral-600 h-full rounded-md medium_bg;
+}
+
 </style>

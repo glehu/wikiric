@@ -14,7 +14,6 @@
 import navbarelem from './views/core/Navbar.vue'
 import firebase from 'firebase/app'
 import 'firebase/firebase-messaging'
-import { toRaw } from 'vue'
 
 export default {
   components: {
@@ -142,17 +141,6 @@ export default {
       this.$store.commit('logOut')
       this.$store.commit('clearCart')
       this.$router.push('/login?redirect=/account')
-    },
-    processCombo: function () {
-      setTimeout(() => {
-        const value = toRaw(this.navSelected)
-        if (value.href == null) {
-          return
-        }
-        this.$router.push(value.href)
-        this.navQuery = ''
-        this.navSelected = { name: '' }
-      }, 100)
     }
   },
   computed: {

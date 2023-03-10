@@ -33,7 +33,7 @@
                     <input id="search-field" type="text"
                            class="search-field py-6 pl-10 pr-4 dark_bg h-8 border-2 border-zinc-700"
                            placeholder="Search..."
-                           v-on:keyup.enter="searchWisdom()"
+                           v-on:keyup.enter="searchWisdom(); getProcesses()"
                            v-model="queryText">
                   </div>
                   <template class="hidden md:block">
@@ -152,9 +152,8 @@
                                       relative min-w-[250px] py-2 px-3">
                                   <div class="flex w-full mb-1 text-sm">
                                     <p>{{ task.result.author }}</p>
-                                    <p class="ml-auto">{{
-                                        getHumanReadableDateText(new Date(task.result.cdate), true)
-                                      }}</p>
+                                    <p class="ml-auto">
+                                      {{ getHumanReadableDateText(task.result.cdate, true) }}</p>
                                   </div>
                                   <div class="text-neutral-300 pointer-events-none">
                                     <p class="font-bold text-lg">{{ task.result.t }}</p>
@@ -224,7 +223,7 @@
                                   {{ result.result.author }}
                                 </p>
                                 <p class="text-neutral-300">
-                                  {{ getHumanReadableDateText(new Date(result.result.cdate), true) }}
+                                  {{ getHumanReadableDateText(result.result.cdate, true) }}
                                 </p>
                               </div>
                               <div class="pointer-events-none ml-auto flex items-center">
@@ -266,7 +265,7 @@
                               </div>
                             </template>
                             <div class="w-full my-2">
-                              <div class="flex items-center overflow-hidden overflow-ellipsis">
+                              <div class="flex items-center overflow-hidden overflow-ellipsis mb-2">
                                 <template v-if="result.result.type === 'task'">
                                   <template v-if="result.result.finished">
                                     <div class="px-1 py-1 rounded bg-green-800 flex w-16 mr-2 items-center">
@@ -281,7 +280,7 @@
                                     </div>
                                   </template>
                                 </template>
-                                <p class="text-xl font-bold text-neutral-200 mb-2">
+                                <p class="text-xl font-bold text-neutral-200">
                                   {{ result.result.t }}
                                 </p>
                               </div>
@@ -313,23 +312,43 @@
                         <BeakerIcon class="min-w-[60px] max-w-[60px] min-h-[60px] max-h-[60px] mr-3"></BeakerIcon>
                         <div>
                           <p class="text-2xl font-bold">Experimental Feature</p>
-                          <p class="text-neutral-300 text-sm">
+                          <p class="text-neutral-300 text-xs max-w-xs text-justify">
                             The "Processes" feature is currently under development and may
                             change rapidly and unexpectedly.
                           </p>
                         </div>
                       </div>
-                    </div>
-                    <div class="my-3 flex items-center gap-2">
-                      <button class="dark_bg hover:darkest_bg rounded p-2 text-neutral-300 flex"
-                              v-on:click="isWritingProcess = true">
+                      <button v-on:click="writeProcess()"
+                              class="border-2 border-indigo-500
+                                     bg-indigo-600 hover:bg-indigo-700
+                                     flex mt-4 mb-2 py-1 px-2 rounded-md
+                                     text-neutral-200 hover:text-neutral-200">
                         <PlusCircleIcon class="w-6 h-6 mr-2"></PlusCircleIcon>
                         <span>Create Process</span>
                       </button>
                     </div>
                     <div class="h-full w-full">
                       <template v-if="processes.length < 1">
-                        <p class="medium_bg rounded text-neutral-400 p-4">No Processes</p>
+                        <div class="flex w-full justify-center items-center md:mt-10">
+                          <div class="dark_bg rounded-md p-3 text-neutral-300">
+                            <p class="pointer-events-none text-center">No Processes for...</p>
+                            <p class="text-neutral-300 text-center my-2">{{ querySubmission }}</p>
+                            <p
+                              class="text-neutral-300 pointer-events-none mt-3 text-center border-t border-t-gray-400 pt-3">
+                              Start a Process now!
+                            </p>
+                            <div class="mt-2">
+                              <div class="flex">
+                                <button v-on:click="writeProcess()"
+                                        class="border-indigo-500 bg-indigo-600 hover:bg-indigo-700 border-2 flex
+                                               rounded-md py-1 px-2 text-neutral-200 hover:text-neutral-200">
+                                  <PlusCircleIcon class="w-6 h-6 mr-2"></PlusCircleIcon>
+                                  <span>Create Process</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </template>
                       <template v-else>
                         <template v-for="result in processes" :key="result">
@@ -341,7 +360,7 @@
                                   {{ result.author }}
                                 </p>
                                 <p class="text-neutral-300">
-                                  {{ result.cdate }}
+                                  {{ getHumanReadableDateText(result.cdate, true) }}
                                 </p>
                               </div>
                             </div>
@@ -567,7 +586,7 @@
           <div class="w-full">
             <label for="processTitle" class="text-xl font-bold">Title:</label>
             <br>
-            <input type="text" id="processTitle" v-model="processTitle"
+            <input type="text" id="processTitle" ref="processTitle" v-model="processTitle"
                    class="medium_bg rounded-md w-full py-2 px-3 text-neutral-200">
             <br>
             <label for="processKeywords" class="text-xl mt-2 font-bold">Keywords:</label>
@@ -633,6 +652,7 @@ import {
 } from '@headlessui/vue'
 import * as d3 from 'd3'
 import * as d3Cloud from 'd3-cloud'
+import { DateTime } from 'luxon'
 
 export default {
   name: 'KnowledgeFinderView',
@@ -1273,28 +1293,45 @@ export default {
         this.$emit('close')
       }
     },
-    getHumanReadableDateText: function (date, withTime = false) {
-      const date2 = new Date()
-      const diffTime = Math.abs(date2 - date)
-      let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-      if (date.getDate() === date2.getDate() &&
-        date.getMonth() === date2.getMonth() &&
-        date.getFullYear() === date2.getFullYear()) {
-        diffDays = 0
-      }
+    getHumanReadableDateText: function (date, withTime = true) {
+      const time = DateTime.fromISO(date).toLocaleString(DateTime.TIME_24_SIMPLE)
+      const start = DateTime.fromISO(DateTime.fromISO(date).toISODate())
+      const end = DateTime.fromISO(DateTime.now().toISODate())
+      const diffDays = Math.ceil(end.diff(start) / (1000 * 60 * 60 * 24))
       let suffix = ''
       if (withTime) {
-        suffix = ', ' + date.toLocaleTimeString('de-DE')
+        suffix = ', ' + time
       }
-      if (diffDays === 0) {
-        return 'Today' + suffix
-      } else if (diffDays === 1) {
-        return 'Yesterday' + suffix
-      } else if (diffDays === 2) {
-        return '2 days ago' + suffix
-      } else {
-        return date.toLocaleDateString('de-DE') + suffix
+      let returnString
+      switch (diffDays) {
+        case -5:
+          returnString = 'In 5 days' + suffix
+          break
+        case -4:
+          returnString = 'In 4 days' + suffix
+          break
+        case -3:
+          returnString = 'In 3 days' + suffix
+          break
+        case -2:
+          returnString = 'In 2 days' + suffix
+          break
+        case -1:
+          returnString = 'Tomorrow' + suffix
+          break
+        case 0:
+          returnString = 'Today' + suffix
+          break
+        case 1:
+          returnString = 'Yesterday' + suffix
+          break
+        case 2:
+          returnString = '2 days ago' + suffix
+          break
+        default:
+          returnString = start.toISODate() + suffix
       }
+      return returnString
     },
     getRecentQuestions: async function () {
       this.questions = []
@@ -1306,10 +1343,14 @@ export default {
     getProcesses: async function () {
       this.processes = []
       return new Promise((resolve) => {
+        let query = ''
+        if (this.queryText !== '') {
+          query = '?query=' + this.queryText
+        }
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm9/processes/' + this.knowledge.guid
+          url: 'm9/processes/' + this.knowledge.guid + query
         })
           .then((data) => {
             // Retrieve all boxes and tasks from server response
@@ -1320,6 +1361,13 @@ export default {
             console.debug(err.message)
           })
       })
+    },
+    writeProcess: function () {
+      this.isWritingProcess = true
+      this.processTitle = this.queryText.trim().replaceAll('#', '')
+      setTimeout(() => {
+        this.$refs.processTitle.focus()
+      }, 0)
     },
     createProcess: async function () {
       if (this.processTitle.trim() === '' && this.processDescription.trim() === '' && this.processKeywords.trim() === '') {
@@ -1338,13 +1386,12 @@ export default {
           url: 'm9/create',
           body: JSON.stringify(payload)
         }).then((data) => {
-          console.log(data.result)
           this.isWritingProcess = false
           this.processTitle = ''
           this.processDescription = ''
           this.processKeywords = ''
+          this.gotoProcess(data.result)
         })
-          .then(() => (this.getProcesses()))
           .then(() => resolve())
           .catch((err) => {
             console.debug(err.message)

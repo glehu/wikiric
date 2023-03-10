@@ -6,7 +6,9 @@ module.exports = {
       start_url: 'https://wikiric.netlify.app/apps/clarifier'
     },
     workboxOptions: {
-      exclude: ['_redirects']
+      exclude: ['_redirects'],
+      skipWaiting: true,
+      clientsClaim: true
     }
   }
 }

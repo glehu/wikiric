@@ -372,7 +372,7 @@
                         </template>
                       </div>
                       <template v-if="msg.tagActive === true">
-                        <div style="position: absolute; height: 100%; width: 5px; left: -15px;
+                        <div style="position: absolute; height: 100%; width: 5px; left: 0;
                                     border-radius: 5px; z-index: 5; box-shadow: 0 0 15px 0 #ff5d37"
                              class="b_orange">
                         </div>
@@ -778,15 +778,21 @@
             <div class="w-[40px] h-[40px] absolute flex items-end justify-end">
               <template v-if="usr.online">
                 <div class="w-[13px] h-[13px] rounded-full bg-green-500 border-2 border-zinc-900"
-                     v-tooltip.top="{ content: 'Active' }"></div>
+                     v-tooltip.top="{ content: 'Online' }"></div>
+              </template>
+              <template v-else-if="usr.recent">
+                <div class="w-[13px] h-[13px] rounded-full bg-zinc-900 border-2 border-zinc-900"
+                     v-tooltip.top="{ content: 'AFK' }">
+                  <MoonIcon class="w-full h-full text-orange-400"></MoonIcon>
+                </div>
               </template>
               <template v-else>
-                <div class="w-[13px] h-[13px] rounded-full bg-zinc-500 border-2 border-zinc-900"
-                     v-tooltip.top="{ content: 'Absent' }"></div>
+                <div class="w-[13px] h-[13px] rounded-full bg-zinc-600 border-2 border-zinc-900"
+                     v-tooltip.top="{ content: 'Offline' }"></div>
               </template>
             </div>
             <div class="font-bold ml-3">
-              <template v-if="usr.online">
+              <template v-if="usr.active">
                 <span class="text-neutral-300">{{ usr.usr }}</span>
               </template>
               <template v-else>
@@ -824,11 +830,17 @@
         <div class="w-[80px] h-[80px] absolute flex items-end justify-end">
           <template v-if="viewedUserProfile.online">
             <div class="w-[24px] h-[24px] rounded-full bg-green-500 border-2 border-zinc-900"
-                 v-tooltip.top="{ content: 'Active' }"></div>
+                 v-tooltip.top="{ content: 'Online' }"></div>
+          </template>
+          <template v-else-if="viewedUserProfile.recent">
+            <div class="w-[24px] h-[24px] rounded-full bg-zinc-900 border-2 border-zinc-900"
+                 v-tooltip.top="{ content: 'AFK' }">
+              <MoonIcon class="w-full h-full text-orange-400"></MoonIcon>
+            </div>
           </template>
           <template v-else>
             <div class="w-[24px] h-[24px] rounded-full bg-zinc-500 border-2 border-zinc-900"
-                 v-tooltip.top="{ content: 'Absent' }"></div>
+                 v-tooltip.top="{ content: 'Offline' }"></div>
           </template>
         </div>
         <div class="block ml-2">
@@ -1331,6 +1343,7 @@ import {
   ChartBarIcon,
   EyeIcon,
   GifIcon,
+  MoonIcon,
   PhoneIcon,
   QrCodeIcon,
   UserCircleIcon,
@@ -1372,7 +1385,8 @@ export default {
     HomeIcon,
     SignalIcon,
     UserCircleIcon,
-    UserPlusIcon
+    UserPlusIcon,
+    MoonIcon
   },
   data () {
     return {
@@ -1462,6 +1476,17 @@ export default {
   },
   mounted () {
     setTimeout(() => this.initFunction(), 0)
+    const bc = new BroadcastChannel('connector')
+    bc.onmessage = event => {
+      if (event.data.type === 'online') {
+        if (this.mainMembers.length <= 0) return
+        for (let i = 0; i < this.mainMembers.length; i++) {
+          if (this.mainMembers[i].usr === event.data.srcUsername) {
+            this.mainMembers[i].online = true
+          }
+        }
+      }
+    }
   },
   beforeUnmount () {
     clearInterval(this.timer)
@@ -1656,7 +1681,6 @@ export default {
             // Get metadata and messages
             this.getClarifierMetaData(sessionID, isSubchat, novisual)
               .then(() => this.getClarifierMessages(false, sessionID))
-              .then(() => this.getActiveMembers(sessionID))
               .then(() => this.prepareInputField())
               .then(() => // Websocket incoming frames
                 (
@@ -1685,6 +1709,7 @@ export default {
       }).catch((err) => console.debug(err.message))
     },
     showMessage: async function (msg) {
+      // This function gets called upon receiving a message via the websocket connection
       const message = await this.processRawMessage(msg)
       if (message.mType == null) return
       if (message.mType === 'EditNotification') {
@@ -2092,6 +2117,13 @@ export default {
       if (this.isSubchat) {
         document.title += ' - ' + this.currentSubchat.t
       }
+      let sessionID
+      if (isSubchat) {
+        sessionID = this.getSessionSub()
+      } else {
+        sessionID = this.getSession()
+      }
+      this.getActiveMembers(sessionID)
     },
     getClarifierMessages: function (lazyLoad = false, sessionID) {
       if (sessionID == null) {
@@ -4121,7 +4153,11 @@ export default {
         url: 'm5/activemembers/' + uniChatroomGUID
       })
         .then((data) => {
+          for (let i = 0; i < this.mainMembers.length; i++) {
+            this.mainMembers[i].active = (this.mainMembers[i].usr === this.$store.state.username)
+          }
           this.setActiveMembers(data.result.members)
+          this.getOnlineUsers()
         })
         .finally(() => {
           setTimeout(() => {
@@ -4131,19 +4167,51 @@ export default {
     },
     setActiveMembers: function (members, override = true) {
       if (!members) return
-      for (let i = 0; i < this.mainMembers.length; i++) {
-        // Reset all members online state with this elegant solution
-        // which also automatically sets it for the current user
-        this.mainMembers[i].online = this.mainMembers[i].usr === this.$store.state.username
-      }
+      const dict = new Map()
       for (let i = 0; i < members.length; i++) {
-        for (let j = 0; j < this.mainMembers.length; j++) {
-          if (this.mainMembers[j].usr === members[i]) {
-            this.mainMembers[j].online = override
-            break
+        dict[members[i]] = true
+      }
+      for (let i = 0; i < this.mainMembers.length; i++) {
+        if (this.mainMembers[i].usr === this.$store.state.username) {
+          this.mainMembers[i].active = true
+        } else {
+          if (dict[this.mainMembers[i].usr]) {
+            this.mainMembers[i].active = override
           }
         }
       }
+    },
+    getOnlineUsers: function () {
+      const payload = {
+        usernames: []
+      }
+      for (let i = 0; i < this.mainMembers.length; i++) {
+        this.mainMembers[i].online = (this.mainMembers[i].usr === this.$store.state.username)
+        payload.usernames.push(this.mainMembers[i].usr)
+      }
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: 'm2/online',
+        body: JSON.stringify(payload)
+      })
+        .then((data) => {
+          const dict = new Map()
+          if (!data.result.users) return
+          for (let i = 0; i < data.result.users.length; i++) {
+            dict[data.result.users[i].username] = {
+              online: data.result.users[i].online,
+              recent: data.result.users[i].recent,
+              lastActivity: data.result.users[i].lastActivity
+            }
+          }
+          for (let i = 0; i < this.mainMembers.length; i++) {
+            if (dict[this.mainMembers[i].usr]) {
+              this.mainMembers[i].online = dict[this.mainMembers[i].usr].online
+              this.mainMembers[i].recent = dict[this.mainMembers[i].usr].recent
+            }
+          }
+        })
     },
     setOverlay: function (type) {
       this.hideAllWindows()
@@ -4192,9 +4260,13 @@ export default {
       this.disconnect()
       this.connect(chatroomId, false, novisual)
     },
-    prepareInputField: function () {
+    prepareInputField: function (tries = 0) {
+      if (tries > 10) return
       setTimeout(() => {
         this.inputField = this.$refs.new_comment
+        if (!this.inputField) {
+          this.prepareInputField(++tries)
+        }
         // Remove event listeners first to avoid having multiple
         this.inputField.removeEventListener('keydown', this.handleEnter, false)
         this.inputField.removeEventListener('input', this.handleCommentInput, false)
@@ -4747,12 +4819,11 @@ export default {
 
 .msg_time {
   opacity: 0;
-  font-size: 80%;
   height: 100%;
   width: 100%;
   display: flex;
   align-items: center;
-  @apply text-neutral-300;
+  @apply text-neutral-300 text-xs;
 }
 
 .message:hover .msg_time,
