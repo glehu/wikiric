@@ -5,6 +5,24 @@
     <div id="router_view_elem" ref="router_view_elem"
          class="fixed top-0 left-0 z-10 w-full darkest_bg">
       <router-view/>
+      <template v-if="incomingCall">
+        <div class="w-full h-full absolute left-0 top-0 flex items-center justify-center">
+          <div class="p-8 font-bold darkest_bg rounded-md border-2 border-zinc-600">
+            <p class="w-full text-center">Incoming Call</p>
+            <p class="w-full text-center my-3 text-xl">{{ call.srcUsername }}</p>
+            <div class="flex items-center justify-evenly w-full p-1 mt-4 gap-x-4">
+              <PhoneIcon
+                v-on:click="acceptCall()"
+                class="min-w-[58px] min-h-[58px] max-w-[58px] max-h-[58px]
+                       text-emerald-500 p-2 rounded-md hover:medium_bg cursor-pointer"></PhoneIcon>
+              <PhoneXMarkIcon
+                v-on:click="incomingCall = false"
+                class="min-w-[58px] min-h-[58px] max-w-[58px] max-h-[58px]
+                       text-red-500 p-2 rounded-md hover:medium_bg cursor-pointer"></PhoneXMarkIcon>
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
     <notifications position="bottom right"/>
   </div>
@@ -14,10 +32,13 @@
 import navbarelem from './views/core/Navbar.vue'
 import firebase from 'firebase/app'
 import 'firebase/firebase-messaging'
+import { PhoneIcon, PhoneXMarkIcon } from '@heroicons/vue/24/solid'
 
 export default {
   components: {
-    navbarelem
+    navbarelem,
+    PhoneIcon,
+    PhoneXMarkIcon
   },
   mounted () {
     this.initFunction()
@@ -26,13 +47,24 @@ export default {
     return {
       angle: '45',
       color1: 'darkred',
-      color2: 'rebeccapurple'
+      color2: 'rebeccapurple',
+      connector: null,
+      incomingCall: false,
+      call: {}
     }
   },
   methods: {
-    initFunction: function () {
+    initFunction: async function () {
       this.checkServerIP()
       this.$store.commit('logOut')
+
+      this.connector = new BroadcastChannel('connector')
+      this.connector.onmessage = event => {
+        if (event.data.type === 'incoming call') {
+          this.incomingCall = true
+          this.call = event.data
+        }
+      }
 
       const firebaseConfig = {
         apiKey: 'AIzaSyDMz_cfwofnEW7d49795IhtOBZgmrJtyqA',
@@ -130,10 +162,10 @@ export default {
         }
       })
     },
-    checkServerIP () {
+    checkServerIP: function () {
       this.$store.commit('setServerIP', 'https://wikiric.xyz')
     },
-    async logout () {
+    logout: async function () {
       if (!this.isLoggedIn) return
       await this.$Worker.execute({
         action: 'logout'
@@ -141,6 +173,15 @@ export default {
       this.$store.commit('logOut')
       this.$store.commit('clearCart')
       this.$router.push('/login?redirect=/account')
+    },
+    acceptCall: function () {
+      if (this.call.chatroomGUID) {
+        this.incomingCall = false
+        this.$router.push('/apps/clarifier')
+        setTimeout(() => {
+          this.$router.push('/apps/clarifier/wss/' + this.call.chatroomGUID + '?call=true')
+        }, 0)
+      }
     }
   },
   computed: {

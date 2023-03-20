@@ -87,7 +87,7 @@
         </div>
       </div>
       <div id="sidebar2" ref="sidebar2"
-           style="margin-top: 60px" v-show="canShowSidebar"
+           style="margin-top: 60px"
            class="sidebar2 medium_bg lg:rounded-tl">
         <div class="h-full relative">
           <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden"
@@ -101,61 +101,77 @@
                 <span class="relative left-[20px]">Home</span>
               </div>
             </div>
-            <div style="width: 100%; height: 35px; padding-top: 5px"
-                 class="px-2 flex relative items-center justify-between">
-              <span class="font-bold c_lightgray nopointer">Subchats</span>
-              <button class="text-white btn-no-outline"
-                      title="New Subchat"
-                      v-on:click="showNewSubchatWindow">
-                <i class="bi bi-plus lead orange-hover c_lightgray"
-                   style="font-size: 150%"></i>
-              </button>
-            </div>
-            <div v-for="subchat in chatroom.subChatrooms" :key="subchat"
-                 :id="subchat.guid + '_subc'"
-                 class="subchat"
-                 style="display: flex"
-                 v-on:click="gotoSubchat(subchat.guid)">
-              <i v-show="hasUnread(subchat.guid)" :id="subchat.guid + '_notify'"
-                 class="bi bi-chat-quote-fill relative left-0 z-50 text-orange-500"></i>
-              <template v-if="subchat.type === 'screenshare'">
-                <WindowIcon class="h-5 w-5"></WindowIcon>
-              </template>
-              <template v-else-if="subchat.type === 'webcam'">
-                <i class="bi bi-camera-video h-5 w-5 flex items-center justify-center text-lg"></i>
-              </template>
-              <template v-else>
-                <HashtagIcon class="h-5 w-5"></HashtagIcon>
-              </template>
-              <span class="relative left-[20px]">{{ subchat.t }}</span>
-            </div>
-          </div>
-          <template v-if="this.chatroom.rank > 1">
-            <div class="absolute bottom-0 w-full p-2 text-neutral-300 border-t-2 border-t-neutral-800">
-              <template v-if="this.chatroom.rank > 3">
-                <div style="height: 40px"
-                     class="subchat w-full flex items-center"
-                     v-on:click="gotoPlanner()">
-                  <ViewColumnsIcon class="h-5 w-5"></ViewColumnsIcon>
-                  <span class="relative left-[20px]">Planner</span>
-                </div>
-              </template>
-              <template v-if="this.chatroom.rank > 2">
-                <div style="height: 40px"
-                     class="subchat w-full flex items-center"
-                     v-on:click="setOverlay('knowledgefinder')">
-                  <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
-                  <span class="relative left-[20px]">Knowledge</span>
-                </div>
-              </template>
-              <div style="height: 40px"
-                   class="subchat w-full flex items-center"
-                   v-on:click="isViewingBadges = true">
-                <TrophyIcon class="h-5 w-5"></TrophyIcon>
-                <span class="relative left-[20px]">Badges</span>
+            <template v-if="canShowSidebar">
+              <div style="width: 100%; height: 35px; padding-top: 5px">
+                <p class="px-2 font-bold c_lightgray nopointer">Apps</p>
               </div>
-            </div>
-          </template>
+              <template v-if="this.chatroom.rank > 1">
+                <div class="w-full text-neutral-300">
+                  <template v-if="this.chatroom.rank > 3">
+                    <div style="height: 40px"
+                         class="subchat w-full flex items-center"
+                         v-on:click="gotoPlanner()">
+                      <ViewColumnsIcon class="h-5 w-5"></ViewColumnsIcon>
+                      <span class="relative left-[20px]">Planner</span>
+                    </div>
+                  </template>
+                  <template v-if="this.chatroom.rank > 2">
+                    <div style="height: 40px"
+                         class="subchat w-full flex items-center"
+                         v-on:click="setOverlay('knowledgefinder')">
+                      <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
+                      <span class="relative left-[20px]">Knowledge</span>
+                    </div>
+                  </template>
+                  <div style="height: 40px"
+                       class="subchat w-full flex items-center"
+                       v-on:click="isViewingBadges = true">
+                    <TrophyIcon class="h-5 w-5"></TrophyIcon>
+                    <span class="relative left-[20px]">Badges</span>
+                  </div>
+                </div>
+              </template>
+              <div style="width: 100%; height: 35px; padding-top: 5px"
+                   class="px-2 flex relative items-center justify-between">
+                <span class="font-bold c_lightgray nopointer">Subchats</span>
+                <button class="text-white btn-no-outline"
+                        title="New Subchat"
+                        v-on:click="showNewSubchatWindow">
+                  <i class="bi bi-plus lead orange-hover c_lightgray"
+                     style="font-size: 150%"></i>
+                </button>
+              </div>
+              <div v-for="subchat in chatroom.subChatrooms" :key="subchat"
+                   :id="subchat.guid + '_subc'"
+                   class="subchat"
+                   style="display: flex"
+                   v-on:click="gotoSubchat(subchat.guid)">
+                <i v-show="hasUnread(subchat.guid)" :id="subchat.guid + '_notify'"
+                   class="bi bi-chat-quote-fill relative left-0 z-50 text-orange-500"></i>
+                <template v-if="subchat.type === 'screenshare'">
+                  <WindowIcon class="h-5 w-5"></WindowIcon>
+                </template>
+                <template v-else-if="subchat.type === 'webcam'">
+                  <i class="bi bi-camera-video h-5 w-5 flex items-center justify-center text-lg"></i>
+                </template>
+                <template v-else>
+                  <HashtagIcon class="h-5 w-5"></HashtagIcon>
+                </template>
+                <span class="relative left-[20px]">{{ subchat.t }}</span>
+              </div>
+            </template>
+            <template v-else>
+              <div class="w-full p-4 text-neutral-300">
+                <button class="w-full flex items-center justify-center
+                               border border-zinc-600 rounded
+                               px-3 py-2 dark_bg hover:darkest_bg"
+                        v-on:click="directCall()">
+                  <PhoneIcon class="min-w-[20px] min-h-[20px] max-w-[20px] max-h-[20px] mr-4"></PhoneIcon>
+                  <span class="text-sm">Call {{ chatroom.t }}</span>
+                </button>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
       <div id="clarifier_chatroom" :ref="'clarifier_chatroom'"
@@ -183,12 +199,16 @@
                   <h2 class="font-bold text-neutral-300">
                     {{ streamDuration }}
                   </h2>
-                  <button v-on:click="stopScreenshare()"
-                          class="gray-hover c_lightgray ml-6 px-2 py-1"
-                          style="border: 1px solid rgba(255,0,0,0.5);
-                                 border-radius: 10px;">
-                    <span style="font-weight: bold">Hang Up</span>
-                  </button>
+                </div>
+                <div v-else>
+                  <template v-if="chatroom.type === 'direct'">
+                    <button class="w-full flex lg:hidden items-center justify-center
+                                   border border-zinc-600 rounded ml-6
+                                   p-1 dark_bg hover:darkest_bg"
+                            v-on:click="directCall()">
+                      <PhoneIcon class="min-w-[20px] min-h-[20px] max-w-[20px] max-h-[20px]"></PhoneIcon>
+                    </button>
+                  </template>
                 </div>
               </div>
               <button class="btn-no-outline c_lightgray"
@@ -211,87 +231,124 @@
                 <i class="bi bi-people orange-hover" style="height: 25px; width: 25px"></i>
               </button>
             </div>
-            <div v-if="this.isSubchat === true &&
-                     (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam')"
+            <div v-if="canShowVideoElements"
+                 id="conference_container" ref="conference_container"
                  style="width: calc(100% - 350px);
-                      height: calc(100% - 60px - 50px - 80px);
-                      position: absolute; left: 350px;
-                      padding: 0;
-                      display: flex"
+                        height: calc(100% - 50px - 80px);
+                        position: absolute; left: 350px;
+                        padding: 0"
                  class="c_lightgray">
-              <div style="position: relative; top: 0; left: 0;
+              <div class="w-full h-[calc(100%-60px)] flex">
+                <div style="position: relative; top: 0; left: 0;
                         width: 100%;
                         aspect-ratio: 16 / 9"
-                   class="flex">
-                <div v-if="!isStreamingVideo"
-                     class="flex"
-                     style="pointer-events: none;
+                     class="flex">
+                  <div v-if="!isStreamingVideo"
+                       class="flex"
+                       style="pointer-events: none;
                           position: absolute;
                           width: 100%; height: 100%;
                           align-items: center; justify-content: center;
                           background-color: rgba(19,19,19,0.75)">
-                  <i class="bi bi-camera-video-off lead"></i>
-                  <p style="margin: 0 0 0 10px;
+                    <i class="bi bi-camera-video-off lead"></i>
+                    <p style="margin: 0 0 0 10px;
                         padding-left: 10px;
                         border-left: 1px solid rgba(174, 174, 183, 0.25)">
-                    OFFLINE
-                    <br>
-                    <span style="font-size: 75%">
+                      OFFLINE
+                      <br>
+                      <span style="font-size: 75%">
                   Start sharing or wait for
                   <br>somebody to start the stream.
                 </span>
-                  </p>
+                    </p>
+                  </div>
+                  <template v-if="currentSubchat.type === 'screenshare'">
+                    <video id="screenshare_video" muted autoplay playsinline
+                           style="width: 100%; height: 100%"></video>
+                  </template>
+                  <template v-else-if="currentSubchat.type === 'webcam' || params">
+                    <div id="conference_grid" ref="conference_grid"
+                         class="grid w-full overflow-hidden"
+                         style="grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));">
+                      <div class="relative overflow-hidden w-full h-full">
+                        <video id="screenshare_video"
+                               muted autoplay playsinline
+                               class="w-full h-full max-w-full max-h-full"></video>
+                        <p class="absolute top-0 left-0 text-sm bg-zinc-900 bg-opacity-75 p-0.5">
+                          {{ $store.state.username }}
+                        </p>
+                      </div>
+                      <template v-for="peerCon in peerConnectionsComp" :key="peerCon.key">
+                        <div :id="'screenshare_container_' + peerCon.key"
+                             hidden
+                             class="relative overflow-hidden w-full h-full">
+                          <video :id="'screenshare_video_' + peerCon.key"
+                                 muted autoplay playsinline
+                                 class="w-full h-full max-w-full max-h-full"></video>
+                          <p class="absolute top-0 left-0 text-sm bg-zinc-900 bg-opacity-75 p-0.5">
+                            {{ getUserFromId(peerCon.key) }}
+                          </p>
+                        </div>
+                      </template>
+                    </div>
+                  </template>
                 </div>
-                <template v-if="currentSubchat.type === 'screenshare'">
-                  <video id="screenshare_video" muted autoplay playsinline
-                         style="width: 100%; height: 100%"></video>
-                </template>
-                <template v-else-if="currentSubchat.type === 'webcam'">
-                  <video id="screenshare_video" muted autoplay playsinline
-                         style="width: 50%; height: 100%"></video>
-                  <video id="screenshare_video_remote" muted autoplay playsinline
-                         style="width: 50%; height: 100%"></video>
-                </template>
-              </div>
-              <div v-if="!isStreamingVideo && (this.currentSubchat.type === 'webcam')"
-                   style="position: absolute; bottom: 10px; left: 0"
-                   class="text-end flex items-center justify-center w-full text-neutral-400">
-                <div class="p-2 text-neutral-400 gray-hover"
-                     v-on:click="startScreenshare(undefined, {video: false, audio: true})">
-                  <PhoneIcon class="h-8 w-8"></PhoneIcon>
-                </div>
-                <div class="p-2 text-neutral-400 gray-hover"
-                     v-on:click="startScreenshare(undefined, {video: true, audio: true})">
-                  <VideoCameraIcon class="h-8 w-8"></VideoCameraIcon>
-                </div>
-              </div>
-              <div v-if="!isStreamingVideo && (this.currentSubchat.type === 'screenshare')"
-                   style="position: absolute; top: 10px; right: 10px" class="text-end">
-                <button v-on:click="startScreenshare()"
-                        class="gray-hover c_lightgray px-2 py-1"
-                        style="position: relative;
+                <div v-if="!isStreamingVideo && (currentSubchat.type === 'screenshare')"
+                     style="position: absolute; top: 10px; right: 10px" class="text-end">
+                  <button v-on:click="startScreenshare()"
+                          class="gray-hover c_lightgray px-3 py-2"
+                          style="position: relative;
                              margin-left: 20px; margin-top: 10px;
                              border: 1px solid #ff5d37;
                              border-radius: 10px;">
-                  Group Meeting
-                </button>
-                <br>
-                <template v-for="user in this.members" :key="user">
-                  <template v-if="user.id !== userId">
-                    <button v-on:click="startScreenshare(user.id)"
-                            class="gray-hover c_lightgray px-2 py-1"
-                            style="position: relative;
+                    Group Meeting
+                  </button>
+                  <br>
+                  <template v-for="user in this.members" :key="user">
+                    <template v-if="user.id !== userId">
+                      <button v-on:click="startScreenshare(user.id)"
+                              class="gray-hover c_lightgray px-3 py-2"
+                              style="position: relative;
                                    margin-left: 20px; margin-top: 10px;
                                    border: 1px solid rgba(174, 174, 183, 0.25);
                                    border-radius: 10px;">
-                      Call {{ user.usr }}
+                        Call {{ user.usr }}
+                      </button>
+                      <br>
+                    </template>
+                  </template>
+                </div>
+              </div>
+              <div class="w-full h-[60px] flex items-center justify-center gap-x-4">
+                <template v-if="isStreamingVideo">
+                  <button v-on:click="stopScreenshare()"
+                          v-tooltip.top="{ content: 'Hang Up' }"
+                          class="p-2 border border-red-500 rounded-md gray-hover">
+                    <PhoneXMarkIcon class="h-8 w-8 text-red-500"></PhoneXMarkIcon>
+                  </button>
+                  <button v-tooltip.top="{ content: 'Share Screen' }"
+                          class="p-2 border border-zinc-400 rounded-md gray-hover">
+                    <WindowIcon class="h-8 w-8 text-neutral-400"></WindowIcon>
+                  </button>
+                </template>
+                <template v-else>
+                  <template v-if="currentSubchat.type === 'webcam' || params">
+                    <button class="p-2 border border-zinc-500 rounded-md text-neutral-300 hover:dark_bg"
+                            v-tooltip.top="{ content: 'Audio Call' }"
+                            v-on:click="startScreenshare(undefined, {video: false, audio: true})">
+                      <PhoneIcon class="h-8 w-8"></PhoneIcon>
                     </button>
-                    <br>
+                    <button class="p-2 border border-zinc-500 rounded-md text-neutral-300 hover:dark_bg"
+                            v-tooltip.top="{ content: 'Video Call' }"
+                            v-on:click="startScreenshare(undefined, {video: true, audio: true})">
+                      <VideoCameraIcon class="h-8 w-8"></VideoCameraIcon>
+                    </button>
                   </template>
                 </template>
               </div>
             </div>
-            <div class="h-[calc(100%-130px)] max-h-[calc(100%-130px)] overflow-hidden
+            <div id="messages_container" ref="messages_container"
+                 class="h-[calc(100%-130px)] max-h-[calc(100%-130px)] overflow-hidden
                         bright_bg lg:rounded-tl-lg">
               <div id="messages_section" :ref="'messages_section'"
                    class="messages_section relative flex h-full
@@ -681,7 +738,8 @@
                        v-on:keyup.enter="submitImgflipMeme">
               </template>
             </div>
-            <div class="bright_bg input_section" v-if="overlayType === 'msg'">
+            <div id="input_container" ref="input_container"
+                 class="bright_bg input_section" v-if="overlayType === 'msg'">
               <button class="c_lightgray text-center scroll_to_bottom orange-hover"
                       id="scroll_to_bottom"
                       v-on:click="scrollToBottom">
@@ -1345,6 +1403,7 @@ import {
   GifIcon,
   MoonIcon,
   PhoneIcon,
+  PhoneXMarkIcon,
   QrCodeIcon,
   UserCircleIcon,
   VideoCameraIcon
@@ -1386,7 +1445,8 @@ export default {
     SignalIcon,
     UserCircleIcon,
     UserPlusIcon,
-    MoonIcon
+    MoonIcon,
+    PhoneXMarkIcon
   },
   data () {
     return {
@@ -1465,6 +1525,7 @@ export default {
       sidebar: {
         active: true
       },
+      params: false,
       plugins: [
         {
           plugin: markdownItMermaid
@@ -1492,6 +1553,35 @@ export default {
     clearInterval(this.timer)
     clearInterval(this.timerIdle)
     this.disconnect()
+  },
+  computed: {
+    peerConnectionsComp () {
+      if (this.wRTC) {
+        return Array.from(this.wRTC.peerConnections, function (entry) {
+          return {
+            key: entry[0],
+            value: entry[1]
+          }
+        })
+      } else {
+        return []
+      }
+    },
+    canShowVideoElements () {
+      if (this.params) {
+        return true
+      }
+      if (this.isSubchat === true) {
+        if (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam') {
+          return true
+        }
+      } else if (this.chatroom.type === 'direct') {
+        if (this.isStreamingVideo) {
+          return true
+        }
+      }
+      return false
+    }
   },
   methods: {
     closeModal: function () {
@@ -1543,6 +1633,8 @@ export default {
         get: (searchParams, prop) => searchParams.get(prop)
       })
       const subchatGUID = params.sub
+      this.params = params.call
+      console.log(this.params)
       // this.toggleElement('init_loading', 'flex')
       if (subchatGUID != null) {
         this.$store.commit('setLastClarifierSubGUID', subchatGUID)
@@ -1596,8 +1688,10 @@ export default {
         let videoElem
         if (this.currentSubchat.type === 'screenshare') {
           videoElem = document.getElementById('screenshare_video')
-        } else if (this.currentSubchat.type === 'webcam') {
-          videoElem = document.getElementById('screenshare_video_remote')
+        } else if (this.currentSubchat.type === 'webcam' || this.params) {
+          videoElem = document.getElementById('screenshare_video_' + event.data.remoteId)
+          const container = document.getElementById('screenshare_container_' + event.data.remoteId)
+          container.style.display = 'block'
         }
         videoElem.srcObject = remoteStream
         videoElem.setAttribute('controls', '')
@@ -1688,6 +1782,11 @@ export default {
                     this.showMessage(event.data)
                   }
                 ))
+              .then(() => {
+                if (this.currentSubchat.type === 'webcam' || this.params) {
+                  this.startScreenshare()
+                }
+              })
               .then(resolve)
           }, 0)
         }
@@ -2043,7 +2142,7 @@ export default {
     processMetaDataResponse: async function (isSubchat = false) {
       const chatElem = this.$refs.clarifier_chatroom
       if (this.chatroom.type === 'direct') {
-        chatElem.classList.add('clarifier_chatroom_big')
+        // chatElem.classList.add('clarifier_chatroom_big')
         this.chatroom.t = this.chatroom.directMessageUsername
           .replaceAll('|' + this.$store.state.username + '|', '||')
           .replaceAll('|', ' ').replaceAll('  ', ' ').trim()
@@ -2106,7 +2205,7 @@ export default {
         }
       }
       const messagesSection = this.$refs.messages_section
-      if (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam') {
+      if (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam' || this.params) {
         messagesSection.style.width = '350px'
         this.mediaMaxWidth = '260px'
       } else {
@@ -2202,7 +2301,9 @@ export default {
           const rtcOffer = JSON.parse(tmp.substring(3))
           if (rtcOffer.selfId === this.userId) {
             let approval
-            if (this.isStreamingVideo === false) {
+            if (this.params) {
+              approval = true
+            } else if (this.isStreamingVideo === false) {
               if (this.currentSubchat.type === 'screenshare') {
                 approval = confirm('Incoming Screen Share. Join?')
               } else if (this.currentSubchat.type === 'webcam') {
@@ -2214,7 +2315,7 @@ export default {
             }
             if (approval) {
               let stream = null
-              if (this.currentSubchat.type === 'webcam') {
+              if (this.currentSubchat.type === 'webcam' || this.params) {
                 try {
                   const streamLocal = await navigator.mediaDevices.getUserMedia({
                     video: true,
@@ -3435,7 +3536,7 @@ export default {
     generateRSAKeyPair: async function (uniChatroomGUID, force = false) {
       if (uniChatroomGUID == null || uniChatroomGUID === '') return
       // Check if we already have a PrivKey for this chat GUID
-      const clarifierKeyPair = this.$store.getters.getClarifierKeyPair(uniChatroomGUID)
+      const clarifierKeyPair = await this.$store.getters.getClarifierKeyPair(uniChatroomGUID)
       if (force === false && clarifierKeyPair != null) return false
       // Generate key pair
       const keyPair = await window.crypto.subtle.generateKey(
@@ -3586,7 +3687,7 @@ export default {
       )
     },
     decryptMessageRSA: async function (content) {
-      const keyPair = this.$store.getters.getClarifierKeyPair(this.getChatGUID())
+      const keyPair = await this.$store.getters.getClarifierKeyPair(this.getChatGUID())
       const privKey = await this.importRSAPrivKey(keyPair.priv)
       const decrypted = await window.crypto.subtle.decrypt(
         {
@@ -3650,9 +3751,9 @@ export default {
           })
         return
       }
+      let stream = null
       try {
         // Ask for screen sharing permission + prompt user to select screen
-        let stream = null
         if (this.currentSubchat.type === 'screenshare') {
           const constraintsT = {
             video: {
@@ -3661,7 +3762,7 @@ export default {
             audio: true
           }
           stream = await navigator.mediaDevices.getDisplayMedia(constraintsT)
-        } else if (this.currentSubchat.type === 'webcam') {
+        } else if (this.currentSubchat.type === 'webcam' || this.params) {
           let constraintsT
           if (constraints) {
             constraintsT = constraints
@@ -3673,30 +3774,32 @@ export default {
           }
           stream = await navigator.mediaDevices.getUserMedia(constraintsT)
         }
-        const videoElem = document.getElementById('screenshare_video')
-        videoElem.srcObject = stream
-        videoElem.setAttribute('controls', '')
-        this.isStreamingVideo = true
-        this.peerType = 'caller'
-        this.peerStreamOutgoing = stream
-        await this.createOutgoingPeerConnections(stream, userId)
-        // Go into distraction free cinema mode
-        this.enterCinemaMode()
-        // Start the count-up timer
-        this.streamStartTime = Math.floor(Date.now() / 1000)
-        this.startTimeCounter()
       } catch (err) {
-        console.debug('Error: ' + err)
+        console.debug('Error: ' + err, 'Switching to callee mode...')
+        stream = null
       }
+      const videoElem = document.getElementById('screenshare_video')
+      if (stream) videoElem.srcObject = stream
+      videoElem.setAttribute('controls', '')
+      this.isStreamingVideo = true
+      if (stream) {
+        this.peerStreamOutgoing = stream
+        this.peerType = 'caller'
+      } else {
+        this.peerType = 'callee'
+      }
+      // Go into distraction free cinema mode
+      this.enterCinemaMode()
+      // Start the count-up timer
+      this.streamStartTime = Math.floor(Date.now() / 1000)
+      this.startTimeCounter()
+      await this.createOutgoingPeerConnections(stream, userId)
     },
     stopScreenshare: function () {
       const videoElem = document.getElementById('screenshare_video')
-      videoElem.srcObject = null
-      videoElem.removeAttribute('controls')
-      const videoElem2 = document.getElementById('screenshare_video_remote')
-      if (videoElem2 != null) {
-        videoElem2.srcObject = null
-        videoElem2.removeAttribute('controls')
+      if (videoElem) {
+        videoElem.srcObject = null
+        videoElem.removeAttribute('controls')
       }
       if (this.peerType === 'caller') {
         this.peerStreamOutgoing.getTracks().forEach(function (track) {
@@ -3709,6 +3812,21 @@ export default {
       this.streamDuration = ''
       // Revert styling changes
       this.exitCinemaMode()
+      this.wRTC.hangup()
+      const queryObj = {}
+      const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop)
+      })
+      if (params.sub) queryObj.sub = params.sub
+      if (params.query) queryObj.query = params.query
+      this.$router.replace({
+        query: queryObj
+      })
+      this.params = false
+      if (this.chatroom.type === 'direct') {
+        const messagesSection = this.$refs.messages_section
+        messagesSection.style.width = '100%'
+      }
     },
     enterCinemaMode: function () {
       const chat = document.getElementById('chat_section')
@@ -3717,6 +3835,8 @@ export default {
       chat.style.left = '0'
       chat.style.height = '100%'
       chat.style.zIndex = '9999'
+      const messages = this.$refs.conference_container
+      messages.classList.add('darkest_bg')
       const sidebar = document.getElementById('sidebar')
       sidebar.style.display = 'none'
       const sidebar2 = document.getElementById('sidebar2')
@@ -3733,6 +3853,8 @@ export default {
       chat.style.left = 'initial'
       chat.style.height = 'initial'
       chat.style.zIndex = 'initial'
+      const messages = this.$refs.conference_container
+      messages.classList.remove('darkest_bg')
       const sidebar = document.getElementById('sidebar')
       sidebar.style.display = 'initial'
       const sidebar2 = document.getElementById('sidebar2')
@@ -3762,7 +3884,7 @@ export default {
     },
     acceptWebRTCOffer: async function (payload, stream) {
       if (this.peerType === 'caller') {
-        return
+        console.log('Receiving offer as caller!')
       } else {
         this.peerType = 'callee'
       }
@@ -4350,6 +4472,25 @@ export default {
         .catch((err) => {
           console.debug(err.message)
         })
+    },
+    directCall: function () {
+      this.$Worker.execute({
+        action: 'call',
+        usernameToCall: this.chatroom.t,
+        chatroomGUID: this.chatroom.guid
+      })
+      this.params = true
+      this.startScreenshare()
+      const messagesSection = this.$refs.messages_section
+      messagesSection.style.width = '350px'
+      this.mediaMaxWidth = '260px'
+    },
+    getUserFromId: function (userId) {
+      for (let i = 0; i < this.members.length; i++) {
+        if (this.members[i].id === userId) {
+          return this.members[i].usr
+        }
+      }
     }
   }
 }

@@ -1,10 +1,10 @@
 <template>
-  <div class="h-full w-full overflow-x-hidden overflow-y-scroll">
-    <div class="flex min-h-[750px] h-[100dvh] items-center justify-center"
+  <div class="h-full w-full overflow-x-hidden overflow-y-scroll mt-[60px]">
+    <div class="flex min-h-[525px] h-[calc(100dvh-60px)] items-center justify-center"
          :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
       <div
-        class="text-neutral-200 w-full h-full flex pt-[60px] py-8 overflow-x-hidden">
+        class="text-neutral-200 w-full h-full flex pb-8 overflow-x-hidden">
         <div class="w-full h-full relative">
           <div class="w-full h-full"><!-- Demo Wrapper -->
             <div style="transform: translate3d(0, 0, 0)"
@@ -20,7 +20,7 @@
                   class="text-neutral-200 font-bold mb-4 py-2 text-2xl md:text-4xl w-fit pointer-events-none">
                   Powered by wikiric and {{ userCount }} others.
                 </p>
-                <p class="text-neutral-300 font-bold text-2xl w-full pointer-events-none">
+                <p class="text-neutral-300 font-bold text-xl w-full pointer-events-none">
                   A secure and responsive environment
                   for communities, projects and ideas.
                   <br>Bridging the gap between Web2 and Web3.
@@ -192,7 +192,7 @@
 export default {
   data () {
     return {
-      userCount: ''
+      userCount: '42'
     }
   },
   created () {

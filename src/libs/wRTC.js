@@ -247,6 +247,10 @@ const WRTC = {
       console.log('%cRetrieving ' + peerConnection.streams.length + ' remote streams', this.logStyle)
       return peerConnection.streams
     }
+  },
+  hangup: function () {
+    this.peerConnections = new Map()
+    console.log('%cSuccessfully hung up!', this.logStyle)
   }
 }
 export default WRTC

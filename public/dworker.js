@@ -99,7 +99,8 @@ onmessage = function (e) {
             ws.onmessage = async function (e) {
               try {
                 bc.postMessage(JSON.parse(e.data))
-              } catch (e) {}
+              } catch (e) {
+              }
             }
             ws.send(_t)
             bc.onmessage = event => {
@@ -184,5 +185,20 @@ onmessage = function (e) {
       success: true,
       t: _t
     })
+  } else if (msg.action === 'call') {
+    try {
+      ws.send('[c:CALL]' + JSON.stringify({
+        usernameToCall: msg.usernameToCall,
+        chatroomGUID: msg.chatroomGUID
+      }))
+      e.ports[0].postMessage({
+        success: true
+      })
+    } catch (e) {
+      console.debug(e.message)
+      e.ports[0].postMessage({
+        success: false
+      })
+    }
   }
 }

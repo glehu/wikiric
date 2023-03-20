@@ -1,5 +1,6 @@
 import { createStore } from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
+import { dbGetSession, dbSetSession } from '@/libs/wikistore'
 
 export default createStore({
   plugins: [createPersistedState(this)],
@@ -172,13 +173,7 @@ export default createStore({
       state.fcmToken = newFCMToken
     },
     setClarifierKeyPair (state, payload) {
-      for (let i = 0; i < state.clarifierKeys.length; i++) {
-        if (state.clarifierKeys[i].id === payload.id) {
-          state.clarifierKeys.splice(i, 1)
-          break
-        }
-      }
-      state.clarifierKeys.unshift(payload)
+      dbSetSession(payload.id, payload)
     },
     setE2EncryptionSeen (state, seen) {
       state.e2eEncryptionSeen = seen
@@ -208,7 +203,9 @@ export default createStore({
       return state.clarifierTimestamps.find(timestamp => timestamp.id === guid)
     },
     getClarifierKeyPair: (state) => (guid) => {
-      return state.clarifierKeys.find(entry => entry.id === guid)
+      const keyPair = state.clarifierKeys.find(entry => entry.id === guid)
+      if (keyPair) return keyPair
+      return dbGetSession(guid)
     },
     hasSeenE2ENotification: (state) => () => {
       return state.e2eEncryptionSeen

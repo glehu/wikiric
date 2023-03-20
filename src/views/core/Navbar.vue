@@ -297,11 +297,13 @@ export default {
     handleNotificationClicked: function (notification) {
       if (!notification) return
       // Join Group
-      if (notification.clickAction === 'join,group' && notification.clickActionReferenceGUID) {
-        this.$router.push('/apps/clarifier')
-        setTimeout(() => {
-          this.$router.push('/apps/clarifier/wss/' + notification.clickActionReferenceGUID)
-        }, 0)
+      if (notification.clickActionReferenceGUID) {
+        if (notification.clickAction === 'join,group' || notification.clickAction === 'open,group') {
+          this.$router.push('/apps/clarifier')
+          setTimeout(() => {
+            this.$router.push('/apps/clarifier/wss/' + notification.clickActionReferenceGUID)
+          }, 0)
+        }
       }
       this.$Worker.execute({
         action: 'api',
@@ -418,13 +420,14 @@ export default {
           main: false
         }
       ],
-      notifications: []
+      notifications: [],
+      connector: null
     }
   },
   mounted () {
     this.getNotifications()
-    const bc = new BroadcastChannel('connector')
-    bc.onmessage = event => {
+    this.connector = new BroadcastChannel('connector')
+    this.connector.onmessage = event => {
       if (event.data.type === 'notification') {
         this.notifications.unshift(JSON.parse(event.data.obj))
       }

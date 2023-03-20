@@ -216,17 +216,25 @@ export default {
       await this.serverLogin(respU[0], respP, 'wallet_metamask')
     },
     checkForMetaMask: async function () {
-      const provider = await detectEthereumProvider()
-      if (provider && provider === window.ethereum) {
-        this.hasMetaMask = true
+      try {
+        const provider = await detectEthereumProvider()
+        if (provider && provider === window.ethereum) {
+          this.hasMetaMask = true
+        }
+      } catch (e) {
+        console.debug(e.message)
       }
     },
     checkForPhantom: function () {
-      if ('phantom' in window) {
-        const provider = window.phantom?.solana
-        if (provider?.isPhantom) {
-          this.hasPhantom = true
+      try {
+        if ('phantom' in window) {
+          const provider = window.phantom?.solana
+          if (provider?.isPhantom) {
+            this.hasPhantom = true
+          }
         }
+      } catch (e) {
+        console.debug(e.message)
       }
     },
     getPhantomProvider: function () {

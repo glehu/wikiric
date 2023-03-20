@@ -785,7 +785,7 @@ export default {
       this.getTopContributors(srcGUID)
       this.getRecentCategories()
       this.getRecentQuestions()
-      this.getProcesses()
+      this.getProcesses('.')
     },
     getClarifierChatroom: async function (sessionID) {
       if (!sessionID) return
@@ -870,6 +870,7 @@ export default {
         this.results = []
         this.emptyState = false
       }
+      const original = this.querySubmission
       this.querySubmission = substitute ?? this.queryText
       if (this.querySubmission == null || this.querySubmission === '') {
         this.emptyState = true
@@ -879,6 +880,7 @@ export default {
           get: (searchParams, prop) => searchParams.get(prop)
         })
         if (params.kguid) queryObj.kguid = params.kguid
+        if (params.sub) queryObj.sub = params.sub
         this.$router.replace({
           query: queryObj
         })
@@ -981,6 +983,7 @@ export default {
             if (!questionsOnly) this.noResults = true
           })
           .finally(() => {
+            if (substitute) this.querySubmission = original
             if (!questionsOnly) {
               const queryObj = {
                 query: this.querySubmission
@@ -989,6 +992,7 @@ export default {
                 get: (searchParams, prop) => searchParams.get(prop)
               })
               if (params.kguid) queryObj.kguid = params.kguid
+              if (params.sub) queryObj.sub = params.sub
               this.$router.replace({
                 query: queryObj
               })
@@ -1340,12 +1344,12 @@ export default {
           .then(() => resolve())
       })
     },
-    getProcesses: async function () {
+    getProcesses: async function (substitute = null) {
       this.processes = []
       return new Promise((resolve) => {
         let query = ''
         if (this.queryText !== '') {
-          query = '?query=' + this.queryText
+          query = '?query=' + substitute ?? this.queryText
         }
         this.$Worker.execute({
           action: 'api',

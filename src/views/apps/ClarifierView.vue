@@ -329,7 +329,7 @@ export default {
               }
               const lastMessage = await this.getLastMessage(data.result.chatrooms[i].guid)
               if (lastMessage.src !== '_server') {
-                const key = this.$store.getters.getClarifierKeyPair(data.result.chatrooms[i].guid)
+                const key = await this.$store.getters.getClarifierKeyPair(data.result.chatrooms[i].guid)
                 if (key != null) {
                   try {
                     const decryptedMessage = await this.wcrypt.decryptPayload(lastMessage, userId, key)
@@ -346,6 +346,11 @@ export default {
                       ts: new Date(lastMessage.ts)
                     })
                   }
+                } else {
+                  this.friends.push({
+                    chatroom: data.result.chatrooms[i],
+                    msg: ''
+                  })
                 }
               } else {
                 this.friends.push({
