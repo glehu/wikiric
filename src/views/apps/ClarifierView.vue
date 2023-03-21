@@ -14,7 +14,7 @@
                       <h1 class="font-bold text-3xl text-neutral-300 pointer-events-none">
                         Friends
                       </h1>
-                      <button class="px-2 py-1 rounded-md dark_bg hover:darkest_bg opacity-50"
+                      <button class="px-2 py-1 rounded-md dark_bg hover:darkest_bg"
                               v-on:click="isAddingFriend = true">
                         <span class="text-neutral-300">
                           Add Friend

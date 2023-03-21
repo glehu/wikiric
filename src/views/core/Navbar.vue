@@ -299,10 +299,7 @@ export default {
       // Join Group
       if (notification.clickActionReferenceGUID) {
         if (notification.clickAction === 'join,group' || notification.clickAction === 'open,group') {
-          this.$router.push('/apps/clarifier')
-          setTimeout(() => {
-            this.$router.push('/apps/clarifier/wss/' + notification.clickActionReferenceGUID)
-          }, 0)
+          this.$router.push('/redirect?redirect=/apps/clarifier/wss/' + notification.clickActionReferenceGUID)
         }
       }
       this.$Worker.execute({

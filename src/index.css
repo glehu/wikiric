@@ -109,4 +109,17 @@
         text-neutral-200 hover:text-neutral-200
         m-1 py-2 px-4 rounded-md;
     }
+
+    .prevent-select {
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* IE 10 and IE 11 */
+        user-select: none; /* Standard syntax */
+    }
+
+    .prevent-select p,
+    .prevent-select span {
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* IE 10 and IE 11 */
+        user-select: none; /* Standard syntax */
+    }
 }

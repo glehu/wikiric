@@ -28,10 +28,6 @@ const WRTC = {
    */
   initiatePeerConnection: function (stream, selfId, remoteId) {
     console.log('%cConnection Init', this.logStyle, 'to', remoteId)
-    if (this.peerConnections.has(remoteId)) {
-      console.log('%cConnection to <', this.logStyle, remoteId, '> already present! Returning...')
-      return
-    }
     // Create P2P and set IDs
     const peerConnection = new RTCPeerConnection(this.iceConfig)
     peerConnection.selfId = selfId

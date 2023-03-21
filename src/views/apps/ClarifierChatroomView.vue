@@ -237,33 +237,23 @@
                         height: calc(100% - 50px - 80px);
                         position: absolute; left: 350px;
                         padding: 0"
-                 class="c_lightgray">
+                 class="c_lightgray darkest_bg">
               <div class="w-full h-[calc(100%-60px)] flex">
                 <div style="position: relative; top: 0; left: 0;
-                        width: 100%;
-                        aspect-ratio: 16 / 9"
+                            width: 100%;
+                            aspect-ratio: 16 / 9"
                      class="flex">
                   <div v-if="!isStreamingVideo"
-                       class="flex"
-                       style="pointer-events: none;
-                          position: absolute;
-                          width: 100%; height: 100%;
-                          align-items: center; justify-content: center;
-                          background-color: rgba(19,19,19,0.75)">
+                       class="flex pointer-events-none absolute w-full h-full items-center justify-center darkest_bg">
                     <i class="bi bi-camera-video-off lead"></i>
                     <p style="margin: 0 0 0 10px;
-                        padding-left: 10px;
-                        border-left: 1px solid rgba(174, 174, 183, 0.25)">
-                      OFFLINE
-                      <br>
-                      <span style="font-size: 75%">
-                  Start sharing or wait for
-                  <br>somebody to start the stream.
-                </span>
+                              padding-left: 10px;
+                              border-left: 1px solid rgba(174, 174, 183, 0.25)">
+                      STREAM OFFLINE
                     </p>
                   </div>
                   <template v-if="currentSubchat.type === 'screenshare'">
-                    <video id="screenshare_video" muted autoplay playsinline
+                    <video id="screenshare_video" autoplay playsinline
                            style="width: 100%; height: 100%"></video>
                   </template>
                   <template v-else-if="currentSubchat.type === 'webcam' || params">
@@ -272,7 +262,7 @@
                          style="grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));">
                       <div class="relative overflow-hidden w-full h-full">
                         <video id="screenshare_video"
-                               muted autoplay playsinline
+                               autoplay playsinline
                                class="w-full h-full max-w-full max-h-full"></video>
                         <p class="absolute top-0 left-0 text-sm bg-zinc-900 bg-opacity-75 p-0.5">
                           {{ $store.state.username }}
@@ -326,6 +316,20 @@
                           class="p-2 border border-red-500 rounded-md gray-hover">
                     <PhoneXMarkIcon class="h-8 w-8 text-red-500"></PhoneXMarkIcon>
                   </button>
+                  <template v-if="peerStreamOutgoingConstraints.video">
+                    <button class="p-2 border border-zinc-400 rounded-md gray-hover"
+                            v-tooltip.top="{ content: 'Disable Camera' }"
+                            v-on:click="startScreenshare(undefined, {video: false, audio: undefined})">
+                      <VideoCameraSlashIcon class="h-8 w-8 text-neutral-400"></VideoCameraSlashIcon>
+                    </button>
+                  </template>
+                  <template v-else>
+                    <button class="p-2 border border-zinc-400 rounded-md gray-hover"
+                            v-tooltip.top="{ content: 'Enable Camera' }"
+                            v-on:click="startScreenshare(undefined, {video: true, audio: undefined})">
+                      <VideoCameraIcon class="h-8 w-8 text-neutral-400"></VideoCameraIcon>
+                    </button>
+                  </template>
                   <button v-tooltip.top="{ content: 'Share Screen' }"
                           class="p-2 border border-zinc-400 rounded-md gray-hover">
                     <WindowIcon class="h-8 w-8 text-neutral-400"></WindowIcon>
@@ -1406,7 +1410,8 @@ import {
   PhoneXMarkIcon,
   QrCodeIcon,
   UserCircleIcon,
-  VideoCameraIcon
+  VideoCameraIcon,
+  VideoCameraSlashIcon
 } from '@heroicons/vue/24/solid'
 import {
   BookOpenIcon,
@@ -1431,6 +1436,7 @@ export default {
     Markdown,
     PhoneIcon,
     VideoCameraIcon,
+    VideoCameraSlashIcon,
     DocumentArrowUpIcon,
     GifIcon,
     QrCodeIcon,
@@ -1458,6 +1464,10 @@ export default {
       connection: null,
       peerType: 'idle',
       peerStreamOutgoing: {},
+      peerStreamOutgoingConstraints: {
+        video: false,
+        audio: true
+      },
       websocketState: 'CLOSED',
       tagIndex: 0,
       streamStartTime: '',
@@ -1784,7 +1794,10 @@ export default {
                 ))
               .then(() => {
                 if (this.currentSubchat.type === 'webcam' || this.params) {
-                  this.startScreenshare()
+                  this.startScreenshare(undefined, {
+                    video: false,
+                    audio: true
+                  })
                 }
               })
               .then(resolve)
@@ -3742,15 +3755,6 @@ export default {
       return bytes.buffer
     },
     startScreenshare: async function (userId, constraints = null) {
-      if (this.isStreamingVideo) {
-        this.$notify(
-          {
-            title: 'Not Available',
-            text: 'There is already a stream going on.',
-            type: 'error'
-          })
-        return
-      }
       let stream = null
       try {
         // Ask for screen sharing permission + prompt user to select screen
@@ -3766,12 +3770,21 @@ export default {
           let constraintsT
           if (constraints) {
             constraintsT = constraints
+            // If video or audio is undefined, take the already existing settings
+            if (constraintsT.video === undefined) {
+              constraintsT.video = this.peerStreamOutgoingConstraints.video
+            }
+            if (constraintsT.audio === undefined) {
+              constraintsT.audio = this.peerStreamOutgoingConstraints.audio
+            }
           } else {
             constraintsT = {
-              video: true,
+              video: false,
               audio: true
             }
           }
+          // Write back the constraints
+          this.peerStreamOutgoingConstraints = constraintsT
           stream = await navigator.mediaDevices.getUserMedia(constraintsT)
         }
       } catch (err) {
@@ -3783,6 +3796,15 @@ export default {
       videoElem.setAttribute('controls', '')
       this.isStreamingVideo = true
       if (stream) {
+        if (this.peerStreamOutgoing) {
+          try {
+            this.peerStreamOutgoing.getTracks().forEach(function (track) {
+              track.stop()
+            })
+          } catch (e) {
+            // No Tracks!
+          }
+        }
         this.peerStreamOutgoing = stream
         this.peerType = 'caller'
       } else {
@@ -3801,11 +3823,9 @@ export default {
         videoElem.srcObject = null
         videoElem.removeAttribute('controls')
       }
-      if (this.peerType === 'caller') {
-        this.peerStreamOutgoing.getTracks().forEach(function (track) {
-          track.stop()
-        })
-      }
+      this.peerStreamOutgoing.getTracks().forEach(function (track) {
+        track.stop()
+      })
       this.peerType = 'idle'
       this.isStreamingVideo = false
       this.streamStartTime = ''
@@ -3835,8 +3855,6 @@ export default {
       chat.style.left = '0'
       chat.style.height = '100%'
       chat.style.zIndex = '9999'
-      const messages = this.$refs.conference_container
-      messages.classList.add('darkest_bg')
       const sidebar = document.getElementById('sidebar')
       sidebar.style.display = 'none'
       const sidebar2 = document.getElementById('sidebar2')
@@ -3853,8 +3871,6 @@ export default {
       chat.style.left = 'initial'
       chat.style.height = 'initial'
       chat.style.zIndex = 'initial'
-      const messages = this.$refs.conference_container
-      messages.classList.remove('darkest_bg')
       const sidebar = document.getElementById('sidebar')
       sidebar.style.display = 'initial'
       const sidebar2 = document.getElementById('sidebar2')

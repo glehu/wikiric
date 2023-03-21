@@ -121,6 +121,11 @@ const routes = [
     component: () => import('../views/apps/ProcessView'),
     meta: { requiresAuth: true }
   },
+  {
+    path: '/redirect',
+    name: 'WRedirect',
+    component: () => import('../views/info/RedirectView')
+  },
   // ERROR HANDLING ROUTES --- MUST BE AT THE BOTTOM ---
   {
     path: '/bsod',

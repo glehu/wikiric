@@ -177,10 +177,7 @@ export default {
     acceptCall: function () {
       if (this.call.chatroomGUID) {
         this.incomingCall = false
-        this.$router.push('/apps/clarifier')
-        setTimeout(() => {
-          this.$router.push('/apps/clarifier/wss/' + this.call.chatroomGUID + '?call=true')
-        }, 0)
+        this.$router.push('/redirect?redirect=/apps/clarifier/wss/' + this.call.chatroomGUID + '?call=true')
       }
     }
   },

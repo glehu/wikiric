@@ -102,7 +102,8 @@
                         />
                       </div>
                       <button class="btn_bg_primary"
-                              type="submit"
+                              type="button"
+                              v-on:click="register('metamask')"
                               v-show="metamask.account !== ''">
                         Register
                       </button>
@@ -151,7 +152,8 @@
                         />
                       </div>
                       <button class="btn_bg_primary"
-                              type="submit"
+                              type="button"
+                              v-on:click="register('metamask')"
                               v-show="phantom.account !== ''">
                         Register
                       </button>
@@ -206,18 +208,18 @@ export default {
     }
   },
   methods: {
-    register () {
+    register (type) {
       if (this.user.password === this.user.passwordRpt) {
-        this.serverRegister()
+        this.serverRegister(type)
       } else {
         this.user.passwordRpt = ''
         alert('Passwords do not match.')
       }
     },
-    serverRegister () {
-      if (this.hasMetaMask) {
+    serverRegister (type) {
+      if (type === 'metamask') {
         this.handleMetaMaskSignup()
-      } else if (this.hasPhantom) {
+      } else if (type === 'phantom') {
         this.handlePhantomSignup()
       } else {
         this.$Worker.execute({
@@ -306,6 +308,7 @@ export default {
       this.hasMetaMask = false
     },
     handlePhantomSignup: async function () {
+      if (!this.hasPhantom) return
       const provider = this.getPhantomProvider()
       const signingMessage = 'By signing this message,\nyou are giving wikiric.xyz (later wikiric) access ' +
         'to your account information (e.g. seeing your balance) and allowing the signing of transactions etc.' +

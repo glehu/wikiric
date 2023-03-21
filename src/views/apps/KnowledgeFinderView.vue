@@ -1054,35 +1054,6 @@ export default {
           })
       })
     },
-    deleteLesson: async function () {
-      if (this.wisGUID == null || this.wisGUID === '') return
-      return new Promise((resolve) => {
-        this.$Worker.execute({
-          action: 'api',
-          method: 'get',
-          url: 'm7/delete/' + this.wisGUID
-        })
-          .then(() => {
-            this.resetWriting()
-            this.$notify(
-              {
-                title: 'Wisdom deleted.',
-                text: '',
-                type: 'info'
-              })
-          })
-          .then(() => resolve)
-          .catch((err) => {
-            this.$notify(
-              {
-                title: 'Error!',
-                text: 'Maybe you aren\'t the owner of the Wisdom.',
-                type: 'info'
-              })
-            console.debug(err.message)
-          })
-      })
-    },
     writeWisdom: function (type = 'lesson') {
       this.wisTitle = ''
       this.wisDescription = ''
@@ -1347,9 +1318,11 @@ export default {
     getProcesses: async function (substitute = null) {
       this.processes = []
       return new Promise((resolve) => {
-        let query = ''
-        if (this.queryText !== '') {
-          query = '?query=' + substitute ?? this.queryText
+        let query = substitute ?? this.queryText
+        if (query && query !== '') {
+          query = '?query=' + query
+        } else {
+          query = '?query=.'
         }
         this.$Worker.execute({
           action: 'api',
