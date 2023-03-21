@@ -5,8 +5,8 @@ const WRTC = {
   eventChannel: new BroadcastChannel('wrtcevents'),
   iceConfig: {
     iceServers: [
-      { url: 'stun:stun3.l.google.com:19302' },
-      { url: 'stun:stun4.l.google.com:19302' }
+      { urls: 'stun:stun3.l.google.com:19302' },
+      { urls: 'stun:stun4.l.google.com:19302' }
     ]
   },
   peerConnections: new Map(),
@@ -27,7 +27,11 @@ const WRTC = {
    * @param remoteId
    */
   initiatePeerConnection: function (stream, selfId, remoteId) {
-    console.log('%cConnection Init', this.logStyle, 'to', remoteId)
+    if (this.peerConnections.has(remoteId)) {
+      console.log('%cConnection Reneg.', this.logStyle, 'for', remoteId)
+    } else {
+      console.log('%cConnection Init.', this.logStyle, 'to', remoteId)
+    }
     // Create P2P and set IDs
     const peerConnection = new RTCPeerConnection(this.iceConfig)
     peerConnection.selfId = selfId
@@ -140,7 +144,7 @@ const WRTC = {
       this.initiatePeerConnection(stream, selfId, remoteId)
       peerConnection = this.getPeerConnection(remoteId)
     }
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
+    await peerConnection.setRemoteDescription(offer)
     const answer = await peerConnection.createAnswer()
     await peerConnection.setLocalDescription(answer)
     console.log('%cCreated Answer for', this.logStyle, remoteId)
@@ -173,9 +177,7 @@ const WRTC = {
     }
     console.log('%cAccepting Answer from', this.logStyle, remoteId)
     try {
-      await peerConnection.setRemoteDescription(
-        new RTCSessionDescription(answer)
-      )
+      await peerConnection.setRemoteDescription(answer)
     } catch (e) {
       console.debug(e.message)
     }
