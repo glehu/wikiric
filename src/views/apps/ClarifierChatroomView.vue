@@ -46,7 +46,7 @@
             Activity&nbsp;-&nbsp;{{ $store.state.clarifierSessions.length }}
           </span>
           </div>
-          <div id="channel_section" class="channel_section overflow-y-auto"
+          <div id="channel_section" class="channel_section overflow-y-auto overflow-x-hidden"
                style="height: calc(100% - 60px - 100px); z-index: 4;
                       padding-bottom: 20px; margin-top: 10px">
             <div v-for="group in $store.state.clarifierSessions" :key="group"
@@ -254,6 +254,7 @@
                   </div>
                   <template v-if="currentSubchat.type === 'screenshare'">
                     <video id="screenshare_video" autoplay playsinline
+                           class="conference_media_element"
                            style="width: 100%; height: 100%"></video>
                   </template>
                   <template v-else-if="currentSubchat.type === 'webcam' || params">
@@ -263,7 +264,11 @@
                       <div class="relative overflow-hidden w-full h-full">
                         <video id="screenshare_video"
                                autoplay playsinline
-                               class="w-full h-full max-w-full max-h-full"></video>
+                               class="w-full h-full max-w-full max-h-full conference_media_element"></video>
+                        <video id="screenshare_video_alternate"
+                               autoplay playsinline muted controls
+                               class="absolute top-0 left-0 w-full h-full max-w-full max-h-full
+                                      conference_media_element hidden"></video>
                         <p class="absolute top-0 left-0 text-sm bg-zinc-900 bg-opacity-75 p-0.5">
                           {{ $store.state.username }}
                         </p>
@@ -273,8 +278,8 @@
                              hidden
                              class="relative overflow-hidden w-full h-full">
                           <video :id="'screenshare_video_' + peerCon.key"
-                                 muted autoplay playsinline
-                                 class="w-full h-full max-w-full max-h-full"></video>
+                                 autoplay playsinline
+                                 class="w-full h-full max-w-full max-h-full conference_media_element"></video>
                           <p class="absolute top-0 left-0 text-sm bg-zinc-900 bg-opacity-75 p-0.5">
                             {{ getUserFromId(peerCon.key) }}
                           </p>
@@ -317,21 +322,57 @@
                     <PhoneXMarkIcon class="h-8 w-8 text-red-500"></PhoneXMarkIcon>
                   </button>
                   <template v-if="peerStreamOutgoingConstraints.video">
-                    <button class="p-2 border border-zinc-400 rounded-md gray-hover"
-                            v-tooltip.top="{ content: 'Disable Camera' }"
-                            v-on:click="startScreenshare(undefined, {video: false, audio: undefined})">
-                      <VideoCameraSlashIcon class="h-8 w-8 text-neutral-400"></VideoCameraSlashIcon>
-                    </button>
+                    <template v-if="peerStreamOutgoingPreferences.video">
+                      <button class="p-2 border border-zinc-400 rounded-md gray-hover"
+                              v-tooltip.top="{ content: 'Turn Off Camera' }"
+                              v-on:click="callStartOrMuteVideo()">
+                        <VideoCameraIcon class="h-8 w-8 text-neutral-400"></VideoCameraIcon>
+                      </button>
+                    </template>
+                    <template v-else>
+                      <button class="p-2 border border-zinc-400 rounded-md gray-hover"
+                              v-tooltip.top="{ content: 'Turn On Camera' }"
+                              v-on:click="callStartOrMuteVideo()">
+                        <div class="relative">
+                          <VideoCameraIcon class="h-8 w-8 text-neutral-400"></VideoCameraIcon>
+                          <XMarkIcon class="h-8 w-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
+                          <XMarkIcon class="h-8 w-8 text-zinc-900 stroke-2 absolute top-0 left-0"></XMarkIcon>
+                        </div>
+                      </button>
+                    </template>
                   </template>
                   <template v-else>
                     <button class="p-2 border border-zinc-400 rounded-md gray-hover"
                             v-tooltip.top="{ content: 'Enable Camera' }"
                             v-on:click="startScreenshare(undefined, {video: true, audio: undefined})">
-                      <VideoCameraIcon class="h-8 w-8 text-neutral-400"></VideoCameraIcon>
+                      <div class="relative">
+                        <VideoCameraIcon class="h-8 w-8 text-neutral-400"></VideoCameraIcon>
+                        <XMarkIcon class="h-8 w-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
+                        <XMarkIcon class="h-8 w-8 text-zinc-900 stroke-2 absolute top-0 left-0"></XMarkIcon>
+                      </div>
+                    </button>
+                  </template>
+                  <template v-if="peerStreamOutgoingPreferences.audio">
+                    <button class="p-2 border border-zinc-400 rounded-md gray-hover relative"
+                            v-tooltip.top="{ content: 'Turn Off Microphone' }"
+                            v-on:click="callStartOrMuteAudio()">
+                      <MicrophoneIcon class="h-8 w-8 text-neutral-400"></MicrophoneIcon>
+                    </button>
+                  </template>
+                  <template v-else>
+                    <button class="p-2 border border-zinc-400 rounded-md gray-hover"
+                            v-tooltip.top="{ content: 'Turn On Microphone' }"
+                            v-on:click="callStartOrMuteAudio()">
+                      <div class="relative">
+                        <MicrophoneIcon class="h-8 w-8 text-neutral-400"></MicrophoneIcon>
+                        <XMarkIcon class="h-8 w-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
+                        <XMarkIcon class="h-8 w-8 text-zinc-900 stroke-2 absolute top-0 left-0"></XMarkIcon>
+                      </div>
                     </button>
                   </template>
                   <button v-tooltip.top="{ content: 'Share Screen' }"
-                          class="p-2 border border-zinc-400 rounded-md gray-hover">
+                          class="p-2 border border-zinc-400 rounded-md gray-hover"
+                          v-on:click="callStartOrStopScreenshare()">
                     <WindowIcon class="h-8 w-8 text-neutral-400"></WindowIcon>
                   </button>
                 </template>
@@ -1405,13 +1446,13 @@ import {
   ChartBarIcon,
   EyeIcon,
   GifIcon,
+  MicrophoneIcon,
   MoonIcon,
   PhoneIcon,
   PhoneXMarkIcon,
   QrCodeIcon,
   UserCircleIcon,
-  VideoCameraIcon,
-  VideoCameraSlashIcon
+  VideoCameraIcon
 } from '@heroicons/vue/24/solid'
 import {
   BookOpenIcon,
@@ -1422,7 +1463,8 @@ import {
   TrophyIcon,
   UserPlusIcon,
   ViewColumnsIcon,
-  WindowIcon
+  WindowIcon,
+  XMarkIcon
 } from '@heroicons/vue/24/outline'
 
 export default {
@@ -1436,7 +1478,8 @@ export default {
     Markdown,
     PhoneIcon,
     VideoCameraIcon,
-    VideoCameraSlashIcon,
+    MicrophoneIcon,
+    XMarkIcon,
     DocumentArrowUpIcon,
     GifIcon,
     QrCodeIcon,
@@ -1463,11 +1506,16 @@ export default {
       currentSubchat: {},
       connection: null,
       peerType: 'idle',
-      peerStreamOutgoing: {},
+      peerStreamOutgoing: null,
       peerStreamOutgoingConstraints: {
         video: false,
         audio: true
       },
+      peerStreamOutgoingPreferences: {
+        video: true,
+        audio: true
+      },
+      peerStreamScreenshare: null,
       websocketState: 'CLOSED',
       tagIndex: 0,
       streamStartTime: '',
@@ -1591,6 +1639,9 @@ export default {
         }
       }
       return false
+    },
+    isSharingScreen () {
+      return this.peerStreamScreenshare != null
     }
   },
   methods: {
@@ -1644,7 +1695,6 @@ export default {
       })
       const subchatGUID = params.sub
       this.params = params.call
-      console.log(this.params)
       // this.toggleElement('init_loading', 'flex')
       if (subchatGUID != null) {
         this.$store.commit('setLastClarifierSubGUID', subchatGUID)
@@ -1672,8 +1722,7 @@ export default {
       if (!event || !event.data) return
       if (event.data.event === 'connection_change') {
         console.debug('%c' + event.data.status, this.wRTC.logStyle)
-      }
-      if (event.data.event === 'new_ice') {
+      } else if (event.data.event === 'new_ice') {
         const candidateId = event.data.candidateId
         const peerConnection = await this.wRTC.getPeerConnection(event.data.remoteId)
         for (let i = 0; i < peerConnection.candidates.length; i++) {
@@ -1688,13 +1737,12 @@ export default {
             break
           }
         }
-      }
-      if (event.data.event === 'incoming_track') {
+      } else if (event.data.event === 'incoming_track') {
         this.isStreamingVideo = true
         this.streamStartTime = Math.floor(Date.now() / 1000)
         this.startTimeCounter()
         this.enterCinemaMode()
-        const remoteStream = this.wRTC.getStream(event.data.remoteId)[0]
+        const remoteStream = this.wRTC.getStream(event.data.remoteId)
         let videoElem
         if (this.currentSubchat.type === 'screenshare') {
           videoElem = document.getElementById('screenshare_video')
@@ -1705,6 +1753,8 @@ export default {
         }
         videoElem.srcObject = remoteStream
         videoElem.setAttribute('controls', '')
+      } else if (event.data.event === 'negotiationneeded') {
+        this.startScreenshare(event.data.remoteId, this.peerStreamOutgoingConstraints)
       }
       return new Promise((resolve) => {
         resolve()
@@ -2330,10 +2380,9 @@ export default {
               let stream = null
               if (this.currentSubchat.type === 'webcam' || this.params) {
                 try {
-                  const streamLocal = await navigator.mediaDevices.getUserMedia({
-                    video: true,
-                    audio: false
-                  })
+                  const streamLocal = await navigator.mediaDevices.getUserMedia(
+                    this.peerStreamOutgoingConstraints
+                  )
                   const videoElem = document.getElementById('screenshare_video')
                   videoElem.srcObject = streamLocal
                   videoElem.setAttribute('controls', '')
@@ -3765,7 +3814,11 @@ export default {
             },
             audio: true
           }
-          stream = await navigator.mediaDevices.getDisplayMedia(constraintsT)
+          if (!this.peerStreamOutgoing || this.peerStreamOutgoingConstraints !== constraintsT) {
+            stream = await navigator.mediaDevices.getDisplayMedia(constraintsT)
+          } else {
+            stream = this.peerStreamOutgoing
+          }
         } else if (this.currentSubchat.type === 'webcam' || this.params) {
           let constraintsT
           if (constraints) {
@@ -3783,9 +3836,14 @@ export default {
               audio: true
             }
           }
+          if (!this.peerStreamOutgoing || this.peerStreamOutgoingConstraints !== constraintsT) {
+            stream = await navigator.mediaDevices.getUserMedia(constraintsT)
+            this.stopOutgoingStreamTracks()
+          } else {
+            stream = this.peerStreamOutgoing
+          }
           // Write back the constraints
           this.peerStreamOutgoingConstraints = constraintsT
-          stream = await navigator.mediaDevices.getUserMedia(constraintsT)
         }
       } catch (err) {
         console.debug('Error: ' + err, 'Switching to callee mode...')
@@ -3796,15 +3854,6 @@ export default {
       videoElem.setAttribute('controls', '')
       this.isStreamingVideo = true
       if (stream) {
-        if (this.peerStreamOutgoing) {
-          try {
-            this.peerStreamOutgoing.getTracks().forEach(function (track) {
-              track.stop()
-            })
-          } catch (e) {
-            // No Tracks!
-          }
-        }
         this.peerStreamOutgoing = stream
         this.peerType = 'caller'
       } else {
@@ -3816,23 +3865,28 @@ export default {
       this.streamStartTime = Math.floor(Date.now() / 1000)
       this.startTimeCounter()
       await this.createOutgoingPeerConnections(stream, userId)
+      // Check if we need to replace video with screenshare
+      if (this.isSharingScreen) {
+        this.callStartOrStopScreenshare()
+      }
     },
     stopScreenshare: function () {
-      const videoElem = document.getElementById('screenshare_video')
-      if (videoElem) {
-        videoElem.srcObject = null
-        videoElem.removeAttribute('controls')
+      this.wRTC.hangup()
+      this.stopOutgoingStreamTracks()
+      // Remove content from all video elements
+      const videoElems = document.getElementsByClassName('conference_media_element')
+      if (videoElems) {
+        [...videoElems].forEach((element) => {
+          element.srcObject = null
+          element.removeAttribute('controls')
+        })
       }
-      this.peerStreamOutgoing.getTracks().forEach(function (track) {
-        track.stop()
-      })
       this.peerType = 'idle'
       this.isStreamingVideo = false
       this.streamStartTime = ''
       this.streamDuration = ''
       // Revert styling changes
       this.exitCinemaMode()
-      this.wRTC.hangup()
       const queryObj = {}
       const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop)
@@ -3846,6 +3900,57 @@ export default {
       if (this.chatroom.type === 'direct') {
         const messagesSection = this.$refs.messages_section
         messagesSection.style.width = '100%'
+      }
+    },
+    stopOutgoingStreamTracks: function () {
+      if (this.peerStreamOutgoing) {
+        this.peerStreamOutgoing.getTracks().forEach(function (track) {
+          track.enabled = false
+          track.stop()
+        })
+        this.peerStreamOutgoing = null
+        this.callStartOrStopScreenshare(true)
+      } else {
+        // No tracks found?
+      }
+    },
+    callStartOrMuteVideo: function () {
+      this.peerStreamOutgoingPreferences.video = !this.peerStreamOutgoingPreferences.video
+      this.wRTC.setVideo(this.peerStreamOutgoingPreferences.video)
+    },
+    callStartOrMuteAudio: function () {
+      this.peerStreamOutgoingPreferences.audio = !this.peerStreamOutgoingPreferences.audio
+      this.wRTC.setAudio(this.peerStreamOutgoingPreferences.audio)
+    },
+    callStartOrStopScreenshare: async function (forceStop = false, forceStart = false) {
+      if (!forceStop && (forceStart || !this.isSharingScreen)) {
+        // Turn on screen sharing
+        const constraintsT = {
+          video: {
+            cursor: 'always'
+          },
+          audio: true
+        }
+        if (!this.isSharingScreen) {
+          this.peerStreamScreenshare = await navigator.mediaDevices.getDisplayMedia(constraintsT)
+        }
+        this.wRTC.replaceVideo(this.peerStreamScreenshare)
+        let videoElem = document.getElementById('screenshare_video_alternate')
+        videoElem.srcObject = this.peerStreamScreenshare
+        videoElem.style.display = 'block'
+        videoElem = document.getElementById('screenshare_video')
+        videoElem.style.display = 'none'
+      } else {
+        // Turn off screen sharing
+        this.peerStreamScreenshare.getTracks().forEach((track) => {
+          track.stop()
+        })
+        this.peerStreamScreenshare = null
+        let videoElem = document.getElementById('screenshare_video_alternate')
+        videoElem.srcObject = this.peerStreamScreenshare
+        videoElem.style.display = 'none'
+        videoElem = document.getElementById('screenshare_video')
+        videoElem.style.display = 'block'
       }
     },
     enterCinemaMode: function () {
@@ -3881,6 +3986,7 @@ export default {
       nav.style.display = 'initial'
     },
     startTimeCounter: function () {
+      if (!this.isStreamingVideo) return
       const now = Math.floor(Date.now() / 1000)
       const diff = now - this.streamStartTime
       let m = Math.floor(diff / 60)
@@ -3888,9 +3994,7 @@ export default {
       m = this.padTime(m)
       s = this.padTime(s)
       this.streamDuration = m + ':' + s
-      if (this.isStreamingVideo) {
-        setTimeout(this.startTimeCounter, 1000)
-      }
+      setTimeout(this.startTimeCounter, 1000)
     },
     padTime: function (i) {
       if (i < 10) {
@@ -3900,7 +4004,7 @@ export default {
     },
     acceptWebRTCOffer: async function (payload, stream) {
       if (this.peerType === 'caller') {
-        console.log('Receiving offer as caller!')
+        console.debug('Receiving offer as caller!')
       } else {
         this.peerType = 'callee'
       }
@@ -4473,8 +4577,7 @@ export default {
         method: 'get',
         url: 'm2/befriend/' + username
       })
-        .then((data) => {
-          console.log(data)
+        .then(() => {
           this.isAddingFriend = false
           this.friendName = ''
           this.getNotifications()

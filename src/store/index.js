@@ -173,6 +173,10 @@ export default createStore({
       state.fcmToken = newFCMToken
     },
     setClarifierKeyPair (state, payload) {
+      // Remove key from local storage (since we're storing them in the indexed db now)
+      state.clarifierKeys = state.clarifierKeys.filter(function (ele) {
+        return ele.id !== payload.id
+      })
       dbSetSession(payload.id, payload)
     },
     setE2EncryptionSeen (state, seen) {

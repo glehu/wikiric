@@ -28,9 +28,18 @@ const WRTC = {
    */
   initiatePeerConnection: function (stream, selfId, remoteId) {
     if (this.peerConnections.has(remoteId)) {
-      console.log('%cConnection Reneg.', this.logStyle, 'for', remoteId)
+      console.log('%cRenegotiating Peer Connection', this.logStyle, 'for', remoteId)
+      try {
+        // Remove and stop the tracks first to make sure we're not sending stuff without a reason
+        this.peerConnections.get(remoteId).getTracks().forEach(function (track) {
+          track.enabled = false
+          track.stop()
+        })
+      } catch (e) {
+        // Track could not be stopped
+      }
     } else {
-      console.log('%cConnection Init.', this.logStyle, 'to', remoteId)
+      console.log('%cInitializing Peer Connection', this.logStyle, 'to', remoteId)
     }
     // Create P2P and set IDs
     const peerConnection = new RTCPeerConnection(this.iceConfig)
@@ -38,7 +47,7 @@ const WRTC = {
     peerConnection.remoteId = remoteId
     peerConnection.candidates = []
     peerConnection.candidateCounter = 0
-    peerConnection.streams = []
+    peerConnection.stream = null
     peerConnection.streamCounter = 0
     peerConnection.iceAvailable = false
     peerConnection.isAccepted = false
@@ -89,7 +98,7 @@ const WRTC = {
       if (event.streams) {
         const [remoteStream] = event.streams
         peerConnection.streamCounter += 1
-        peerConnection.streams.push(remoteStream)
+        peerConnection.stream = remoteStream
         const payload = {
           event: 'incoming_track',
           selfId: peerConnection.selfId,
@@ -97,6 +106,16 @@ const WRTC = {
         }
         this.eventChannel.postMessage(payload)
       }
+    })
+    // Renegotiation
+    peerConnection.addEventListener('negotiationneeded', () => {
+      if (!peerConnection.isAccepted) return
+      const payload = {
+        event: 'negotiationneeded',
+        selfId: peerConnection.selfId,
+        remoteId: peerConnection.remoteId
+      }
+      this.eventChannel.postMessage(payload)
     })
 
     // Save the peer connection (destination as key)
@@ -137,10 +156,16 @@ const WRTC = {
    * @returns {Promise<Object>}
    */
   acceptOffer: async function (selfId, remoteId, offer, stream) {
-    console.log('%cAccepting Offer from', this.logStyle, remoteId)
     let peerConnection = this.getPeerConnection(remoteId)
     if (!peerConnection) {
       console.log('%cPeer Connection does not exist yet... Creating it...', this.logStyle)
+      this.initiatePeerConnection(stream, selfId, remoteId)
+      peerConnection = this.getPeerConnection(remoteId)
+    }
+    if (!peerConnection.isAccepted) {
+      console.log('%cAccepting Offer from', this.logStyle, remoteId)
+    } else {
+      console.log('%cAccepting Renegotiated Offer from', this.logStyle, remoteId)
       this.initiatePeerConnection(stream, selfId, remoteId)
       peerConnection = this.getPeerConnection(remoteId)
     }
@@ -241,14 +266,61 @@ const WRTC = {
       return null
     } else {
       const peerConnection = this.peerConnections.get(remoteId)
-      if (!peerConnection.streams) return null
-      console.log('%cRetrieving ' + peerConnection.streams.length + ' remote streams', this.logStyle)
-      return peerConnection.streams
+      if (!peerConnection.stream) return null
+      console.log('%cRetrieving remote streams', this.logStyle)
+      return peerConnection.stream
     }
   },
   hangup: function () {
+    this.setVideo(false)
+    this.setAudio(false)
+    for (const peerCon of this.peerConnections.values()) {
+      // Stop tracks to free up the resources
+      const senderList = peerCon.getSenders()
+      senderList.forEach((sender) => {
+        sender.track.enabled = false
+        sender.track.stop()
+      })
+      // Close connection
+      try {
+        peerCon.close()
+      } catch (e) {
+        // Connection could not be closed (?)
+      }
+    }
     this.peerConnections = new Map()
-    console.log('%cSuccessfully hung up!', this.logStyle)
+    console.log('%cHung up!', this.logStyle)
+  },
+  setVideo: function (valueBoolean) {
+    for (const peerCon of this.peerConnections.values()) {
+      const senderList = peerCon.getSenders()
+      senderList.forEach((sender) => {
+        if (sender.track && sender.track.kind === 'video') {
+          sender.track.enabled = valueBoolean
+        }
+      })
+    }
+  },
+  setAudio: function (valueBoolean) {
+    for (const peerCon of this.peerConnections.values()) {
+      const senderList = peerCon.getSenders()
+      senderList.forEach((sender) => {
+        if (sender.track && sender.track.kind === 'audio') {
+          sender.track.enabled = valueBoolean
+        }
+      })
+    }
+  },
+  replaceVideo: function (stream) {
+    const [videoTracks] = stream.getVideoTracks()
+    for (const peerCon of this.peerConnections.values()) {
+      const senderList = peerCon.getSenders()
+      senderList.forEach((sender) => {
+        if (sender.track && sender.track.kind === 'video') {
+          sender.replaceTrack(videoTracks)
+        }
+      })
+    }
   }
 }
 export default WRTC

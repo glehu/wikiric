@@ -6,7 +6,8 @@
          class="fixed top-0 left-0 z-10 w-full darkest_bg">
       <router-view/>
       <template v-if="incomingCall">
-        <div class="w-full h-full absolute left-0 top-0 flex items-center justify-center">
+        <div class="w-full h-full absolute left-0 top-0 flex items-center justify-center"
+             style="z-index: 9999">
           <div class="p-8 font-bold darkest_bg rounded-md border-2 border-zinc-600">
             <p class="w-full text-center">Incoming Call</p>
             <p class="w-full text-center my-3 text-xl">{{ call.srcUsername }}</p>
@@ -85,11 +86,11 @@ export default {
           console.debug('firebase->dlChannel->connect')
           if (event.data.subchatGUID) {
             console.debug('firebase->dlChannel->connect as SUBCHAT', event.data.subchatGUID)
-            window.location.href = event.data.destination + '?sub=' + event.data.subchatGUID
+            this.$router.push('/redirect?redirect=' + event.data.destination + '?sub=' + event.data.subchatGUID)
           } else {
             if (event.data.destination != null) {
               console.debug('firebase->dlChannel->connect as GENERAL', event.data.destination)
-              window.location.href = event.data.destination
+              this.$router.push('/redirect?redirect=' + event.data.destination)
             }
           }
         }
