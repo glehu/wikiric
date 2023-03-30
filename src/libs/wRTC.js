@@ -11,6 +11,7 @@ const WRTC = {
   },
   peerConnections: new Map(),
   logStyle: 'color: #FFF; background-color: #000; padding: 2px; font-weight: bold;',
+  doLog: false,
   /*
   FUNCTIONS
    */
@@ -28,7 +29,7 @@ const WRTC = {
    */
   initiatePeerConnection: function (stream, selfId, remoteId) {
     if (this.peerConnections.has(remoteId)) {
-      console.log('%cRenegotiating Peer Connection', this.logStyle, 'for', remoteId)
+      if (this.doLog) console.log('%cRenegotiating Peer Connection', this.logStyle, 'for', remoteId)
       try {
         // Remove and stop the tracks first to make sure we're not sending stuff without a reason
         this.peerConnections.get(remoteId).getTracks().forEach(function (track) {
@@ -39,7 +40,7 @@ const WRTC = {
         // Track could not be stopped
       }
     } else {
-      console.log('%cInitializing Peer Connection', this.logStyle, 'to', remoteId)
+      if (this.doLog) console.log('%cInitializing Peer Connection', this.logStyle, 'to', remoteId)
     }
     // Create P2P and set IDs
     const peerConnection = new RTCPeerConnection(this.iceConfig)
@@ -54,7 +55,7 @@ const WRTC = {
     // Add tracks if present
     if (stream != null) {
       stream.getTracks().forEach(track => {
-        console.debug('%cADD Track for', this.logStyle, remoteId)
+        if (this.doLog) console.debug('%cADD Track for', this.logStyle, remoteId)
         peerConnection.addTrack(track, stream)
       })
     }
@@ -74,7 +75,7 @@ const WRTC = {
       if (event.candidate) {
         iceCandidate = event.candidate
       } else {
-        console.log('%cReached End of Candidates)', this.logStyle, event.candidate)
+        if (this.doLog) console.log('%cReached End of Candidates)', this.logStyle, event.candidate)
       }
       peerConnection.iceAvailable = true
       peerConnection.candidateCounter += 1
@@ -82,9 +83,9 @@ const WRTC = {
         id: peerConnection.candidateCounter,
         candidate: iceCandidate
       })
-      console.log('%cNew ICE Candidate Gathered', this.logStyle, iceCandidate)
+      if (this.doLog) console.log('%cNew ICE Candidate Gathered', this.logStyle, iceCandidate)
       if (peerConnection.isAccepted) {
-        console.log('%c---> Forwarding as Connection was Agreed Upon', this.logStyle)
+        if (this.doLog) console.log('%c---> Forwarding as Connection was Agreed Upon', this.logStyle)
         const payload = {
           event: 'new_ice',
           selfId: peerConnection.selfId,
@@ -109,13 +110,7 @@ const WRTC = {
     })
     // Renegotiation
     peerConnection.addEventListener('negotiationneeded', () => {
-      if (!peerConnection.isAccepted) return
-      const payload = {
-        event: 'negotiationneeded',
-        selfId: peerConnection.selfId,
-        remoteId: peerConnection.remoteId
-      }
-      this.eventChannel.postMessage(payload)
+      this.sendNegotiationMessage(peerConnection)
     })
 
     // Save the peer connection (destination as key)
@@ -129,7 +124,7 @@ const WRTC = {
   createOffer: async function (remoteId) {
     if (!this.peerConnections.has(remoteId)) return null
     const peerConnection = this.peerConnections.get(remoteId)
-    console.log('%cCreating Offer for', this.logStyle, remoteId)
+    if (this.doLog) console.log('%cCreating Offer for', this.logStyle, remoteId)
     // Create an offer and set it as the local description
     const offer = await peerConnection.createOffer()
     await peerConnection.setLocalDescription(offer)
@@ -158,21 +153,21 @@ const WRTC = {
   acceptOffer: async function (selfId, remoteId, offer, stream) {
     let peerConnection = this.getPeerConnection(remoteId)
     if (!peerConnection) {
-      console.log('%cPeer Connection does not exist yet... Creating it...', this.logStyle)
+      if (this.doLog) console.log('%cPeer Connection does not exist yet... Creating it...', this.logStyle)
       this.initiatePeerConnection(stream, selfId, remoteId)
       peerConnection = this.getPeerConnection(remoteId)
     }
     if (!peerConnection.isAccepted) {
-      console.log('%cAccepting Offer from', this.logStyle, remoteId)
+      if (this.doLog) console.log('%cAccepting Offer from', this.logStyle, remoteId)
     } else {
-      console.log('%cAccepting Renegotiated Offer from', this.logStyle, remoteId)
+      if (this.doLog) console.log('%cAccepting Renegotiated Offer from', this.logStyle, remoteId)
       this.initiatePeerConnection(stream, selfId, remoteId)
       peerConnection = this.getPeerConnection(remoteId)
     }
     await peerConnection.setRemoteDescription(offer)
     const answer = await peerConnection.createAnswer()
     await peerConnection.setLocalDescription(answer)
-    console.log('%cCreated Answer for', this.logStyle, remoteId)
+    if (this.doLog) console.log('%cCreated Answer for', this.logStyle, remoteId)
     peerConnection.isAccepted = true
     this.peerConnections.set(remoteId, peerConnection)
     /* Generate response payload
@@ -197,14 +192,14 @@ const WRTC = {
   acceptAnswer: async function (remoteId, answer) {
     const peerConnection = this.getPeerConnection(remoteId)
     if (!peerConnection) {
-      console.log('%cDiscarded Answer (Wrong Recipient)', this.logStyle)
+      if (this.doLog) console.log('%cDiscarded Answer (Wrong Recipient)', this.logStyle)
       return false
     }
-    console.log('%cAccepting Answer from', this.logStyle, remoteId)
+    if (this.doLog) console.log('%cAccepting Answer from', this.logStyle, remoteId)
     try {
       await peerConnection.setRemoteDescription(answer)
     } catch (e) {
-      console.debug(e.message)
+      if (this.doLog) console.debug(e.message)
     }
     peerConnection.isAccepted = true
     this.peerConnections.set(remoteId, peerConnection)
@@ -233,24 +228,24 @@ const WRTC = {
    */
   setICECandidate: async function (remoteId, candidate) {
     if (typeof remoteId === 'undefined' || remoteId === null) {
-      console.log('%cInvalid remoteId while adding ICE candidate', this.logStyle)
+      if (this.doLog) console.log('%cInvalid remoteId while adding ICE candidate', this.logStyle)
       return null
     }
     if (!this.peerConnections.has(remoteId)) {
-      console.log('%cDiscarding ICE Candidate (Wrong Recipient)', this.logStyle)
+      if (this.doLog) console.log('%cDiscarding ICE Candidate (Wrong Recipient)', this.logStyle)
       return null
     } else {
-      console.log('%cSetting ICE Candidate from', this.logStyle, remoteId, candidate)
+      if (this.doLog) console.log('%cSetting ICE Candidate from', this.logStyle, remoteId, candidate)
       const peerConnection = this.peerConnections.get(remoteId)
       try {
         if (candidate) {
           await peerConnection.addIceCandidate(candidate)
         } else {
-          console.log('%cReceived End of Candidates from remote peer', this.logStyle, remoteId)
+          if (this.doLog) console.log('%cReceived End of Candidates from remote peer', this.logStyle, remoteId)
           await peerConnection.addIceCandidate(null)
         }
       } catch (e) {
-        console.debug('Error adding received ice candidate', e)
+        if (this.doLog) console.debug('Error adding received ice candidate', e)
       }
       this.peerConnections.set(remoteId, peerConnection)
     }
@@ -267,7 +262,7 @@ const WRTC = {
     } else {
       const peerConnection = this.peerConnections.get(remoteId)
       if (!peerConnection.stream) return null
-      console.log('%cRetrieving remote streams', this.logStyle)
+      if (this.doLog) console.log('%cRetrieving remote streams', this.logStyle)
       return peerConnection.stream
     }
   },
@@ -289,7 +284,16 @@ const WRTC = {
       }
     }
     this.peerConnections = new Map()
-    console.log('%cHung up!', this.logStyle)
+    if (this.doLog) console.log('%cHung up!', this.logStyle)
+  },
+  sendNegotiationMessage: function (peerConnection) {
+    if (!peerConnection.isAccepted) return
+    const payload = {
+      event: 'negotiationneeded',
+      selfId: peerConnection.selfId,
+      remoteId: peerConnection.remoteId
+    }
+    this.eventChannel.postMessage(payload)
   },
   setVideo: function (valueBoolean) {
     for (const peerCon of this.peerConnections.values()) {
@@ -318,6 +322,12 @@ const WRTC = {
       senderList.forEach((sender) => {
         if (sender.track && sender.track.kind === 'video') {
           sender.replaceTrack(videoTracks)
+            .then(() => {
+              sender.track.enabled = true
+            })
+            .catch(() => {
+              this.sendNegotiationMessage(peerCon)
+            })
         }
       })
     }

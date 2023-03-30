@@ -253,7 +253,7 @@
                     </p>
                   </div>
                   <template v-if="currentSubchat.type === 'screenshare'">
-                    <video id="screenshare_video" autoplay playsinline
+                    <video id="screenshare_video" autoplay playsinline muted
                            class="conference_media_element"
                            style="width: 100%; height: 100%"></video>
                   </template>
@@ -263,7 +263,7 @@
                          style="grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));">
                       <div class="relative overflow-hidden w-full h-full">
                         <video id="screenshare_video"
-                               autoplay playsinline
+                               autoplay playsinline muted
                                class="w-full h-full max-w-full max-h-full conference_media_element"></video>
                         <video id="screenshare_video_alternate"
                                autoplay playsinline muted controls
@@ -370,11 +370,20 @@
                       </div>
                     </button>
                   </template>
-                  <button v-tooltip.top="{ content: 'Share Screen' }"
-                          class="p-2 border border-zinc-400 rounded-md gray-hover"
-                          v-on:click="callStartOrStopScreenshare()">
-                    <WindowIcon class="h-8 w-8 text-neutral-400"></WindowIcon>
-                  </button>
+                  <template v-if="!isSharingScreen">
+                    <button v-tooltip.top="{ content: 'Share Screen' }"
+                            class="p-2 border border-zinc-400 rounded-md gray-hover"
+                            v-on:click="callStartOrStopScreenshare()">
+                      <WindowIcon class="h-8 w-8 text-neutral-400"></WindowIcon>
+                    </button>
+                  </template>
+                  <template v-else>
+                    <button v-tooltip.top="{ content: 'Stop Sharing' }"
+                            class="p-2 border border-green-500 rounded-md gray-hover"
+                            v-on:click="callStartOrStopScreenshare()">
+                      <WindowIcon class="h-8 w-8 text-green-600"></WindowIcon>
+                    </button>
+                  </template>
                 </template>
                 <template v-else>
                   <template v-if="currentSubchat.type === 'webcam' || params">
@@ -3914,12 +3923,12 @@ export default {
         // No tracks found?
       }
     },
-    callStartOrMuteVideo: function () {
-      this.peerStreamOutgoingPreferences.video = !this.peerStreamOutgoingPreferences.video
+    callStartOrMuteVideo: function (override = null) {
+      this.peerStreamOutgoingPreferences.video = override ?? !this.peerStreamOutgoingPreferences.video
       this.wRTC.setVideo(this.peerStreamOutgoingPreferences.video)
     },
-    callStartOrMuteAudio: function () {
-      this.peerStreamOutgoingPreferences.audio = !this.peerStreamOutgoingPreferences.audio
+    callStartOrMuteAudio: function (override = null) {
+      this.peerStreamOutgoingPreferences.audio = override ?? !this.peerStreamOutgoingPreferences.audio
       this.wRTC.setAudio(this.peerStreamOutgoingPreferences.audio)
     },
     callStartOrStopScreenshare: async function (forceStop = false, forceStart = false) {
@@ -3934,6 +3943,7 @@ export default {
         if (!this.isSharingScreen) {
           this.peerStreamScreenshare = await navigator.mediaDevices.getDisplayMedia(constraintsT)
         }
+        if (this.peerStreamOutgoingConstraints.video) this.callStartOrMuteVideo(false)
         this.wRTC.replaceVideo(this.peerStreamScreenshare)
         let videoElem = document.getElementById('screenshare_video_alternate')
         videoElem.srcObject = this.peerStreamScreenshare
@@ -3941,6 +3951,7 @@ export default {
         videoElem = document.getElementById('screenshare_video')
         videoElem.style.display = 'none'
       } else {
+        if (!this.peerStreamScreenshare) return
         // Turn off screen sharing
         this.peerStreamScreenshare.getTracks().forEach((track) => {
           track.stop()
@@ -3951,6 +3962,10 @@ export default {
         videoElem.style.display = 'none'
         videoElem = document.getElementById('screenshare_video')
         videoElem.style.display = 'block'
+        if (this.peerStreamOutgoingConstraints.video) {
+          this.wRTC.replaceVideo(this.peerStreamOutgoing)
+          this.peerStreamOutgoingPreferences.video = true
+        }
       }
     },
     enterCinemaMode: function () {
