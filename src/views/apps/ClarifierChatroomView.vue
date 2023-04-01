@@ -237,7 +237,7 @@
                         height: calc(100% - 50px - 80px);
                         position: absolute; left: 350px;
                         padding: 0"
-                 class="c_lightgray darkest_bg">
+                 class="c_lightgray darkest_bg rounded-bl-md">
               <div class="w-full h-[calc(100%-60px)] flex">
                 <div style="position: relative; top: 0; left: 0;
                             width: 100%;
@@ -290,7 +290,7 @@
                 </div>
                 <div v-if="!isStreamingVideo && (currentSubchat.type === 'screenshare')"
                      style="position: absolute; top: 10px; right: 10px" class="text-end">
-                  <button v-on:click="startScreenshare()"
+                  <button v-on:click="startCall()"
                           class="gray-hover c_lightgray px-3 py-2"
                           style="position: relative;
                              margin-left: 20px; margin-top: 10px;
@@ -301,7 +301,7 @@
                   <br>
                   <template v-for="user in this.members" :key="user">
                     <template v-if="user.id !== userId">
-                      <button v-on:click="startScreenshare(user.id)"
+                      <button v-on:click="startCall(user.id)"
                               class="gray-hover c_lightgray px-3 py-2"
                               style="position: relative;
                                    margin-left: 20px; margin-top: 10px;
@@ -344,7 +344,7 @@
                   <template v-else>
                     <button class="p-2 border border-zinc-400 rounded-md gray-hover"
                             v-tooltip.top="{ content: 'Enable Camera' }"
-                            v-on:click="startScreenshare(undefined, {video: true, audio: undefined})">
+                            v-on:click="startCall(undefined, {video: true, audio: undefined})">
                       <div class="relative">
                         <VideoCameraIcon class="h-8 w-8 text-neutral-400"></VideoCameraIcon>
                         <XMarkIcon class="h-8 w-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
@@ -389,12 +389,12 @@
                   <template v-if="currentSubchat.type === 'webcam' || params">
                     <button class="p-2 border border-zinc-500 rounded-md text-neutral-300 hover:dark_bg"
                             v-tooltip.top="{ content: 'Audio Call' }"
-                            v-on:click="startScreenshare(undefined, {video: false, audio: true})">
+                            v-on:click="startCall(undefined, {video: false, audio: true})">
                       <PhoneIcon class="h-8 w-8"></PhoneIcon>
                     </button>
                     <button class="p-2 border border-zinc-500 rounded-md text-neutral-300 hover:dark_bg"
                             v-tooltip.top="{ content: 'Video Call' }"
-                            v-on:click="startScreenshare(undefined, {video: true, audio: true})">
+                            v-on:click="startCall(undefined, {video: true, audio: true})">
                       <VideoCameraIcon class="h-8 w-8"></VideoCameraIcon>
                     </button>
                   </template>
@@ -1516,6 +1516,7 @@ export default {
       connection: null,
       peerType: 'idle',
       peerStreamOutgoing: null,
+      peerDummyStreamOutgoing: null,
       peerStreamOutgoingConstraints: {
         video: false,
         audio: true
@@ -1730,7 +1731,7 @@ export default {
     handleWRTCEvent: async function (event) {
       if (!event || !event.data) return
       if (event.data.event === 'connection_change') {
-        console.debug('%c' + event.data.status, this.wRTC.logStyle)
+        if (this.wRTC.doLog) console.debug('%c' + event.data.status, this.wRTC.logStyle)
       } else if (event.data.event === 'new_ice') {
         const candidateId = event.data.candidateId
         const peerConnection = await this.wRTC.getPeerConnection(event.data.remoteId)
@@ -1741,7 +1742,11 @@ export default {
               remoteId: this.userId,
               candidate: peerConnection.candidates[i].candidate
             }
-            console.debug('%cSending renegotiated Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
+            if (this.wRTC.doLog && this.wRTC.doLogVerbose) {
+              console.debug('%cSending renegotiated Candidate',
+                this.wRTC.logStyle,
+                peerConnection.candidates[i].candidate)
+            }
             this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
             break
           }
@@ -1763,7 +1768,7 @@ export default {
         videoElem.srcObject = remoteStream
         videoElem.setAttribute('controls', '')
       } else if (event.data.event === 'negotiationneeded') {
-        this.startScreenshare(event.data.remoteId, this.peerStreamOutgoingConstraints)
+        await this.startCall(event.data.remoteId, this.peerStreamOutgoingConstraints)
       }
       return new Promise((resolve) => {
         resolve()
@@ -1853,7 +1858,7 @@ export default {
                 ))
               .then(() => {
                 if (this.currentSubchat.type === 'webcam' || this.params) {
-                  this.startScreenshare(undefined, {
+                  this.startCall(undefined, {
                     video: false,
                     audio: true
                   })
@@ -2394,7 +2399,6 @@ export default {
                   )
                   const videoElem = document.getElementById('screenshare_video')
                   videoElem.srcObject = streamLocal
-                  videoElem.setAttribute('controls', '')
                   if (streamLocal) stream = streamLocal
                 } catch (e) {
                   console.debug(e.message)
@@ -2424,7 +2428,11 @@ export default {
                 remoteId: this.userId,
                 candidate: peerConnection.candidates[i].candidate
               }
-              console.debug('%cSending gathered Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
+              if (this.wRTC.doLog && this.wRTC.doLogVerbose) {
+                console.debug('%cSending gathered Candidate',
+                  this.wRTC.logStyle,
+                  peerConnection.candidates[i].candidate)
+              }
               this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
             }
           }
@@ -3812,71 +3820,57 @@ export default {
       }
       return bytes.buffer
     },
-    startScreenshare: async function (userId, constraints = null) {
-      let stream = null
-      try {
-        // Ask for screen sharing permission + prompt user to select screen
-        if (this.currentSubchat.type === 'screenshare') {
-          const constraintsT = {
-            video: {
-              cursor: 'always'
-            },
-            audio: true
-          }
-          if (!this.peerStreamOutgoing || this.peerStreamOutgoingConstraints !== constraintsT) {
-            stream = await navigator.mediaDevices.getDisplayMedia(constraintsT)
-          } else {
-            stream = this.peerStreamOutgoing
-          }
-        } else if (this.currentSubchat.type === 'webcam' || this.params) {
-          let constraintsT
-          if (constraints) {
-            constraintsT = constraints
-            // If video or audio is undefined, take the already existing settings
-            if (constraintsT.video === undefined) {
-              constraintsT.video = this.peerStreamOutgoingConstraints.video
-            }
-            if (constraintsT.audio === undefined) {
-              constraintsT.audio = this.peerStreamOutgoingConstraints.audio
-            }
-          } else {
-            constraintsT = {
-              video: false,
-              audio: true
-            }
-          }
-          if (!this.peerStreamOutgoing || this.peerStreamOutgoingConstraints !== constraintsT) {
-            stream = await navigator.mediaDevices.getUserMedia(constraintsT)
-            this.stopOutgoingStreamTracks()
-          } else {
-            stream = this.peerStreamOutgoing
-          }
-          // Write back the constraints
-          this.peerStreamOutgoingConstraints = constraintsT
+    getEmptyStream: function (width = 640, height = 480, dummyText = null) {
+      const silence = () => {
+        const ctx = new AudioContext()
+        const oscillator = ctx.createOscillator()
+        const dst = oscillator.connect(ctx.createMediaStreamDestination())
+        oscillator.start()
+        return Object.assign(dst.stream.getAudioTracks()[0], { enabled: false })
+      }
+      const black = () => {
+        const canvas = Object.assign(document.createElement('canvas'), {
+          width,
+          height
+        })
+        const ctx = canvas.getContext('2d')
+        // Set black background
+        ctx.fillStyle = 'rgb(24, 24, 27)'
+        ctx.fillRect(0, 0, width, height)
+        // Write text if specified
+        if (dummyText) {
+          ctx.fillStyle = 'white'
+          ctx.textAlign = 'center'
+          ctx.font = "bold 24px 'Open Sans'"
+          ctx.fillText(dummyText, width / 2, height / 2)
         }
-      } catch (err) {
-        console.debug('Error: ' + err, 'Switching to callee mode...')
-        stream = null
+        const stream = canvas.captureStream()
+        return Object.assign(stream.getVideoTracks()[0], { enabled: true })
       }
+      return new MediaStream([black(width, height), silence()])
+    },
+    startCall: async function (userId, constraints = null) {
+      this.peerDummyStreamOutgoing = this.getEmptyStream(640, 480, this.$store.state.username)
+      // Set local stream
       const videoElem = document.getElementById('screenshare_video')
-      if (stream) videoElem.srcObject = stream
-      videoElem.setAttribute('controls', '')
+      videoElem.srcObject = this.peerDummyStreamOutgoing
       this.isStreamingVideo = true
-      if (stream) {
-        this.peerStreamOutgoing = stream
-        this.peerType = 'caller'
-      } else {
-        this.peerType = 'callee'
-      }
       // Go into distraction free cinema mode
       this.enterCinemaMode()
       // Start the count-up timer
       this.streamStartTime = Math.floor(Date.now() / 1000)
       this.startTimeCounter()
-      await this.createOutgoingPeerConnections(stream, userId)
-      // Check if we need to replace video with screenshare
+      // Create peer to peer connections
+      await this.createOutgoingPeerConnections(this.peerDummyStreamOutgoing, userId)
+      // Check if we need to replace any tracks
+      if (this.currentSubchat.type === 'screenshare') {
+        await this.callSetDisplayMedia()
+      }
+      if (this.currentSubchat.type === 'webcam' || this.params) {
+        await this.callSetUserMedia(constraints)
+      }
       if (this.isSharingScreen) {
-        this.callStartOrStopScreenshare()
+        await this.callStartOrStopScreenshare(false, true)
       }
     },
     stopScreenshare: function () {
@@ -3912,20 +3906,92 @@ export default {
       }
     },
     stopOutgoingStreamTracks: function () {
+      if (this.peerStreamOutgoingConstraints.audio) this.wRTC.setAudio(false)
+      if (this.peerStreamOutgoingConstraints.video) this.wRTC.setVideo(false)
+      if (this.isSharingScreen) this.callStartOrStopScreenshare(true)
       if (this.peerStreamOutgoing) {
         this.peerStreamOutgoing.getTracks().forEach(function (track) {
           track.enabled = false
           track.stop()
         })
         this.peerStreamOutgoing = null
-        this.callStartOrStopScreenshare(true)
       } else {
         // No tracks found?
       }
     },
+    callSetDisplayMedia: async function () {
+      const constraintsT = {
+        video: {
+          cursor: 'always'
+        },
+        audio: true
+      }
+      let stream
+      if (!this.peerStreamOutgoing || this.peerStreamOutgoingConstraints !== constraintsT) {
+        stream = await navigator.mediaDevices.getDisplayMedia(constraintsT)
+        this.peerStreamOutgoing = stream
+      } else {
+        stream = this.peerStreamOutgoing
+      }
+      this.wRTC.replaceTrack(stream, 'audio')
+      this.wRTC.replaceTrack(stream, 'video')
+      return new Promise((resolve) => {
+        resolve()
+      })
+    },
+    callSetUserMedia: async function (constraints = null) {
+      let constraintsT
+      if (constraints) {
+        constraintsT = constraints
+        // If video or audio is undefined, take the already existing settings
+        if (constraintsT.video === undefined) {
+          constraintsT.video = this.peerStreamOutgoingConstraints.video
+        }
+        if (constraintsT.audio === undefined) {
+          constraintsT.audio = this.peerStreamOutgoingConstraints.audio
+        }
+      } else {
+        constraintsT = {
+          video: false,
+          audio: true
+        }
+      }
+      let stream
+      if (!this.peerStreamOutgoing || this.peerStreamOutgoingConstraints !== constraintsT) {
+        stream = await navigator.mediaDevices.getUserMedia(constraintsT)
+        this.stopOutgoingStreamTracks()
+        this.peerStreamOutgoing = stream
+      } else {
+        stream = this.peerStreamOutgoing
+      }
+      if (constraintsT.audio) {
+        this.wRTC.replaceTrack(stream, 'audio')
+      }
+      if (constraintsT.video) {
+        this.wRTC.replaceTrack(stream, 'video')
+        // Set local stream
+        const videoElem = document.getElementById('screenshare_video')
+        videoElem.srcObject = stream
+      }
+      // Write back the constraints
+      this.peerStreamOutgoingConstraints = constraintsT
+      return new Promise((resolve) => {
+        resolve()
+      })
+    },
     callStartOrMuteVideo: function (override = null) {
       this.peerStreamOutgoingPreferences.video = override ?? !this.peerStreamOutgoingPreferences.video
-      this.wRTC.setVideo(this.peerStreamOutgoingPreferences.video)
+      if (this.peerStreamOutgoingPreferences.video) {
+        this.wRTC.replaceTrack(this.peerStreamOutgoing, 'video')
+        const videoElem = document.getElementById('screenshare_video')
+        videoElem.srcObject = this.peerStreamOutgoing
+      } else {
+        this.wRTC.setVideo(this.peerStreamOutgoingPreferences.video)
+        // If we disabled video, replace it with the dummy stream
+        this.wRTC.replaceTrack(this.peerDummyStreamOutgoing, 'video')
+        const videoElem = document.getElementById('screenshare_video')
+        videoElem.srcObject = this.peerDummyStreamOutgoing
+      }
     },
     callStartOrMuteAudio: function (override = null) {
       this.peerStreamOutgoingPreferences.audio = override ?? !this.peerStreamOutgoingPreferences.audio
@@ -3943,8 +4009,11 @@ export default {
         if (!this.isSharingScreen) {
           this.peerStreamScreenshare = await navigator.mediaDevices.getDisplayMedia(constraintsT)
         }
-        if (this.peerStreamOutgoingConstraints.video) this.callStartOrMuteVideo(false)
-        this.wRTC.replaceVideo(this.peerStreamScreenshare)
+        if (this.peerStreamOutgoingConstraints.video) {
+          // Disable video to save bandwidth while transmitting screen
+          this.callStartOrMuteVideo(false)
+        }
+        this.wRTC.replaceTrack(this.peerStreamScreenshare, 'video')
         let videoElem = document.getElementById('screenshare_video_alternate')
         videoElem.srcObject = this.peerStreamScreenshare
         videoElem.style.display = 'block'
@@ -3960,45 +4029,59 @@ export default {
         let videoElem = document.getElementById('screenshare_video_alternate')
         videoElem.srcObject = this.peerStreamScreenshare
         videoElem.style.display = 'none'
-        videoElem = document.getElementById('screenshare_video')
-        videoElem.style.display = 'block'
-        if (this.peerStreamOutgoingConstraints.video) {
-          this.wRTC.replaceVideo(this.peerStreamOutgoing)
+        if (this.peerStreamOutgoingConstraints.video && this.peerStreamOutgoingPreferences.video) {
+          // Enable webcam again if it was active before
+          this.wRTC.replaceTrack(this.peerStreamOutgoing, 'video')
           this.peerStreamOutgoingPreferences.video = true
+          videoElem = document.getElementById('screenshare_video')
+          videoElem.style.display = 'block'
+          videoElem.srcObject = this.peerStreamOutgoing
+        } else {
+          this.wRTC.replaceTrack(this.peerDummyStreamOutgoing, 'video')
+          const videoElem = document.getElementById('screenshare_video')
+          videoElem.style.display = 'block'
+          videoElem.srcObject = this.peerDummyStreamOutgoing
         }
       }
+      return new Promise((resolve) => {
+        resolve()
+      })
     },
     enterCinemaMode: function () {
       const chat = document.getElementById('chat_section')
-      chat.style.position = 'fixed'
-      chat.style.top = '0px'
-      chat.style.left = '0'
-      chat.style.height = '100%'
-      chat.style.zIndex = '9999'
+      if (chat) {
+        chat.style.position = 'fixed'
+        chat.style.top = '0px'
+        chat.style.left = '0'
+        chat.style.height = '100%'
+        chat.style.zIndex = '9999'
+      }
       const sidebar = document.getElementById('sidebar')
-      sidebar.style.display = 'none'
+      if (sidebar) sidebar.style.display = 'none'
       const sidebar2 = document.getElementById('sidebar2')
-      sidebar2.style.display = 'none'
+      if (sidebar2) sidebar2.style.display = 'none'
       const members = document.getElementById('member_section')
-      members.style.display = 'none'
+      if (members) members.style.display = 'none'
       const nav = document.getElementById('global_nav')
-      nav.style.display = 'none'
+      if (nav) nav.style.display = 'none'
     },
     exitCinemaMode: function () {
       const chat = document.getElementById('chat_section')
-      chat.style.position = 'initial'
-      chat.style.top = 'initial'
-      chat.style.left = 'initial'
-      chat.style.height = 'initial'
-      chat.style.zIndex = 'initial'
+      if (chat) {
+        chat.style.position = 'initial'
+        chat.style.top = 'initial'
+        chat.style.left = 'initial'
+        chat.style.height = 'initial'
+        chat.style.zIndex = 'initial'
+      }
       const sidebar = document.getElementById('sidebar')
-      sidebar.style.display = 'initial'
+      if (sidebar) sidebar.style.display = 'initial'
       const sidebar2 = document.getElementById('sidebar2')
-      sidebar2.style.display = 'initial'
+      if (sidebar2) sidebar2.style.display = 'initial'
       const members = document.getElementById('member_section')
-      members.style.display = 'initial'
+      if (members) members.style.display = 'initial'
       const nav = document.getElementById('global_nav')
-      nav.style.display = 'initial'
+      if (nav) nav.style.display = 'initial'
     },
     startTimeCounter: function () {
       if (!this.isStreamingVideo) return
@@ -4019,7 +4102,7 @@ export default {
     },
     acceptWebRTCOffer: async function (payload, stream) {
       if (this.peerType === 'caller') {
-        console.debug('Receiving offer as caller!')
+        if (this.wRTC.doLog) console.debug('Receiving offer as caller!')
       } else {
         this.peerType = 'callee'
       }
@@ -4035,7 +4118,9 @@ export default {
         selfId: payload.remoteId,
         remoteId: payload.selfId
       }
-      console.debug('%cAccepted Answer... sending and triggering ICE on REMOTE', this.wRTC.logStyle)
+      if (this.wRTC.doLog) {
+        console.debug('%cAccepted Answer... sending and triggering ICE on REMOTE', this.wRTC.logStyle)
+      }
       this.addMessagePar('[c:SC]' + '[D]' + JSON.stringify(resp))
       const peerConnection = await this.wRTC.getPeerConnection(payload.remoteId)
       if (peerConnection.candidates) {
@@ -4045,7 +4130,9 @@ export default {
             remoteId: this.userId,
             candidate: peerConnection.candidates[i].candidate
           }
-          console.debug('%cSending Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
+          if (this.wRTC.doLog && this.wRTC.doLogVerbose) {
+            console.debug('%cSending Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
+          }
           this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
         }
       }
@@ -4614,7 +4701,7 @@ export default {
         chatroomGUID: this.chatroom.guid
       })
       this.params = true
-      this.startScreenshare()
+      this.startCall()
       const messagesSection = this.$refs.messages_section
       messagesSection.style.width = '350px'
       this.mediaMaxWidth = '260px'

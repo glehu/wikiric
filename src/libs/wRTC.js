@@ -12,6 +12,7 @@ const WRTC = {
   peerConnections: new Map(),
   logStyle: 'color: #FFF; background-color: #000; padding: 2px; font-weight: bold;',
   doLog: false,
+  doLogVerbose: false,
   /*
   FUNCTIONS
    */
@@ -32,10 +33,7 @@ const WRTC = {
       if (this.doLog) console.log('%cRenegotiating Peer Connection', this.logStyle, 'for', remoteId)
       try {
         // Remove and stop the tracks first to make sure we're not sending stuff without a reason
-        this.peerConnections.get(remoteId).getTracks().forEach(function (track) {
-          track.enabled = false
-          track.stop()
-        })
+        this.hangup(remoteId)
       } catch (e) {
         // Track could not be stopped
       }
@@ -55,7 +53,7 @@ const WRTC = {
     // Add tracks if present
     if (stream != null) {
       stream.getTracks().forEach(track => {
-        if (this.doLog) console.debug('%cADD Track for', this.logStyle, remoteId)
+        if (this.doLog) console.debug('%cADD Track for', this.logStyle, remoteId, track.kind)
         peerConnection.addTrack(track, stream)
       })
     }
@@ -83,9 +81,13 @@ const WRTC = {
         id: peerConnection.candidateCounter,
         candidate: iceCandidate
       })
-      if (this.doLog) console.log('%cNew ICE Candidate Gathered', this.logStyle, iceCandidate)
+      if (this.doLog && this.doLogVerbose) {
+        console.log('%cNew ICE Candidate Gathered', this.logStyle, iceCandidate)
+      }
       if (peerConnection.isAccepted) {
-        if (this.doLog) console.log('%c---> Forwarding as Connection was Agreed Upon', this.logStyle)
+        if (this.doLog && this.doLogVerbose) {
+          console.log('%c---> Forwarding as Connection was Agreed Upon', this.logStyle)
+        }
         const payload = {
           event: 'new_ice',
           selfId: peerConnection.selfId,
@@ -235,7 +237,9 @@ const WRTC = {
       if (this.doLog) console.log('%cDiscarding ICE Candidate (Wrong Recipient)', this.logStyle)
       return null
     } else {
-      if (this.doLog) console.log('%cSetting ICE Candidate from', this.logStyle, remoteId, candidate)
+      if (this.doLog && this.doLogVerbose) {
+        console.log('%cSetting ICE Candidate from', this.logStyle, remoteId, candidate)
+      }
       const peerConnection = this.peerConnections.get(remoteId)
       try {
         if (candidate) {
@@ -266,28 +270,39 @@ const WRTC = {
       return peerConnection.stream
     }
   },
-  hangup: function () {
+  hangup: function (remoteId = null) {
     this.setVideo(false)
     this.setAudio(false)
     for (const peerCon of this.peerConnections.values()) {
-      // Stop tracks to free up the resources
-      const senderList = peerCon.getSenders()
-      senderList.forEach((sender) => {
-        sender.track.enabled = false
-        sender.track.stop()
-      })
-      // Close connection
-      try {
-        peerCon.close()
-      } catch (e) {
-        // Connection could not be closed (?)
+      if (!remoteId || peerCon.remoteId === remoteId) {
+        // Stop tracks to free up the resources
+        const senderList = peerCon.getSenders()
+        senderList.forEach((sender) => {
+          if (sender.track) {
+            sender.track.enabled = false
+            sender.track.stop()
+          }
+        })
+        // Close connection
+        try {
+          setTimeout(() => {
+            peerCon.close()
+          }, 1000)
+        } catch (e) {
+          // Connection could not be closed (?)
+        }
       }
     }
     this.peerConnections = new Map()
-    if (this.doLog) console.log('%cHung up!', this.logStyle)
+    if (!remoteId) {
+      if (this.doLog) console.log('%cHung up!', this.logStyle)
+    } else {
+      if (this.doLog) console.log('%cRemoved a peer connection', this.logStyle, remoteId)
+    }
   },
   sendNegotiationMessage: function (peerConnection) {
     if (!peerConnection.isAccepted) return
+    if (this.doLog) console.log('%cNegotiation needed!', this.logStyle)
     const payload = {
       event: 'negotiationneeded',
       selfId: peerConnection.selfId,
@@ -315,14 +330,16 @@ const WRTC = {
       })
     }
   },
-  replaceVideo: function (stream) {
+  replaceTrack: function (stream, kind) {
+    if (!stream || !kind) return
     const [videoTracks] = stream.getVideoTracks()
     for (const peerCon of this.peerConnections.values()) {
       const senderList = peerCon.getSenders()
       senderList.forEach((sender) => {
-        if (sender.track && sender.track.kind === 'video') {
+        if (sender.track && sender.track.kind === kind) {
           sender.replaceTrack(videoTracks)
             .then(() => {
+              if (this.doLog) console.debug('%cReplaced track', this.logStyle, kind, peerCon.remoteId)
               sender.track.enabled = true
             })
             .catch(() => {
