@@ -12,13 +12,13 @@ export default {
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (this.refreshing) return
       this.refreshing = true
-      window.location.reload()
+      // window.location.reload()
     })
   },
   methods: {
     updateAvailable (event) {
       this.registration = event.detail
-      this.updateExists = true
+      this.updateExists = false // TODO: Change this
     },
 
     refreshApp () {
