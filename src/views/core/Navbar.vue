@@ -1,5 +1,5 @@
 <template>
-  <Disclosure as="nav" class="w-full"
+  <Disclosure as="nav" class="w-full darkest_bg"
               v-slot="{ open }" id="global_nav" :ref="'global_nav'">
     <div class="px-4">
       <div class="relative flex items-center justify-between"

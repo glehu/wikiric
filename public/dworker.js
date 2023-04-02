@@ -3,6 +3,7 @@
 let _u = null
 let _t = null
 let _interval = null
+let _interval2 = null
 const _endpoint = 'https://wikiric.xyz/'
 let ws = null
 let bc = null
@@ -29,6 +30,36 @@ const refreshToken = () => {
         }, (response.expiresInMs - 60000))
       }
     })
+}
+
+const wConnect = () => {
+  ws = new WebSocket('wss://wikiric.xyz/connect')
+  ws.onopen = async () => {
+    bc = new BroadcastChannel('connector')
+    ws.onmessage = async function (e) {
+      try {
+        bc.postMessage(JSON.parse(e.data))
+      } catch (e) {
+      }
+    }
+    ws.send(_t)
+    if (_interval2) clearInterval(_interval2)
+    _interval2 = setInterval(() => {
+      checkWConnect()
+    }, 30000)
+    bc.onmessage = event => {
+    }
+  }
+  ws.onclose = () => {
+    wConnect()
+  }
+}
+
+const checkWConnect = () => {
+  if (ws.readyState !== WebSocket.OPEN) {
+    if (_interval2) clearInterval(_interval2)
+    wConnect()
+  }
 }
 
 // Listen for requests
@@ -93,19 +124,7 @@ onmessage = function (e) {
           _interval = setInterval(() => {
             refreshToken()
           }, (response.expiresInMs - 60000))
-          ws = new WebSocket('wss://wikiric.xyz/connect')
-          ws.onopen = async () => {
-            bc = new BroadcastChannel('connector')
-            ws.onmessage = async function (e) {
-              try {
-                bc.postMessage(JSON.parse(e.data))
-              } catch (e) {
-              }
-            }
-            ws.send(_t)
-            bc.onmessage = event => {
-            }
-          }
+          wConnect()
         }
       })
   } else if (msg.action === 'logout') {

@@ -1,12 +1,13 @@
 <template>
   <div id="root" class="home z-0 w-full darkest_bg">
-    <navbarelem class="backdrop-blur-xl fixed top-0 z-20" style="transform: translate3d(0, 0, 0)"></navbarelem>
+    <navbarelem class="fixed top-0 z-20"></navbarelem>
     <!-- More Than A Dream -->
     <div id="router_view_elem" ref="router_view_elem"
          class="fixed top-0 left-0 z-10 w-full darkest_bg">
       <router-view/>
       <template v-if="incomingCall">
-        <div class="w-full h-full absolute left-0 top-0 flex items-center justify-center"
+        <div class="w-full h-full absolute left-0 top-0 flex items-center justify-center
+                    backdrop-brightness-50"
              style="z-index: 9999">
           <div class="p-8 font-bold darkest_bg rounded-md border-2 border-zinc-600">
             <p class="w-full text-center">Incoming Call</p>
@@ -24,6 +25,23 @@
           </div>
         </div>
       </template>
+      <template v-if="updateExists">
+        <div class="w-full h-full absolute left-0 top-0 flex items-center justify-center
+                    backdrop-brightness-50"
+             style="z-index: 9999">
+          <div class="p-8 font-bold darkest_bg rounded-md border-2 border-zinc-600 text-neutral-300">
+            <p class="text-2xl font-bold text-neutral-200">Update Available!</p>
+            <div class="flex items-center justify-center">
+              <button class="btn_bg_primary my-4"
+                      v-on:click="refreshApp">
+                Update
+              </button>
+            </div>
+            <p class="mt-4 mb-2 italic text-sm">Changelog:</p>
+            <p class="text-neutral-400 text-xs italic">(Coming Soon)</p>
+          </div>
+        </div>
+      </template>
     </div>
     <notifications position="bottom right"/>
   </div>
@@ -31,6 +49,7 @@
 
 <script>
 import navbarelem from './views/core/Navbar.vue'
+import updater from './mixins/wUpdate'
 import firebase from 'firebase/app'
 import 'firebase/firebase-messaging'
 import { PhoneIcon, PhoneXMarkIcon } from '@heroicons/vue/24/solid'
@@ -44,6 +63,7 @@ export default {
   mounted () {
     this.initFunction()
   },
+  mixins: [updater],
   data () {
     return {
       angle: '45',
