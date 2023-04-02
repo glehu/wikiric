@@ -122,7 +122,7 @@
                           leave-to-class="transform scale-95 opacity-0"
                         >
                           <MenuItems
-                            class="p_card_menu_list_medium bg-zinc-100"
+                            class="p_card_menu_list_medium_p bg-zinc-100"
                           >
                             <div class="px-1 py-1">
                               <MenuItem v-slot="{ active }">
@@ -260,7 +260,7 @@
                                   leave-to-class="transform scale-95 opacity-0"
                                 >
                                   <MenuItems
-                                    class="p_card_menu_list_big darkest_bg"
+                                    class="p_card_menu_list_big_p darkest_bg"
                                   >
                                     <template v-if="taskRelated.comments == null">
                                       <MenuItem as="div" class="px-3 py-3">
@@ -311,7 +311,7 @@
                                   leave-to-class="transform scale-95 opacity-0"
                                 >
                                   <MenuItems
-                                    class="p_card_menu_list_medium bg-zinc-100"
+                                    class="p_card_menu_list_medium_p bg-zinc-100"
                                   >
                                     <div class="px-1 py-1">
                                       <MenuItem v-slot="{ active }">
@@ -354,7 +354,7 @@
                                           leave-from-class="transform scale-100 opacity-100"
                                           leave-to-class="transform scale-95 opacity-0"
                                         >
-                                          <MenuItems class="p_card_menu_list_medium dark_bg">
+                                          <MenuItems class="p_card_menu_list_medium_p dark_bg">
                                             <div class="px-1 py-1">
                                               <div class="pointer-events-none">
                                                 <div class="text-neutral-300 group p_card_menu_item font-bold">
@@ -498,7 +498,7 @@
         </template>
         <template v-else>
           <div id="list"
-               class="h-full w-full pb-2 pl-2 pr-4 overflow-y-auto fixed translate-y-[60px]">
+               class="h-full w-full pb-2 pl-2 pr-4 overflow-y-auto fixed">
             <template v-if="boxes.length > 0">
               <table class="w-full table-auto darkest_bg"
                      style="margin-bottom: 312px !important">
@@ -895,7 +895,7 @@
                 leave-from-class="transform scale-100 opacity-100"
                 leave-to-class="transform scale-95 opacity-0"
               >
-                <MenuItems class="p_card_menu_list_medium dark_bg">
+                <MenuItems class="p_card_menu_list_medium_p dark_bg">
                   <div class="px-1 py-1">
                     <div class="pointer-events-none">
                       <div class="text-neutral-300 group p_card_menu_item font-bold">
@@ -2453,12 +2453,12 @@ export default {
   @apply flex w-full items-center rounded-md px-1 py-2 text-sm;
 }
 
-.p_card_menu_list_medium {
+.p_card_menu_list_medium_p {
   @apply absolute right-0 mt-2 w-56 origin-top-right divide-y divide-zinc-400 rounded-md
   shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10;
 }
 
-.p_card_menu_list_big {
+.p_card_menu_list_big_p {
   @apply absolute mt-2 w-80 divide-y divide-zinc-400 border-[1px] border-zinc-400 shadow-zinc-900 shadow-2xl rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10;
 }
 

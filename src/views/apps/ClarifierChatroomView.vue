@@ -90,8 +90,7 @@
            style="margin-top: 60px"
            class="sidebar2 medium_bg lg:rounded-tl">
         <div class="h-full relative">
-          <div style="height: calc(100% - 140px); overflow-y: auto; overflow-x: hidden"
-               class="c_lightgray px-2">
+          <div class="c_lightgray px-2 h-full overflow-x-hidden overflow-y-auto">
             <div style="height: 50px; align-items: center; display: flex">
               <div id="home_subc" class="subchat dark_bg"
                    v-on:click="gotoSubchat(null, false)">
@@ -108,27 +107,19 @@
               <template v-if="this.chatroom.rank > 1">
                 <div class="w-full text-neutral-300">
                   <template v-if="this.chatroom.rank > 3">
-                    <div style="height: 40px"
-                         class="subchat w-full flex items-center"
+                    <div class="subchat w-full flex items-center"
                          v-on:click="gotoPlanner()">
                       <ViewColumnsIcon class="h-5 w-5"></ViewColumnsIcon>
                       <span class="relative left-[20px]">Planner</span>
                     </div>
                   </template>
                   <template v-if="this.chatroom.rank > 2">
-                    <div style="height: 40px"
-                         class="subchat w-full flex items-center"
+                    <div class="subchat w-full flex items-center"
                          v-on:click="setOverlay('knowledgefinder')">
                       <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
                       <span class="relative left-[20px]">Knowledge</span>
                     </div>
                   </template>
-                  <div style="height: 40px"
-                       class="subchat w-full flex items-center"
-                       v-on:click="isViewingBadges = true">
-                    <TrophyIcon class="h-5 w-5"></TrophyIcon>
-                    <span class="relative left-[20px]">Badges</span>
-                  </div>
                 </div>
               </template>
               <div style="width: 100%; height: 35px; padding-top: 5px"
@@ -1230,12 +1221,11 @@
     </template>
     <template v-slot:body>
       <div class="new_subchat" style="overflow: hidden; padding: 5px">
-        <div style="position: relative; padding-top: 10px; width: 100%">
+        <div class="relative w-full">
           <label for="new_subchat_name" class="font-bold lead c_lightgray">Name:</label>
           <input v-model="new_subchat_name"
                  id="new_subchat_name" type="text"
-                 class="mt-2 b_darkergray text-white p-2 px-3"
-                 style="width: 100%; border: none; border-radius: 20px">
+                 class="mt-2 b_darkergray text-white p-2 px-3 border-none w-full rounded-md">
           <label class="font-bold lead mt-4 c_lightgray" style="width: 100%">Create:</label>
           <button v-on:click="createSubchatroom('text')"
                   id="new_subchat_type_text" class="btn darkbutton mt-2 text-neutral-400"
@@ -1265,9 +1255,9 @@
                          align-items: center; border-radius: 10px">
             <span style="font-size: 200%"><i class="bi bi-camera-video"></i></span>
             <div class="ml-3">
-              <span class="text-neutral-300">Webcam Subchat</span>
+              <span class="text-neutral-300">Conference Subchat</span>
               <br>
-              <span class="text-neutral-400 text-xs">Video call with others.</span>
+              <span class="text-neutral-400 text-xs">Meet up, talk and video chat with others.</span>
             </div>
           </button>
         </div>
@@ -1379,37 +1369,6 @@
     </template>
   </modal>
   <modal
-    v-show="isViewingBadges"
-    @close="hideAllWindows()">
-    <template v-slot:header>
-      <h2 class="font-bold">Badge Hub</h2>
-      <div style="display: flex; align-items: center; margin: 0 40px 0 40px"
-           class="c_lightgray mb-2">
-        <div class="b_purple font-bold nopointer"
-             style="border-radius: 5px; padding: 0 4px 4px 4px;
-                    margin-right: 5px">
-          Rank {{ chatroom.rank }}
-        </div>
-        <div class="b_purple font-bold nopointer"
-             style="border-radius: 5px; padding: 0 4px 4px 4px;
-                    margin-right: 5px">
-          {{ chatroom.rankDescription }}
-        </div>
-      </div>
-    </template>
-    <template v-slot:body>
-      <div>
-        <h5 class="c_lightgray">Actions:</h5>
-        <button class="btn c_lightgray b_darkergray gray-hover"
-                v-on:click="distributeBadges()">
-          Distribute Badges
-        </button>
-      </div>
-    </template>
-    <template v-slot:footer>
-    </template>
-  </modal>
-  <modal
     v-show="isTransferring"
     @close="hideAllWindows()">
     <template v-slot:header>
@@ -1469,7 +1428,6 @@ import {
   HashtagIcon,
   HomeIcon,
   SignalIcon,
-  TrophyIcon,
   UserPlusIcon,
   ViewColumnsIcon,
   WindowIcon,
@@ -1493,7 +1451,6 @@ export default {
     GifIcon,
     QrCodeIcon,
     ViewColumnsIcon,
-    TrophyIcon,
     BookOpenIcon,
     ChartBarIcon,
     EyeIcon,
@@ -1573,7 +1530,6 @@ export default {
         mode: 'top-bottom',
         boxes: []
       },
-      isViewingBadges: false,
       isStreamingVideo: false,
       isEditingProfile: false,
       isTransferring: false,
@@ -2866,7 +2822,6 @@ export default {
       this.isTaggingUser = false
       this.isSelectingImgflipTemplate = false
       this.isFillingImgflipTemplate.active = false
-      this.isViewingBadges = false
       this.isTransferring = false
       this.imgflip_template = {}
       this.hideUserProfile()
@@ -4310,16 +4265,6 @@ export default {
         method: 'post',
         url: 'm5/upgrade/' + this.getSession(),
         body: content
-      })
-        .then(() => this.getClarifierMetaData(this.getSession(), false, true))
-        .then(() => this.markActiveSubchat())
-        .catch((err) => console.debug(err.message))
-    },
-    distributeBadges: function () {
-      this.$Worker.execute({
-        action: 'api',
-        method: 'get',
-        url: 'm2/badges/set/' + this.getSession()
       })
         .then(() => this.getClarifierMetaData(this.getSession(), false, true))
         .then(() => this.markActiveSubchat())

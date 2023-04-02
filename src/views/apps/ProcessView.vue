@@ -167,16 +167,18 @@
               <div class="h-full relative">
                 <template v-if="segment.alternatives && segment.alternatives.length <= 0">
                   <div class="pathIndicator"></div>
-                  <div v-on:click="writeProcess(segment.event, !segment.hasNext)"
+                  <div v-on:click="writeProcess(segment.event, !segment.event.hasNext)"
                        v-tooltip.right="{ content: 'Add' }"
                        class="adder_button ml-8" style="border-radius: 100%; background-color: transparent;">
                     <PlusCircleIcon class="h-6 w-6"></PlusCircleIcon>
                   </div>
-                  <div v-on:click="writeProcess(segment.event)"
-                       v-tooltip.right="{ content: 'Add' }"
-                       class="adder_button">
-                    <PlusCircleIcon class="h-6 w-6"></PlusCircleIcon>
-                  </div>
+                  <template v-if="!segment.event.hasNext">
+                    <div v-on:click="writeProcess(segment.event)"
+                         v-tooltip.right="{ content: 'Add' }"
+                         class="adder_button">
+                      <PlusCircleIcon class="h-6 w-6"></PlusCircleIcon>
+                    </div>
+                  </template>
                 </template>
                 <div class="pathIndicator"></div>
               </div>
@@ -251,7 +253,7 @@
                           </div>
                           <div class="pathIndicator"></div>
                         </div>
-                        <div class="medium_bg rounded w-full mr-2 mb-2">
+                        <div class="medium_bg rounded w-full mr-2 mb-2 overflow-hidden">
                           <div class="w-full">
                             <template v-if="element.task">
                               <template v-if="element.task.finished">
@@ -269,7 +271,7 @@
                             </template>
                             <template v-if="!element.event.editingTitle">
                               <template v-if="element.event.t">
-                                <Markdown class="markedView w-full p-2"
+                                <Markdown class="markedView w-full p-2 break-words"
                                           v-on:click="editEventTitle(element.event)"
                                           :source="'### ' + element.event.t"
                                           :plugins="plugins"></Markdown>
@@ -295,7 +297,7 @@
                           </div>
                           <template v-if="!element.event.editingDescription">
                             <template v-if="element.event.desc">
-                              <Markdown class="markedView w-full p-2"
+                              <Markdown class="markedView w-full p-2 break-words"
                                         :source="element.event.desc"
                                         v-on:click="editEventDescription(element.event)"
                                         :plugins="plugins"></Markdown>
@@ -384,9 +386,9 @@
       </template>
       <template v-slot:body>
         <div class="w-[90vw] md:w-[70vw] max-w-[1000px] rounded overflow-hidden flex justify-center">
-          <div class="lg:flex">
-            <div class="md:rounded-l dark_bg p-2">
-              <button class="flex items-center text-neutral-300 p-2 rounded-md hover:medium_bg w-full"
+          <div class="lg:flex max-w-full overflow-x-hidden overflow-y-auto break-all">
+            <div class="md:rounded-l dark_bg p-1 min-w-[124px]">
+              <button class="flex items-center justify-center text-neutral-300 p-1 rounded-md hover:medium_bg w-full"
                       v-on:click="publishLesson()">
                 <PlusCircleIcon class="h-6 w-6 mr-2"></PlusCircleIcon>
                 <template v-if="!docExists">
@@ -397,7 +399,7 @@
                 </template>
               </button>
             </div>
-            <Markdown class="markedView w-fit p-4 medium_bg md:rounded-r"
+            <Markdown class="markedView w-fit p-4 medium_bg md:rounded-r max-w-full break-words"
                       :source="documentation"
                       :plugins="plugins"></Markdown>
           </div>
@@ -569,7 +571,7 @@ export default {
               }
               this.renderMermaid()
               for (let i = 0; i < this.processEvents.length; i++) {
-                this.processEvents[i].event.hasNext = (i + 1 < this.processEvents.length)
+                this.processEvents[i].event.hasNext = ((i + 1) < this.processEvents.length)
               }
             }
             resolve(data.result)
