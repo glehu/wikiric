@@ -110,13 +110,13 @@
                   <template v-if="!segment.event.editingTitle">
                     <template v-if="segment.event.t">
                       <Markdown class="markedView w-full p-2"
-                                v-on:click="segment.event.editingTitle = true; editEventTitle(segment.event)"
+                                v-on:click="editEventTitle(segment.event)"
                                 :source="'### ' + segment.event.t"
                                 :plugins="plugins"></Markdown>
                     </template>
                     <template v-else>
                       <p class="text-neutral-400 w-full p-2"
-                         v-on:click="segment.event.editingTitle = true; editEventTitle(segment.event)">
+                         v-on:click="editEventTitle(segment.event)">
                         (No Title)
                       </p>
                     </template>
@@ -138,12 +138,12 @@
                   <template v-if="segment.event.desc">
                     <Markdown class="markedView w-full p-2"
                               :source="segment.event.desc"
-                              v-on:click="segment.event.editingDescription = true; editEventDescription(segment.event)"
+                              v-on:click="editEventDescription(segment.event)"
                               :plugins="plugins"></Markdown>
                   </template>
                   <template v-else>
                     <p class="text-neutral-400 w-full p-2"
-                       v-on:click="segment.event.editingDescription = true; editEventDescription(segment.event)">
+                       v-on:click="editEventDescription(segment.event)">
                       (No Description)
                     </p>
                   </template>
@@ -181,7 +181,9 @@
                 <div class="pathIndicator"></div>
               </div>
               <template v-if="segment.alternatives && segment.alternatives.length > 0">
-                <div class="w-full h-fit ml-8 my-2 grid grid-cols-1">
+                <div class="w-full h-fit ml-8 my-2 grid grid-cols-1"
+                     :id="'box_events_guid_' + segment.event.guid"
+                     :ref="'box_events_guid_' + segment.event.guid">
                   <draggable
                     :list="segment.alternatives"
                     :group="segment.event.guid"
@@ -268,13 +270,13 @@
                             <template v-if="!element.event.editingTitle">
                               <template v-if="element.event.t">
                                 <Markdown class="markedView w-full p-2"
-                                          v-on:click="element.event.editingTitle = true; editEventTitle(element.event)"
+                                          v-on:click="editEventTitle(element.event)"
                                           :source="'### ' + element.event.t"
                                           :plugins="plugins"></Markdown>
                               </template>
                               <template v-else>
                                 <p class="text-neutral-400 w-full p-2"
-                                   v-on:click="element.event.editingTitle = true; editEventTitle(element.event)">
+                                   v-on:click="editEventTitle(element.event)">
                                   (No Title)
                                 </p>
                               </template>
@@ -295,12 +297,12 @@
                             <template v-if="element.event.desc">
                               <Markdown class="markedView w-full p-2"
                                         :source="element.event.desc"
-                                        v-on:click="element.event.editingDescription = true; editEventDescription(element.event)"
+                                        v-on:click="editEventDescription(element.event)"
                                         :plugins="plugins"></Markdown>
                             </template>
                             <template v-else>
                               <p class="text-neutral-400 w-full p-2"
-                                 v-on:click="element.event.editingDescription = true; editEventDescription(element.event)">
+                                 v-on:click="editEventDescription(element.event)">
                                 (No Description)
                               </p>
                             </template>
@@ -667,6 +669,7 @@ export default {
     },
     editEventTitle: function (event) {
       if (this.drag) return
+      event.editingTitle = true
       setTimeout(() => {
         const elem = document.getElementById(event.guid + '_title_edit')
         if (elem) {
@@ -676,6 +679,7 @@ export default {
     },
     editEventDescription: function (event) {
       if (this.drag) return
+      event.editingDescription = true
       setTimeout(() => {
         const elem = document.getElementById(event.guid + '_description_edit')
         if (elem) {
@@ -810,13 +814,64 @@ export default {
       await this.updateEvent(pEvent)
     },
     handleDragChange: function (e) {
+      const prefix = 'box_events_guid_'
       if (e.added) {
         // Moved to another box!
+        console.log(e.added.element.event.guid, 'MOVED to index', e.added.newIndex,
+          'for new box', this.lastDragMove.to.parentElement.id.substring(prefix.length))
+        // Set new rowIndex and boxGUID for this task!
+        this.moveTask(e.added.element.event.guid, e.added.newIndex,
+          this.lastDragMove.to.parentElement.id.substring(prefix.length))
       } else if (e.moved) {
         // Moved inside current box.
         console.log(e.moved.element.event.guid, 'MOVED to index', e.moved.newIndex)
         // Set new rowIndex for this task!
+        this.moveTask(e.moved.element.event.guid, e.moved.newIndex,
+          this.lastDragMove.to.parentElement.id.substring(prefix.length))
       }
+    },
+    moveTask: function (taskGUID, newRowIndex, boxGUID) {
+      for (const i in this.processEvents) {
+        if (this.processEvents[i].event.guid === boxGUID) {
+          if (this.processEvents[i].alternatives && this.processEvents[i].alternatives.length > 1) {
+            if (newRowIndex > 0) {
+              // rowIndex != 0 so compare the tasks before and after
+              const rowIndexTaskBefore = this.processEvents[i].alternatives[newRowIndex - 1].event.rowIndex
+              if (this.processEvents[i].alternatives.length - 1 > newRowIndex) {
+                const rowIndexTaskAfter = this.processEvents[i].alternatives[newRowIndex + 1].event.rowIndex
+                newRowIndex = Math.floor((rowIndexTaskBefore + rowIndexTaskAfter) / 2)
+              } else {
+                newRowIndex = rowIndexTaskBefore + 20000
+              }
+            } else {
+              // rowIndex = 0 so just look at the second task if it exists
+              newRowIndex = Math.floor(this.processEvents[i].alternatives[1].event.rowIndex / 2)
+            }
+          } else {
+            // First task => Set it to 0
+            newRowIndex = 20000
+          }
+        }
+      }
+      console.log('New Row Index:', newRowIndex)
+      const payload = {
+        knowledgeGUID: this.knowledge.guid,
+        rowIndex: newRowIndex,
+        previousEventGUID: boxGUID
+      }
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm9/create?mode=row&guid=' + taskGUID,
+          body: JSON.stringify(payload)
+        })
+          .then(() => (this.getProcessInformation()))
+          .then(() => resolve())
+          .catch((err) => {
+            console.debug(err.message)
+          })
+      })
     },
     handleDragMove: function (e) {
       this.lastDragMove = e

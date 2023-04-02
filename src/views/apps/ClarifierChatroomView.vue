@@ -3853,6 +3853,7 @@ export default {
       this.peerDummyStreamOutgoing = this.getEmptyStream(640, 480, this.$store.state.username)
       // Set local stream
       const videoElem = document.getElementById('screenshare_video')
+      if (!videoElem) return // TODO: Feedback to user needed
       videoElem.srcObject = this.peerDummyStreamOutgoing
       this.isStreamingVideo = true
       // Go into distraction free cinema mode
