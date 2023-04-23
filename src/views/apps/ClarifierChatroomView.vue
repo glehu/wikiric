@@ -64,7 +64,12 @@
                             display: flex; align-items: center; justify-content: center;">
                     <div v-if="group.id === chatroom.guid"
                          style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5"
-                         class="bright_bg rounded-r">
+                         class="brightest_bg rounded-r">
+                    </div>
+                    <div :id="group.id + '_notify'"
+                       class="hidden bg-orange-500 rounded-r"
+                       style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5">
+                      <div class="hidden">{{ hasUnread(group.id) }}</div>
                     </div>
                     <template v-if="group.img && group.img !== ''">
                       <img class="w-[40px] h-[40px] z-10 rounded-lg ml-[5px]"
@@ -1859,14 +1864,27 @@ export default {
       }
     },
     handleFirebaseEvent: function (event) {
+      if (event.data.notification.body.includes(this.$store.state.username + ' has sent a message.')) return
       if (event.data.data.subchatGUID != null && event.data.data.subchatGUID.length > 0) {
         const destId = event.data.data.subchatGUID
+        const originId = event.data.data.dlDest.substring(20)
         if (!this.$route.fullPath.includes(destId)) {
           this.$store.commit('addClarifierTimestampNew', {
             id: destId,
             ts: new Date().getTime()
           })
-          const notify = document.getElementById(destId + '_notify')
+          this.$store.commit('addClarifierTimestampNew', {
+            id: originId,
+            ts: new Date().getTime()
+          })
+          let notify = document.getElementById(destId + '_notify')
+          if (notify != null) {
+            setTimeout(() => {
+              notify.style.opacity = '1'
+              notify.style.display = 'block'
+            }, 0)
+          }
+          notify = document.getElementById(originId + '_notify')
           if (notify != null) {
             setTimeout(() => {
               notify.style.opacity = '1'
@@ -1876,7 +1894,7 @@ export default {
         }
       } else {
         let destId = event.data.data.dlDest.substring(20)
-        if (this.$route.fullPath.includes('sub=')) {
+        if (this.$route.fullPath.includes('sub=') || !this.$route.fullPath.includes(destId)) {
           this.$store.commit('addClarifierTimestampNew', {
             id: destId,
             ts: new Date().getTime()
@@ -1959,6 +1977,8 @@ export default {
         element => element.isDraft && element.src === this.$store.state.username && element.msg === message.msg
       )
       if (indexTmp > -1) {
+        message.header = this.messages[indexTmp].header
+        message.separator = this.messages[indexTmp].separator
         this.messages[indexTmp] = message
         return
       }
@@ -2173,11 +2193,10 @@ export default {
           src: this.$store.state.username,
           msg: '[c:MSG<ENCR]' + encryptedMessage,
           isDraft: true
-        }), true)
+        }))
       )
       // Send message to server
-      // this.connection.send('[c:MSG<ENCR]' + encryptedMessage)
-      setTimeout(() => this.connection.send('[c:MSG<ENCR]' + encryptedMessage), 1000)
+      this.connection.send('[c:MSG<ENCR]' + encryptedMessage)
       // Post-Message Actions
       this.new_message = ''
       this.focusComment(true)

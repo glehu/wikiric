@@ -8,7 +8,7 @@
         <div class="w-full h-full relative">
           <div class="w-full h-full"><!-- Demo Wrapper -->
             <div style="transform: translate3d(0, 0, 0)"
-              class="w-full h-full items-center justify-center flex px-4 py-4 rounded-r-md backdrop-blur-xl">
+                 class="w-full h-full items-center justify-center flex px-4 py-4 rounded-r-md backdrop-blur-xl">
               <div style="pointer-events: inherit"
                    class="rounded-2xl w-full h-full p-4">
                 <p
@@ -26,7 +26,8 @@
                 </p>
                 <div class="relative mt-12">
                   <div class="flex w-full justify-center md:justify-start">
-                    <div class="relative grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-center w-full md:w-fit">
+                    <div
+                      class="relative grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-center w-full md:w-fit">
                       <button
                         class="muArrow font-bold rounded text-xl text-start text-black px-4 py-3 bg-fuchsia-500"
                         v-on:click="gotoClarifier()">
@@ -55,10 +56,10 @@
                 <template class="hidden md:block">
                   <div
                     class="absolute bottom-0 right-0 p-4 mr-8 mb-8 border-b-[4px] border-r-[4px]
-                           border-dotted border-b-fuchsia-500 border-r-fuchsia-500">
-                    <div class="text-center text-neutral-300">
-                      <p class="font-bold text-4xl pointer-events-none">wikiric</p>
-                    </div>
+                           border-dotted border-b-fuchsia-500 border-r-fuchsia-500 flex items-baseline pointer-events-">
+                    <img src='@/assets/wikiric/logo-wikirig-01-ganz-weiss.png' alt="Logo"
+                         style="max-width: 48px; max-height: 48px; object-fit: contain; opacity: 85%;">
+                    <span class="font-bold text-4xl -translate-x-2.5 text-white">ikiric</span>
                   </div>
                 </template>
               </div>

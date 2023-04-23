@@ -24,9 +24,9 @@
         <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
           <div class="hidden sm:flex flex-shrink-0 items-center text-neutral-200 font-bold cursor-pointer text-2xl"
                v-on:click="$router.push('/')">
-            <div class="w-[65px] flex items-center justify-center">
+            <div class="w-[60px] flex items-center justify-center">
               <img src='@/assets/wikiric/logo-wikirig-01-ganz-hellgrau.png' alt="Logo"
-                   style="max-width: 40px; max-height: 40px; object-fit: contain; opacity: 85%;">
+                   style="max-width: 32px; max-height: 32px; object-fit: contain; opacity: 85%;">
             </div>
           </div>
           <div class="hidden sm:block">
