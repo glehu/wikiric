@@ -57,7 +57,7 @@ export default {
 }
 
 .header-margin {
-  min-height: 60px;
+  min-height: 55px;
 }
 
 </style>

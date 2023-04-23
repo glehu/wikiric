@@ -1,10 +1,19 @@
 <template>
   <Disclosure as="nav" class="w-full darkest_bg"
               v-slot="{ open }" id="global_nav" :ref="'global_nav'">
-    <div class="px-4">
+    <div class="">
       <div class="relative flex items-center justify-between"
-           style="height: 60px; max-height: 60px; min-height: 60px">
-        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+           style="height: 55px; max-height: 55px; min-height: 55px">
+        <div class="absolute inset-y-0 left-0 sm:hidden
+                    flex items-center justify-center
+                    min-w-[55px]">
+          <div class="flex-shrink-0 flex items-center text-neutral-200 font-bold cursor-pointer text-2xl"
+               v-on:click="$router.push('/')">
+            <div class="w-[65px] flex items-center justify-center">
+              <img src='@/assets/wikiric/logo-wikirig-01-ganz-hellgrau.png' alt="Logo"
+                   style="max-width: 40px; max-height: 40px; object-fit: contain; opacity: 85%;">
+            </div>
+          </div>
           <DisclosureButton
             class="inline-flex items-center justify-center p-2 rounded-md text-neutral-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
             <span class="sr-only">Open main menu</span>
@@ -13,12 +22,14 @@
           </DisclosureButton>
         </div>
         <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
-          <div class="flex-shrink-0 flex items-center text-neutral-200 font-bold cursor-pointer text-2xl"
+          <div class="hidden sm:flex flex-shrink-0 items-center text-neutral-200 font-bold cursor-pointer text-2xl"
                v-on:click="$router.push('/')">
-            <div class="block lg:hidden w-auto sm:ml-5">wikiric</div>
-            <div class="hidden lg:block w-auto ml-5">wikiric</div>
+            <div class="w-[65px] flex items-center justify-center">
+              <img src='@/assets/wikiric/logo-wikirig-01-ganz-hellgrau.png' alt="Logo"
+                   style="max-width: 40px; max-height: 40px; object-fit: contain; opacity: 85%;">
+            </div>
           </div>
-          <div class="hidden sm:block sm:ml-6">
+          <div class="hidden sm:block">
             <div class="flex space-x-2 items-center">
               <template v-for="item in navigation" :key="item.name">
                 <div v-if="item.main"
@@ -422,11 +433,12 @@ export default {
     }
   },
   mounted () {
-    this.getNotifications()
     this.connector = new BroadcastChannel('connector')
     this.connector.onmessage = event => {
       if (event.data.type === 'notification') {
         this.notifications.unshift(JSON.parse(event.data.obj))
+      } else if (event.data === 'nav_init_notification') {
+        this.getNotifications()
       }
     }
   },

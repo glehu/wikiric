@@ -1,6 +1,6 @@
 import { createStore } from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
-import { dbGetSession, dbSetSession } from '@/libs/wikistore'
+import { dbGetSession, dbGetTimestamp, dbSetSession, dbSetTimestamp } from '@/libs/wikistore'
 
 export default createStore({
   plugins: [createPersistedState(this)],
@@ -40,7 +40,8 @@ export default createStore({
     // Knowledge
     // Wisdom
     wisdomTutorialSeen: false,
-    accountType: ''
+    accountType: '',
+    plannerCalendarOpen: true
   },
   mutations: {
     logIn (state, user) {
@@ -141,30 +142,46 @@ export default createStore({
         return ele.id !== session.id
       })
     },
-    addClarifierTimestampNew (state, session) {
+    async addClarifierTimestampNew (state, session) {
       if (session.id == null) return
-      for (let i = 0; i < state.clarifierTimestamps.length; i++) {
-        if (state.clarifierTimestamps[i].id === session.id) {
-          if (state.clarifierTimestamps[i].tsNew >= session.ts) return
-          state.clarifierTimestamps[i].tsNew = session.ts
-          return
-        }
+      // Remove key from local storage (since we're storing them in the indexed db now)
+      state.clarifierTimestamps = state.clarifierTimestamps.filter(function (ele) {
+        return ele.id !== session.id
+      })
+      const timestamp = await dbGetTimestamp(session.id)
+      if (timestamp) {
+        if (timestamp.tsNew >= session.ts) return
+        timestamp.tsNew = session.ts
+        dbSetTimestamp(session.id, {
+          id: session.id,
+          tsRead: timestamp.tsRead,
+          tsNew: session.ts
+        })
+        return
       }
-      state.clarifierTimestamps.unshift({
+      dbSetTimestamp(session.id, {
         id: session.id,
         tsNew: session.ts
       })
     },
-    addClarifierTimestampRead (state, session) {
+    async addClarifierTimestampRead (state, session) {
       if (session.id == null) return
-      for (let i = 0; i < state.clarifierTimestamps.length; i++) {
-        if (state.clarifierTimestamps[i].id === session.id) {
-          if (state.clarifierTimestamps[i].tsRead >= session.ts) return
-          state.clarifierTimestamps[i].tsRead = session.ts
-          return
-        }
+      // Remove key from local storage (since we're storing them in the indexed db now)
+      state.clarifierTimestamps = state.clarifierTimestamps.filter(function (ele) {
+        return ele.id !== session.id
+      })
+      const timestamp = await dbGetTimestamp(session.id)
+      if (timestamp) {
+        if (timestamp.tsRead >= session.ts) return
+        timestamp.tsRead = session.ts
+        dbSetTimestamp(session.id, {
+          id: session.id,
+          tsRead: session.ts,
+          tsNew: timestamp.tsNew
+        })
+        return
       }
-      state.clarifierTimestamps.unshift({
+      dbSetTimestamp(session.id, {
         id: session.id,
         tsRead: session.ts
       })
@@ -198,13 +215,16 @@ export default createStore({
     },
     setWisdomTutorialSeen (state, seen) {
       state.wisdomTutorialSeen = seen
+    },
+    togglePlannerCalendar (state) {
+      state.plannerCalendarOpen = !state.plannerCalendarOpen
     }
   },
   actions: {},
   modules: {},
   getters: {
     getTimestamp: (state) => (guid) => {
-      return state.clarifierTimestamps.find(timestamp => timestamp.id === guid)
+      return dbGetTimestamp(guid)
     },
     getClarifierKeyPair: (state) => (guid) => {
       const keyPair = state.clarifierKeys.find(entry => entry.id === guid)
@@ -222,6 +242,9 @@ export default createStore({
     },
     hasSeenWisdomTutorial: (state) => () => {
       return state.wisdomTutorialSeen
+    },
+    isPlannerCalendarOpen: (state) => () => {
+      return state.plannerCalendarOpen
     }
   }
 })

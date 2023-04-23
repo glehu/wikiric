@@ -1,6 +1,6 @@
 <template>
   <div id="knowledgeFinder"
-       class="bright_bg w-full h-full absolute overflow-hidden rounded-tr-lg">
+       class="bright_bg w-full h-full relative overflow-hidden rounded-tr-lg">
     <template v-if="knowledgeExists">
       <div class="h-full w-full overflow-y-auto">
         <template v-if="!isViewingWisdom && !isViewingProcess">
@@ -141,9 +141,15 @@
                           </div>
                         </div>
                         <div v-if="questions.length > 0" class="text-neutral-400">
-                          <p class="text-xl font-bold my-2 pointer-events-none text-neutral-300">
-                            Recent Questions
-                          </p>
+                          <div class="flex my-2 items-center">
+                            <p class="text-xl font-bold pointer-events-none text-neutral-300">
+                              Recent Questions
+                            </p>
+                            <button class="ml-4 rounded dark_bg hover:darkest_bg px-1 h-fit w-fit"
+                                    v-on:click="filterQuestions()">
+                              <span class="text-sm font-bold text-neutral-300">Show all</span>
+                            </button>
+                          </div>
                           <div class="flex w-full overflow-x-auto gap-x-2">
                             <template v-for="task in questions" :key="task.uID">
                               <div class="w-full">
@@ -212,96 +218,141 @@
                           {{ results.length }} results in {{ results.time }} seconds
                         </div>
                         <template v-for="result in results" :key="result">
-                          <div v-on:click="gotoWisdom(result.result.guid)"
-                               class="result cursor-pointer">
-                            <div class="text-neutral-300 flex items-center text-sm">
-                              <template v-if="result.priority === 'high'">
-                                <SparklesIcon class="w-5 h-5 mr-2 text-amber-600"></SparklesIcon>
-                              </template>
-                              <div class="text-sm">
-                                <p class="text-neutral-200">
-                                  {{ result.result.author }}
-                                </p>
-                                <p class="text-neutral-300">
-                                  {{ getHumanReadableDateText(result.result.cdate, true) }}
-                                </p>
-                              </div>
-                              <div class="pointer-events-none ml-auto flex items-center">
-                                <template v-if="result.result.type === 'lesson'">
-                                  <div
-                                    class="px-2 py-0.5 ml-2 min-w-[86px] rounded-md bg-indigo-800 text-neutral-300 font-bold">
-                                    {{ capitalizeFirstLetter(result.result.type) }}
-                                  </div>
+                          <VTooltip v-on:apply-show="investigate(result.result.guid)"
+                                    handle-resize eager-mount
+                                    placement="top-end" :flip="true">
+                            <div v-on:click="gotoWisdom(result.result.guid)"
+                                 class="result cursor-pointer">
+                              <div class="text-neutral-300 flex items-center text-sm">
+                                <template v-if="result.priority === 'high'">
+                                  <SparklesIcon class="w-5 h-5 mr-2 text-amber-600"></SparklesIcon>
                                 </template>
-                                <template v-else-if="result.result.type === 'question'">
-                                  <div
-                                    class="px-2 py-0.5 ml-2 min-w-[86px] rounded-md bg-orange-800 text-neutral-300 font-bold">
-                                    {{ capitalizeFirstLetter(result.result.type) }}
-                                  </div>
-                                </template>
-                                <template v-else>
-                                  <div class="px-1 py-0.5 ml-2 min-w-[86px] rounded-md medium_bg text-neutral-300">
-                                    {{ capitalizeFirstLetter(result.result.type) }}
-                                  </div>
-                                </template>
-                              </div>
-                            </div>
-                            <template v-if="result.result && result.result.reacts">
-                              <div class="flex my-2">
-                                <div v-for="reaction in result.result.reacts" :key="reaction.src"
-                                     style="padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                                     class="text-neutral-300 gray-hover flex items-center"
-                                     :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
-                                     :id="'react_' + result.result.guid + '_' + JSON.parse(reaction).t">
-                                  <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
-                                                   class="w-5 h-5 mr-1"></HandThumbUpIcon>
-                                  <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
-                                                     class="w-5 h-5 mr-1"></HandThumbDownIcon>
-                                  <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
-                                            class="w-5 h-5 mr-1"></StarIcon>
-                                  <span v-else> {{ JSON.parse(reaction).t }} </span>
-                                  {{ JSON.parse(reaction).src.length }}
+                                <div class="text-sm">
+                                  <p class="text-neutral-200">
+                                    {{ result.result.author }}
+                                  </p>
+                                  <p class="text-neutral-300">
+                                    {{ getHumanReadableDateText(result.result.cdate, true) }}
+                                  </p>
                                 </div>
-                              </div>
-                            </template>
-                            <div class="w-full my-2">
-                              <div class="flex items-center overflow-hidden overflow-ellipsis mb-2">
-                                <template v-if="result.result.type === 'task'">
-                                  <template v-if="result.result.finished">
-                                    <div class="px-1 py-1 rounded bg-green-800 flex w-16 mr-2 items-center">
-                                      <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
-                                      <span class="text-xs font-bold text-neutral-300">Done</span>
+                                <div class="pointer-events-none ml-auto flex items-center">
+                                  <template v-if="result.result.type === 'lesson'">
+                                    <div
+                                      class="px-2 py-0.5 ml-2 min-w-[86px] rounded-md bg-indigo-800 text-neutral-300 font-bold">
+                                      {{ capitalizeFirstLetter(result.result.type) }}
+                                    </div>
+                                  </template>
+                                  <template v-else-if="result.result.type === 'question'">
+                                    <div
+                                      class="px-2 py-0.5 ml-2 min-w-[86px] rounded-md bg-orange-800 text-neutral-300 font-bold">
+                                      {{ capitalizeFirstLetter(result.result.type) }}
                                     </div>
                                   </template>
                                   <template v-else>
-                                    <div class="px-1 py-1 rounded bg-red-800 flex w-16 mr-2 items-center">
-                                      <Cog6ToothIcon class="h-4 w-4 mr-1 text-neutral-300"></Cog6ToothIcon>
-                                      <span class="text-xs font-bold text-neutral-300">W.I.P.</span>
+                                    <div class="px-1 py-0.5 ml-2 min-w-[86px] rounded-md medium_bg text-neutral-300">
+                                      {{ capitalizeFirstLetter(result.result.type) }}
+                                    </div>
+                                  </template>
+                                </div>
+                              </div>
+                              <template v-if="result.result && result.result.reacts">
+                                <div class="flex my-2">
+                                  <div v-for="reaction in result.result.reacts" :key="reaction.src"
+                                       style="padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
+                                       class="text-neutral-300 gray-hover flex items-center"
+                                       :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
+                                       :id="'react_' + result.result.guid + '_' + JSON.parse(reaction).t">
+                                    <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
+                                                     class="w-5 h-5 mr-1"></HandThumbUpIcon>
+                                    <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
+                                                       class="w-5 h-5 mr-1"></HandThumbDownIcon>
+                                    <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
+                                              class="w-5 h-5 mr-1"></StarIcon>
+                                    <span v-else> {{ JSON.parse(reaction).t }} </span>
+                                    {{ JSON.parse(reaction).src.length }}
+                                  </div>
+                                </div>
+                              </template>
+                              <div class="w-full my-2">
+                                <div class="flex items-center overflow-hidden overflow-ellipsis mb-2">
+                                  <template v-if="result.result.type === 'task'">
+                                    <template v-if="result.result.finished">
+                                      <div class="px-1 py-1 rounded bg-green-800 flex w-16 mr-2 items-center">
+                                        <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
+                                        <span class="text-xs font-bold text-neutral-300">Done</span>
+                                      </div>
+                                    </template>
+                                    <template v-else>
+                                      <div class="px-1 py-1 rounded bg-red-800 flex w-16 mr-2 items-center">
+                                        <Cog6ToothIcon class="h-4 w-4 mr-1 text-neutral-300"></Cog6ToothIcon>
+                                        <span class="text-xs font-bold text-neutral-300">W.I.P.</span>
+                                      </div>
+                                    </template>
+                                  </template>
+                                  <p class="text-xl font-bold text-neutral-200">
+                                    {{ result.result.t }}
+                                  </p>
+                                </div>
+                                <p class="break-words">{{ result.result.desc }}</p>
+                              </div>
+                              <div class="flex">
+                                <template v-if="result.result.copyContent != null">
+                                  <ClipboardIcon
+                                    class="w-10 h-8 text-yellow-500 flex items-center px-2
+                                           border-2 border-yellow-500 rounded-lg mr-1">
+                                  </ClipboardIcon>
+                                </template>
+                                <template v-for="cat in result.result.categories" :key="cat">
+                                  <div v-if="JSON.parse(cat).category != null"
+                                       class="text-neutral-400 border-[1px] border-zinc-600 flex items-center
+                                    py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm darkest_bg">
+                                    {{ JSON.parse(cat).category }}
+                                  </div>
+                                </template>
+                              </div>
+                            </div>
+                            <template #popper>
+                              <div class="vpopper max-w-md">
+                                <template v-if="relatedLoading">
+                                  <div>
+                                    <p class="text-xs font-bold
+                                              px-8 py-8">
+                                      Loading...
+                                    </p>
+                                  </div>
+                                </template>
+                                <template v-else>
+                                  <template v-if="related && related.srcWisdom">
+                                    <p class="text-xs font-bold">Source Entry:</p>
+                                    <div class="mt-2 p-2 medium_bg rounded">
+                                      <div class="text-sm">
+                                        {{ related.srcWisdom.author }}
+                                      </div>
+                                      <div class="text-lg font-bold">
+                                        {{ related.srcWisdom.t }}
+                                      </div>
+                                      <template v-if="related.srcWisdom.desc">
+                                        <div class="text-sm my-1">
+                                          {{ limitTo(related.srcWisdom.desc, 100) }}
+                                        </div>
+                                      </template>
+                                      <div class="mt-2 text-xs font-bold px-1 py-0.5
+                                                  rounded darkest_bg w-fit">
+                                        {{ capitalizeFirstLetter(related.srcWisdom.type) }}
+                                      </div>
+                                    </div>
+                                  </template>
+                                  <template v-else>
+                                    <div>
+                                      <p class="text-xs font-bold px-3 py-2">
+                                        No source.
+                                      </p>
                                     </div>
                                   </template>
                                 </template>
-                                <p class="text-xl font-bold text-neutral-200">
-                                  {{ result.result.t }}
-                                </p>
                               </div>
-                              <p>{{ result.result.desc }}</p>
-                            </div>
-                            <div class="flex">
-                              <template v-if="result.result.copyContent != null">
-                                <ClipboardIcon
-                                  class="w-10 h-8 text-yellow-500 flex items-center px-2
-                                 border-2 border-yellow-500 rounded-lg mr-1">
-                                </ClipboardIcon>
-                              </template>
-                              <template v-for="cat in result.result.categories" :key="cat">
-                                <div v-if="JSON.parse(cat).category != null"
-                                     class="text-neutral-400 border-[1px] border-zinc-600 flex items-center
-                                    py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm darkest_bg">
-                                  {{ JSON.parse(cat).category }}
-                                </div>
-                              </template>
-                            </div>
-                          </div>
+                            </template>
+                          </VTooltip>
                         </template>
                       </div>
                     </template>
@@ -309,7 +360,7 @@
                   <TabPanel id="processes_tab" ref="processes_tab">
                     <div class="darkest_bg rounded p-3 my-3">
                       <div class="flex items-center text-neutral-200">
-                        <BeakerIcon class="min-w-[60px] max-w-[60px] min-h-[60px] max-h-[60px] mr-3"></BeakerIcon>
+                        <BeakerIcon class="min-w-[55px] max-w-[55px] min-h-[55px] max-h-[55px] mr-3"></BeakerIcon>
                         <div>
                           <p class="text-2xl font-bold">Experimental Feature</p>
                           <p class="text-neutral-300 text-xs max-w-xs text-justify">
@@ -397,7 +448,7 @@
       </div>
     </template>
     <template v-else>
-      <div class="h-full w-full pt-[60px] bright_bg">
+      <div class="h-full w-full pt-[55px] bright_bg">
         <div class="p-8 m-8 medium_bg rounded-md">
           <div class="text-neutral-300 mb-5 pointer-events-none">
             <span class="text-5xl font-bold">Create new Knowledge Hub</span>
@@ -466,7 +517,7 @@
             <label for="wisTitle" class="text-xl font-bold">Title:</label>
             <br>
             <input type="text" id="wisTitle" v-model="wisTitle"
-                   class="medium_bg rounded-md w-full py-2 px-3">
+                   class="medium_bg rounded-md w-full py-2 px-3 text-neutral-200">
             <br>
             <div class="block lg:flex w-full">
               <div class="lg:w-1/2">
@@ -530,7 +581,7 @@
                 <label for="wisKeywords" class="text-xl mt-2 font-bold">Keywords:</label>
                 <br>
                 <input type="text" id="wisKeywords" v-model="wisKeywords"
-                       class="medium_bg rounded-md py-2 px-3 w-full">
+                       class="medium_bg rounded-md py-2 px-3 w-full text-neutral-200">
               </div>
             </div>
             <label for="wisDescription" class="text-xl mt-2 font-bold">Description:</label>
@@ -731,7 +782,10 @@ export default {
       isViewingProcess: false,
       wisdomGUID: '',
       processGUID: '',
-      tabSelection: 'knowledge'
+      tabSelection: 'knowledge',
+      related: null,
+      relatedFrom: '',
+      relatedLoading: false
     }
   },
   created () {
@@ -749,9 +803,9 @@ export default {
       const mainDiv = document.getElementById('knowledgeFinder')
       if (mainDiv) {
         if (!this.isoverlay) {
-          mainDiv.classList.add('pt-[60px]')
+          mainDiv.classList.add('pt-[55px]')
         } else {
-          mainDiv.classList.remove('pt-[60px]')
+          mainDiv.classList.remove('pt-[55px]')
         }
       }
       // Focus search field
@@ -1322,7 +1376,7 @@ export default {
         if (query && query !== '') {
           query = '?query=' + query
         } else {
-          query = '?query=.'
+          query = ''
         }
         this.$Worker.execute({
           action: 'api',
@@ -1374,6 +1428,35 @@ export default {
             console.debug(err.message)
           })
       })
+    },
+    filterQuestions: function () {
+      this.searchWisdom('question type:q state:false')
+    },
+    investigate: function (guid) {
+      if (this.relatedFrom === guid) return true
+      this.relatedFrom = guid
+      this.related = null
+      this.relatedLoading = true
+      this.$Worker.execute({
+        action: 'api',
+        method: 'get',
+        url: 'm7/investigate/' + guid
+      })
+        .then((data) => {
+          this.related = data.result
+          this.relatedLoading = false
+        })
+        .finally(() => {
+          return true
+        })
+      return true
+    },
+    limitTo: function (string, length) {
+      if (string.length <= length) {
+        return string
+      } else {
+        return string.substring(0, length) + '...'
+      }
     }
   }
 }

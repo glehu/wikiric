@@ -1,5 +1,5 @@
 <template>
-  <div class="preferences w-full h-full pt-[60px] px-8 pb-8
+  <div class="preferences w-full h-full pt-[55px] px-8 pb-8
               flex items-center justify-center"
        style="background-color: #131313">
     <div class="container mt-5 w-full"

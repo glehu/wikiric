@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center text-white mt-[60px]">
+  <div class="text-center text-white mt-[55px]">
     <div class="card-subtitle container">
       <div class="card-body">
         <input

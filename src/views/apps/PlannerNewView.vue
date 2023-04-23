@@ -1,8 +1,8 @@
 <template>
   <template v-if="knowledgeExists">
-    <div class="flex w-full h-full pt-[60px]">
+    <div class="flex w-full h-full pt-[55px]">
       <div id="sidebar"
-           class="active h-[calc(100dvh-60px)] p_sidebar_left bright_bg border-r border-zinc-600 relative">
+           class="active h-[calc(100dvh-55px)] p_sidebar_left bright_bg border-r border-zinc-600 relative">
         <div class="w-full h-[calc(100%-20px)] relative">
           <div class="grid grid-cols-2 m-2 h-[42px]">
             <div class="flex items-center cursor-pointer hover:darkest_bg hover:bg-opacity-50 p-2 rounded-md"
@@ -25,12 +25,14 @@
             </div>
           </div>
           <template v-if="calendarOptions">
-            <FullCalendar :options="calendarOptions" class="w-[calc(100%-20px)] h-[calc(100%-64px)] text-neutral-300"/>
+            <FullCalendar ref="fullCalendar"
+                          :options="calendarOptions"
+                          class="w-[calc(100%-20px)] h-[calc(100%-64px)] text-neutral-300"/>
           </template>
         </div>
         <div
           class="p_sidebar_toggler absolute w-6 right-0 top-0 bottom-0 hover:brightest_bg cursor-pointer flex items-center justify-center overflow-hidden"
-          v-on:click="toggleSidebar">
+          v-on:click="toggleSidebar()">
         </div>
       </div>
       <div class="darkest_bg w-[calc(100%-42px)] h-full overflow-hidden">
@@ -168,6 +170,7 @@
                       @move="handleDragMove"
                       ghostClass="ghost"
                       tag="transition-group"
+                      filter=".notagger"
                       fallbackTolerance="5"
                       forceFallback="true"
                       fallbackClass="chosen"
@@ -260,7 +263,7 @@
                                   leave-to-class="transform scale-95 opacity-0"
                                 >
                                   <MenuItems
-                                    class="p_card_menu_list_big_p darkest_bg"
+                                    class="p_card_menu_list_big_p darkest_bg notagger"
                                   >
                                     <template v-if="taskRelated.comments == null">
                                       <MenuItem as="div" class="px-3 py-3">
@@ -614,7 +617,7 @@
     </div>
   </template>
   <template v-else>
-    <div class="h-full w-full pt-[60px] bright_bg">
+    <div class="h-full w-full pt-[55px] bright_bg">
       <div class="p-8 m-8 medium_bg rounded-md">
         <div class="mb-5 pointer-events-none">
           <p class="text-4xl md:text-5xl font-bold text-neutral-200 mb-2">Create Knowledge Hub</p>
@@ -666,10 +669,11 @@
       </div>
     </template>
     <template v-slot:body>
-      <div class="w-full sm:w-[540px] flex h-full relative">
-        <div class="w-full h-full mr-1" v-if="!isShowingTaskHistory">
+      <div class="w-full sm:w-[600px] flex h-full relative">
+        <div class="w-[calc(100%-50px)] sm:w-[calc(100%-100px)] h-full mr-1"
+             v-if="!isShowingTaskHistory">
           <div class="w-full medium_bg p-2 rounded">
-            <template v-if="showingTask.categories">
+            <template v-if="showingTask.categories && showingTask.categories.length > 0">
               <div class="flex mb-2 items-center">
                 <template v-for="cat in showingTask.categories" :key="cat">
                   <div v-if="JSON.parse(cat).category != null"
@@ -681,10 +685,10 @@
                 </template>
               </div>
             </template>
-            <Markdown class="p_markdown font-bold text-neutral-200 w-full"
+            <Markdown class="markedView font-bold text-neutral-200 w-full"
                       :source="showingTask.t"
                       :plugins="plugins"></Markdown>
-            <Markdown class="p_markdown text-neutral-300 w-full"
+            <Markdown class="markedView text-neutral-300 w-full"
                       :source="showingTask.desc"
                       :plugins="plugins"></Markdown>
           </div>
@@ -698,7 +702,7 @@
                      v-model="showingTask.dueDateFormatted">
               <input id="task_view_time" type="time" class="p_input ml-1" style="color-scheme: dark;"
                      v-model="showingTask.dueTimeFormatted">
-              <button class="rounded-lg medium_bg hover:dark_bg py-2 px-2 ml-1 text-xs text-neutral-300"
+              <button class="rounded-lg dark_bg hover:darkest_bg py-2 px-2 ml-1 text-xs text-neutral-300"
                       v-on:click="setTaskDueDate()">
                 Update
               </button>
@@ -718,8 +722,8 @@
                 </template>
               </template>
               <template v-else>
-                <div class="text-neutral-400 text-sm pointer-events-none">
-                  No Collaborators
+                <div class="text-neutral-400 text-xs font-bold pointer-events-none">
+                  (No Collaborators)
                 </div>
               </template>
             </div>
@@ -779,7 +783,8 @@
                   </transition>
                 </div>
               </Listbox>
-              <button class="rounded-lg dark_bg hover:darkest_bg py-3 px-2 ml-1 text-xs text-neutral-400 h-fit"
+              <button class="rounded-lg dark_bg hover:darkest_bg py-2.5 px-2 my-2 ml-1
+                             text-xs text-neutral-300"
                       v-on:click="addTaskCollaborators()">
                 Add
               </button>
@@ -813,7 +818,7 @@
               </div>
               <div v-for="comment in showingTaskRelated.comments" :key="comment.uID"
                    class="mb-2 w-full medium_bg rounded-r-xl rounded-l-lg border-b-2
-                          border-r-2 border-b-zinc-500 border-r-zinc-500 comment">
+                          border-r-2 border-b-zinc-500 border-r-zinc-500 comment break-words">
                 <Markdown :source="comment.desc"
                           class="text-neutral-300 w-full markedView py-1 px-2"
                           :plugins="plugins"></Markdown>
@@ -829,7 +834,7 @@
             </template>
           </div>
         </div>
-        <div v-else class="w-full h-full mr-1">
+        <div v-else class="w-[calc(100%-50px)] sm:w-[calc(100%-100px)] h-full mr-1">
           <table class="w-full h-full divide-y">
             <tr>
               <th>Type</th>
@@ -856,7 +861,7 @@
             <button v-on:click="finishTask(showingTask)"
                     class="group p_card_menu_item text-neutral-300 hover:text-white hover:dark_bg">
               <CheckIcon
-                class="mr-2 h-5 w-5"
+                class="mr-2 h-6 w-6"
                 aria-hidden="true"
               />
               <template class="hidden sm:block">
@@ -866,7 +871,7 @@
             <button v-on:click="finishTask(showingTask, true)"
                     class="group p_card_menu_item text-neutral-300 hover:text-white hover:dark_bg">
               <TrashIcon
-                class="mr-2 h-5 w-5"
+                class="mr-2 h-6 w-6"
                 aria-hidden="true"
               />
               <template class="hidden sm:block">
@@ -880,7 +885,7 @@
                 title="Options"
                 class="items-center cursor-pointer group p_card_menu_item text-neutral-300 hover:text-white hover:dark_bg">
                 <ShareIcon
-                  class="mr-2 h-5 w-5"
+                  class="mr-2 h-6 w-6"
                   aria-hidden="true"
                 />
                 <template class="hidden sm:block">
@@ -900,7 +905,7 @@
                     <div class="pointer-events-none">
                       <div class="text-neutral-300 group p_card_menu_item font-bold">
                         <ChatBubbleLeftRightIcon
-                          class="mr-2 h-5 w-5"
+                          class="mr-2 h-6 w-6"
                           aria-hidden="true"
                         />
                         Clarifier
@@ -929,7 +934,7 @@
             <button v-on:click="gotoWisdom(showingTask.guid)"
                     class="group p_card_menu_item text-neutral-300 hover:text-white hover:dark_bg">
               <WindowIcon
-                class="mr-2 h-5 w-5"
+                class="mr-2 h-6 w-6"
                 aria-hidden="true"
               />
               <template class="hidden sm:block">
@@ -942,7 +947,7 @@
                     class="group p_card_menu_item text-neutral-300 hover:text-white hover:dark_bg">
               <template v-if="!isShowingTaskHistory">
                 <ClockIcon
-                  class="mr-2 h-5 w-5"
+                  class="mr-2 h-6 w-6"
                   aria-hidden="true"
                 />
                 <template class="hidden sm:block">
@@ -951,7 +956,7 @@
               </template>
               <template v-else>
                 <DocumentTextIcon
-                  class="mr-2 h-5 w-5"
+                  class="mr-2 h-6 w-6"
                   aria-hidden="true"
                 />
                 <template class="hidden sm:block">
@@ -967,7 +972,7 @@
     </template>
   </modal>
   <template v-if="isSearching">
-    <div class="fixed top-[60px] right-1 p_card mt-2"
+    <div class="fixed top-[55px] right-1 p_card mt-2"
          style="box-shadow: 0 0 6px 4px rgb(23 23 23 / 1)">
       <div class="p_card_header_section relative text-neutral-300 flex items-center p-2 font-bold w-full">
         <span>Filter</span>
@@ -1255,7 +1260,6 @@ export default {
         members: [],
         collaborators: []
       },
-      sidebarActive: true,
       selection: {
         row: -1,
         col: -1
@@ -1278,7 +1282,8 @@ export default {
       taskRelated: [],
       titleCreation: '',
       descriptionCreation: '',
-      keywordsCreation: ''
+      keywordsCreation: '',
+      connector: null
     }
   },
   computed: {
@@ -1352,11 +1357,17 @@ export default {
           updater(info.event.id, info.event.start, info.event.end)
         }
       }
-
+      this.toggleSidebar(true)
       await this.getKnowledge(srcGUID)
       await this.getBoxes()
       if (this.knowledge.mainChatroomGUID) {
         this.getClarifierMetaData(this.knowledge.mainChatroomGUID)
+      }
+      this.connector = new BroadcastChannel('connector')
+      this.connector.onmessage = event => {
+        if (event.data.type === 'planner change') {
+          this.getBoxes()
+        }
       }
     },
     getKnowledge: async function (sessionID) {
@@ -1386,7 +1397,7 @@ export default {
       return new Promise((resolve) => {
         let suffix = ''
         const checkbox = this.$refs.input_show_unfinished
-        if (checkbox && showAll) {
+        if (checkbox && (showAll || checkbox.checked)) {
           suffix = '?state=any'
           checkbox.checked = true
         } else {
@@ -1401,10 +1412,13 @@ export default {
             // Retrieve all boxes and tasks from server response
             this.boxes = data.result.boxes.reverse()
             this.calendarOptions.events = []
+            // Iterate over all boxes
             for (let i = 0; i < this.boxes.length; i++) {
               if (this.boxes[i].tasks) {
+                // Iterate over all tasks of this box
                 for (let j = 0; j < this.boxes[i].tasks.length; j++) {
                   if (this.boxes[i].tasks[j].task.dueDate) {
+                    // Add entry to calendar if there's a due date
                     this.calendarOptions.events.push({
                       id: this.boxes[i].tasks[j].task.guid,
                       title: this.boxes[i].tasks[j].task.t + ' - ' + this.boxes[i].tasks[j].task.desc,
@@ -1763,12 +1777,20 @@ export default {
     resetValues: function () {
       this.showingTaskComment = ''
     },
-    toggleSidebar: function () {
+    toggleSidebar: function (initial = false) {
+      if (!initial) {
+        this.$store.commit('togglePlannerCalendar')
+      }
+      const sidebarActive = this.$store.getters.isPlannerCalendarOpen()
       const sidebarElem = document.getElementById('sidebar')
       if (!sidebarElem) return
-      if (!sidebarElem.classList.contains('active')) {
+      if (sidebarActive && !sidebarElem.classList.contains('active')) {
         sidebarElem.classList.add('active')
-      } else {
+        const calendarApi = this.$refs.fullCalendar.getApi()
+        calendarApi.updateSize()
+        return
+      }
+      if (!sidebarActive) {
         sidebarElem.classList.remove('active')
       }
     },
@@ -2009,6 +2031,11 @@ export default {
         filterOverride: filterOverrideArgs
       }
       return new Promise((resolve) => {
+        if (this.searchQuery === '' || this.searchQuery === '.') {
+          this.resetSearchResults()
+          resolve()
+          return
+        }
         this.setVisibilityOfBoxesAndTasks('none')
         this.$Worker.execute({
           action: 'api',

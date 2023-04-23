@@ -1,6 +1,6 @@
 <template>
   <div id="knowledgeViewer" ref="knowledgeViewer"
-       class="bright_bg w-full h-full absolute overflow-hidden rounded-tr-lg">
+       class="bright_bg w-full h-full relative overflow-hidden rounded-tr-lg">
     <div class="flex h-full w-full">
       <div id="sidebar"
            class="h-full min-w-[40px] max-w-[40px] flex flex-col
@@ -181,7 +181,70 @@
             </p>
             <div class="text-neutral-400 ml-2 text-xs">(Click to scroll to the answer)</div>
           </div>
-          <div class="medium_bg p-2 rounded">
+          <template v-if="related.srcWisdom">
+            <div class="text-neutral-400 border-l-8 border-l-zinc-800">
+              <div class="w-fit rounded-tr-md dark_bg py-1 pr-2">
+                <p class="text-xs font-bold text-neutral-300 pointer-events-none">
+                  Source Entry:
+                </p>
+              </div>
+              <div class="my-2 ml-2 p-2 medium_bg rounded">
+                <template v-if="related.srcWisdom.t && related.srcWisdom.t.length > 0">
+                  <Markdown class="markedView"
+                            :source="'# ' + related.srcWisdom.t"
+                            :plugins="plugins"></Markdown>
+                </template>
+                <template v-else>
+                  <Markdown v-if="related.srcWisdom.desc && related.srcWisdom.desc.length > 0"
+                            class="markedView"
+                            :source="related.srcWisdom.desc.substring(0, 100)"
+                            :plugins="plugins"></Markdown>
+                </template>
+                <Disclosure v-slot="{ open }" v-if="related.srcWisdom.desc && related.srcWisdom.desc.length > 0">
+                  <DisclosureButton
+                    class="my-2 flex w-full justify-between rounded-lg px-2 py-1 dark_bg hover:darkest_bg
+                         focus:outline-none focus-visible:ring focus-visible:ring-neutral-500
+                         focus-visible:ring-opacity-75"
+                  >
+                    <div class="text-neutral-300 text-sm w-full">
+                      <template v-if="open">
+                        <div>Show less</div>
+                      </template>
+                      <template v-else>
+                        <div>Show all</div>
+                      </template>
+                    </div>
+                    <ChevronUpIcon
+                      :class="open ? 'rotate-180 transform' : ''"
+                      class="h-5 w-5 text-neutral-400"
+                    />
+                  </DisclosureButton>
+                  <transition
+                    enter-active-class="transition duration-100 ease-out"
+                    enter-from-class="transform scale-95 opacity-0"
+                    enter-to-class="transform scale-100 opacity-100"
+                    leave-active-class="transition duration-75 ease-out"
+                    leave-from-class="transform scale-100 opacity-100"
+                    leave-to-class="transform scale-95 opacity-0"
+                  >
+                    <DisclosurePanel>
+                      <div class="p-2">
+                        <Markdown class="markedView"
+                                  :source="related.srcWisdom.desc"
+                                  :plugins="plugins"></Markdown>
+                      </div>
+                    </DisclosurePanel>
+                  </transition>
+                </Disclosure>
+              </div>
+              <div class="w-fit rounded-tr-md dark_bg py-1 pr-2">
+                <p class="text-xs text-neutral-300 font-bold pointer-events-none">
+                  Reply to {{ related.srcWisdom.author }}:
+                </p>
+              </div>
+            </div>
+          </template>
+          <div class="medium_bg p-2 rounded-tr rounded-b">
             <div class="flex">
               <template v-if="wisdom.t">
                 <Markdown class="markedView"
@@ -199,7 +262,7 @@
             <hr class="mb-3 mt-1">
             <!-- Main Content -->
             <template v-if="wisdom.desc">
-              <Markdown class="markedView"
+              <Markdown class="markedView break-words"
                         :source="wisdom.desc"
                         :plugins="plugins"></Markdown>
             </template>
@@ -758,7 +821,8 @@ export default {
         comments: [],
         tasks: [],
         questions: [],
-        lessons: []
+        lessons: [],
+        srcWisdom: null
       },
       relatedSearch: [],
       wisComment: '',
@@ -830,9 +894,9 @@ export default {
       const mainDiv = this.$refs.knowledgeViewer
       if (mainDiv) {
         if (!this.isoverlay) {
-          mainDiv.classList.add('pt-[60px]')
+          mainDiv.classList.add('pt-[55px]')
         } else {
-          mainDiv.classList.remove('pt-[60px]')
+          mainDiv.classList.remove('pt-[55px]')
         }
       }
     },
@@ -895,6 +959,9 @@ export default {
                 for (let i = 0; i < this.related.answers.length; i++) {
                   this.related.answers[i].cdate = DateTime.fromISO(this.related.answers[i].cdate)
                 }
+              }
+              if (this.related.srcWisdom) {
+                this.related.srcWisdom.cdate = DateTime.fromISO(this.related.srcWisdom.cdate)
               }
             } else {
               if (data.result.tasks) {

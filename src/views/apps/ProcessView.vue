@@ -1,6 +1,6 @@
 <template>
   <div id="processViewer" ref="processViewer"
-       class="medium_bg w-full h-full absolute overflow-hidden rounded-tr-lg">
+       class="medium_bg w-full h-full relative overflow-hidden rounded-tr-lg">
     <div class="text-neutral-300 w-full min-h-[50px] max-h-[50px] px-2 flex items-center medium_bg
                 divide-x-2 divide-neutral-600">
       <div class="sidebar_button bright_bg rounded-xl w-fit mr-2">
@@ -67,12 +67,12 @@
                       leave-to-class="transform scale-95 opacity-0"
                     >
                       <MenuItems
-                        class="p_card_menu_list dark_bg"
+                        class="p_card_menu_list dark_bg w-[150px]"
                       >
-                        <div class="px-1 py-1">
+                        <div class="px-1 py-1 w-full">
                           <MenuItem v-slot="{ active }">
                             <button v-on:click="deleteEvent(segment.event)"
-                                    class="flex text-neutral-300 p-2"
+                                    class="flex text-neutral-300 p-2 w-full rounded"
                                     :class="
                                       [active ? 'medium_bg' : '']
                                     ">
@@ -82,6 +82,22 @@
                                 aria-hidden="true"
                               />
                               <span class="font-bold">Delete</span>
+                            </button>
+                          </MenuItem>
+                        </div>
+                        <div class="px-1 py-1 w-full" v-if="segment.task">
+                          <MenuItem v-slot="{ active }">
+                            <button v-on:click="finishEventTask(segment.task)"
+                                    class="flex text-neutral-300 p-2 w-full rounded"
+                                    :class="
+                                      [active ? 'medium_bg' : '']
+                                    ">
+                              <CheckIcon
+                                :active="active"
+                                class="mr-2 h-5 w-5"
+                                aria-hidden="true"
+                              />
+                              <span class="font-bold">Finish Task</span>
                             </button>
                           </MenuItem>
                         </div>
@@ -95,13 +111,13 @@
                 <div class="w-full">
                   <template v-if="segment.task">
                     <template v-if="segment.task.finished">
-                      <div class="px-1 py-1 rounded bg-green-800 flex w-16 mr-2 items-center">
+                      <div class="px-1 py-1 rounded-tl rounded-br bg-green-800 flex w-16 mr-2 items-center">
                         <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
                         <span class="text-xs font-bold text-neutral-300">Done</span>
                       </div>
                     </template>
                     <template v-else>
-                      <div class="px-1 py-1 rounded bg-red-800 flex w-16 mr-2 items-center">
+                      <div class="px-1 py-1 rounded-tl rounded-br bg-red-800 flex w-16 mr-2 items-center">
                         <Cog6ToothIcon class="h-4 w-4 mr-1 text-neutral-300"></Cog6ToothIcon>
                         <span class="text-xs font-bold text-neutral-300">W.I.P.</span>
                       </div>
@@ -125,7 +141,7 @@
                     <div class="w-full">
                     <textarea type="text" v-model="segment.event.t"
                               :id="segment.event.guid + '_title_edit'"
-                              v-on:blur="segment.event.editingTitle = false; updateEvent(segment.event)"
+                              v-on:blur="updateEvent(segment.event)"
                               rows="1"
                               class="text-lg p-2 mb-2 rounded dark_bg text-neutral-200 w-full"></textarea>
                       <button class="editSubmit">
@@ -136,13 +152,13 @@
                 </div>
                 <template v-if="!segment.event.editingDescription">
                   <template v-if="segment.event.desc">
-                    <Markdown class="markedView w-full p-2"
+                    <Markdown class="markedView w-full h-full p-2"
                               :source="segment.event.desc"
                               v-on:click="editEventDescription(segment.event)"
                               :plugins="plugins"></Markdown>
                   </template>
                   <template v-else>
-                    <p class="text-neutral-400 w-full p-2"
+                    <p class="text-neutral-400 w-full h-full p-2"
                        v-on:click="editEventDescription(segment.event)">
                       (No Description)
                     </p>
@@ -152,7 +168,7 @@
                   <div class="rounded w-full">
                     <textarea :id="segment.event.guid + '_description_edit'"
                               v-model="segment.event.desc"
-                              v-on:blur="segment.event.editingDescription = false; updateEvent(segment.event)"
+                              v-on:blur="updateEvent(segment.event)"
                               maxlength="3000"
                               rows="10"
                               class="p-2 mb-2 dark_bg text-neutral-200 w-full input"></textarea>
@@ -182,7 +198,7 @@
                 </template>
                 <div class="pathIndicator"></div>
               </div>
-              <template v-if="segment.alternatives && segment.alternatives.length > 0">
+              <template v-if="segment.alternatives && segment.alternatives.length > 0 || drag">
                 <div class="w-full h-fit ml-8 my-2 grid grid-cols-1"
                      :id="'box_events_guid_' + segment.event.guid"
                      :ref="'box_events_guid_' + segment.event.guid">
@@ -191,6 +207,7 @@
                     :group="segment.event.guid"
                     :id="segment.event.guid"
                     v-bind="dragOptions"
+                    :disabled="this.isEditingProcess"
                     @start="drag=true"
                     @end="endDrag"
                     @change="handleDragChange"
@@ -229,12 +246,12 @@
                                 leave-to-class="transform scale-95 opacity-0"
                               >
                                 <MenuItems
-                                  class="p_card_menu_list dark_bg"
+                                  class="p_card_menu_list dark_bg w-[150px] drop-shadow-2xl"
                                 >
-                                  <div class="px-1 py-1">
+                                  <div class="px-1 py-1 w-full">
                                     <MenuItem v-slot="{ active }">
                                       <button v-on:click="deleteEvent(element.event)"
-                                              class="flex text-neutral-300 p-2"
+                                              class="flex text-neutral-300 p-2 w-full rounded"
                                               :class="
                                       [active ? 'medium_bg' : '']
                                     ">
@@ -244,6 +261,22 @@
                                           aria-hidden="true"
                                         />
                                         <span class="font-bold">Delete</span>
+                                      </button>
+                                    </MenuItem>
+                                  </div>
+                                  <div class="px-1 py-1 w-full" v-if="element.task">
+                                    <MenuItem v-slot="{ active }">
+                                      <button v-on:click="finishEventTask(element.task)"
+                                              class="flex text-neutral-300 p-2 w-full rounded"
+                                              :class="
+                                      [active ? 'medium_bg' : '']
+                                    ">
+                                        <CheckIcon
+                                          :active="active"
+                                          class="mr-2 h-5 w-5"
+                                          aria-hidden="true"
+                                        />
+                                        <span class="font-bold">Finish Task</span>
                                       </button>
                                     </MenuItem>
                                   </div>
@@ -257,13 +290,13 @@
                           <div class="w-full">
                             <template v-if="element.task">
                               <template v-if="element.task.finished">
-                                <div class="px-1 py-1 rounded bg-green-800 flex w-16 mr-2 items-center">
+                                <div class="px-1 py-1 rounded-tl rounded-br bg-green-800 flex w-16 mr-2 items-center">
                                   <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
                                   <span class="text-xs font-bold text-neutral-300">Done</span>
                                 </div>
                               </template>
                               <template v-else>
-                                <div class="px-1 py-1 rounded bg-red-800 flex w-16 mr-2 items-center">
+                                <div class="px-1 py-1 rounded-tl rounded-br bg-red-800 flex w-16 mr-2 items-center">
                                   <Cog6ToothIcon class="h-4 w-4 mr-1 text-neutral-300"></Cog6ToothIcon>
                                   <span class="text-xs font-bold text-neutral-300">W.I.P.</span>
                                 </div>
@@ -286,7 +319,7 @@
                             <template v-else>
                             <textarea type="text" v-model="element.event.t"
                                       :id="element.event.guid + '_title_edit'"
-                                      v-on:blur="element.event.editingTitle = false; updateEvent(element.event)"
+                                      v-on:blur="updateEvent(element.event)"
                                       rows="1"
                                       class="text-lg p-2 mb-2 rounded dark_bg text-neutral-200 w-full"></textarea>
                               <button
@@ -313,7 +346,7 @@
                             <div class="rounded w-full">
                             <textarea :id="element.event.guid + '_description_edit'"
                                       v-model="element.event.desc"
-                                      v-on:blur="element.event.editingDescription = false; updateEvent(element.event)"
+                                      v-on:blur="updateEvent(element.event)"
                                       maxlength="3000"
                                       rows="10"
                                       class="p-2 mb-2 dark_bg text-neutral-200 w-full input"></textarea>
@@ -385,7 +418,7 @@
         <p>Documentation</p>
       </template>
       <template v-slot:body>
-        <div class="w-[90vw] md:w-[70vw] max-w-[1000px] rounded overflow-hidden flex justify-center">
+        <div class="max-w-[1000px] rounded overflow-hidden flex justify-center">
           <div class="lg:flex max-w-full overflow-x-hidden overflow-y-auto break-all">
             <div class="md:rounded-l dark_bg p-1 min-w-[124px]">
               <button class="flex items-center justify-center text-neutral-300 p-1 rounded-md hover:medium_bg w-full"
@@ -500,9 +533,9 @@ export default {
       const mainDiv = this.$refs.processViewer
       if (mainDiv) {
         if (!this.isoverlay) {
-          mainDiv.classList.add('pt-[60px]')
+          mainDiv.classList.add('pt-[55px]')
         } else {
-          mainDiv.classList.remove('pt-[60px]')
+          mainDiv.classList.remove('pt-[55px]')
         }
       }
       // Whose knowledge are we trying to see? Return if there is no source
@@ -598,17 +631,6 @@ export default {
         mermaid.init()
       }, 0)
     },
-    editProcess: function (sourceEvent) {
-      if (sourceEvent == null) return
-      const srcGUID = sourceEvent.guid
-      if (!srcGUID || srcGUID === '') return
-      this.isWritingProcess = true
-      this.isEditingProcess = true
-      this.writingSource = sourceEvent
-      setTimeout(() => {
-        this.$refs.processTitle.focus()
-      }, 0)
-    },
     clickedBack: function () {
       if (!this.isoverlay) {
         this.$router.back()
@@ -672,6 +694,8 @@ export default {
     editEventTitle: function (event) {
       if (this.drag) return
       event.editingTitle = true
+      this.isEditingProcess = true
+      this.dragOptions.disabled = true
       setTimeout(() => {
         const elem = document.getElementById(event.guid + '_title_edit')
         if (elem) {
@@ -682,6 +706,8 @@ export default {
     editEventDescription: function (event) {
       if (this.drag) return
       event.editingDescription = true
+      this.isEditingProcess = true
+      this.dragOptions.disabled = true
       setTimeout(() => {
         const elem = document.getElementById(event.guid + '_description_edit')
         if (elem) {
@@ -690,6 +716,10 @@ export default {
       }, 0)
     },
     updateEvent: function (pEvent) {
+      pEvent.editingTitle = false
+      pEvent.editingDescription = false
+      this.isEditingProcess = false
+      this.dragOptions.disabled = true
       return new Promise((resolve) => {
         let eventWisdomGUID = ''
         if (pEvent.wisdomGUID) eventWisdomGUID = pEvent.wisdomGUID
@@ -719,6 +749,25 @@ export default {
           action: 'api',
           method: 'get',
           url: 'm9/delete/' + event.guid
+        })
+          .then(() => resolve())
+          .catch((err) => {
+            console.debug(err.message)
+          })
+          .finally(() => {
+            this.getProcessInformation()
+          })
+      })
+    },
+    finishEventTask: async function (task, doDelete = false) {
+      if (task == null) return
+      let endpoint = 'finish'
+      if (doDelete) endpoint = 'delete'
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/' + endpoint + '/' + task.guid
         })
           .then(() => resolve())
           .catch((err) => {
@@ -852,6 +901,9 @@ export default {
           } else {
             // First task => Set it to 0
             newRowIndex = 20000
+            if (!this.processEvents[i].event.hasNext) {
+              this.writeProcess(this.processEvents[i].event)
+            }
           }
         }
       }

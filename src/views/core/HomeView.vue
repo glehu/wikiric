@@ -1,6 +1,6 @@
 <template>
-  <div class="h-full w-full overflow-x-hidden overflow-y-scroll mt-[60px]">
-    <div class="flex min-h-[525px] h-[calc(100dvh-60px)] items-center justify-center"
+  <div class="h-full w-full overflow-x-hidden overflow-y-scroll mt-[55px]">
+    <div class="flex min-h-[525px] h-[calc(100dvh-55px)] items-center justify-center"
          :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
       <div
@@ -8,8 +8,7 @@
         <div class="w-full h-full relative">
           <div class="w-full h-full"><!-- Demo Wrapper -->
             <div style="transform: translate3d(0, 0, 0)"
-              class="w-full h-full items-center justify-center flex px-4 py-4 border-l-8 rounded-r-md
-                          border-dotted border-l-fuchsia-500 backdrop-blur-xl">
+              class="w-full h-full items-center justify-center flex px-4 py-4 rounded-r-md backdrop-blur-xl">
               <div style="pointer-events: inherit"
                    class="rounded-2xl w-full h-full p-4">
                 <p
@@ -73,7 +72,7 @@
               display: flex; padding: 20px 5vw 20px 5vw;
               border-bottom: 4px dotted #192129"
          class="b_darkergray">
-      <div style="width: 100%" class="wrapper mt-[60px]"><!-- Demo Wrapper -->
+      <div style="width: 100%" class="wrapper mt-[55px]"><!-- Demo Wrapper -->
         <div style="width: 100%; display: flex; justify-content: center">
           <img src='@/assets/clarifier/clarifier_e2e_demo.png' alt=""
                style="width: 80%; border-radius: 10px; background-color: #101010">
@@ -192,7 +191,7 @@
 export default {
   data () {
     return {
-      userCount: '42'
+      userCount: '45'
     }
   },
   created () {
@@ -240,7 +239,7 @@ export default {
 <style scoped>
 
 .header-margin {
-  min-height: 60px;
+  min-height: 55px;
 }
 
 .b_purple {

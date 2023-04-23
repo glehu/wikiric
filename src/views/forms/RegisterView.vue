@@ -1,6 +1,6 @@
 <template>
   <div class="h-full w-full md:flex items-center justify-center overflow-x-hidden">
-    <form class="register md:flex pt-[60px]"
+    <form class="register md:flex pt-[55px]"
           @submit.prevent="register()">
       <template v-if="metamask.account === '' && phantom.account === ''">
         <section class="flex justify-center">

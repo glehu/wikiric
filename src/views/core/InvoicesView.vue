@@ -1,7 +1,7 @@
 <template>
   <div class="invoices">
     <section
-      class="container mt-[60px]">
+      class="container mt-[55px]">
       <div class="text-light p-3">
         <div class="flex">
           <h1 class="font-bold">

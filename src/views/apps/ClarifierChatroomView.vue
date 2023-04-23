@@ -3,9 +3,9 @@
        class="darkest_bg w-full h-full absolute overflow-hidden">
     <div class="fixed top-0 left-0 w-full h-full">
       <div id="sidebar" ref="sidebar"
-           class="sidebar darkest_bg darkergray-on-small h-full relative top-[60px]"
+           class="sidebar darkest_bg darkergray-on-small h-full relative top-[55px]"
            style="z-index: 100">
-        <div style="height: calc(100% - 60px)"
+        <div style="height: calc(100% - 55px)"
              class="sidebar_bg">
           <div style="height: 140px; overflow-x: clip; position: relative">
             <div style="width: 100%; height: 35px; padding-top: 10px">
@@ -20,9 +20,9 @@
                 <div class="sb_link" v-on:click="disconnect(); this.$router.push('/apps/clarifier')">
                   <div class="c_lightgray orange-hover"
                        v-tooltip.right="{
-                       content: 'Exit',
-                       disabled: sidebar.active,
-                     }">
+                         content: 'Exit',
+                         disabled: sidebar.active,
+                       }">
                     <i class="sb_link_icon bi bi-x-square"></i>
                     <span class="sb_link_text">Exit</span>
                   </div>
@@ -47,7 +47,7 @@
           </span>
           </div>
           <div id="channel_section" class="channel_section overflow-y-auto overflow-x-hidden"
-               style="height: calc(100% - 60px - 100px); z-index: 4;
+               style="height: calc(100% - 55px - 100px); z-index: 4;
                       padding-bottom: 20px; margin-top: 10px">
             <div v-for="group in $store.state.clarifierSessions" :key="group"
                  class="channel_link"
@@ -64,14 +64,15 @@
                             display: flex; align-items: center; justify-content: center;">
                     <div v-if="group.id === chatroom.guid"
                          style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5"
-                         class="bg-green-500 rounded-r">
+                         class="bright_bg rounded-r">
                     </div>
                     <template v-if="group.img && group.img !== ''">
-                      <img class="w-[40px] h-[40px] z-10 rounded-lg"
+                      <img class="w-[40px] h-[40px] z-10 rounded-lg ml-[5px]"
                            v-bind:src="getImg(group.img,true)" :alt="getImgAlt(group.title)"/>
                     </template>
                     <template v-else>
-                      <div class="medium_bg flex items-center justify-center w-[40px] h-[40px] z-10 rounded-lg">
+                      <div class="medium_bg flex items-center justify-center
+                                  w-[40px] h-[40px] z-10 rounded-lg ml-[5px]">
                         {{ getImgAlt(group.title) }}
                       </div>
                     </template>
@@ -87,15 +88,17 @@
         </div>
       </div>
       <div id="sidebar2" ref="sidebar2"
-           style="margin-top: 60px"
+           style="margin-top: 55px"
            class="sidebar2 medium_bg lg:rounded-tl">
         <div class="h-full relative">
           <div class="c_lightgray px-2 h-full overflow-x-hidden overflow-y-auto">
             <div style="height: 50px; align-items: center; display: flex">
               <div id="home_subc" class="subchat dark_bg"
                    v-on:click="gotoSubchat(null, false)">
-                <i v-show="hasUnread(null)" id="home_notify"
-                   class="bi bi-chat-quote-fill relative left-0 z-50 text-orange-500"></i>
+                <i id="home_notify"
+                   class="bi bi-chat-quote-fill relative left-0 z-50 text-orange-500 hidden">
+                  <p class="hidden">{{ hasUnread(getSession(), true) }}</p>
+                </i>
                 <HomeIcon class="h-5 w-5"></HomeIcon>
                 <span class="relative left-[20px]">Home</span>
               </div>
@@ -106,6 +109,13 @@
               </div>
               <template v-if="this.chatroom.rank > 1">
                 <div class="w-full text-neutral-300">
+                  <template v-if="this.chatroom.rank > 2">
+                    <div class="subchat w-full flex items-center"
+                         v-on:click="createProcess()">
+                      <DocumentTextIcon class="h-5 w-5"></DocumentTextIcon>
+                      <span class="relative left-[20px]">Quick Note</span>
+                    </div>
+                  </template>
                   <template v-if="this.chatroom.rank > 3">
                     <div class="subchat w-full flex items-center"
                          v-on:click="gotoPlanner()">
@@ -122,6 +132,11 @@
                   </template>
                 </div>
               </template>
+              <div class="subchat w-full flex items-center"
+                   v-on:click="showFiles()">
+                <FolderIcon class="h-5 w-5"></FolderIcon>
+                <span class="relative left-[20px]">Files</span>
+              </div>
               <div style="width: 100%; height: 35px; padding-top: 5px"
                    class="px-2 flex relative items-center justify-between">
                 <span class="font-bold c_lightgray nopointer">Subchats</span>
@@ -137,8 +152,10 @@
                    class="subchat"
                    style="display: flex"
                    v-on:click="gotoSubchat(subchat.guid)">
-                <i v-show="hasUnread(subchat.guid)" :id="subchat.guid + '_notify'"
-                   class="bi bi-chat-quote-fill relative left-0 z-50 text-orange-500"></i>
+                <i :id="subchat.guid + '_notify'"
+                   class="bi bi-chat-quote-fill relative left-0 z-50 text-orange-500 hidden">
+                  <p class="hidden">{{ hasUnread(subchat.guid) }}</p>
+                </i>
                 <template v-if="subchat.type === 'screenshare'">
                   <WindowIcon class="h-5 w-5"></WindowIcon>
                 </template>
@@ -166,7 +183,7 @@
         </div>
       </div>
       <div id="clarifier_chatroom" :ref="'clarifier_chatroom'"
-           class="clarifier_chatroom flex overflow-clip mt-[60px]"
+           class="clarifier_chatroom flex overflow-clip mt-[55px]"
            v-on:click="closeModals()">
         <template v-if="overlayType === 'msg'">
           <div id="chat_section"
@@ -229,7 +246,7 @@
                         position: absolute; left: 350px;
                         padding: 0"
                  class="c_lightgray darkest_bg rounded-bl-md">
-              <div class="w-full h-[calc(100%-60px)] flex">
+              <div class="w-full h-[calc(100%-55px)] flex">
                 <div style="position: relative; top: 0; left: 0;
                             width: 100%;
                             aspect-ratio: 16 / 9"
@@ -305,7 +322,7 @@
                   </template>
                 </div>
               </div>
-              <div class="w-full h-[60px] flex items-center justify-center gap-x-4">
+              <div class="w-full h-[55px] flex items-center justify-center gap-x-4">
                 <template v-if="isStreamingVideo">
                   <button v-on:click="stopScreenshare()"
                           v-tooltip.top="{ content: 'Hang Up' }"
@@ -439,7 +456,12 @@
                         </div>
                         <div class="flex gap-x-2 text-neutral-400 text-xs ml-3">
                           <div style="pointer-events: none">
-                            {{ getHumanReadableDateText(msg.ts, true) }}
+                            <template v-if="!msg.isDraft">
+                              {{ getHumanReadableDateText(msg.ts, true) }}
+                            </template>
+                            <template v-else>
+                              <p class="font-bold">Sending...</p>
+                            </template>
                           </div>
                           <template v-if="msg.isEncrypted === true">
                             <i v-if="msg.decryptionFailed === false" class="bi bi-shield-lock ms-1"
@@ -457,7 +479,7 @@
                             </div>
                           </template>
                           <template v-if="msg.mType === 'Task'">
-                            <div class="ms-1 translate-y-1 c_orange h-4 w-4 inline-flex items-center justify-center"
+                            <div class="ms-1 c_orange h-4 w-4 inline-flex items-center justify-center"
                                  title="Planner Task">
                               <ViewColumnsIcon class="h-full w-full"/>
                             </div>
@@ -487,10 +509,12 @@
                             <i class="bi bi-reply-fill text-inherit"></i>
                           </button>
                           <template v-if="msg.editable === true">
-                            <button title="Edit" class="orange-hover"
-                                    v-on:click="editMessage(msg)">
-                              <i class="bi bi-pencil-fill text-inherit"></i>
-                            </button>
+                            <template v-if="!msg.mIsFile">
+                              <button title="Edit" class="orange-hover"
+                                      v-on:click="editMessage(msg)">
+                                <i class="bi bi-pencil-fill text-inherit"></i>
+                              </button>
+                            </template>
                             <button title="Remove" class="orange-hover"
                                     v-on:click="editMessage(msg, true)">
                               <i class="bi bi-trash-fill text-inherit"></i>
@@ -559,7 +583,9 @@
                         <div class="clientMessage">
                           <img :src="msg.msgURL"
                                :alt="msg.msg"
-                               :style="{maxWidth: mediaMaxWidth}">
+                               :style="{maxWidth: mediaMaxWidth}"
+                               style="cursor: zoom-in"
+                               v-on:click="showImage(msg.msgURL)">
                           <br>
                           <div>
                             <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png"
@@ -569,19 +595,24 @@
                         </div>
                       </template>
                       <template v-else-if="msg.mType === 'Image'">
-                        <div class="clientMessage">
+                        <div>
                           <img :src="msg.msgURL"
                                :alt="msg.msg"
-                               style="cursor: zoom-in"
+                               class="clientMessage"
                                :style="{maxWidth: mediaMaxWidth}"
-                               v-on:click="openURL(msg.msgURL)">
+                               style="cursor: zoom-in"
+                               v-on:click="showImage(msg.msgURL)">
                         </div>
                       </template>
                       <template v-else-if="msg.mType === 'Audio'">
                         <div class="clientMessage">
+                          <p class="pointer-events-none text-sm rounded-md mb-2
+                                    text-neutral-200 font-bold">
+                            {{ msg.fileName }}
+                          </p>
                           <audio controls preload="auto"
                                  class="uploadFileSnippet">
-                            <source :src="msg.msg">
+                            <source :src="msg.msgURL">
                             Your browser does not support playing audio.
                           </audio>
                         </div>
@@ -597,27 +628,51 @@
                       </template>
                       <template v-else-if="msg.mType === 'Reply'">
                         <div>
-                          <div class="mb-4 pl-2 text-neutral-400 border-l-8 border-l-zinc-900">
-                            <div class="flex items-center justify-between mb-2 px-2 py-1 rounded darkest_bg">
-                              <p class="text-xs text-neutral-400 font-bold pointer-events-none">
-                                Reply to {{ msg.source.src }}:
-                              </p>
-                              <p class="text-xs font-bold text-neutral-400 pointer-events-none">
+                          <div class="text-neutral-400 border-l-8 border-l-zinc-800">
+                            <div class="w-fit rounded-tr-md dark_bg py-1 pr-2">
+                              <p class="text-xs font-bold text-neutral-300 pointer-events-none">
                                 {{ getHumanReadableDateText(msg.source.time, true) }}
                               </p>
                             </div>
-                            <Markdown :id="'rsr_' + msg.guid"
-                                      class="py-1 px-2 w-fit mb-1 clientMessage markedView"
-                                      :source="msg.source.msg"
-                                      :breaks="true"
-                                      :plugins="plugins"
-                                      :style="{maxWidth: mediaMaxWidth}"/>
+                            <div class="p-2">
+                              <Markdown :id="'rsr_' + msg.guid"
+                                        class="py-1 px-2 w-fit mb-1 clientMessage markedView"
+                                        :source="msg.source.msg"
+                                        :breaks="true"
+                                        :plugins="plugins"
+                                        :style="{maxWidth: mediaMaxWidth}"/>
+                            </div>
+                            <div class="w-fit rounded-tr-md dark_bg py-1 pr-2">
+                              <p class="text-xs text-neutral-300 font-bold pointer-events-none">
+                                Reply to {{ msg.source.src }}:
+                              </p>
+                            </div>
                           </div>
                           <Markdown :id="'msg_' + msg.guid"
                                     class="clientMessage markedView w-fit"
                                     :source="msg.msg"
                                     :breaks="true"
                                     :plugins="plugins"/>
+                        </div>
+                      </template>
+                      <template v-else-if="msg.mType.includes('File')">
+                        <div class="clientMessage">
+                          <a :href="msg.msgURL"
+                             download
+                             v-tooltip.top="{content: 'Download File'}">
+                            <div class="my-1 cursor-pointer w-fit
+                                        flex items-center gap-x-2 btn_bg_primary">
+                              <template v-if="msg.mType === 'TextFile'">
+                                <DocumentTextIcon class="h-6 w-6"></DocumentTextIcon>
+                              </template>
+                              <template v-else>
+                                <FolderArrowDownIcon class="h-6 w-6"></FolderArrowDownIcon>
+                              </template>
+                              <p class="pointer-events-none text-sm text-neutral-200 font-bold">
+                                {{ msg.fileName }}
+                              </p>
+                            </div>
+                          </a>
                         </div>
                       </template>
                       <template v-else>
@@ -629,7 +684,7 @@
                       </template>
                     </div>
                     <div v-if="msg.reacts && msg.reacts.length > 0"
-                         style="display: flex; margin: 10px 0 0 50px">
+                         style="display: flex; margin: 5px 0 10px 50px">
                       <div v-for="reaction in msg.reacts" :key="reaction.src"
                            style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
                            class="darkest_bg c_lightgray gray-hover"
@@ -756,7 +811,7 @@
                         transition: 0.3s ease all;">
               <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
                 <div id="meme_boxes_container"
-                     style="width: auto; height: calc(90vh - 70px - 80px); position: absolute; top: 60px; left: 0">
+                     style="width: auto; height: calc(90vh - 70px - 80px); position: absolute; top: 55px; left: 0">
                   <div v-for="box in this.isFillingImgflipTemplate.boxes" :key="box.id"
                        :id="'imgflip_draggableText_' + box.id + '_div'"
                        class="imgflip_text"
@@ -847,13 +902,13 @@
           </div>
         </template>
         <template v-else-if="overlayType === 'knowledgefinder'"
-                  class="h-[calc(100%-60px)] w-full translate-y-[60px] overflow-clip
+                  class="h-[calc(100%-55px)] w-full translate-y-[55px] overflow-clip
                          darkest_bg lg:rounded-xl sm:border-[1px] sm:border-[rgba(174,174,183,0.25)]">
           <knowledgefinder :isoverlay="true" :srcguid="getSession()"
                            @close="setOverlay('msg'); prepareInputField()"/>
         </template>
       </div>
-      <div id="member_section" style="margin-top: 60px"
+      <div id="member_section" style="margin-top: 55px"
            class="member_section darkest_bg">
         <div style="width: 100%; height: 50px; display: flex; align-items: center">
         <span class="font-bold member_count c_lightgray nopointer"
@@ -1238,17 +1293,6 @@
               <span class="text-neutral-400 text-xs">Write messages and send files.</span>
             </div>
           </button>
-          <button v-on:click="createSubchatroom('screenshare')"
-                  id="new_subchat_type_screenshare" class="btn darkbutton mt-2 text-neutral-400"
-                  style="width: 100%; text-align: left; display: flex;
-                         align-items: center; border-radius: 10px">
-            <span style="font-size: 200%"><i class="bi bi-window-fullscreen"></i></span>
-            <div class="ml-3">
-              <span class="text-neutral-300">Screenshare Subchat</span>
-              <br>
-              <span class="text-neutral-400 text-xs">Share your screen for others.</span>
-            </div>
-          </button>
           <button v-on:click="createSubchatroom('webcam')"
                   id="new_subchat_type_webcam" class="btn darkbutton mt-2 text-neutral-400"
                   style="width: 100%; text-align: left; display: flex;
@@ -1258,6 +1302,17 @@
               <span class="text-neutral-300">Conference Subchat</span>
               <br>
               <span class="text-neutral-400 text-xs">Meet up, talk and video chat with others.</span>
+            </div>
+          </button>
+          <button v-on:click="createSubchatroom('screenshare')"
+                  id="new_subchat_type_screenshare" class="btn darkbutton mt-2 text-neutral-400"
+                  style="width: 100%; text-align: left; display: flex;
+                         align-items: center; border-radius: 10px">
+            <span style="font-size: 200%"><i class="bi bi-window-fullscreen"></i></span>
+            <div class="ml-3">
+              <span class="text-neutral-300">Screenshare Subchat</span>
+              <br>
+              <span class="text-neutral-400 text-xs">Share your screen for others.</span>
             </div>
           </button>
         </div>
@@ -1283,6 +1338,15 @@
             <source :src="uploadFileBase64" :type="uploadFileType">
             Your browser does not support playing audio.
           </audio>
+          <template v-else-if="uploadFileType.includes('zip')">
+            <FolderArrowDownIcon class="h-10 w-10"></FolderArrowDownIcon>
+          </template>
+          <template v-else-if="uploadFileType.includes('text')">
+            <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
+          </template>
+          <template v-else-if="uploadFileType.includes('pdf')">
+            <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
+          </template>
         </div>
       </template>
       <template v-if="uploadFileBase64 === ''">
@@ -1296,18 +1360,21 @@
                multiple v-on:change="handleUploadFileSelect"/>
       </template>
       <div id="confirm_snippet_loading" class="ml-2 my-2" style="display: none">
-        <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
+        <span class="animate-spin c_orange" role="status" aria-hidden="true"></span>
         <span class="jetb ms-2">Uploading...</span>
       </div>
       <template v-if="uploadFileBase64 !== ''">
-        <div style="width: 100%; display: flex; align-items: center; justify-items: center">
-          <button class="btn-outline-light darkbutton text-white"
-                  style="width: 90%; height: 2.5em; border-color: transparent;
+        <p class="text-neutral-300 font-bold">{{ this.uploadFileName }}</p>
+        <div class="mt-3 w-full">
+          <button class="btn-outline-light darkbutton text-white
+                         flex items-center justify-center"
+                  style="width: 90%; height: 2.5em;
+                         border-color: transparent;
                          border-radius: 1em; margin: auto"
                   title="Send"
                   v-on:click="addMessage">
             <span class="font-bold"><i class="bi bi-send mr-2"></i>Submit</span>
-            <span style="margin-left: 10px" class="c_lightgray"> {{ this.uploadFileType }}</span>
+            <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ this.uploadFileType }}</span>
           </button>
         </div>
       </template>
@@ -1394,6 +1461,35 @@
     <template v-slot:footer>
     </template>
   </modal>
+  <template v-if="isViewingProcess">
+    <template v-if="processGUID != null && processGUID !== ''">
+      <div class="session_settings h-full w-full">
+        <processviewer :isoverlay="true" :srcguid="processGUID" :chatguid="chatroom?.guid"
+                       @close="processGUID = ''; isViewingProcess = false"/>
+      </div>
+    </template>
+  </template>
+  <template v-if="isViewingFiles">
+    <div class="session_settings h-full w-full">
+      <fileviewer :isoverlay="true" :chatguid="chatroom?.guid"
+                  @close="isViewingFiles = false"/>
+    </div>
+  </template>
+  <modal
+    v-show="isViewingImage"
+    @close="isViewingImage = false">
+    <template v-slot:header>
+    </template>
+    <template v-slot:body>
+      <div class="h-[75vh] w-full flex justify-center">
+        <img :src="viewingImageURL" alt="No Content"
+             style="object-fit: contain"
+             class="h-full w-full">
+      </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
 </template>
 
 <script>
@@ -1401,6 +1497,8 @@
 import modal from '../../components/Modal.vue'
 import taskcontainer from '../../components/TaskContainer.vue'
 import knowledgefinder from '../../views/apps/KnowledgeFinderView'
+import processviewer from '../../views/apps/ProcessView'
+import fileviewer from '../../views/apps/FileExplorerView'
 import WRTC from '@/libs/wRTC'
 // External
 import Markdown from 'vue3-markdown-it'
@@ -1425,6 +1523,9 @@ import {
 import {
   BookOpenIcon,
   DocumentArrowUpIcon,
+  DocumentTextIcon,
+  FolderArrowDownIcon,
+  FolderIcon,
   HashtagIcon,
   HomeIcon,
   SignalIcon,
@@ -1449,6 +1550,8 @@ export default {
     XMarkIcon,
     DocumentArrowUpIcon,
     GifIcon,
+    DocumentTextIcon,
+    FolderArrowDownIcon,
     QrCodeIcon,
     ViewColumnsIcon,
     BookOpenIcon,
@@ -1461,7 +1564,10 @@ export default {
     UserCircleIcon,
     UserPlusIcon,
     MoonIcon,
-    PhoneXMarkIcon
+    PhoneXMarkIcon,
+    processviewer,
+    fileviewer,
+    FolderIcon
   },
   data () {
     return {
@@ -1508,10 +1614,11 @@ export default {
       message_section: null,
       uploadFileBase64: '',
       uploadFileType: '',
+      uploadFileName: '',
       messageEditing: {},
       messageReplyingTo: {},
       imgflip_template: {},
-      mediaMaxWidth: '300px',
+      mediaMaxWidth: 'clamp(200px, 100%, 400px)',
       // Conditions
       isModalVisible: false,
       isViewingGIFSelection: false,
@@ -1534,8 +1641,11 @@ export default {
       isEditingProfile: false,
       isTransferring: false,
       canShowSidebar: true,
+      isViewingProcess: false,
+      isViewingFiles: false,
+      isViewingImage: false,
+      // Etc
       overlayType: 'msg',
-      //
       lastKeyPressed: '',
       viewedUserProfile: {
         id: -1,
@@ -1550,6 +1660,8 @@ export default {
         active: true
       },
       params: false,
+      processGUID: '',
+      viewingImageURL: '',
       plugins: [
         {
           plugin: markdownItMermaid
@@ -1621,11 +1733,9 @@ export default {
       // this.toggleElement('init_loading', 'flex')
       window.addEventListener('resize', this.resizeCanvas, false)
       this.resizeCanvas()
-      // Save elements to gain performance boost by avoiding too many lookups
-      this.message_section = this.$refs.messages_section
       document.addEventListener('keydown', this.handleGlobalKeyEvents, false)
       // Set message section with its scroll event
-      this.message_section.addEventListener('scroll', this.checkScroll, false)
+      this.$refs.messages_section.addEventListener('scroll', this.checkScroll, false)
       // Broadcast channels to listen to firebase cloud messaging notifications
       const bc = new BroadcastChannel('dlChannel')
       bc.onmessage = event => {
@@ -1753,7 +1863,7 @@ export default {
         const destId = event.data.data.subchatGUID
         if (!this.$route.fullPath.includes(destId)) {
           this.$store.commit('addClarifierTimestampNew', {
-            id: event.data.data.subchatGUID,
+            id: destId,
             ts: new Date().getTime()
           })
           const notify = document.getElementById(destId + '_notify')
@@ -1844,6 +1954,15 @@ export default {
       // This function gets called upon receiving a message via the websocket connection
       const message = await this.processRawMessage(msg)
       if (message.mType == null) return
+      // Check if message was sent from this device
+      const indexTmp = this.messages.findIndex(
+        element => element.isDraft && element.src === this.$store.state.username && element.msg === message.msg
+      )
+      if (indexTmp > -1) {
+        this.messages[indexTmp] = message
+        return
+      }
+      // Continue
       if (message.mType === 'EditNotification') {
         const response = JSON.parse(message.msg)
         if (response.uniMessageGUID == null) return
@@ -1929,13 +2048,19 @@ export default {
         }
         return
       }
-      const distanceToBottom = (this.message_section.scrollTop * -1)
-      if (distanceToBottom < 50) {
+      const distanceToBottom = (this.$refs.messages_section.scrollTop * -1)
+      if (distanceToBottom < 100) {
         this.scrollToBottom(false)
       }
       this.removeUserFromActivity(message.src)
-      this.messages.unshift(message)
       this.extraSkipCount++
+      const index = this.messages.indexOf(message.msg)
+      if (index > -1) {
+        // Message found -> declare sent
+      } else {
+        // Message not found -> add to messages
+        this.messages.unshift(message)
+      }
       if (message.mType === 'RegistrationNotification') {
         this.getClarifierMetaData()
       }
@@ -2041,7 +2166,19 @@ export default {
       // Handle normal message
       const messageContent = this.new_message.substring(0, 5000)
       const encryptedMessage = await this.encryptPayload(messageContent)
-      this.connection.send('[c:MSG<ENCR]' + encryptedMessage)
+      // Pre-Display message
+      this.messages.unshift(
+        await this.processRawMessage(JSON.stringify({
+          ts: DateTime.now().toISO(),
+          src: this.$store.state.username,
+          msg: '[c:MSG<ENCR]' + encryptedMessage,
+          isDraft: true
+        }), true)
+      )
+      // Send message to server
+      // this.connection.send('[c:MSG<ENCR]' + encryptedMessage)
+      setTimeout(() => this.connection.send('[c:MSG<ENCR]' + encryptedMessage), 1000)
+      // Post-Message Actions
       this.new_message = ''
       this.focusComment(true)
       setTimeout(() => this.auto_grow(), 0)
@@ -2198,8 +2335,10 @@ export default {
           })
           const notify = document.getElementById('home_notify')
           if (notify != null) {
-            notify.style.opacity = '0'
-            notify.style.display = 'none'
+            setTimeout(() => {
+              notify.style.opacity = '0'
+              notify.style.display = 'none'
+            }, 1000)
           }
         }
         this.members = []
@@ -2224,8 +2363,10 @@ export default {
         })
         const notify = document.getElementById(this.currentSubchat.guid + '_notify')
         if (notify != null) {
-          notify.style.opacity = '0'
-          notify.style.display = 'none'
+          setTimeout(() => {
+            notify.style.opacity = '0'
+            notify.style.display = 'none'
+          }, 1000)
         }
         // Parse JSON serialized users for performance and determine current user's ID
         this.members = []
@@ -2240,10 +2381,10 @@ export default {
       const messagesSection = this.$refs.messages_section
       if (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam' || this.params) {
         messagesSection.style.width = '350px'
-        this.mediaMaxWidth = '260px'
+        this.mediaMaxWidth = 'clamp(200px, 100%, 255px)'
       } else {
         messagesSection.style.width = 'initial'
-        this.mediaMaxWidth = '300px'
+        this.mediaMaxWidth = 'clamp(200px, 100%, 400px)'
       }
       document.title = this.chatroom.t
       if (this.isSubchat) {
@@ -2325,7 +2466,7 @@ export default {
         mermaid.init()
       }, 0)
     },
-    processRawMessage: async function (msg) {
+    processRawMessage: async function (msg, draft = false) {
       if (msg.substr(0, 6) === '[c:SC]') {
         // Incoming ActionTrigger message (former Screen Share Payload)
         const tmp = msg.substr(6)
@@ -2436,16 +2577,35 @@ export default {
       } else if (message.msg.includes('[c:IMG]') === true) {
         message.mType = 'Image'
         message.apiResponse = true
+        message.mIsFile = true
         message.msg = message.msg.substring(7)
       } else if (message.msg.includes('[c:AUD]') === true) {
         message.mType = 'Audio'
+        message.apiResponse = true
+        message.mIsFile = true
         message.msg = message.msg.substring(7)
       } else if (message.msg.includes('[c:TASK]') === true) {
         message.mType = 'Task'
+        message.apiResponse = true
         message.msg = message.msg.substring(8)
       } else if (message.msg.includes('[c:REPLY]') === true) {
         message.mType = 'Reply'
         message.msg = message.msg.substring(9)
+      } else if (message.msg.includes('[c:TXT]') === true) {
+        message.mType = 'TextFile'
+        message.apiResponse = true
+        message.mIsFile = true
+        message.msg = message.msg.substring(7)
+      } else if (message.msg.includes('[c:ZIP]') === true) {
+        message.mType = 'ZipFile'
+        message.apiResponse = true
+        message.mIsFile = true
+        message.msg = message.msg.substring(7)
+      } else if (message.msg.includes('[c:FIL]') === true) {
+        message.mType = 'File'
+        message.apiResponse = true
+        message.mIsFile = true
+        message.msg = message.msg.substring(7)
       }
       // Reactions
       if (message.reacts != null) {
@@ -2459,7 +2619,7 @@ export default {
       Don't add a header (avatar, name) if the last message came from the same source and similar time
        */
       message.header = true
-      if (message.apiResponse !== true) {
+      if (message.src === '_server' || message.apiResponse !== true) {
         if (this.last_message.src === message.src) {
           // If the sources are identical, check if the time was similar
           let timeDiff = message.time.toMillis() - this.last_message.time.toMillis()
@@ -2519,13 +2679,14 @@ export default {
           message.reacts = []
         }
       }
-      if (message.mType === 'Image' || message.mType === 'GIF') {
+      if (message.mIsFile || message.mType === 'GIF') {
         try {
           const tmp = JSON.parse(message.msg)
           message.msg = tmp.msg
           message.msgURL = tmp.url
+          message.fileName = tmp.fileName
         } catch (e) {
-          console.debug('Image Message Parsing Error')
+          console.debug('File Message Parsing Error')
         }
       } else if (message.mType === 'Reply') {
         try {
@@ -2533,15 +2694,17 @@ export default {
           message.msg = tmp.reply
           message.source = tmp.src
         } catch (e) {
-          console.debug('Image Message Parsing Error')
+          console.debug('Reply Message Parsing Error')
         }
       }
       message.tagActive = message.msg.includes('@' + this.$store.state.username) === true
-      // Set this message as the last that was processed
-      this.last_message = message
-      this.last_message.msgDay = msgDay
-      this.last_message.msgMonth = msgMonth
-      this.last_message.msgYear = msgYear
+      if (!draft) {
+        // Set this message as the last that was processed
+        this.last_message = message
+        this.last_message.msgDay = msgDay
+        this.last_message.msgMonth = msgMonth
+        this.last_message.msgYear = msgYear
+      }
       return new Promise((resolve) => {
         resolve(message)
       })
@@ -2819,11 +2982,14 @@ export default {
       this.isViewingUserProfile = false
       this.isViewingGIFSelection = false
       this.isUploadingSnippet = false
+      this.isViewingFiles = false
+      this.isViewingImage = false
       this.isTaggingUser = false
       this.isSelectingImgflipTemplate = false
       this.isFillingImgflipTemplate.active = false
       this.isTransferring = false
       this.imgflip_template = {}
+      this.viewingImageURL = ''
       this.hideUserProfile()
       this.hideSessionSettings()
       this.hideNewSubchatWindow()
@@ -2889,7 +3055,7 @@ export default {
       } else {
         this.inputField.style.borderRadius = '6px 0 0 6px'
       }
-      this.message_section.style.bottom = (this.inputField.scrollHeight - 40) + 'px'
+      this.$refs.messages_section.style.bottom = (this.inputField.scrollHeight - 40) + 'px'
     },
     resizeCanvas: function () {
       if (window.innerWidth >= 1025) {
@@ -3246,6 +3412,7 @@ export default {
       this.handleUploadFileSelect(evt, true)
     },
     handleUploadFileSelect: async function (evt, drop = false) {
+      if (!evt) return
       evt.stopPropagation()
       evt.preventDefault()
       // Start uploading animation
@@ -3258,9 +3425,11 @@ export default {
       }
       this.uploadFileBase64 = await this.getBase64(files[0])
       this.uploadFileType = files[0].type
+      this.uploadFileName = files[0].name
       this.toggleElement('confirm_snippet_loading', 'flex')
     },
     handleDragOver: function (evt) {
+      if (!evt) return
       evt.stopPropagation()
       evt.preventDefault()
       evt.dataTransfer.dropEffect = 'copy'
@@ -3322,9 +3491,9 @@ export default {
       this.toggleElement('confirm_settings_loading', 'flex')
     },
     checkScroll: function () {
-      const distanceToBottom = (this.message_section.scrollTop * -1)
-      const distanceToTop = this.message_section.scrollHeight -
-        this.message_section.clientHeight - distanceToBottom
+      const distanceToBottom = (this.$refs.messages_section.scrollTop * -1)
+      const distanceToTop = this.$refs.messages_section.scrollHeight -
+        this.$refs.messages_section.clientHeight - distanceToBottom
       // If we're scrolling up, show that we're seeing older messages
       if (distanceToBottom > 0) {
         document.getElementById('scroll_to_bottom').style.opacity = '1'
@@ -3396,18 +3565,30 @@ export default {
       if (this.connection == null) return
       this.addMessagePar('[c:SC]' + '[offline]' + this.$store.state.username)
       this.connection.close()
+      this.setTimestampRead()
+      this.messages = []
+    },
+    setTimestampRead: function () {
+      let notify = null
       if (!this.isSubchat) {
         this.$store.commit('addClarifierTimestampRead', {
           id: this.getSession(),
           ts: new Date().getTime()
         })
+        notify = document.getElementById('home_notify')
       } else {
         this.$store.commit('addClarifierTimestampRead', {
           id: this.currentSubchat.guid,
           ts: new Date().getTime()
         })
+        notify = document.getElementById(this.currentSubchat.guid + '_notify')
       }
-      this.messages = []
+      if (notify != null) {
+        setTimeout(() => {
+          notify.style.opacity = '0'
+          notify.style.display = 'hidden'
+        }, 1000)
+      }
     },
     resetStats: function () {
       // Reset session specific stats
@@ -3424,7 +3605,9 @@ export default {
       this.toggleElement('confirm_snippet_loading', 'flex')
       const content = JSON.stringify({
         type: this.uploadFileType,
-        payload: this.uploadFileBase64
+        payload: this.uploadFileBase64,
+        name: this.uploadFileName,
+        chatroomGUID: this.chatroom.guid
       })
       this.$Worker.execute({
         action: 'api',
@@ -3460,26 +3643,29 @@ export default {
       }
       const contentURL = this.$store.state.serverIP + '/m6/get/' + response.guid
       let prefix
-      let payload
       if (this.uploadFileType.includes('audio')) {
         prefix = '[c:AUD]'
-        payload = contentURL
-      } else {
+      } else if (this.uploadFileType.includes('image')) {
         prefix = '[c:IMG]'
-        // Add the link as a message, so it shows up in the chat
-        payload = JSON.stringify({
-          msg: '![Snippet](' + contentURL + ')',
-          url: contentURL
-        })
+      } else if (this.uploadFileType.includes('text')) {
+        prefix = '[c:TXT]'
+      } else if (this.uploadFileType.includes('compressed')) {
+        prefix = '[c:ZIP]'
+      } else {
+        prefix = '[c:FIL]'
       }
+      // Add the link as a message, so it shows up in the chat
+      const payload = JSON.stringify({
+        msg: '![Snippet](' + contentURL + ')',
+        url: contentURL,
+        fileName: this.uploadFileName
+      })
       this.addMessagePar(prefix + '[c:MSG<ENCR]' +
         await this.encryptPayload(payload)
       )
-      // Post the new_message content in case the user has written a comment
-      this.addMessagePar(this.new_message)
       this.uploadFileBase64 = ''
       this.uploadFileType = ''
-      this.new_message = ''
+      this.uploadFileName = ''
       this.hideAllWindows()
       this.auto_grow()
     },
@@ -3528,7 +3714,7 @@ export default {
       this.focusComment(true)
       setTimeout(() => {
         this.auto_grow()
-        document.getElementById(msg.guid).style.backgroundColor = '#192129'
+        document.getElementById(msg.guid).style.backgroundColor = '#71717A'
         const editElem = document.getElementById('edit_' + this.messageReplyingTo.guid)
         if (editElem != null) editElem.style.display = 'flex'
       }, 0)
@@ -3552,20 +3738,38 @@ export default {
       }
     },
     scrollToBottom: function (focusInput = true) {
-      this.message_section.scrollTop = 0
+      this.$refs.messages_section.scrollTop = 0
       if (focusInput) this.focusComment(true)
     },
-    hasUnread: function (guid) {
+    hasUnread: function (guid, isHome = false) {
+      let hasUnread = false
       if (guid === null) {
         guid = this.getSession()
       }
-      const timestamp = this.$store.getters.getTimestamp(guid)
-      if (timestamp == null) return false
-      let lastMessageTS = timestamp.tsNew
-      if (lastMessageTS == null) lastMessageTS = 0
-      let lastReadTS = timestamp.tsRead
-      if (lastReadTS == null) lastReadTS = 0
-      return lastReadTS < lastMessageTS
+      this.$store.getters.getTimestamp(guid)
+        .then((timestamp) => {
+          if (timestamp == null) return false
+          const lastMessageTS = timestamp.tsNew
+          if (lastMessageTS == null || lastMessageTS <= 0) {
+            return false
+          }
+          let lastReadTS = timestamp.tsRead
+          if (lastReadTS == null) lastReadTS = 0
+          hasUnread = lastReadTS < lastMessageTS
+        })
+        .finally(() => {
+          if (hasUnread) {
+            let elemId = guid + '_notify'
+            if (isHome) elemId = 'home_notify'
+            const notify = document.getElementById(elemId)
+            if (notify != null) {
+              setTimeout(() => {
+                notify.style.opacity = '1'
+                notify.style.display = 'block'
+              }, 0)
+            }
+          }
+        })
     },
     generateRSAKeyPair: async function (uniChatroomGUID, force = false) {
       if (uniChatroomGUID == null || uniChatroomGUID === '') return
@@ -3796,7 +4000,7 @@ export default {
         if (dummyText) {
           ctx.fillStyle = 'white'
           ctx.textAlign = 'center'
-          ctx.font = "bold 24px 'Open Sans'"
+          ctx.font = 'bold 24px \'Open Sans\''
           ctx.fillText(dummyText, width / 2, height / 2)
         }
         const stream = canvas.captureStream()
@@ -4650,7 +4854,7 @@ export default {
       this.startCall()
       const messagesSection = this.$refs.messages_section
       messagesSection.style.width = '350px'
-      this.mediaMaxWidth = '260px'
+      this.mediaMaxWidth = 'clamp(200px, 100%, 255px)'
     },
     getUserFromId: function (userId) {
       for (let i = 0; i < this.members.length; i++) {
@@ -4658,6 +4862,47 @@ export default {
           return this.members[i].usr
         }
       }
+    },
+    createProcess: async function () {
+      return new Promise((resolve) => {
+        // Retrieve knowledge
+        let knowledge
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/get?src=' + this.chatroom.guid + '&from=clarifier'
+        }).then((data) => {
+          knowledge = data.result
+          // Create process
+          const payload = {
+            title: 'Quick Notes',
+            description: '',
+            keywords: 'quick,notes,chat',
+            knowledgeGUID: knowledge.guid
+          }
+          this.$Worker.execute({
+            action: 'api',
+            method: 'post',
+            url: 'm9/create',
+            body: JSON.stringify(payload)
+          }).then((data) => {
+            this.processGUID = data.result
+            this.isViewingProcess = true
+          })
+            .then(() => resolve())
+            .catch((err) => {
+              console.debug(err.message)
+            })
+        })
+      })
+    },
+    showFiles: function () {
+      this.isViewingFiles = true
+    },
+    showImage: function (url) {
+      if (!url) return
+      this.isViewingImage = true
+      this.viewingImageURL = url
     }
   }
 }
@@ -4792,7 +5037,7 @@ export default {
 }
 
 .header-margin {
-  min-height: 60px;
+  min-height: 55px;
   box-shadow: 0 0 5px 5px black;
   z-index: 3;
   position: relative;
@@ -4834,7 +5079,7 @@ export default {
 
 .clarifier_chatroom {
   position: absolute;
-  @apply h-[calc(100%-60px)];
+  @apply h-[calc(100%-55px)];
 }
 
 .channel_section::-webkit-scrollbar {
@@ -4856,7 +5101,7 @@ export default {
 .sidebar2 {
   opacity: 0;
   width: 0;
-  height: calc(100% - 60px);
+  height: calc(100% - 55px);
   position: fixed;
   z-index: 90;
   top: 0;
@@ -4877,7 +5122,7 @@ export default {
   z-index: 100;
   position: absolute;
   right: 0;
-  height: calc(100% - 60px);
+  height: calc(100% - 55px);
   opacity: 0;
   transition: ease-in-out all 0.2s;
 }
@@ -5157,7 +5402,7 @@ export default {
   min-width: 50px;
   max-width: 100%;
   min-height: 50px;
-  max-height: 100%;
+  max-height: calc(100% - 10rem);
   margin: auto;
 }
 
@@ -5176,7 +5421,7 @@ export default {
 
 .scroll_to_bottom {
   position: absolute;
-  bottom: 60px;
+  bottom: 55px;
   height: 20px;
   width: calc(100% - 20px);
   border-radius: 20px;
@@ -5196,7 +5441,7 @@ export default {
   width: calc(100% - 20px);
   font-weight: bold;
   transition: 0.3s opacity;
-  max-height: calc(100% - 60px - 50px - 80px - 10px);
+  max-height: calc(100% - 55px - 50px - 80px - 10px);
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -5212,7 +5457,7 @@ export default {
 
 .imgflip_text {
   width: calc(100% - 330px);
-  height: 60px;
+  height: 55px;
   position: absolute;
   left: 320px;
   text-transform: uppercase;

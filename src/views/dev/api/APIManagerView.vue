@@ -1,7 +1,7 @@
 <template>
   <div
     style="min-height: 100%; background-color: #131313; overflow-x: clip">
-    <div class="container mt-[60px]">
+    <div class="container mt-[55px]">
       <div id="title" class="shadow-box" style="width: 100%; border: 2px solid white; border-radius: 1em">
         <div class="px-3 pt-2" style="display: flex; justify-content: space-between">
           <div style="display: flex">

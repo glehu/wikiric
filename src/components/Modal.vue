@@ -69,7 +69,7 @@ export default {
 }
 
 .modal {
-  @apply rounded-lg max-h-[calc(90dvh-60px)] max-w-[95dvw];
+  @apply rounded-lg max-h-[calc(95dvh-55px)] max-w-[95dvw];
   box-shadow: black 2px 2px 10px 1px;
   overflow: hidden;
   display: flex;
@@ -78,7 +78,7 @@ export default {
   width: fit-content;
   top: unset;
   left: unset;
-  transform: translateY(30px);
+  transform: translateY(10px);
 }
 
 .modal-header,

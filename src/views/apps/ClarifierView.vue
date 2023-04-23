@@ -1,9 +1,9 @@
 <template>
   <div id="clarifier_view_elem"
-       class="darkest_bg w-full h-[calc(100%-60px)] absolute top-[60px] overflow-x-hidden overflow-y-auto">
+       class="darkest_bg w-full h-[calc(100%-55px)] absolute top-[55px] overflow-x-hidden overflow-y-auto">
     <div class="wrapper min-h-full w-full">
       <!-- Active Sessions -->
-      <div class="col-span-1 lg:col-span-2 xl:h-full">
+      <div class="col-span-1 md:col-span-2 xl:h-full">
         <div class="row flex justify-center items-center xl:h-full">
           <div class="w-full xl:h-full">
             <div class="text-white p-2 rounded-lg xl:w-full xl:h-full">
@@ -124,7 +124,7 @@
       <div class="mb-4">
         <div class="row flex justify-center items-center">
           <div class="w-full max-w-xl">
-            <div class="text-white mx-4 p-4 rounded-lg">
+            <div class="text-white mr-4 p-2 rounded-lg">
               <div class="md:mt-0">
                 <h1 class="font-bold mb-2 text-3xl text-neutral-300"
                     style="pointer-events: none">
@@ -141,8 +141,7 @@
                        v-on:keyup="checkInput()"
                        placeholder="Invite ID or Name..."
                        class="font-bold px-2 py-1 my-3 dark_bg text-neutral-300 rounded-lg
-                                border-2 border-zinc-600 placeholder-neutral-400"
-                       style="width: 100%; font-size: 150%"
+                              border-2 border-zinc-600 placeholder-neutral-400 w-full text-lg"
                        v-on:keyup.enter="joinOrCreate()">
                 <button id="btn_join_session"
                         :ref="'btn_join_session'"
@@ -391,11 +390,15 @@ export default {
       })
     },
     hasUnread: function (guid) {
-      if (guid == null) return false
+      if (guid === null) {
+        return false
+      }
       const timestamp = this.$store.getters.getTimestamp(guid)
       if (timestamp == null) return false
-      let lastMessageTS = timestamp.tsNew
-      if (lastMessageTS == null) lastMessageTS = 0
+      const lastMessageTS = timestamp.tsNew
+      if (lastMessageTS == null || lastMessageTS <= 0) {
+        return false
+      }
       let lastReadTS = timestamp.tsRead
       if (lastReadTS == null) lastReadTS = 0
       return lastReadTS < lastMessageTS
@@ -514,7 +517,7 @@ export default {
   min-height: 80px
 }
 
-@media only screen and (min-width: 1024px) {
+@media only screen and (min-width: 768px) {
   .wrapper {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -528,6 +531,7 @@ export default {
 #btn_join_session,
 #btn_create_session {
   padding: 0;
+  min-width: 65px;
   width: 25%;
   opacity: 0.45;
   transition: ease-in-out all 0.5s;

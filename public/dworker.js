@@ -43,6 +43,7 @@ const wConnect = () => {
       }
     }
     ws.send(_t)
+    bc.postMessage('nav_init_notification')
     if (_interval2) clearInterval(_interval2)
     _interval2 = setInterval(() => {
       checkWConnect()

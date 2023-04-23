@@ -1,6 +1,6 @@
 <template>
   <div class="h-full w-full md:flex items-center justify-center overflow-x-hidden">
-    <form class="login grid grid-cols-1 md:flex pt-[60px]" @submit.prevent="login()">
+    <form class="login grid grid-cols-1 md:flex pt-[55px]" @submit.prevent="login()">
       <section class="flex justify-center">
         <div class="container p-3 h-full">
           <div class="justify-center items-center h-full">
