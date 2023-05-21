@@ -10,8 +10,9 @@
           <div class="flex-shrink-0 flex items-center text-neutral-200 font-bold cursor-pointer text-2xl"
                v-on:click="$router.push('/')">
             <div class="w-[65px] flex items-center justify-center">
-              <img src='@/assets/wikiric/logo-wikirig-01-ganz-hellgrau.png' alt="Logo"
-                   style="max-width: 40px; max-height: 40px; object-fit: contain; opacity: 85%;">
+              <img src='@/assets/wikiric/wikiric-logo-big.webp' alt="Logo"
+                   class="logo"
+                   style="max-width: 32px; max-height: 32px; object-fit: contain;">
             </div>
           </div>
           <DisclosureButton
@@ -25,8 +26,9 @@
           <div class="hidden sm:flex flex-shrink-0 items-center text-neutral-200 font-bold cursor-pointer text-2xl"
                v-on:click="$router.push('/')">
             <div class="w-[60px] flex items-center justify-center">
-              <img src='@/assets/wikiric/logo-wikirig-01-ganz-hellgrau.png' alt="Logo"
-                   style="max-width: 32px; max-height: 32px; object-fit: contain; opacity: 85%;">
+              <img src='@/assets/wikiric/wikiric-logo-big.webp' alt="Logo"
+                   class="logo"
+                   style="max-width: 32px; max-height: 32px; object-fit: contain">
             </div>
           </div>
           <div class="hidden sm:block">
@@ -109,7 +111,7 @@
             </div>
           </div>
         </div>
-        <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+        <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6">
           <Menu as="div" class="ml-3 relative">
             <div>
               <MenuButton

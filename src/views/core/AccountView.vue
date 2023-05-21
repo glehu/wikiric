@@ -11,18 +11,10 @@
         </h2>
         <div class="wrapper">
           <div id="apps">
-            <div class="card text-white pb-3 shadow-box">
-              <h3 class="p-1">Apps</h3>
+            <div class="card text-white pb-3 p-2 shadow-box">
+              <h3 class="p-3">Apps</h3>
               <section
                 class="container">
-                <div class="md:flex justify-between text-white mt-3"
-                     style="border-radius: 1rem;">
-                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
-                          v-on:click="gotoPlanner">
-                    <i class="bi bi-wrench-adjustable-circle p-1"></i><span class="font-bold"> Planner</span>
-                  </button>
-                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">Kanban Board</h3>
-                </div>
                 <div class="md:flex justify-between text-white mt-3"
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
@@ -35,7 +27,7 @@
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
                           v-on:click="gotoAPI">
-                    <i class="bi bi-hurricane"/><span class="font-bold"> Mockingbird</span>
+                    <i class="bi bi-hurricane p-1"/><span class="font-bold"> Mockingbird</span>
                   </button>
                   <h3 class="hidden lg:block text-end" style="font-weight: lighter">SOAP/REST API Testing</h3>
                 </div>
@@ -43,10 +35,10 @@
             </div>
           </div>
           <div id="account">
-            <div class="card text-white pb-3 shadow-box">
-              <h3 class="p-1">What's next?</h3>
+            <div class="card text-white pb-3 p-2 shadow-box">
+              <h3 class="p-3">What's next?</h3>
               <section
-                class="container">
+                class="container hidden">
                 <div class="md:flex justify-between text-white mt-3"
                      style="border-radius: 1rem;">
                   <div class="flex">
@@ -73,7 +65,7 @@
                 </div>
               </section>
               <section
-                class="container">
+                class="container hidden">
                 <div class="md:flex justify-between text-white mt-3"
                      style="border-radius: 1rem;">
                   <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
@@ -129,16 +121,9 @@ import { Base64 } from 'js-base64'
 
 export default {
   data () {
-    return {
-      angleC3: '180',
-      colorA2: 'rebeccapurple',
-      colorB1: 'darkblue'
-    }
+    return {}
   },
   computed: {
-    bg3 () {
-      return `linear-gradient(${this.angleC3}deg, ${this.colorB1}, ${this.colorA2})`
-    },
     cartTotal () {
       let total = 0
       for (let i = 0; i < this.$store.state.cart.length; i++) {

@@ -57,9 +57,9 @@
                   <div
                     class="absolute bottom-0 right-0 p-4 mr-8 mb-8 border-b-[4px] border-r-[4px]
                            border-dotted border-b-fuchsia-500 border-r-fuchsia-500 flex items-baseline pointer-events-">
-                    <img src='@/assets/wikiric/logo-wikirig-01-ganz-weiss.png' alt="Logo"
-                         style="max-width: 48px; max-height: 48px; object-fit: contain; opacity: 85%;">
-                    <span class="font-bold text-4xl -translate-x-2.5 text-white">ikiric</span>
+                    <img src='@/assets/wikiric/wikiric-logo-big.webp' alt="Logo"
+                         style="max-width: 76px; max-height: 76px; object-fit: contain">
+                    <span class="font-bold text-5xl text-white ml-1">wikiric</span>
                   </div>
                 </template>
               </div>
@@ -164,7 +164,7 @@
       </div><!-- Demo Wrapper End -->
     </div>
     <div style="color: white; width: 100%;
-              display: flex; padding: 20px 5vw 20px 5vw"
+              display: flex; padding: 20px 5vw 100px 5vw"
          class="b_darkergray">
       <div style="width: 100%" class="wrapper"><!-- Demo Wrapper -->
         <div style="width: 100%; display: flex; justify-content: center">

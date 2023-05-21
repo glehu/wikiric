@@ -166,13 +166,22 @@
                 </template>
                 <template v-else>
                   <div class="rounded w-full">
+                    <div class="my-1 p-1">
+                      <button class="btn_small_icon text-neutral-300"
+                              v-on:click="isAddingMedia = true">
+                        <DocumentArrowUpIcon
+                          class="mr-3 h-6 w-6"
+                          aria-hidden="true"
+                        />
+                        Add File
+                      </button>
+                    </div>
                     <textarea :id="segment.event.guid + '_description_edit'"
                               v-model="segment.event.desc"
-                              v-on:blur="updateEvent(segment.event)"
                               maxlength="3000"
                               rows="10"
                               class="p-2 mb-2 dark_bg text-neutral-200 w-full input"></textarea>
-                    <button class="editSubmit">
+                    <button class="editSubmit" v-on:click="updateEvent(segment.event)">
                       Submit
                     </button>
                   </div>
@@ -344,14 +353,23 @@
                           </template>
                           <template v-else>
                             <div class="rounded w-full">
-                            <textarea :id="element.event.guid + '_description_edit'"
-                                      v-model="element.event.desc"
-                                      v-on:blur="updateEvent(element.event)"
-                                      maxlength="3000"
-                                      rows="10"
-                                      class="p-2 mb-2 dark_bg text-neutral-200 w-full input"></textarea>
-                              <button
-                                class="editSubmit">
+                              <div class="my-1 p-1">
+                                <button class="btn_small_icon text-neutral-300"
+                                        v-on:click="isAddingMedia = true">
+                                  <DocumentArrowUpIcon
+                                    class="mr-3 h-6 w-6"
+                                    aria-hidden="true"
+                                  />
+                                  Add File
+                                </button>
+                              </div>
+                              <textarea :id="element.event.guid + '_description_edit'"
+                                        v-model="element.event.desc"
+                                        maxlength="3000"
+                                        rows="10"
+                                        class="p-2 mb-2 dark_bg text-neutral-200 w-full input"></textarea>
+                              <button v-on:click="updateEvent(element.event)"
+                                      class="editSubmit">
                                 Submit
                               </button>
                             </div>
@@ -441,6 +459,72 @@
       <template v-slot:footer>
       </template>
     </modal>
+    <modal
+      v-show="isAddingMedia"
+      @close="cancelAddMedia">
+      <template v-slot:header>
+        Add File
+      </template>
+      <template v-slot:body>
+        <template v-if="uploadFileType !== ''">
+          <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px"
+               class="markedView max-w-[400px]">
+            <img v-if="uploadFileType.includes('image')"
+                 class="uploadFileSnippet"
+                 v-bind:src="uploadFileBase64" :alt="'&nbsp;'"/>
+            <audio v-else-if="uploadFileType.includes('audio')"
+                   controls preload="auto"
+                   class="uploadFileSnippet">
+              <source :src="uploadFileBase64" :type="uploadFileType">
+              Your browser does not support playing audio.
+            </audio>
+            <template v-else-if="uploadFileType.includes('zip')">
+              <FolderArrowDownIcon class="h-10 w-10"></FolderArrowDownIcon>
+            </template>
+            <template v-else-if="uploadFileType.includes('text')">
+              <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
+            </template>
+            <template v-else-if="uploadFileType.includes('pdf')">
+              <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
+            </template>
+          </div>
+        </template>
+        <input type="file" class="file_input" id="process_add_media" :ref="'process_add_media'" name="files[]"
+               style="width: 100%"
+               multiple v-on:change="handleUploadFileSelect"/>
+        <template v-if="uploadFileBase64 !== ''">
+          <p class="text-neutral-300 font-bold">{{ this.uploadFileName }}</p>
+          <div class="mt-3 w-full">
+            <button class="darkbutton text-white p-2 w-full
+                           flex items-center justify-center rounded-full"
+                    style="height: 2.5em;
+                           border-color: transparent; margin: auto"
+                    title="Send"
+                    v-on:click="uploadSnippet">
+              <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Submit</span>
+              <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ this.uploadFileType }}</span>
+            </button>
+          </div>
+        </template>
+      </template>
+      <template v-slot:footer>
+      </template>
+    </modal>
+    <modal
+      v-show="isViewingImage"
+      @close="isViewingImage = false">
+      <template v-slot:header>
+      </template>
+      <template v-slot:body>
+        <div class="h-[75vh] w-full flex justify-center">
+          <img :src="viewingImageURL" alt="No Content"
+               style="object-fit: contain"
+               class="h-full w-full">
+        </div>
+      </template>
+      <template v-slot:footer>
+      </template>
+    </modal>
   </div>
 </template>
 
@@ -451,7 +535,16 @@ import markdownItMermaid from 'markdown-it-mermaid'
 import 'highlight.js/styles/hybrid.css'
 import mermaid from 'mermaid'
 import draggable from 'vuedraggable'
-import { DocumentArrowDownIcon, EllipsisVerticalIcon, ViewColumnsIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+import {
+  DocumentArrowDownIcon,
+  DocumentArrowUpIcon,
+  DocumentTextIcon,
+  EllipsisVerticalIcon,
+  FolderArrowDownIcon,
+  ViewColumnsIcon,
+  XMarkIcon
+} from '@heroicons/vue/24/outline'
+
 import {
   BoltIcon,
   CheckIcon,
@@ -487,7 +580,10 @@ export default {
     MenuButton,
     MenuItem,
     MenuItems,
-    draggable
+    draggable,
+    DocumentTextIcon,
+    FolderArrowDownIcon,
+    DocumentArrowUpIcon
   },
   data () {
     return {
@@ -501,9 +597,16 @@ export default {
       processKeywords: '',
       isWritingProcess: false,
       isEditingProcess: false,
+      editingProcess: null,
       isViewingDocumentation: false,
       documentation: '',
       docExists: false,
+      isViewingImage: false,
+      viewingImageURL: '',
+      isAddingMedia: false,
+      uploadFileName: '',
+      uploadFileType: '',
+      uploadFileBase64: '',
       writingSource: {
         guid: ''
       },
@@ -602,7 +705,6 @@ export default {
               if (this.processEvents.length > 0) {
                 this.docExists = this.processEvents[0].event.wisdomUID !== -1
               }
-              this.renderMermaid()
               for (let i = 0; i < this.processEvents.length; i++) {
                 this.processEvents[i].event.hasNext = ((i + 1) < this.processEvents.length)
               }
@@ -612,6 +714,9 @@ export default {
           .catch((err) => {
             console.debug(err.message)
             this.processEvents = []
+          })
+          .finally(() => {
+            this.renderMermaid()
           })
       })
     },
@@ -631,7 +736,11 @@ export default {
         mermaid.init()
       }, 0)
     },
-    clickedBack: function () {
+    clickedBack: async function () {
+      // Are we currently editing an event?
+      if (this.isEditingProcess === true) {
+        await this.updateEvent(this.editingProcess)
+      }
       if (!this.isoverlay) {
         this.$router.back()
       } else {
@@ -691,8 +800,12 @@ export default {
           })
       })
     },
-    editEventTitle: function (event) {
+    editEventTitle: async function (event) {
       if (this.drag) return
+      // Are we currently editing an event?
+      if (this.isEditingProcess === true && (this.editingProcess && this.editingProcess.uID !== event.uID)) {
+        await this.updateEvent(this.editingProcess)
+      }
       event.editingTitle = true
       this.isEditingProcess = true
       this.dragOptions.disabled = true
@@ -703,10 +816,15 @@ export default {
         }
       }, 0)
     },
-    editEventDescription: function (event) {
+    editEventDescription: async function (event) {
       if (this.drag) return
+      // Are we currently editing an event?
+      if (this.isEditingProcess === true && (this.editingProcess && this.editingProcess.uID !== event.uID)) {
+        await this.updateEvent(this.editingProcess)
+      }
       event.editingDescription = true
       this.isEditingProcess = true
+      this.editingProcess = event
       this.dragOptions.disabled = true
       setTimeout(() => {
         const elem = document.getElementById(event.guid + '_description_edit')
@@ -736,6 +854,7 @@ export default {
           url: 'm9/create?mode=edit&guid=' + pEvent.guid,
           body: JSON.stringify(payload)
         })
+          .then(() => (this.editingProcess = null))
           .then(() => (this.getProcessInformation()))
           .then(() => resolve())
           .catch((err) => {
@@ -932,6 +1051,101 @@ export default {
     },
     endDrag: function () {
       setTimeout(() => (this.drag = false), 100)
+    },
+    addToTextArea: function (id, text, addToProcess = true) {
+      if (text == null || text === '') return
+      const textarea = document.getElementById(id)
+      if (textarea == null) return
+      const startPosition = textarea.selectionStart
+      const endPosition = textarea.selectionEnd
+
+      textarea.value = `${textarea.value.substring(
+        0,
+        startPosition
+      )}${text}${textarea.value.substring(
+        endPosition,
+        textarea.value.length
+      )}`
+      if (addToProcess) {
+        this.editingProcess.desc = textarea.value
+      }
+    },
+    handleUploadFileSelect: async function (evt, drop = false) {
+      if (!evt) return
+      evt.stopPropagation()
+      evt.preventDefault()
+      let files
+      if (drop) {
+        files = evt.dataTransfer.files
+      } else {
+        files = evt.target.files
+      }
+      this.uploadFileBase64 = await this.getBase64(files[0])
+      this.uploadFileType = files[0].type
+      this.uploadFileName = files[0].name
+    },
+    getBase64: function (file) {
+      return new Promise(function (resolve, reject) {
+        const reader = new FileReader()
+        reader.onload = function () {
+          resolve(reader.result)
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+    },
+    cancelAddMedia: function () {
+      this.isAddingMedia = false
+      this.uploadFileType = ''
+      this.uploadFileName = ''
+      this.uploadFileBase64 = ''
+    },
+    uploadSnippet: function () {
+      const content = JSON.stringify({
+        type: this.uploadFileType,
+        payload: this.uploadFileBase64,
+        name: this.uploadFileName
+      })
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: 'm6/create',
+        body: content
+      })
+        .then((data) => (this.processUploadSnippetResponse(data.result)))
+        .catch((err) => (this.handleUploadSnippetError(err.message)))
+    },
+    handleUploadSnippetError: function (errorMessage = '') {
+      console.debug(errorMessage)
+      this.$notify(
+        {
+          title: 'File Not Uploaded',
+          text: 'An Error occurred while uploading the file.',
+          type: 'error'
+        })
+    },
+    processUploadSnippetResponse: async function (response) {
+      if (response.httpCode !== 201) {
+        this.handleUploadSnippetError()
+        return
+      }
+      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.guid
+      let prefix
+      if (this.uploadFileType.includes('image')) {
+        prefix = ' !'
+      } else {
+        prefix = ' '
+      }
+      let filename = this.uploadFileName
+      if (filename == null || filename === '') filename = 'Snippet'
+      let text = prefix + '[' + filename + '](' + contentURL + ')'
+      if (prefix === ' !') {
+        text = '\n\n' + text + '\n\n'
+      }
+      setTimeout(() => {
+        this.addToTextArea(this.editingProcess.guid + '_description_edit', text)
+      }, 0)
+      this.cancelAddMedia()
     }
   }
 }
@@ -993,6 +1207,14 @@ export default {
 
 .chosen .pathIndicator {
   @apply opacity-0;
+}
+
+.darkbutton {
+  @apply darkest_bg px-2 py-2;
+}
+
+.darkbutton:hover {
+  @apply bg-black;
 }
 
 </style>

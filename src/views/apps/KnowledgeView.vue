@@ -165,7 +165,8 @@
           </div>
           <template v-if="wisdom.type === 'question' && wisdom.finished !== true">
             <div class="w-full">
-              <p class="mt-2 mb-4 p-2 border-l-4 border-l-orange-600 bg-orange-800 bg-opacity-50 text-neutral-300">
+              <p class="mt-2 mb-4 p-2 border-l-4 border-l-orange-600 bg-orange-800
+                        bg-opacity-50 text-neutral-200 text-sm rounded-r-md">
                 This question is unanswered (or at least not yet confirmed)!
                 <br>Help by submitting a comment, providing useful information on this topic.
               </p>
@@ -488,7 +489,7 @@
               </div>
             </template>
             <template v-else>
-              <div class="flex items-center mt-8 mb-2 pointer-events-none">
+              <div id="comments_anchor" class="flex items-center mt-8 mb-2 pointer-events-none">
                 <ChatBubbleLeftEllipsisIcon class="w-6 h-6 mr-2 text-neutral-300"></ChatBubbleLeftEllipsisIcon>
                 <p class="text-neutral-300">
                   {{ related.comments.length }} {{ commentsText }}:

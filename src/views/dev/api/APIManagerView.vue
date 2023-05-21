@@ -1,99 +1,88 @@
 <template>
-  <div
-    style="min-height: 100%; background-color: #131313; overflow-x: clip">
-    <div class="container mt-[55px]">
+  <div class="mt-[55px] h-full w-full overflow-y-scroll text-neutral-200">
+    <div class="p-4 max-w-screen-lg mx-auto">
       <div id="title" class="shadow-box" style="width: 100%; border: 2px solid white; border-radius: 1em">
-        <div class="px-3 pt-2" style="display: flex; justify-content: space-between">
+        <div class="px-3 py-2 flex items-center justify-between">
           <div style="display: flex">
-            <i class="h2 bi bi-cloud-upload text-white hidden lg:flex"/>
-            <p class="h2 ps-2 font-bold text-white jetb">API Dashboard</p>
+            <i class="h2 bi bi-cloud-upload hidden lg:flex"/>
+            <p class="h2 px-2 font-bold text-white">API Dashboard</p>
           </div>
-          <p id="clock" class="ps-5 text-white text-end jetb">{{ time }}</p>
+          <p id="clock" class="px-5 text-end">{{ time }}</p>
         </div>
       </div>
       <div id="settings" class="mt-5 shadow-box" style="width: 100%; border-radius: 1em">
-        <div id="_server_ip" class="ps-2">
-          <label class="text-white jetb" for="server_ip">Server IP Address</label><br>
-          <input class="ms-3 font-bold big-on-small" id="server_ip"
-                 style="height: 4ch; background: black; color: white">
-          <button title="Save Setting" class="btn text-white" v-on:click="updateServerIP">
+        <div id="_server_ip" class="px-2">
+          <label class="text-white" for="server_ip">Server IP Address</label><br>
+          <input class="mckInput dark_bg" id="server_ip">
+          <button title="Save Setting" class="text-white ml-2" v-on:click="updateServerIP">
             <i class="bi bi-layer-backward px-1" style="font-size: 150%"/> Save
           </button>
         </div>
-        <div id="_server_token" class="ps-2">
-          <label class="text-white jetb" for="server_ip">Token</label><br>
-          <input class="ms-3 font-bold big-on-small" id="server_token"
-                 style="height: 4ch; background: black; color: white">
-          <button title="Save Setting" class="btn text-white" v-on:click="updateServerToken">
-            <i class="bi bi-layer-backward px-1" style="font-size: 150%"/> Save
-          </button>
-          <button title="Retrieve Token" class="btn text-white" v-on:click="serverLogin">
-            <i class="bi bi-layer-forward px-1" style="font-size: 150%"/> Request
-          </button>
-        </div>
-        <div id="_fcm_token" class="ps-2">
-          <label class="text-white jetb" for="fcm_token">FCM Token</label><br>
-          <input class="ms-3 font-bold big-on-small" id="fcm_token"
-                 style="height: 4ch; background: black; color: white">
+        <div id="_fcm_token" class="px-2 mt-3">
+          <label class="text-white" for="fcm_token">FCM Token</label><br>
+          <input class="mckInput dark_bg" id="fcm_token">
         </div>
       </div>
-      <div id="mock-service" class="mt-5 shadow-box" style="width: 100%; border-radius: 1em">
-        <div class="ps-2">
-          <div style="display: flex">
-            <h2 class="ps-2 jetb">M<span><i class="bi bi-hurricane text-white"/></span>CKINGBIRD</h2>
-            <button id="mockDescToggler" class="ms-5 btn text-white text-decoration-underline"
+      <div id="mock-service" class="mt-5 medium_bg rounded w-full">
+        <div class="p-3">
+          <div class="flex items-center mt-2">
+            <div class="px-2 text-3xl font-bold">
+              M<span><i class="bi bi-hurricane text-white"/></span>CKINGBIRD
+            </div>
+            <button id="mockDescToggler" class="mx-5 btn text-decoration-underline"
                     v-on:click="toggleElement('mock_explanation')">
               What's that?
             </button>
           </div>
           <div id="mock_explanation" style="display: none">
             <hr style="color: white">
-            <p class="jetb">
+            <p class="">
               Test your own API using the brand-new service for anything mocking-service related.
             </p>
-            <p class="jetb">
+            <p class="">
               We've prepared a special endpoint just for you.
               <br>Configure it as needed and you're ready to get mocked.
             </p>
-            <p class="jetb">
+            <p class="">
               Send requests and receive either predefined messages or HTTP response status codes.
               <br>Responses can be sent with or without delay to simulate a more realistic backend.
             </p>
           </div>
           <hr style="color: white">
-          <p class="jetb">Send POST requests to
-            <span class="ms-1" style="display: inline-block">
+          <p>Send POST requests to:</p>
+          <div class="m-2 px-3 py-4 rounded-md dark_bg" style="display: inline-block">
               <span class="font-bold" style="font-size: 115%"
                     @click="copyMockDestination">
                 {{ this.endpoint }}
               </span>
-              <span class="tooltip-mock-destination" :class="{'show':showMockDestinationCopied}">Copied!</span>
-            </span>
-          </p>
-          <h4 class="jetb">Configuration</h4>
+            <span class="tooltip-mock-destination" :class="{'show':showMockDestinationCopied}">Copied!</span>
+          </div>
+          <p>Configuration:</p>
           <!-- Return Type -->
-          <div class="config_wrapper block">
-            <label for="return_type" class="font-bold jetb">Return&nbsp;Type:</label>
-            <select id="return_type" name="return_type" v-model="mockConfig.return_type"
-                    class="font-bold jetb text-black ms-2">
-              <option>Message</option>
-              <option>HTTP Code</option>
-            </select>
+          <div class="config_wrapper block m-2 px-3 py-4 rounded-md dark_bg">
+            <div class="config_wrapper">
+              <label for="return_type" class="font-bold">Return&nbsp;Type:</label>
+              <select id="return_type" name="return_type" v-model="mockConfig.return_type"
+                      class="font-bold medium_bg mx-2">
+                <option>Message</option>
+                <option>HTTP Code</option>
+              </select>
+            </div>
             <!-- Message Type if Message -->
-            <div v-if="mockConfig.return_type === 'Message'">
-              <label for="message_type" class="font-bold jetb">Message&nbsp;Type:</label>
+            <div v-if="mockConfig.return_type === 'Message'" class="config_wrapper">
+              <label for="message_type" class="font-bold">Message&nbsp;Type:</label>
               <select id="message_type" name="message_type" v-model="mockConfig.message_type"
-                      class="font-bold jetb text-black ms-2">
+                      class="font-bold medium_bg mx-2">
                 <option>Same Message</option>
                 <option>Fixed Message</option>
               </select>
             </div>
             <!-- Content Type if Fixed Message Type -->
-            <div>
-              <label for="content_type" class="font-bold jetb">Content&nbsp;Type:</label>
+            <div class="config_wrapper">
+              <label for="content_type" class="font-bold">Content&nbsp;Type:</label>
               <select id="content_type" name="content_type"
                       v-model="mockConfig.content_type"
-                      class="font-bold jetb text-black ms-2"
+                      class="font-bold medium_bg mx-2"
                       v-on:change="setCodeMode">
                 <option>text/xml</option>
                 <option>text/plain</option>
@@ -102,10 +91,10 @@
               </select>
             </div>
             <!-- Return HTTP Code if HTTP Code -->
-            <div v-if="mockConfig.return_type === 'HTTP Code'">
-              <label for="return_code" class="font-bold jetb">Return&nbsp;Code:</label>
+            <div v-if="mockConfig.return_type === 'HTTP Code'" class="config_wrapper">
+              <label for="return_code" class="font-bold">Return&nbsp;Code:</label>
               <select id="return_code" name="return_code" v-model="mockConfig.return_code"
-                      class="font-bold jetb text-black ms-2">
+                      class="font-bold medium_bg mx-2">
                 <optgroup label="Success Codes">
                   <option>200 OK</option>
                   <option>201 Created</option>
@@ -120,42 +109,75 @@
               </select>
             </div>
             <!-- Return Type -->
-            <label for="return_delay" class="font-bold jetb">Return&nbsp;Delay:</label>
-            <input type="number" id="return_delay" name="return_delay" v-model="mockConfig.return_delay"
-                   class="font-bold jetb text-black ms-2"
-                   style="width: 6ch"
-            >
-            <select id="return_delay_unit" name="return_delay_unit" v-model="mockConfig.return_delay_unit"
-                    class="font-bold jetb text-black ms-2" style="width: auto">
-              <option>Milliseconds</option>
-              <option>Seconds</option>
-            </select>
-          </div>
-          <!-- Return Redirect -->
-          <div v-if="mockConfig.return_type === 'Message'">
-            <label for="return_redirect" class="font-bold jetb">Redirect:</label>
-            <input id="return_redirect" name="return_redirect" v-model="mockConfig.return_redirect"
-                   class="font-bold jetb text-black ms-2"
-            >
+            <div class="config_wrapper">
+              <label for="return_delay" class="font-bold">Return&nbsp;Delay:</label>
+              <input type="number" id="return_delay" name="return_delay" v-model="mockConfig.return_delay"
+                     class="font-bold dark_bg mx-2"
+                     style="width: 6ch">
+              <select id="return_delay_unit" name="return_delay_unit" v-model="mockConfig.return_delay_unit"
+                      class="font-bold medium_bg mx-2" style="width: auto">
+                <option>Milliseconds</option>
+                <option>Seconds</option>
+              </select>
+            </div>
+            <!-- Return Redirect -->
+            <div v-if="mockConfig.return_type === 'Message'" class="config_wrapper">
+              <label for="return_redirect" class="font-bold">Redirect:</label>
+              <input id="return_redirect" name="return_redirect" v-model="mockConfig.return_redirect"
+                     class="font-bold medium_bg mx-2">
+            </div>
           </div>
           <!-- Return Message if Fixed Message Type -->
           <br>
-          <div>
+          <p>Response Message:</p>
+          <div class="m-2">
             <textarea id="return_message" name="return_message" v-model="mockConfig.return_message"></textarea>
           </div>
           <!-- #### #### Confirm Button needs to be at the bottom #### #### -->
-          <div style="display: flex">
+          <div class="m-2 flex">
             <button id="mockConfigSubmit" title="Confirm Settings"
-                    class="btn btn-lg btn-dark m-1 conf_confirm_btn"
+                    class="conf_confirm_btn"
                     style="display: flex"
                     v-on:click="confirmSettings()">
               Confirm
             </button>
             <span id="confirm_settings_loading" style="display: none; margin-left: 2em; align-items: center">
-              <span class="spinner-grow spinner-grow-sm text-info" role="status" aria-hidden="true"></span>
-              <span class="jetb ms-2">Communicating with Server...</span>
+              <span class="animate-ping" role="status"></span>
+              <span class="mx-2">Communicating with Server...</span>
             </span>
           </div>
+        </div>
+        <div class="m-3 pb-2">
+          <p class="my-2">Real-Time Surveillance:</p>
+          <table class="min-h-[500px] w-full table-auto dark_bg rounded-md p-2"
+                 style="margin-bottom: 100px !important">
+            <thead>
+            <tr class="h-[20px] text-left items-center">
+              <th class="p-2">#</th>
+              <th class="p-2">HTTP Code</th>
+              <th class="p-2">Request</th>
+              <th class="p-2">Response</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-zinc-500 h-fit">
+            <template v-for="callback in callbacks" :key="callback">
+              <tr class="w-full p-1 h-fit text-left">
+                <td class="p-2">{{ callback._length }}</td>
+                <td class="p-2"></td>
+                <td class="p-2">{{ callback.requestPayload }}</td>
+                <td class="p-2">{{ callback.responsePayload }}</td>
+              </tr>
+            </template>
+            <template v-if="callbacks.length === 0">
+              <tr>
+                <td class="p-2"></td>
+                <td class="p-2"></td>
+                <td class="p-2">No Requests recorded yet.</td>
+                <td class="p-2"></td>
+              </tr>
+            </template>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -187,14 +209,15 @@ export default {
         return_code: '',
         return_redirect: '',
         return_delay: 0,
-        return_delay_unit: 'Seconds'
+        return_delay_unit: 'Seconds',
+        callbackUsername: ''
       },
+      callbacks: [],
       timer: null
     }
   },
   mounted () {
     this.checkServerIPField()
-    this.checkServerTokenField()
     this.checkFCMTokenField()
     this.cm = CodeMirror.fromTextArea(document.getElementById('return_message'), {
       lineNumbers: true,
@@ -204,6 +227,14 @@ export default {
     this.loadConfig()
     this.getTime()
     this.timer = setInterval(this.getTime, 1000)
+    this.connector = new BroadcastChannel('connector')
+    this.connector.onmessage = event => {
+      if (event.data.type === 'mock') {
+        const obj = JSON.parse(event.data.obj)
+        obj._length = this.callbacks.length + 1
+        this.callbacks.unshift(obj)
+      }
+    }
   },
   beforeUnmount () {
     clearInterval(this.timer)
@@ -235,10 +266,6 @@ export default {
       const field = document.getElementById('server_ip')
       field.value = this.$store.state.serverIP
     },
-    checkServerTokenField: function () {
-      const field = document.getElementById('server_token')
-      field.value = this.$store.state.token
-    },
     checkFCMTokenField: function () {
       const field = document.getElementById('fcm_token')
       field.value = this.$store.state.fcmToken
@@ -250,68 +277,6 @@ export default {
           text: 'The server IP currently cannot be changed.',
           type: 'error'
         })
-      /*
-      const field = document.getElementById('server_ip')
-      this.$store.commit('setServerIP', field.value)
-      this.$notify(
-        {
-          title: 'Settings Updated',
-          text: 'Server IP change was submitted.',
-          type: 'info'
-        })
-       */
-    },
-    updateServerToken: function () {
-      const field = document.getElementById('server_token')
-      this.$store.commit('setServerToken', field.value)
-      this.$notify(
-        {
-          title: 'Settings Updated',
-          text: 'Server Token change was submitted.',
-          type: 'info'
-        })
-    },
-    serverLogin: function () {
-      const headers = new Headers()
-      headers.set(
-        'Authorization',
-        'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
-      )
-      fetch(
-        this.$store.state.serverIP + '/login',
-        {
-          method: 'get',
-          headers: headers
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => (this.loginResponse = JSON.parse(data.contentJson)))
-        .then(this.processLogin)
-        .catch((err) => this.$notify(
-          {
-            title: 'Error',
-            text: err.message,
-            type: 'error'
-          }))
-    },
-    processLogin: function () {
-      if (this.loginResponse.httpCode === 200) {
-        this.$store.commit('setServerToken', this.loginResponse.token)
-        this.checkServerTokenField()
-        this.$notify(
-          {
-            title: 'Token Retrieved',
-            text: 'A Token was received from the server.',
-            type: 'success'
-          })
-      } else {
-        this.$notify(
-          {
-            title: 'Error' + this.loginResponse.httpCode,
-            text: 'No Token was received from the server.',
-            type: 'error'
-          })
-      }
     },
     toggleElement: function (id, display = 'block') {
       const explanation = document.getElementById(id)
@@ -335,22 +300,20 @@ export default {
       this.submitConfig()
     },
     submitConfig: function () {
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      headers.set('Content-Type', 'application/json')
-      this.mockConfig.return_message = this.cm.getValue()
-      fetch(
-        this.$store.state.serverIP + '/mockingbird/submit?type=config',
-        {
+      return new Promise((resolve) => {
+        this.mockConfig.return_message = this.cm.getValue()
+        this.$Worker.execute({
+          action: 'api-no-prefix',
           method: 'post',
-          headers: headers,
+          url: 'mockingbird/submit?type=config',
           body: JSON.stringify({
             config: this.mockConfig
           })
-        }
-      )
-        .then(this.processSubmitConfigResponse)
-        .catch((err) => this.handleSubmitError(err))
+        })
+          .then(this.processSubmitConfigResponse)
+          .then(resolve)
+          .catch((err) => this.handleSubmitError(err))
+      })
     },
     handleSubmitError: function (err) {
       this.toggleElement('confirm_settings_loading', 'flex')
@@ -369,24 +332,21 @@ export default {
         {
           title: 'Config Submitted',
           text: 'Serverside settings got updated.',
-          type: 'success'
+          type: 'info'
         })
     },
     loadConfig: function () {
-      const headers = new Headers()
-      headers.set('Authorization', 'Bearer ' + this.$store.state.token)
-      headers.set('Content-Type', 'application/json')
-      fetch(
-        this.$store.state.serverIP + '/mockingbird/submit?type=load_config',
-        {
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api-no-prefix',
           method: 'get',
-          headers: headers
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => (this.setConfig(data)))
-        .then(this.setCodeMode)
-        .catch((err) => this.handleSubmitError(err))
+          url: 'mockingbird/submit?type=load_config'
+        })
+          .then((data) => (this.setConfig(data.result)))
+          .then(this.setCodeMode)
+          .then(resolve)
+          .catch((err) => this.handleSubmitError(err))
+      })
     },
     setConfig: function (data) {
       if (data.config == null) return
@@ -412,20 +372,8 @@ export default {
   border-radius: 1em
 }
 
-.jetb, .btn {
-  color: white;
-}
-
-.big-on-small {
-  width: 90%
-}
-
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
-  .big-on-small {
-    width: 75%
-  }
-
   label {
     margin-left: 2em;
   }
@@ -456,6 +404,18 @@ label {
 
 select {
   width: 200px;
+}
+
+.mckInput {
+  @apply font-bold rounded-md px-3 py-2;
+}
+
+.conf_confirm_btn {
+  @apply btn_bg_primary;
+}
+
+.config_wrapper {
+  @apply my-2;
 }
 
 </style>

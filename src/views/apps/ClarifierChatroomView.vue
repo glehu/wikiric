@@ -67,8 +67,8 @@
                          class="brightest_bg rounded-r">
                     </div>
                     <div :id="group.id + '_notify'"
-                       class="hidden bg-orange-500 rounded-r"
-                       style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5">
+                         class="hidden bg-orange-500 rounded-r"
+                         style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5">
                       <div class="hidden">{{ hasUnread(group.id) }}</div>
                     </div>
                     <template v-if="group.img && group.img !== ''">
@@ -101,7 +101,9 @@
               <div id="home_subc" class="subchat dark_bg"
                    v-on:click="gotoSubchat(null, false)">
                 <i id="home_notify"
-                   class="bi bi-chat-quote-fill relative left-0 z-50 text-orange-500 hidden">
+                   class="absolute -translate-x-4
+                          w-[6px] h-[28px] rounded-r-full
+                          z-50 bg-orange-500 hidden">
                   <p class="hidden">{{ hasUnread(getSession(), true) }}</p>
                 </i>
                 <HomeIcon class="h-5 w-5"></HomeIcon>
@@ -118,7 +120,7 @@
                     <div class="subchat w-full flex items-center"
                          v-on:click="createProcess()">
                       <DocumentTextIcon class="h-5 w-5"></DocumentTextIcon>
-                      <span class="relative left-[20px]">Quick Note</span>
+                      <span class="relative left-[20px]">Quick Notes</span>
                     </div>
                   </template>
                   <template v-if="this.chatroom.rank > 3">
@@ -158,7 +160,9 @@
                    style="display: flex"
                    v-on:click="gotoSubchat(subchat.guid)">
                 <i :id="subchat.guid + '_notify'"
-                   class="bi bi-chat-quote-fill relative left-0 z-50 text-orange-500 hidden">
+                   class="absolute -translate-x-4
+                          w-[6px] h-[28px] rounded-r-full
+                          z-50 bg-orange-500 hidden">
                   <p class="hidden">{{ hasUnread(subchat.guid) }}</p>
                 </i>
                 <template v-if="subchat.type === 'screenshare'">
@@ -448,6 +452,10 @@
                           <template v-if="msg.iurl && msg.iurl !== ''">
                             <img :src="getImg(msg.iurl, true)" alt="?"
                                  class="sender_avatar translate-y-[10px]">
+                            <template v-if="msg.iurla && msg.iurla !== ''">
+                              <img :src="getImg(msg.iurla, true)" alt="?"
+                                   class="sender_avatar translate-y-[10px] absolute hidden sender_avatar_animated">
+                            </template>
                           </template>
                           <template v-else>
                             <UserCircleIcon class="sender_avatar translate-y-[10px]">
@@ -934,6 +942,10 @@
             <template v-if="usr.iurl && usr.iurl !== ''">
               <img :src="getImg(usr.iurl, true)" alt="?"
                    class="sender_avatar">
+              <template v-if="usr.iurla && usr.iurla !== ''">
+                <img :src="getImg(usr.iurla, true)" alt="?"
+                     class="sender_avatar absolute hidden sender_avatar_animated">
+              </template>
             </template>
             <template v-else>
               <UserCircleIcon class="sender_avatar"></UserCircleIcon>
@@ -985,6 +997,10 @@
         <template v-if="viewedUserProfile.iurl && viewedUserProfile.iurl !== ''">
           <img :src="getImg(viewedUserProfile.iurl, true)" alt="?"
                class="sender_avatar_big">
+          <template v-if="viewedUserProfile.iurla && viewedUserProfile.iurla !== ''">
+            <img :src="getImg(viewedUserProfile.iurla, true)" alt="?"
+                 class="sender_avatar_big absolute sender_avatar_animated">
+          </template>
         </template>
         <template v-else>
           <UserCircleIcon class="sender_avatar_big">
@@ -1333,7 +1349,8 @@
          v-on:click="closeUploadingSnippet()"></i>
       <h2 class="font-bold text-2xl mb-4">File Upload</h2>
       <template v-if="uploadFileType !== ''">
-        <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px">
+        <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px"
+             class="markedView max-w-[400px]">
           <img v-if="uploadFileType.includes('image')"
                class="uploadFileSnippet"
                v-bind:src="uploadFileBase64" :alt="'&nbsp;'"/>
@@ -1371,14 +1388,13 @@
       <template v-if="uploadFileBase64 !== ''">
         <p class="text-neutral-300 font-bold">{{ this.uploadFileName }}</p>
         <div class="mt-3 w-full">
-          <button class="btn-outline-light darkbutton text-white
-                         flex items-center justify-center"
-                  style="width: 90%; height: 2.5em;
-                         border-color: transparent;
-                         border-radius: 1em; margin: auto"
+          <button class="darkbutton text-white p-2 w-full
+                         flex items-center justify-center rounded-full"
+                  style="height: 2.5em; border-color: transparent;
+                         margin: auto"
                   title="Send"
                   v-on:click="addMessage">
-            <span class="font-bold"><i class="bi bi-send mr-2"></i>Submit</span>
+            <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Submit</span>
             <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ this.uploadFileType }}</span>
           </button>
         </div>
@@ -1870,26 +1886,28 @@ export default {
         const originId = event.data.data.dlDest.substring(20)
         if (!this.$route.fullPath.includes(destId)) {
           this.$store.commit('addClarifierTimestampNew', {
-            id: destId,
-            ts: new Date().getTime()
-          })
-          this.$store.commit('addClarifierTimestampNew', {
             id: originId,
             ts: new Date().getTime()
           })
-          let notify = document.getElementById(destId + '_notify')
-          if (notify != null) {
-            setTimeout(() => {
+          this.$store.commit('addClarifierTimestampNew', {
+            id: destId,
+            ts: new Date().getTime()
+          })
+          setTimeout(() => {
+            const notify = document.getElementById(destId + '_notify')
+            if (notify != null) {
               notify.style.opacity = '1'
               notify.style.display = 'block'
-            }, 0)
-          }
-          notify = document.getElementById(originId + '_notify')
-          if (notify != null) {
+            }
+          }, 1000)
+          if (!this.$route.fullPath.includes(originId)) {
             setTimeout(() => {
-              notify.style.opacity = '1'
-              notify.style.display = 'block'
-            }, 0)
+              const notify = document.getElementById(originId + '_notify')
+              if (notify != null) {
+                notify.style.opacity = '1'
+                notify.style.display = 'block'
+              }
+            }, 1000)
           }
         }
       } else {
@@ -1900,13 +1918,13 @@ export default {
             ts: new Date().getTime()
           })
           if (destId === this.getSession()) destId = 'home'
-          const notify = document.getElementById(destId + '_notify')
-          if (notify != null) {
-            setTimeout(() => {
+          setTimeout(() => {
+            const notify = document.getElementById(destId + '_notify')
+            if (notify != null) {
               notify.style.opacity = '1'
               notify.style.display = 'block'
-            }, 0)
-          }
+            }
+          }, 0)
         }
       }
     },
@@ -1979,6 +1997,8 @@ export default {
       if (indexTmp > -1) {
         message.header = this.messages[indexTmp].header
         message.separator = this.messages[indexTmp].separator
+        message.iurl = this.messages[indexTmp].iurl
+        message.iurla = this.messages[indexTmp].iurla
         this.messages[indexTmp] = message
         return
       }
@@ -2352,13 +2372,20 @@ export default {
             id: this.chatroom.guid,
             ts: new Date().getTime()
           })
-          const notify = document.getElementById('home_notify')
-          if (notify != null) {
-            setTimeout(() => {
+          setTimeout(() => {
+            const notify = document.getElementById('home_notify')
+            if (notify != null) {
               notify.style.opacity = '0'
               notify.style.display = 'none'
-            }, 1000)
-          }
+            }
+          }, 1000)
+          setTimeout(() => {
+            const notify = document.getElementById(this.chatroom.guid + '_notify')
+            if (notify != null) {
+              notify.style.opacity = '0'
+              notify.style.display = 'none'
+            }
+          }, 1000)
         }
         this.members = []
         // Parse JSON serialized users for performance
@@ -2380,13 +2407,13 @@ export default {
           id: this.currentSubchat.guid,
           ts: new Date().getTime()
         })
-        const notify = document.getElementById(this.currentSubchat.guid + '_notify')
-        if (notify != null) {
-          setTimeout(() => {
+        setTimeout(() => {
+          const notify = document.getElementById(this.currentSubchat.guid + '_notify')
+          if (notify != null) {
             notify.style.opacity = '0'
             notify.style.display = 'none'
-          }, 1000)
-        }
+          }
+        }, 1000)
         // Parse JSON serialized users for performance and determine current user's ID
         this.members = []
         for (let i = 0; i < this.currentSubchat.members.length; i++) {
@@ -2654,6 +2681,10 @@ export default {
         if (ix !== -1) {
           if (this.mainMembers[ix].iurl != null) {
             message.iurl = this.mainMembers[ix].iurl
+            // Animated pictures!!!
+            if (this.mainMembers[ix].iurl != null) {
+              message.iurla = this.mainMembers[ix].iurla
+            }
           }
         }
       }
@@ -3588,7 +3619,7 @@ export default {
       this.messages = []
     },
     setTimestampRead: function () {
-      let notify = null
+      let notify
       if (!this.isSubchat) {
         this.$store.commit('addClarifierTimestampRead', {
           id: this.getSession(),
@@ -3603,10 +3634,8 @@ export default {
         notify = document.getElementById(this.currentSubchat.guid + '_notify')
       }
       if (notify != null) {
-        setTimeout(() => {
-          notify.style.opacity = '0'
-          notify.style.display = 'hidden'
-        }, 1000)
+        notify.style.opacity = '0'
+        notify.style.display = 'hidden'
       }
     },
     resetStats: function () {
@@ -3780,13 +3809,13 @@ export default {
           if (hasUnread) {
             let elemId = guid + '_notify'
             if (isHome) elemId = 'home_notify'
-            const notify = document.getElementById(elemId)
-            if (notify != null) {
-              setTimeout(() => {
+            setTimeout(() => {
+              const notify = document.getElementById(elemId)
+              if (notify != null) {
                 notify.style.opacity = '1'
                 notify.style.display = 'block'
-              }, 0)
-            }
+              }
+            }, 0)
           }
         })
     },
@@ -4978,6 +5007,10 @@ export default {
   @apply text-white cursor-pointer rounded-xl bg-zinc-500 bg-opacity-50;
 }
 
+.user_badge:hover .sender_avatar_animated {
+  @apply block;
+}
+
 .tooltip-mock-destination.show {
   opacity: 1;
   transition: 0.5s;
@@ -5344,7 +5377,7 @@ export default {
   cursor: pointer;
   width: 100%;
   height: 36px;
-  @apply px-2 rounded text-neutral-300;
+  @apply px-2 rounded text-neutral-300 relative;
 }
 
 .subchat:hover {
@@ -5374,6 +5407,10 @@ export default {
 
 .message:hover {
   @apply brightest_bg bg-opacity-25;
+}
+
+.message:hover .sender_avatar_animated {
+  @apply block;
 }
 
 .msg_options {

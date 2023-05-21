@@ -12,7 +12,23 @@
     }
 
     .markedView a {
-        @apply underline;
+        @apply darkest_bg hover:underline
+        pr-1 text-neutral-100 rounded-md;
+    }
+
+    .markedView a:hover {
+        box-shadow: 0 0 0 2px rgb(99 102 241);
+        @apply bg-indigo-900 text-white;
+    }
+
+    .markedView a::before {
+        content: "»";
+        box-shadow: 0 0 0 2px rgb(24 24 27);
+        @apply bg-indigo-600 mr-1 no-underline px-1 font-bold rounded text-neutral-200 text-sm;
+    }
+
+    .markedView img {
+        max-width: clamp(200px, 100%, 36rem);
     }
 
     .markedView ul {
@@ -110,6 +126,11 @@
         m-1 py-2 px-4 rounded-md;
     }
 
+    .btn_small_icon {
+        @apply text-sm flex items-center py-2 pl-2 pr-3 rounded
+        hover:darkest_bg hover:text-white
+    }
+
     .prevent-select {
         -webkit-user-select: none; /* Safari */
         -ms-user-select: none; /* IE 10 and IE 11 */
@@ -125,5 +146,9 @@
 
     .vpopper {
         @apply p-2 rounded dark_bg opacity-100 text-neutral-300;
+    }
+
+    .logo {
+        filter: brightness(0) invert(1);
     }
 }

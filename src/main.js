@@ -9,7 +9,7 @@ import Markdown from 'vue3-markdown-it'
 import './index.css'
 import WorkerRic from '@/libs/workeric'
 import {
-  // Directives
+  // Directive
   VTooltip,
   VClosePopper,
   // Components

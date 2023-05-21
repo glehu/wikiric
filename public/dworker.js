@@ -168,7 +168,7 @@ onmessage = function (e) {
       }
     }
     let prefix = 'api/'
-    if (msg.action === 'api-http') prefix = ''
+    if (msg.action === 'api-http' || msg.action === 'api-no-prefix') prefix = ''
     fetch(
       _endpoint + prefix + msg.url,
       config

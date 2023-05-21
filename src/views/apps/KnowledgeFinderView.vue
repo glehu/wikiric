@@ -4,15 +4,16 @@
     <template v-if="knowledgeExists">
       <div class="h-full w-full overflow-y-auto">
         <template v-if="!isViewingWisdom && !isViewingProcess">
-          <div class="md:grid md:grid-cols-2 xl:grid-cols-3 w-full h-fit md:h-full md:gap-x-3 p-3">
+          <div class="xl:grid xl:grid-cols-5 w-full h-fit xl:h-full xl:gap-x-3 p-3">
             <div id="knowledgeFinder_sidebar"
-                 class="h-full rounded-lg overflow-hidden medium_bg">
+                 class="h-full rounded-lg overflow-hidden medium_bg
+                        xl:col-span-2">
               <div class="h-full relative">
                 <div class="py-1">
                   <div class="flex items-center">
                     <div v-on:click="clickedBack()"
-                         class="h-full ml-4 mr-2 px-2 py-4 rounded-lg text-center text-neutral-300
-                                hover:text-orange-500 cursor-pointer">
+                         class="h-full ml-2 mr-2 p-2 rounded-lg text-neutral-300
+                                hover:text-orange-500 cursor-pointer flex items-center justify-center">
                       <i class="sb_link_icon bi bi-x-square text-xl"></i>
                     </div>
                     <div class="w-full overflow-x-hidden pr-2">
@@ -27,7 +28,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="py-2 px-3">
+                <div class="py-1 px-3">
                   <div class="rounded-lg flex items-center relative">
                     <MagnifyingGlassIcon class="w-6 h-6 mx-2 text-neutral-300 absolute translate-x-1"/>
                     <input id="search-field" type="text"
@@ -36,7 +37,7 @@
                            v-on:keyup.enter="searchWisdom(); getProcesses()"
                            v-model="queryText">
                   </div>
-                  <template class="hidden md:block">
+                  <template class="hidden xl:block">
                     <div
                       style="width: 100%; height: 35px; padding-top: 5px; display: flex; position: relative; align-items: center">
                       <span class="font-bold text-neutral-300 pointer-events-none">Categories</span>
@@ -71,7 +72,7 @@
                   </template>
                 </div>
                 <!-- QUICK VIEW -->
-                <div class="px-3 py-3 md:absolute md:bottom-0 md:w-full">
+                <div class="px-3 py-3 xl:absolute xl:bottom-0 xl:w-full">
                   <div class="flex">
                     <button v-on:click="writeWisdom('ask')"
                             class="border-orange-600 hover:bg-orange-700 border-2
@@ -89,8 +90,8 @@
                 </div>
               </div>
             </div>
-            <div class="xl:col-span-2 pt-3 md:pt-0 overflow-y-scroll overflow-x-hidden h-full">
-              <TabGroup as="div" class="md:pr-3 md:mr-1">
+            <div class="xl:col-span-3 pt-2 xl:pt-3 overflow-y-scroll overflow-x-hidden h-full">
+              <TabGroup as="div" class="">
                 <TabList as="div" class="tab-group">
                   <Tab class="w-full" v-slot="{ selected }">
                     <button :class="[
@@ -184,7 +185,7 @@
                       </div>
                     </template>
                     <template v-if="noResults">
-                      <div class="flex w-full justify-center items-center md:mt-10">
+                      <div class="flex w-full justify-center items-center xl:mt-10">
                         <div class="dark_bg rounded-md p-3 text-neutral-300">
                           <p class="pointer-events-none text-center">No Results for...</p>
                           <p class="text-neutral-300 text-center my-2">{{ querySubmission }}</p>
@@ -218,9 +219,12 @@
                           {{ results.length }} results in {{ results.time }} seconds
                         </div>
                         <template v-for="result in results" :key="result">
-                          <VTooltip v-on:apply-show="investigate(result.result.guid)"
-                                    handle-resize eager-mount
-                                    placement="top-end" :flip="true">
+                          <VMenu v-on:apply-show="investigate(result.result.guid)"
+                                 handle-resize eager-mount instant-move
+                                 :arrow-padding="15"
+                                 :distance="-15" :flip="true"
+                                 :delay="500"
+                                 placement="top-end">
                             <div v-on:click="gotoWisdom(result.result.guid)"
                                  class="result cursor-pointer">
                               <div class="text-neutral-300 flex items-center text-sm">
@@ -312,47 +316,81 @@
                               </div>
                             </div>
                             <template #popper>
-                              <div class="vpopper max-w-md">
-                                <template v-if="relatedLoading">
-                                  <div>
-                                    <p class="text-xs font-bold
-                                              px-8 py-8">
-                                      Loading...
-                                    </p>
-                                  </div>
-                                </template>
-                                <template v-else>
+                              <div class="flex vpopper">
+                                <div class="pl-1 pr-3">
                                   <template v-if="related && related.srcWisdom">
-                                    <p class="text-xs font-bold">Source Entry:</p>
-                                    <div class="mt-2 p-2 medium_bg rounded">
-                                      <div class="text-sm">
-                                        {{ related.srcWisdom.author }}
-                                      </div>
-                                      <div class="text-lg font-bold">
-                                        {{ related.srcWisdom.t }}
-                                      </div>
-                                      <template v-if="related.srcWisdom.desc">
-                                        <div class="text-sm my-1">
-                                          {{ limitTo(related.srcWisdom.desc, 100) }}
-                                        </div>
-                                      </template>
-                                      <div class="mt-2 text-xs font-bold px-1 py-0.5
-                                                  rounded darkest_bg w-fit">
-                                        {{ capitalizeFirstLetter(related.srcWisdom.type) }}
-                                      </div>
-                                    </div>
+                                    <button class="btn_small_icon"
+                                            v-on:click="gotoWisdom(related.srcWisdom.guid)">
+                                      <WindowIcon
+                                        class="mr-2 h-4 w-4"
+                                        aria-hidden="true"
+                                      />
+                                      <span class="text-xs font-bold">View Source</span>
+                                    </button>
+                                    <template v-if="related.comments && related.comments.length > 0">
+                                      <button class="btn_small_icon"
+                                              v-on:click="gotoWisdom(result.result.guid)">
+                                        <ChatBubbleLeftEllipsisIcon
+                                          class="mr-2 h-4 w-4"
+                                          aria-hidden="true"
+                                        />
+                                        <span class="text-xs font-bold">Comments</span>
+                                      </button>
+                                    </template>
                                   </template>
-                                  <template v-else>
+                                  <button class="btn_small_icon"
+                                          v-on:click="searchWisdom(result.result.author)">
+                                    <UserIcon
+                                      class="mr-2 h-4 w-4"
+                                      aria-hidden="true"
+                                    />
+                                    <span class="text-xs font-bold">Search Author</span>
+                                  </button>
+                                </div>
+                                <div class="max-w-md">
+                                  <template v-if="relatedLoading">
                                     <div>
-                                      <p class="text-xs font-bold px-3 py-2">
-                                        No source.
+                                      <p class="text-xs font-bold
+                                              px-8 py-8 pointer-events-none">
+                                        Loading...
                                       </p>
                                     </div>
                                   </template>
-                                </template>
+                                  <template v-else>
+                                    <template v-if="related && related.srcWisdom">
+                                      <div>
+                                        <p class="text-xs font-bold pointer-events-none">Source Entry:</p>
+                                        <div class="mt-2 p-2 medium_bg rounded max-w-[200px] break-all">
+                                          <div class="text-sm">
+                                            {{ related.srcWisdom.author }}
+                                          </div>
+                                          <div class="text-lg font-bold">
+                                            {{ related.srcWisdom.t }}
+                                          </div>
+                                          <template v-if="related.srcWisdom.desc">
+                                            <div class="text-sm my-1">
+                                              {{ limitTo(related.srcWisdom.desc, 100) }}
+                                            </div>
+                                          </template>
+                                          <div class="mt-2 text-xs font-bold px-1 py-0.5
+                                                    rounded darkest_bg w-fit pointer-events-none">
+                                            {{ capitalizeFirstLetter(related.srcWisdom.type) }}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </template>
+                                    <template v-else>
+                                      <div>
+                                        <p class="text-xs font-bold px-3 py-2 pointer-events-none">
+                                          No source.
+                                        </p>
+                                      </div>
+                                    </template>
+                                  </template>
+                                </div>
                               </div>
                             </template>
-                          </VTooltip>
+                          </VMenu>
                         </template>
                       </div>
                     </template>
@@ -380,7 +418,7 @@
                     </div>
                     <div class="h-full w-full">
                       <template v-if="processes.length < 1">
-                        <div class="flex w-full justify-center items-center md:mt-10">
+                        <div class="flex w-full justify-center items-center xl:mt-10">
                           <div class="dark_bg rounded-md p-3 text-neutral-300">
                             <p class="pointer-events-none text-center">No Processes for...</p>
                             <p class="text-neutral-300 text-center my-2">{{ querySubmission }}</p>
@@ -513,7 +551,7 @@
       </template>
       <template v-slot:body>
         <div class="flex w-[90dvw]" style="max-height: 90vh">
-          <div class="w-full pr-12 md:pr-0 md:w-1/2">
+          <div class="w-full pr-12 xl:pr-0 xl:w-1/2">
             <label for="wisTitle" class="text-xl font-bold">Title:</label>
             <br>
             <input type="text" id="wisTitle" v-model="wisTitle"
@@ -577,7 +615,7 @@
                   </div>
                 </Listbox>
               </div>
-              <div class="md:w-3/5 lg:ml-3">
+              <div class="xl:w-3/5 lg:ml-3">
                 <label for="wisKeywords" class="text-xl mt-2 font-bold">Keywords:</label>
                 <br>
                 <input type="text" id="wisKeywords" v-model="wisKeywords"
@@ -591,7 +629,7 @@
                       rows="20" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
             </div>
             <br>
-            <div class="block md:hidden flex mt-2 mb-4 w-full">
+            <div class="block xl:hidden flex mt-2 mb-4 w-full">
               <div class="mb-3 ml-auto text-black font-bold">
                 <button v-on:click="createLesson()"
                         class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-400">
@@ -606,7 +644,7 @@
             <textarea type="text" id="wisCopyContent" v-model="wisCopyContent" rows="5"
                       class="medium_bg rounded-md w-full py-2 px-3"></textarea>
           </div>
-          <div class="hidden md:block w-[46%] ml-2">
+          <div class="hidden xl:block w-[46%] ml-2">
             <p class="text-xl font-bold pointer-events-none">Preview:</p>
             <div class="medium_bg rounded-md p-2 cursor-not-allowed">
               <Markdown :source="'# ' + wisTitle" class="w-full markedView"></Markdown>
@@ -633,7 +671,7 @@
         Create Process
       </template>
       <template v-slot:body>
-        <div class="flex w-full md:w-[540px]">
+        <div class="flex w-full xl:w-[540px]">
           <div class="w-full">
             <label for="processTitle" class="text-xl font-bold">Title:</label>
             <br>
@@ -676,6 +714,7 @@ import Markdown from 'vue3-markdown-it'
 import 'highlight.js/styles/hybrid.css'
 import {
   BookOpenIcon,
+  ChatBubbleLeftEllipsisIcon,
   ClipboardIcon,
   HandThumbDownIcon,
   HandThumbUpIcon,
@@ -688,7 +727,9 @@ import {
   CheckIcon,
   Cog6ToothIcon,
   PlusCircleIcon,
-  SparklesIcon
+  SparklesIcon,
+  UserIcon,
+  WindowIcon
 } from '@heroicons/vue/24/solid'
 import {
   Listbox,
@@ -737,7 +778,10 @@ export default {
     BookOpenIcon,
     Cog6ToothIcon,
     BeakerIcon,
-    PlusCircleIcon
+    PlusCircleIcon,
+    WindowIcon,
+    ChatBubbleLeftEllipsisIcon,
+    UserIcon
   },
   data () {
     return {
@@ -839,7 +883,7 @@ export default {
       this.getTopContributors(srcGUID)
       this.getRecentCategories()
       this.getRecentQuestions()
-      this.getProcesses('.')
+      this.getProcesses()
     },
     getClarifierChatroom: async function (sessionID) {
       if (!sessionID) return
@@ -965,8 +1009,8 @@ export default {
       if (/state:\w+/g.test(this.querySubmission)) {
         try {
           state = this.querySubmission.match(/state:\w+/g)[0].split(':')[1]
-          if (state === 'done' || state === 'finished') state = 'true'
-          if (state === 'todo' || state === 'unfinished') state = 'false'
+          if (state === 'done' || state === 'finished' || state === 'closed') state = 'true'
+          if (state === 'todo' || state === 'unfinished' || state === 'open') state = 'false'
         } catch (e) {
           console.debug(e.message)
         }

@@ -53,9 +53,7 @@ module.exports = {
       ]
     },
     workboxOptions: {
-      exclude: ['_redirects'],
-      skipWaiting: true,
-      clientsClaim: true
+      exclude: ['_redirects']
     }
   }
 }
