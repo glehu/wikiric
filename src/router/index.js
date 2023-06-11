@@ -99,7 +99,7 @@ const routes = [
   },
   {
     path: '/apps/plannernew',
-    name: 'WPlanner New',
+    name: 'WPlanner',
     component: () => import('../views/apps/PlannerNewView'),
     meta: { requiresAuth: true }
   },
@@ -119,6 +119,12 @@ const routes = [
     path: '/apps/process/:id',
     name: 'WProcess',
     component: () => import('../views/apps/ProcessView'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/apps/studio',
+    name: 'WStudio',
+    component: () => import('../views/apps/StudioView'),
     meta: { requiresAuth: true }
   },
   {

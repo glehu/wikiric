@@ -104,7 +104,7 @@
                    class="absolute -translate-x-4
                           w-[6px] h-[28px] rounded-r-full
                           z-50 bg-orange-500 hidden">
-                  <p class="hidden">{{ hasUnread(getSession(), true) }}</p>
+                  <span class="hidden">{{ hasUnread(getSession(), true) }}</span>
                 </i>
                 <HomeIcon class="h-5 w-5"></HomeIcon>
                 <span class="relative left-[20px]">Home</span>
@@ -116,11 +116,11 @@
               </div>
               <template v-if="this.chatroom.rank > 1">
                 <div class="w-full text-neutral-300">
-                  <template v-if="this.chatroom.rank > 2">
+                  <template v-if="this.chatroom.rank > 3">
                     <div class="subchat w-full flex items-center"
-                         v-on:click="createProcess()">
-                      <DocumentTextIcon class="h-5 w-5"></DocumentTextIcon>
-                      <span class="relative left-[20px]">Quick Notes</span>
+                         v-on:click="gotoStudio()">
+                      <RectangleGroupIcon class="h-5 w-5"></RectangleGroupIcon>
+                      <span class="relative left-[20px]">Studio</span>
                     </div>
                   </template>
                   <template v-if="this.chatroom.rank > 3">
@@ -131,10 +131,17 @@
                     </div>
                   </template>
                   <template v-if="this.chatroom.rank > 2">
-                    <div class="subchat w-full flex items-center"
-                         v-on:click="setOverlay('knowledgefinder')">
-                      <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
-                      <span class="relative left-[20px]">Knowledge</span>
+                    <div class="subchat w-full flex items-center">
+                      <div v-on:click="setOverlay('knowledgefinder')" class="w-full flex items-center">
+                        <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
+                        <span class="relative left-[20px]">Knowledge</span>
+                      </div>
+                      <div class="ml-auto p-2 translate-x-2 shadow-hover
+                                  rounded-r hover:bg-indigo-600"
+                           v-on:click="createProcess()"
+                           v-tooltip.top="{ content: 'Quick Note' }">
+                        <DocumentTextIcon class="h-5 w-5"></DocumentTextIcon>
+                      </div>
                     </div>
                   </template>
                 </div>
@@ -147,8 +154,8 @@
               <div style="width: 100%; height: 35px; padding-top: 5px"
                    class="px-2 flex relative items-center justify-between">
                 <span class="font-bold c_lightgray nopointer">Subchats</span>
-                <button class="text-white btn-no-outline"
-                        title="New Subchat"
+                <button class="text-white btn-no-outline translate-x-0.5"
+                        v-tooltip.top="{ content: 'New Subchat' }"
                         v-on:click="showNewSubchatWindow">
                   <i class="bi bi-plus lead orange-hover c_lightgray"
                      style="font-size: 150%"></i>
@@ -163,7 +170,7 @@
                    class="absolute -translate-x-4
                           w-[6px] h-[28px] rounded-r-full
                           z-50 bg-orange-500 hidden">
-                  <p class="hidden">{{ hasUnread(subchat.guid) }}</p>
+                  <span class="hidden">{{ hasUnread(subchat.guid) }}</span>
                 </i>
                 <template v-if="subchat.type === 'screenshare'">
                   <WindowIcon class="h-5 w-5"></WindowIcon>
@@ -1549,6 +1556,7 @@ import {
   FolderIcon,
   HashtagIcon,
   HomeIcon,
+  RectangleGroupIcon,
   SignalIcon,
   UserPlusIcon,
   ViewColumnsIcon,
@@ -1588,7 +1596,8 @@ export default {
     PhoneXMarkIcon,
     processviewer,
     fileviewer,
-    FolderIcon
+    FolderIcon,
+    RectangleGroupIcon
   },
   data () {
     return {
@@ -4872,6 +4881,9 @@ export default {
     gotoPlanner: function () {
       this.$router.push('/apps/plannernew?src=' + this.getSession())
     },
+    gotoStudio: function () {
+      this.$router.push('/apps/studio?src=' + this.getSession())
+    },
     getSimpleTime: function (ts) {
       return DateTime.fromISO(ts).toLocaleString(DateTime.TIME_SIMPLE)
     },
@@ -5610,6 +5622,10 @@ export default {
 
 .message_body {
   @apply w-full relative flex pl-[10px];
+}
+
+.shadow-hover:hover {
+  box-shadow: 0 0 0 1px rgb(128, 128, 128);
 }
 
 </style>
