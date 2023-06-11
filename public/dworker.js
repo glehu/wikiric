@@ -77,7 +77,7 @@ onmessage = function (e) {
       'Content-Type', 'application/json'
     )
     fetch(
-      _endpoint + '/register',
+      _endpoint + 'register',
       {
         method: 'post',
         headers: headers,

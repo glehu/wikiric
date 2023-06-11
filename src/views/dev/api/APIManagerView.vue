@@ -57,123 +57,158 @@
               </span>
             <span class="tooltip-mock-destination" :class="{'show':showMockDestinationCopied}">Copied!</span>
           </div>
-          <p>Configuration:</p>
           <!-- Return Type -->
-          <div class="config_wrapper block m-2 px-3 py-4 rounded-md dark_bg">
-            <div class="config_wrapper">
-              <label for="return_type" class="font-bold">Return&nbsp;Type:</label>
-              <select id="return_type" name="return_type" v-model="mockConfig.return_type"
-                      class="font-bold medium_bg mx-2">
-                <option>Message</option>
-                <option>HTTP Code</option>
-              </select>
+          <div class="md:flex">
+            <div>
+              <p>Configuration:</p>
+              <div class="config_wrapper block m-2 px-3 py-4 rounded-md dark_bg">
+                <div class="config_wrapper">
+                  <label for="return_type" class="font-bold">Return&nbsp;Type:</label>
+                  <select id="return_type" name="return_type" v-model="mockConfig.return_type"
+                          class="font-bold medium_bg mx-2">
+                    <option>Message</option>
+                    <option>HTTP Code</option>
+                  </select>
+                </div>
+                <!-- Message Type if Message -->
+                <div v-if="mockConfig.return_type === 'Message'" class="config_wrapper">
+                  <label for="message_type" class="font-bold">Message&nbsp;Type:</label>
+                  <select id="message_type" name="message_type" v-model="mockConfig.message_type"
+                          class="font-bold medium_bg mx-2">
+                    <option>Same Message</option>
+                    <option>Fixed Message</option>
+                  </select>
+                </div>
+                <!-- Content Type if Fixed Message Type -->
+                <div class="config_wrapper">
+                  <label for="content_type" class="font-bold">Content&nbsp;Type:</label>
+                  <select id="content_type" name="content_type"
+                          v-model="mockConfig.content_type"
+                          class="font-bold medium_bg mx-2"
+                          v-on:change="setCodeMode">
+                    <option>text/xml</option>
+                    <option>text/plain</option>
+                    <option>application/xml</option>
+                    <option>application/json</option>
+                  </select>
+                </div>
+                <!-- Return HTTP Code -->
+                <div class="config_wrapper">
+                  <label for="return_code" class="font-bold">Return&nbsp;Code:</label>
+                  <select id="return_code" name="return_code" v-model="mockConfig.return_code"
+                          class="font-bold medium_bg mx-2">
+                    <optgroup label="Success Codes">
+                      <option>200 OK</option>
+                      <option>201 Created</option>
+                      <option>202 Accepted</option>
+                    </optgroup>
+                    <optgroup label="Error Codes">
+                      <option>400 Bad Request</option>
+                      <option>401 Unauthorized</option>
+                      <option>403 Forbidden</option>
+                      <option>404 Not Found</option>
+                    </optgroup>
+                  </select>
+                </div>
+                <!-- Return Type -->
+                <div class="config_wrapper">
+                  <label for="return_delay" class="font-bold">Return&nbsp;Delay:</label>
+                  <input type="number" id="return_delay" name="return_delay" v-model="mockConfig.return_delay"
+                         class="font-bold dark_bg mx-2"
+                         style="width: 6ch">
+                  <select id="return_delay_unit" name="return_delay_unit" v-model="mockConfig.return_delay_unit"
+                          class="font-bold medium_bg mx-2" style="width: auto">
+                    <option>Milliseconds</option>
+                    <option>Seconds</option>
+                  </select>
+                </div>
+                <!-- Return Redirect -->
+                <div v-if="mockConfig.return_type === 'Message'" class="config_wrapper">
+                  <label for="return_redirect" class="font-bold">Redirect:</label>
+                  <input id="return_redirect" name="return_redirect" v-model="mockConfig.return_redirect"
+                         class="font-bold medium_bg mx-2">
+                </div>
+              </div>
             </div>
-            <!-- Message Type if Message -->
-            <div v-if="mockConfig.return_type === 'Message'" class="config_wrapper">
-              <label for="message_type" class="font-bold">Message&nbsp;Type:</label>
-              <select id="message_type" name="message_type" v-model="mockConfig.message_type"
-                      class="font-bold medium_bg mx-2">
-                <option>Same Message</option>
-                <option>Fixed Message</option>
-              </select>
+            <!-- Return Message if Fixed Message Type -->
+            <div class="m-2 w-full h-full">
+              <p>Response Message:</p>
+              <textarea id="return_message" name="return_message" v-model="mockConfig.return_message"></textarea>
             </div>
-            <!-- Content Type if Fixed Message Type -->
-            <div class="config_wrapper">
-              <label for="content_type" class="font-bold">Content&nbsp;Type:</label>
-              <select id="content_type" name="content_type"
-                      v-model="mockConfig.content_type"
-                      class="font-bold medium_bg mx-2"
-                      v-on:change="setCodeMode">
-                <option>text/xml</option>
-                <option>text/plain</option>
-                <option>application/xml</option>
-                <option>application/json</option>
-              </select>
-            </div>
-            <!-- Return HTTP Code if HTTP Code -->
-            <div v-if="mockConfig.return_type === 'HTTP Code'" class="config_wrapper">
-              <label for="return_code" class="font-bold">Return&nbsp;Code:</label>
-              <select id="return_code" name="return_code" v-model="mockConfig.return_code"
-                      class="font-bold medium_bg mx-2">
-                <optgroup label="Success Codes">
-                  <option>200 OK</option>
-                  <option>201 Created</option>
-                  <option>202 Accepted</option>
-                </optgroup>
-                <optgroup label="Error Codes">
-                  <option>400 Bad Request</option>
-                  <option>401 Unauthorized</option>
-                  <option>403 Forbidden</option>
-                  <option>404 Not Found</option>
-                </optgroup>
-              </select>
-            </div>
-            <!-- Return Type -->
-            <div class="config_wrapper">
-              <label for="return_delay" class="font-bold">Return&nbsp;Delay:</label>
-              <input type="number" id="return_delay" name="return_delay" v-model="mockConfig.return_delay"
-                     class="font-bold dark_bg mx-2"
-                     style="width: 6ch">
-              <select id="return_delay_unit" name="return_delay_unit" v-model="mockConfig.return_delay_unit"
-                      class="font-bold medium_bg mx-2" style="width: auto">
-                <option>Milliseconds</option>
-                <option>Seconds</option>
-              </select>
-            </div>
-            <!-- Return Redirect -->
-            <div v-if="mockConfig.return_type === 'Message'" class="config_wrapper">
-              <label for="return_redirect" class="font-bold">Redirect:</label>
-              <input id="return_redirect" name="return_redirect" v-model="mockConfig.return_redirect"
-                     class="font-bold medium_bg mx-2">
-            </div>
-          </div>
-          <!-- Return Message if Fixed Message Type -->
-          <br>
-          <p>Response Message:</p>
-          <div class="m-2">
-            <textarea id="return_message" name="return_message" v-model="mockConfig.return_message"></textarea>
           </div>
           <!-- #### #### Confirm Button needs to be at the bottom #### #### -->
-          <div class="m-2 flex">
+          <div class="m-1 flex">
             <button id="mockConfigSubmit" title="Confirm Settings"
                     class="conf_confirm_btn"
                     style="display: flex"
                     v-on:click="confirmSettings()">
-              Confirm
+              Update Settings
             </button>
             <span id="confirm_settings_loading" style="display: none; margin-left: 2em; align-items: center">
-              <span class="animate-ping" role="status"></span>
+              <div class="animate-ping w-2 h-2 rounded-full bg-indigo-400" role="status"></div>
               <span class="mx-2">Communicating with Server...</span>
             </span>
           </div>
         </div>
-        <div class="m-3 pb-2">
-          <p class="my-2">Real-Time Surveillance:</p>
-          <table class="min-h-[500px] w-full table-auto dark_bg rounded-md p-2"
+        <div class="my-5 pb-2">
+          <p class="ml-3 my-2">Real-Time Surveillance:</p>
+          <table class="min-h-[500px] w-full table-auto rounded-b-md p-2 overflow-hidden"
                  style="margin-bottom: 100px !important">
             <thead>
             <tr class="h-[20px] text-left items-center">
-              <th class="p-2">#</th>
-              <th class="p-2">HTTP Code</th>
-              <th class="p-2">Request</th>
-              <th class="p-2">Response</th>
+              <th class="p-2 sticky top-0 dark_bg z-50">#</th>
+              <th class="p-2 sticky top-0 dark_bg z-50">HTTP Code</th>
+              <th class="p-2 sticky top-0 dark_bg z-50">Analysis</th>
             </tr>
             </thead>
             <tbody class="divide-y divide-zinc-500 h-fit">
             <template v-for="callback in callbacks" :key="callback">
               <tr class="w-full p-1 h-fit text-left">
-                <td class="p-2">{{ callback._length }}</td>
-                <td class="p-2"></td>
-                <td class="p-2">{{ callback.requestPayload }}</td>
-                <td class="p-2">{{ callback.responsePayload }}</td>
+                <td class="py-2">{{ callback._length }}</td>
+                <td class="py-2">
+                  <div class="flex items-center">
+                    <template v-if="callback.responseCode.substring(0,1) === '2'">
+                      <div class="w-4 h-4 rounded-full bg-green-500 mr-2"></div>
+                    </template>
+                    <template v-else>
+                      <div class="w-4 h-4 rounded-full bg-red-500 mr-2"></div>
+                    </template>
+                    <span class="">{{ callback.responseCode }}</span>
+                  </div>
+                </td>
+                <td class="py-2">
+                  <p class="my-2 text-lg font-bold">Request:</p>
+                  <template v-for="header in callback.requestHeaders" :key="header">
+                    <div>
+                      {{ header.name }}: {{ header.value }}
+                    </div>
+                  </template>
+                  <div class="mt-2 w-full">
+                    <textarea :id="'payloadTextRequ_' + callback._length" class="w-full hidden"
+                              v-model="callback.requestPayload"></textarea>
+                  </div>
+                  <p class="my-2 text-lg font-bold">Response:</p>
+                  <div class="mt-2 w-full">
+                    <textarea :id="'payloadTextResp_' + callback._length" class="w-full hidden"
+                              v-model="callback.responsePayload"></textarea>
+                  </div>
+                </td>
               </tr>
             </template>
             <template v-if="callbacks.length === 0">
               <tr>
                 <td class="p-2"></td>
                 <td class="p-2"></td>
-                <td class="p-2">No Requests recorded yet.</td>
-                <td class="p-2"></td>
+                <td class="p-2">
+                  <div class="p-2 rounded-md darkest_bg w-fit">
+                    <div class="text-center">
+                      <p>No Requests recorded yet.</p>
+                      <p class="mt-2">
+                        Send POST requests to the URL shown above to have them show up here!
+                      </p>
+                    </div>
+                  </div>
+                </td>
               </tr>
             </template>
             </tbody>
@@ -187,7 +222,7 @@
 <script>
 import CodeMirror from 'codemirror'
 import 'codemirror/lib/codemirror.css'
-import 'codemirror/theme/dracula.css'
+import 'codemirror/theme/ayu-mirage.css'
 import 'codemirror/mode/xml/xml.js'
 import 'codemirror/mode/javascript/javascript.js'
 import { Base64 } from 'js-base64'
@@ -221,7 +256,7 @@ export default {
     this.checkFCMTokenField()
     this.cm = CodeMirror.fromTextArea(document.getElementById('return_message'), {
       lineNumbers: true,
-      theme: 'dracula',
+      theme: 'ayu-mirage',
       mode: 'xml'
     })
     this.loadConfig()
@@ -233,6 +268,24 @@ export default {
         const obj = JSON.parse(event.data.obj)
         obj._length = this.callbacks.length + 1
         this.callbacks.unshift(obj)
+        setTimeout(() => {
+          let txA = document.getElementById('payloadTextRequ_' + obj._length)
+          if (txA) {
+            CodeMirror.fromTextArea(txA, {
+              lineNumbers: true,
+              theme: 'ayu-mirage',
+              mode: 'null'
+            })
+          }
+          txA = document.getElementById('payloadTextResp_' + obj._length)
+          if (txA) {
+            CodeMirror.fromTextArea(txA, {
+              lineNumbers: true,
+              theme: 'ayu-mirage',
+              mode: 'null'
+            })
+          }
+        }, 0)
       }
     }
   },

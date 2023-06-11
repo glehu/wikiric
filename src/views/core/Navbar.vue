@@ -428,6 +428,12 @@ export default {
           href: '/apps/plannernew',
           current: false,
           main: false
+        },
+        {
+          name: 'Mockingbird',
+          href: '/dev/api',
+          current: false,
+          main: false
         }
       ],
       notifications: [],

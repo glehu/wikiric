@@ -44,7 +44,7 @@
                                   {{ getHumanReadableDateText(friend.ts) }}
                                 </div>
                               </div>
-                              <div class="text-neutral-300 max-h-12 overflow-hidden text-ellipsis">
+                              <div class="text-neutral-300 max-h-12 overflow-hidden text-ellipsis break-all">
                                 {{ friend.msg }}
                               </div>
                             </div>

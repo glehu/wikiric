@@ -2857,10 +2857,16 @@ export default {
         .catch((err) => console.debug(err.message))
     },
     getImgFlipSelection: function () {
+      const headers = new Headers()
+      // headers.append('pragma', 'no-cache')
+      // headers.append('cache-control', 'no-cache')
+      // headers.append('Access-Control-Allow-Origin', 'https://api.imgflip.com')
       fetch(
         'https://api.imgflip.com/get_memes',
         {
-          method: 'get'
+          method: 'get',
+          cache: 'no-cache',
+          headers
         }
       )
         .then((res) => res.json())

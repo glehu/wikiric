@@ -153,7 +153,7 @@
                       </div>
                       <button class="btn_bg_primary"
                               type="button"
-                              v-on:click="register('metamask')"
+                              v-on:click="register('phantom')"
                               v-show="phantom.account !== ''">
                         Register
                       </button>
