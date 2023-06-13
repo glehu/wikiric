@@ -220,5 +220,21 @@ onmessage = function (e) {
         success: false
       })
     }
+  } else if (msg.action === 'fwd') {
+    try {
+      ws.send('[c:FWD]' + JSON.stringify({
+        username: msg.username,
+        type: msg.type,
+        value: msg.value
+      }))
+      e.ports[0].postMessage({
+        success: true
+      })
+    } catch (e) {
+      console.debug(e.message)
+      e.ports[0].postMessage({
+        success: false
+      })
+    }
   }
 }

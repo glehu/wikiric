@@ -11,7 +11,7 @@ const WRTC = {
   },
   peerConnections: new Map(),
   logStyle: 'color: #FFF; background-color: #000; padding: 2px; font-weight: bold;',
-  doLog: false,
+  doLog: true,
   doLogVerbose: false,
   /*
   FUNCTIONS
@@ -27,8 +27,9 @@ const WRTC = {
    * @param stream
    * @param selfId
    * @param remoteId
+   * @param createDataChannel
    */
-  initiatePeerConnection: function (stream, selfId, remoteId) {
+  initiatePeerConnection: function (stream, selfId, remoteId, createDataChannel = false) {
     if (this.peerConnections.has(remoteId)) {
       if (this.doLog) console.log('%cRenegotiating Peer Connection', this.logStyle, 'for', remoteId)
       try {
@@ -57,6 +58,16 @@ const WRTC = {
         peerConnection.addTrack(track, stream)
       })
     }
+    // Create data channel if desired
+    let sendChannel
+    if (createDataChannel) {
+      sendChannel = peerConnection.createDataChannel('sendChannel')
+      const doLog = this.doLog
+      const logStyle = this.logStyle
+      sendChannel.onopen = function () {
+        if (doLog) console.debug('%cDATA CHANNEL OPEN to', logStyle, remoteId)
+      }
+    }
     // Listen for connection changes
     peerConnection.addEventListener('connectionstatechange', event => {
       const payload = {
@@ -69,11 +80,16 @@ const WRTC = {
     })
     // Listen for new ICE candidates
     peerConnection.addEventListener('icecandidate', event => {
+      if (peerConnection.endReached === true) return
       let iceCandidate = null
       if (event.candidate) {
         iceCandidate = event.candidate
+        if (this.doLog && this.doLogVerbose) {
+          console.log('%cNew ICE Candidate Gathered', this.logStyle, iceCandidate)
+        }
       } else {
         if (this.doLog) console.log('%cReached End of Candidates)', this.logStyle, event.candidate)
+        peerConnection.endReached = true
       }
       peerConnection.iceAvailable = true
       peerConnection.candidateCounter += 1
@@ -81,9 +97,6 @@ const WRTC = {
         id: peerConnection.candidateCounter,
         candidate: iceCandidate
       })
-      if (this.doLog && this.doLogVerbose) {
-        console.log('%cNew ICE Candidate Gathered', this.logStyle, iceCandidate)
-      }
       if (peerConnection.isAccepted) {
         if (this.doLog && this.doLogVerbose) {
           console.log('%c---> Forwarding as Connection was Agreed Upon', this.logStyle)

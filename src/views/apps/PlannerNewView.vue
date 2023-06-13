@@ -2486,7 +2486,8 @@ export default {
 }
 
 .p_card_menu_list_big_p {
-  @apply absolute mt-2 w-80 divide-y divide-zinc-400 border-[1px] border-zinc-400 shadow-zinc-900 shadow-2xl rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10;
+  @apply absolute mt-2 w-80 divide-y divide-zinc-400 border-[1px] border-zinc-400
+  shadow-zinc-900 shadow-2xl rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10;
 }
 
 .p_markdown p {

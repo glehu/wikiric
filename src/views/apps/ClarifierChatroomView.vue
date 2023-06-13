@@ -2522,9 +2522,9 @@ export default {
       }, 0)
     },
     processRawMessage: async function (msg, draft = false) {
-      if (msg.substr(0, 6) === '[c:SC]') {
+      if (msg.substring(0, 6) === '[c:SC]') {
         // Incoming ActionTrigger message (former Screen Share Payload)
-        const tmp = msg.substr(6)
+        const tmp = msg.substring(6)
         if (tmp.substring(0, 3) === '[A]') {
           // Offer
           const rtcOffer = JSON.parse(tmp.substring(3))
