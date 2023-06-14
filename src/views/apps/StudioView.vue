@@ -1,5 +1,6 @@
 <template>
   <template v-if="knowledgeExists">
+    <div id="users" ref="users"></div>
     <div class="flex w-full h-full pt-[55px] relative">
       <div class="border-t-[2px] border-t-neutral-700 w-full absolute"></div>
       <div class="fixed left-0 w-[250px] h-full medium_bg z-50">
@@ -87,7 +88,7 @@
           </div>
         </div>
         <div class="rounded m-2 p-2 dark_bg">
-          <p class="font-bold text-xs mb-2">Session Settings ({{ session.connectedUsers.length }} connected)</p>
+          <p class="font-bold text-xs">Session Settings ({{ session.connectedUsers.length }} connected)</p>
           <div class="p-1">
             <div class="flex w-full items-center py-2">
               <Menu as="div" class="relative inline-block text-left">
@@ -123,6 +124,16 @@
                   </MenuItems>
                 </transition>
               </Menu>
+            </div>
+            <div>
+              <div v-for="connection in session.connectedUsers" :key="connection"
+                   class="flex items-center justify-between">
+                <p>{{ connection.username }}</p>
+                <button class="px-2 py-1 rounded medium_bg hover:darkest_bg"
+                        v-on:click="removeConnection(connection.username)">
+                  x
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -174,7 +185,10 @@ export default {
       },
       session: {
         wRTC: {},
-        connectedUsers: []
+        connectedUsers: [],
+        userCtx: new Map(),
+        ctx1: null,
+        ctx2: null
       }
     }
   },
@@ -200,99 +214,6 @@ export default {
       this.srcGUID = srcGUID
       await this.getKnowledge(srcGUID)
       await this.getUniChatroom(srcGUID)
-    },
-    setUpConnector: function () {
-      this.connector = new BroadcastChannel('connector')
-      this.connector.onmessage = async event => {
-        if (event.data.type == null) return
-        if (event.data.type.substring(0, 4) === 'fwd:' && event.data.type.length > 4) {
-          const type = event.data.type.substring(4)
-          if (type === '[A]') {
-            // Received offer
-            const offer = JSON.parse(event.data.msg)
-            if (offer.selfId !== this.userId) return
-            const answer = await this.wRTC.acceptOffer(offer.selfId, offer.remoteId, offer.offer, null)
-            if (answer.answer) {
-              const userTarget = this.getUserFromId(offer.remoteId)
-              await this.$Worker.execute({
-                action: 'fwd',
-                username: userTarget,
-                type: '[B]',
-                value: JSON.stringify(answer)
-              })
-            }
-          } else if (type === '[B]') {
-            // Received answer
-            const answer = JSON.parse(event.data.msg)
-            const accepted = await this.wRTC.acceptAnswer(answer.remoteId, answer.answer)
-            if (!accepted) return
-            const resp = {
-              selfId: answer.remoteId,
-              remoteId: answer.selfId
-            }
-            if (this.wRTC.doLog) {
-              console.debug('%cAccepted Answer... sending and triggering ICE on REMOTE', this.wRTC.logStyle)
-            }
-            const userTarget = this.getUserFromId(answer.remoteId)
-            await this.$Worker.execute({
-              action: 'fwd',
-              username: userTarget,
-              type: '[D]',
-              value: JSON.stringify(resp)
-            })
-            const peerConnection = await this.wRTC.getPeerConnection(answer.remoteId)
-            if (peerConnection.candidates) {
-              for (let i = 0; i < peerConnection.candidates.length; i++) {
-                const candidatePayload = {
-                  selfId: peerConnection.remoteId,
-                  remoteId: this.userId,
-                  candidate: peerConnection.candidates[i].candidate
-                }
-                if (this.wRTC.doLog && this.wRTC.doLogVerbose) {
-                  console.debug('%cSending Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
-                }
-                await this.$Worker.execute({
-                  action: 'fwd',
-                  username: userTarget,
-                  type: '[C]',
-                  value: JSON.stringify(candidatePayload)
-                })
-              }
-            }
-          } else if (type === '[C]') {
-            // ICE Candidates
-            const rtcCandidatePayload = JSON.parse(event.data.msg)
-            if (rtcCandidatePayload.selfId === this.userId) {
-              await this.wRTC.setICECandidate(rtcCandidatePayload.remoteId, rtcCandidatePayload.candidate)
-            }
-          } else if (type === '[D]') {
-            // Accepted -> ICE Candidates
-            const payload = JSON.parse(event.data.msg)
-            const peerConnection = await this.wRTC.getPeerConnection(payload.remoteId)
-            if (peerConnection && peerConnection.candidates) {
-              const userTarget = this.getUserFromId(payload.remoteId)
-              for (let i = 0; i < peerConnection.candidates.length; i++) {
-                const candidatePayload = {
-                  selfId: payload.remoteId,
-                  remoteId: this.userId,
-                  candidate: peerConnection.candidates[i].candidate
-                }
-                if (this.wRTC.doLog && this.wRTC.doLogVerbose) {
-                  console.debug('%cSending gathered Candidate',
-                    this.wRTC.logStyle,
-                    peerConnection.candidates[i].candidate)
-                }
-                await this.$Worker.execute({
-                  action: 'fwd',
-                  username: userTarget,
-                  type: '[C]',
-                  value: JSON.stringify(candidatePayload)
-                })
-              }
-            }
-          }
-        }
-      }
     },
     getKnowledge: async function (sessionID) {
       return new Promise((resolve) => {
@@ -388,25 +309,27 @@ export default {
     initCanvas: function () {
       // Main Canvas
       const canvas = this.$refs.canvas
-      const ctx = canvas.getContext('2d')
+      this.ctx = canvas.getContext('2d')
       // Temporary Canvas (e.g. rectangle drawing guide etc.)
       const canvas2 = this.$refs.canvasTmp
-      const ctx2 = canvas2.getContext('2d')
+      this.ctx2 = canvas2.getContext('2d')
       // ---
       const stroke = this.$refs.colorStroke
       const vueInst = this
       // ---
       canvas.width = canvas.parentElement.clientWidth
       canvas.height = canvas.parentElement.clientHeight
-      ctx.lineCap = 'round'
+      this.ctx.lineCap = 'round'
+      this.ctx.strokeStyle = stroke.value
+      this.ctx.lineWidth = this.userSettings.strokeSize
       canvas2.width = canvas2.parentElement.clientWidth
       canvas2.height = canvas2.parentElement.clientHeight
-      ctx2.strokeStyle = '#FFFF00'
+      this.ctx2.strokeStyle = '#FFFF00'
       // Listeners
       canvas.addEventListener('mousedown', function (e) {
         if (vueInst.userSettings.cursorMode !== 'draw') return
-        ctx.strokeStyle = stroke.value
-        ctx.lineWidth = vueInst.userSettings.strokeSize
+        vueInst.ctx.strokeStyle = stroke.value
+        vueInst.ctx.lineWidth = vueInst.userSettings.strokeSize
         const shape = vueInst.userSettings.shapeMode
         if (shape === 'free') {
           vueInst.userState.isDrawing = true
@@ -423,61 +346,72 @@ export default {
         }
         if (vueInst.userState.isPreparing) {
           const shape = vueInst.userSettings.shapeMode
-          ctx2.clearRect(0, 0, canvas2.width, canvas2.height)
-          ctx2.beginPath()
+          vueInst.ctx2.clearRect(0, 0, canvas2.width, canvas2.height)
+          vueInst.ctx2.beginPath()
           vueInst.userState.isPreparing = false
           const X1 = vueInst.userState.prevX
           const Y1 = vueInst.userState.prevY
           if (shape === 'rect') {
             const X2 = e.clientX - X1 - canvas.offsetLeft
             const Y2 = e.clientY - Y1 - canvas.offsetTop
-            ctx.rect(X1, Y1, X2, Y2)
+            vueInst.ctx.rect(X1, Y1, X2, Y2)
+            vueInst.broadcast(
+              `[c:DR]${vueInst.$store.state.username};${vueInst.userState.prevX};${vueInst.userState.prevY};${e.clientX};${e.clientY}`
+            )
           } else if (shape === 'line') {
             const X2 = e.clientX - canvas.offsetLeft
             const Y2 = e.clientY - canvas.offsetTop
-            ctx.moveTo(X1, Y1)
-            ctx.lineTo(X2, Y2)
+            vueInst.ctx.moveTo(X1, Y1)
+            vueInst.ctx.lineTo(X2, Y2)
+            vueInst.broadcast(
+              `[c:DL]${vueInst.$store.state.username};${vueInst.userState.prevX};${vueInst.userState.prevY};${e.clientX};${e.clientY}`
+            )
           }
         }
-        ctx.stroke()
-        ctx.beginPath()
+        vueInst.ctx.stroke()
+        vueInst.ctx.beginPath()
+        // Send to others
+        vueInst.broadcast(`[c:MU]${vueInst.$store.state.username}`)
       })
       canvas.addEventListener('mousemove', function (e) {
+        // Show cursor to others
+        vueInst.broadcast(`[c:CP]${vueInst.$store.state.username};${e.clientX};${e.clientY}`)
+        // ---
         if (vueInst.userState.isPreparing) {
           const shape = vueInst.userSettings.shapeMode
-          ctx2.clearRect(0, 0, canvas2.width, canvas2.height)
-          ctx2.beginPath()
+          vueInst.ctx2.clearRect(0, 0, canvas2.width, canvas2.height)
+          vueInst.ctx2.beginPath()
           const X1 = vueInst.userState.prevX
           const Y1 = vueInst.userState.prevY
           if (shape === 'rect') {
             const X2 = e.clientX - X1 - canvas2.offsetLeft
             const Y2 = e.clientY - Y1 - canvas2.offsetTop
-            ctx2.rect(X1, Y1, X2, Y2)
+            vueInst.ctx2.rect(X1, Y1, X2, Y2)
           } else if (shape === 'line') {
             const X2 = e.clientX - canvas.offsetLeft
             const Y2 = e.clientY - canvas.offsetTop
-            ctx2.moveTo(X1, Y1)
-            ctx2.lineTo(X2, Y2)
+            vueInst.ctx2.moveTo(X1, Y1)
+            vueInst.ctx2.lineTo(X2, Y2)
           }
-          ctx2.stroke()
+          vueInst.ctx2.stroke()
         }
         if (!vueInst.userState.isDrawing) return
-        ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop)
-        ctx.stroke()
+        vueInst.ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop)
+        vueInst.ctx.stroke()
+        // Send to others
+        vueInst.broadcast(`[c:DF]${vueInst.$store.state.username};${e.clientX};${e.clientY}`)
       })
     },
     resetCanvas: function () {
       // Main Canvas
       const canvas = this.$refs.canvas
-      const ctx = canvas.getContext('2d')
       // Temporary Canvas (e.g. rectangle drawing guide etc.)
       const canvas2 = this.$refs.canvasTmp
-      const ctx2 = canvas2.getContext('2d')
       // Reset canvas (technically canvases)
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      ctx.beginPath()
-      ctx2.clearRect(0, 0, canvas2.width, canvas2.height)
-      ctx2.beginPath()
+      this.ctx.clearRect(0, 0, canvas.width, canvas.height)
+      this.ctx.beginPath()
+      this.ctx2.clearRect(0, 0, canvas2.width, canvas2.height)
+      this.ctx2.beginPath()
       // Report back
       this.$notify(
         {
@@ -485,6 +419,21 @@ export default {
           text: '',
           type: 'info'
         })
+    },
+    inviteUser: async function (remoteId) {
+      if (remoteId == null) return
+      if (this.wRTC.getPeerConnection(remoteId) !== null) return
+      this.wRTC.initiatePeerConnection(null, this.userId, remoteId, true)
+      const offer = await this.wRTC.createOffer(remoteId)
+      if (offer.offer) {
+        const userTarget = this.getUserFromId(remoteId)
+        await this.$Worker.execute({
+          action: 'fwd',
+          username: userTarget,
+          type: '[A]',
+          value: JSON.stringify(offer)
+        })
+      }
     },
     setUpWRTC: function () {
       // Initialize wRTC.js
@@ -529,24 +478,160 @@ export default {
         // const remoteStream = this.wRTC.getStream(event.data.remoteId)
       } else if (event.data.event === 'negotiationneeded') {
         // await this.startCall(event.data.remoteId, this.peerStreamOutgoingConstraints)
+        console.log('>>> RENEGOTIATION')
+      } else if (event.data.event === 'datachannel_open') {
+        // Add data channel and connection
+        const dC = this.wRTC.getPeerConnection(event.data.remoteId).dataChannel
+        dC.send('HEY')
+        const username = this.getUserFromId(event.data.remoteId)
+        this.session.connectedUsers.push({
+          username: username,
+          datachannel: dC
+        })
+        // Add to map for performance reasons
+        this.session.userCtx.set(username, this.$refs.canvas.getContext('2d'))
+        // Add remote visualizer element
+        const elem = document.createElement('div')
+        elem.id = `cp-${username}`
+        elem.style.position = 'absolute'
+        elem.style.color = 'white'
+        elem.style.fontSize = '0.75rem'
+        elem.style.fontWeight = 'bold'
+        const userTxt = document.createTextNode('◤ ' + username)
+        elem.appendChild(userTxt)
+        const element = document.getElementById('users')
+        element.appendChild(elem)
+      } else if (event.data.event === 'datachannel_message') {
+        if (event.data.message.substring(0, 6) === '[c:CP]') {
+          const valueList = event.data.message.substring(6).split(';')
+          const usrElem = document.getElementById('cp-' + valueList[0])
+          if (!usrElem) return
+          usrElem.style.left = `${valueList[1]}px`
+          usrElem.style.top = `${valueList[2]}px`
+        } else if (event.data.message.substring(0, 5) === '[c:X]') {
+          this.removeConnection(event.data.message.substring(5))
+        } else if (event.data.message.substring(0, 6) === '[c:DL]') {
+          // Draw Line
+          const valueList = event.data.message.substring(6).split(';')
+          const ctx = this.session.userCtx.get(valueList[0])
+          ctx.moveTo(
+            parseInt(valueList[1]) - this.$refs.canvas.offsetLeft,
+            parseInt(valueList[2]) - this.$refs.canvas.offsetTop)
+          ctx.lineTo(
+            parseInt(valueList[3]) - this.$refs.canvas.offsetLeft,
+            parseInt(valueList[4]) - this.$refs.canvas.offsetTop)
+          ctx.stroke()
+        } else if (event.data.message.substring(0, 6) === '[c:DR]') {
+          // Draw Rect
+          const valueList = event.data.message.substring(6).split(';')
+          const ctx = this.session.userCtx.get(valueList[0])
+          const X1 = parseInt(valueList[1]) - this.$refs.canvas.offsetLeft
+          const Y1 = parseInt(valueList[2]) - this.$refs.canvas.offsetTop
+          ctx.rect(
+            X1,
+            Y1,
+            parseInt(valueList[3]) - X1 - this.$refs.canvas.offsetLeft,
+            parseInt(valueList[4]) - Y1 - this.$refs.canvas.offsetTop)
+          ctx.stroke()
+        } else if (event.data.message.substring(0, 6) === '[c:DF]') {
+          // Draw Free
+          const valueList = event.data.message.substring(6).split(';')
+          const ctx = this.session.userCtx.get(valueList[0])
+          ctx.lineTo(
+            parseInt(valueList[1]) - this.$refs.canvas.offsetLeft,
+            parseInt(valueList[2]) - this.$refs.canvas.offsetTop)
+          ctx.stroke()
+        } else if (event.data.message.substring(0, 6) === '[c:MU]') {
+          // Mouse Up
+          const valueList = event.data.message.substring(6).split(';')
+          const ctx = this.session.userCtx.get(valueList[0])
+          ctx.beginPath()
+        }
       }
       return new Promise((resolve) => {
         resolve()
       })
     },
-    inviteUser: async function (remoteId) {
-      if (remoteId == null) return
-      if (this.wRTC.getPeerConnection(remoteId) !== null) return
-      this.wRTC.initiatePeerConnection(null, this.userId, remoteId, true)
-      const offer = await this.wRTC.createOffer(remoteId)
-      if (offer.offer) {
-        const userTarget = this.getUserFromId(remoteId)
-        await this.$Worker.execute({
-          action: 'fwd',
-          username: userTarget,
-          type: '[A]',
-          value: JSON.stringify(offer)
-        })
+    setUpConnector: function () {
+      this.connector = new BroadcastChannel('connector')
+      this.connector.onmessage = async event => {
+        if (event.data.type == null) return
+        if (event.data.type.substring(0, 4) === 'fwd:' && event.data.type.length > 4) {
+          const type = event.data.type.substring(4)
+          if (type === '[A]') {
+            // Received offer
+            const offer = JSON.parse(event.data.msg)
+            if (offer.selfId !== this.userId) return
+            const answer = await this.wRTC.acceptOffer(offer.selfId, offer.remoteId, offer.offer, null)
+            if (answer.answer) {
+              const userTarget = this.getUserFromId(offer.remoteId)
+              await this.$Worker.execute({
+                action: 'fwd',
+                username: userTarget,
+                type: '[B]',
+                value: JSON.stringify(answer)
+              })
+            }
+          } else if (type === '[B]') {
+            // Received answer
+            const answer = JSON.parse(event.data.msg)
+            const accepted = await this.wRTC.acceptAnswer(answer.remoteId, answer.answer)
+            if (!accepted) return
+            const resp = {
+              selfId: answer.remoteId,
+              remoteId: answer.selfId
+            }
+            const userTarget = this.getUserFromId(answer.remoteId)
+            await this.$Worker.execute({
+              action: 'fwd',
+              username: userTarget,
+              type: '[D]',
+              value: JSON.stringify(resp)
+            })
+            const peerConnection = await this.wRTC.getPeerConnection(answer.remoteId)
+            if (peerConnection.candidates) {
+              for (let i = 0; i < peerConnection.candidates.length; i++) {
+                const candidatePayload = {
+                  selfId: peerConnection.remoteId,
+                  remoteId: this.userId,
+                  candidate: peerConnection.candidates[i].candidate
+                }
+                await this.$Worker.execute({
+                  action: 'fwd',
+                  username: userTarget,
+                  type: '[C]',
+                  value: JSON.stringify(candidatePayload)
+                })
+              }
+            }
+          } else if (type === '[C]') {
+            // ICE Candidates
+            const rtcCandidatePayload = JSON.parse(event.data.msg)
+            if (rtcCandidatePayload.selfId === this.userId) {
+              await this.wRTC.setICECandidate(rtcCandidatePayload.remoteId, rtcCandidatePayload.candidate)
+            }
+          } else if (type === '[D]') {
+            // Accepted -> ICE Candidates
+            const payload = JSON.parse(event.data.msg)
+            const peerConnection = await this.wRTC.getPeerConnection(payload.remoteId)
+            if (peerConnection && peerConnection.candidates) {
+              const userTarget = this.getUserFromId(payload.remoteId)
+              for (let i = 0; i < peerConnection.candidates.length; i++) {
+                const candidatePayload = {
+                  selfId: payload.remoteId,
+                  remoteId: this.userId,
+                  candidate: peerConnection.candidates[i].candidate
+                }
+                await this.$Worker.execute({
+                  action: 'fwd',
+                  username: userTarget,
+                  type: '[C]',
+                  value: JSON.stringify(candidatePayload)
+                })
+              }
+            }
+          }
+        }
       }
     },
     getUserFromId: function (userId) {
@@ -555,6 +640,30 @@ export default {
         if (this.members[i].id === userId) {
           return this.members[i].usr
         }
+      }
+    },
+    removeConnection: function (username) {
+      if (username == null || username === '') return
+      // Remove user context
+      this.session.userCtx.delete(username)
+      // Remove connection
+      if (this.session.connectedUsers.length < 1) return null
+      for (let i = 0; i < this.session.connectedUsers.length; i++) {
+        if (this.session.connectedUsers[i].username === username) {
+          // Close datachannel and remove connection
+          this.session.connectedUsers[i].datachannel.send('[c:X]' + this.$store.state.username)
+          this.session.connectedUsers[i].datachannel.close()
+          this.session.connectedUsers.splice(i)
+          // Delete user element from screen
+          const elem = document.getElementById('cp-' + username)
+          if (elem) elem.remove()
+          return
+        }
+      }
+    },
+    broadcast: function (payload) {
+      for (let i = 0; i < this.session.connectedUsers.length; i++) {
+        this.session.connectedUsers[i].datachannel.send(payload)
       }
     }
   }

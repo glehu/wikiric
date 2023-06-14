@@ -29,7 +29,7 @@ const WRTC = {
    * @param remoteId
    * @param createDataChannel
    */
-  initiatePeerConnection: function (stream, selfId, remoteId, createDataChannel = false) {
+  initiatePeerConnection: function (stream, selfId, remoteId, createDataChannel = true) {
     if (this.peerConnections.has(remoteId)) {
       if (this.doLog) console.log('%cRenegotiating Peer Connection', this.logStyle, 'for', remoteId)
       try {
@@ -59,17 +59,49 @@ const WRTC = {
       })
     }
     // Create data channel if desired
-    let sendChannel
     if (createDataChannel) {
-      sendChannel = peerConnection.createDataChannel('sendChannel')
+      if (this.doLog) console.debug('%cADD DATA CHANNEL for', this.logStyle, remoteId)
+      peerConnection.dataChannel = peerConnection.createDataChannel('data', { negotiated: true, id: 0 })
       const doLog = this.doLog
       const logStyle = this.logStyle
-      sendChannel.onopen = function () {
-        if (doLog) console.debug('%cDATA CHANNEL OPEN to', logStyle, remoteId)
-      }
+      const eventChannel = this.eventChannel
+      peerConnection.dataChannel.addEventListener('open', _ => {
+        if (doLog) console.debug('%c(OUT) DATA CHANNEL OPEN to', logStyle, remoteId)
+        const payload = {
+          event: 'datachannel_open',
+          selfId: peerConnection.selfId,
+          remoteId: peerConnection.remoteId
+        }
+        eventChannel.postMessage(payload)
+        peerConnection.dataChannel.addEventListener('message', e => {
+          const payload = {
+            event: 'datachannel_message',
+            selfId: peerConnection.selfId,
+            remoteId: peerConnection.remoteId,
+            message: e.data
+          }
+          eventChannel.postMessage(payload)
+        })
+      })
     }
     // Listen for connection changes
-    peerConnection.addEventListener('connectionstatechange', event => {
+    /*
+    peerConnection.addEventListener('ondatachannel', event => {
+      if (this.doLog) console.debug('%c(IN) DATA CHANNEL OPEN to', this.logStyle, remoteId)
+      peerConnection.dataChannel = event.channel
+      peerConnection.dataChannel.addEventListener('onmessage', e => {
+        const payload = {
+          event: 'datachannel_message',
+          selfId: peerConnection.selfId,
+          remoteId: peerConnection.remoteId,
+          message: e.data
+        }
+        this.eventChannel.postMessage(payload)
+      })
+    })
+     */
+    // Listen for connection changes
+    peerConnection.addEventListener('connectionstatechange', _ => {
       const payload = {
         event: 'connection_change',
         selfId: peerConnection.selfId,
@@ -110,6 +142,7 @@ const WRTC = {
         this.eventChannel.postMessage(payload)
       }
     })
+    // Listen for incoming tracks
     peerConnection.addEventListener('track', async (event) => {
       if (event.streams) {
         const [remoteStream] = event.streams
