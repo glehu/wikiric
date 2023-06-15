@@ -140,6 +140,7 @@
       </div>
       <canvas id="canvas" ref="canvas" class="w-full h-full absolute z-40"></canvas>
       <canvas id="canvasTmp" ref="canvasTmp" class="w-full h-full absolute z-30"></canvas>
+      <div id="userCanvases" ref="userCanvases" class="w-full h-full"></div>
     </div>
   </template>
 </template>
@@ -488,8 +489,20 @@ export default {
           username: username,
           datachannel: dC
         })
+        // Create canvas for remote user
+        const remoteCanvas = document.createElement('canvas')
+        remoteCanvas.id = `rc-${username}`
+        remoteCanvas.style.position = 'absolute'
+        remoteCanvas.width = this.$refs.canvas.parentElement.clientWidth
+        remoteCanvas.height = this.$refs.canvas.parentElement.clientHeight
+        const userCanvasListElem = document.getElementById('userCanvases')
+        userCanvasListElem.appendChild(remoteCanvas)
         // Add to map for performance reasons
-        this.session.userCtx.set(username, this.$refs.canvas.getContext('2d'))
+        const remoteCtx = document.getElementById(`rc-${username}`).getContext('2d')
+        remoteCtx.lineCap = 'round'
+        remoteCtx.strokeStyle = '#FFFFFF'
+        remoteCtx.lineWidth = 5
+        this.session.userCtx.set(username, remoteCtx)
         // Add remote visualizer element
         const elem = document.createElement('div')
         elem.id = `cp-${username}`
@@ -499,8 +512,8 @@ export default {
         elem.style.fontWeight = 'bold'
         const userTxt = document.createTextNode('◤ ' + username)
         elem.appendChild(userTxt)
-        const element = document.getElementById('users')
-        element.appendChild(elem)
+        const userListElem = document.getElementById('users')
+        userListElem.appendChild(elem)
       } else if (event.data.event === 'datachannel_message') {
         if (event.data.message.substring(0, 6) === '[c:CP]') {
           const valueList = event.data.message.substring(6).split(';')
@@ -516,7 +529,7 @@ export default {
           const ctx = this.session.userCtx.get(valueList[0])
           ctx.moveTo(
             parseInt(valueList[1]) - this.$refs.canvas.offsetLeft,
-            parseInt(valueList[2]) - this.$refs.canvas.offsetTop)
+            parseInt(valueList[2]))
           ctx.lineTo(
             parseInt(valueList[3]) - this.$refs.canvas.offsetLeft,
             parseInt(valueList[4]) - this.$refs.canvas.offsetTop)
@@ -526,7 +539,7 @@ export default {
           const valueList = event.data.message.substring(6).split(';')
           const ctx = this.session.userCtx.get(valueList[0])
           const X1 = parseInt(valueList[1]) - this.$refs.canvas.offsetLeft
-          const Y1 = parseInt(valueList[2]) - this.$refs.canvas.offsetTop
+          const Y1 = parseInt(valueList[2])
           ctx.rect(
             X1,
             Y1,
@@ -654,8 +667,10 @@ export default {
           this.session.connectedUsers[i].datachannel.send('[c:X]' + this.$store.state.username)
           this.session.connectedUsers[i].datachannel.close()
           this.session.connectedUsers.splice(i)
-          // Delete user element from screen
-          const elem = document.getElementById('cp-' + username)
+          // Delete user elements from screen
+          let elem = document.getElementById('rc-' + username)
+          if (elem) elem.remove()
+          elem = document.getElementById('cp-' + username)
           if (elem) elem.remove()
           return
         }
