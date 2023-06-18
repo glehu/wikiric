@@ -1,9 +1,9 @@
 <template>
   <template v-if="knowledgeExists">
     <div id="users" ref="users"></div>
-    <div class="flex w-full h-full pt-[55px] relative">
-      <div class="border-t-[2px] border-t-neutral-700 w-full absolute"></div>
-      <div class="fixed left-0 w-[250px] h-full medium_bg z-50">
+    <div class="flex w-full h-full relative">
+      <div class="border-b-[2px] border-b-neutral-700 w-full fixed top-0 left-0 pt-[55px]"></div>
+      <div class="fixed left-0 top-0 w-[250px] h-full medium_bg z-50 pt-[55px]">
         <div class="py-1">
           <div class="flex items-center">
             <div v-on:click="clickedBack()"
@@ -130,8 +130,9 @@
                    class="flex items-center justify-between">
                 <p>{{ connection.username }}</p>
                 <button class="px-2 py-1 rounded medium_bg hover:darkest_bg"
+                        v-tooltip.top="{ content: 'Remove' }"
                         v-on:click="removeConnection(connection.username)">
-                  x
+                  <span>x</span>
                 </button>
               </div>
             </div>
@@ -336,8 +337,8 @@ export default {
           vueInst.userState.isDrawing = true
         } else if (shape === 'rect' || shape === 'line') {
           if (vueInst.userState.isPreparing) return
-          vueInst.userState.prevX = e.clientX - canvas.offsetLeft
-          vueInst.userState.prevY = e.clientY - canvas.offsetTop
+          vueInst.userState.prevX = e.clientX
+          vueInst.userState.prevY = e.clientY
           vueInst.userState.isPreparing = true
         }
       })
@@ -353,19 +354,19 @@ export default {
           const X1 = vueInst.userState.prevX
           const Y1 = vueInst.userState.prevY
           if (shape === 'rect') {
-            const X2 = e.clientX - X1 - canvas.offsetLeft
-            const Y2 = e.clientY - Y1 - canvas.offsetTop
+            const X2 = e.clientX - X1
+            const Y2 = e.clientY - Y1
             vueInst.ctx.rect(X1, Y1, X2, Y2)
             vueInst.broadcast(
-              `[c:DR]${vueInst.$store.state.username};${vueInst.userState.prevX};${vueInst.userState.prevY};${e.clientX};${e.clientY}`
+              vueInst.buildABString('[c:DR]', vueInst.userState.prevX, vueInst.userState.prevY, e.clientX, e.clientY)
             )
           } else if (shape === 'line') {
-            const X2 = e.clientX - canvas.offsetLeft
-            const Y2 = e.clientY - canvas.offsetTop
+            const X2 = e.clientX
+            const Y2 = e.clientY
             vueInst.ctx.moveTo(X1, Y1)
             vueInst.ctx.lineTo(X2, Y2)
             vueInst.broadcast(
-              `[c:DL]${vueInst.$store.state.username};${vueInst.userState.prevX};${vueInst.userState.prevY};${e.clientX};${e.clientY}`
+              vueInst.buildABString('[c:DL]', vueInst.userState.prevX, vueInst.userState.prevY, e.clientX, e.clientY)
             )
           }
         }
@@ -385,22 +386,22 @@ export default {
           const X1 = vueInst.userState.prevX
           const Y1 = vueInst.userState.prevY
           if (shape === 'rect') {
-            const X2 = e.clientX - X1 - canvas2.offsetLeft
-            const Y2 = e.clientY - Y1 - canvas2.offsetTop
+            const X2 = e.clientX - X1
+            const Y2 = e.clientY - Y1
             vueInst.ctx2.rect(X1, Y1, X2, Y2)
           } else if (shape === 'line') {
-            const X2 = e.clientX - canvas.offsetLeft
-            const Y2 = e.clientY - canvas.offsetTop
+            const X2 = e.clientX
+            const Y2 = e.clientY
             vueInst.ctx2.moveTo(X1, Y1)
             vueInst.ctx2.lineTo(X2, Y2)
           }
           vueInst.ctx2.stroke()
         }
         if (!vueInst.userState.isDrawing) return
-        vueInst.ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop)
+        vueInst.ctx.lineTo(e.clientX, e.clientY)
         vueInst.ctx.stroke()
         // Send to others
-        vueInst.broadcast(`[c:DF]${vueInst.$store.state.username};${e.clientX};${e.clientY}`)
+        vueInst.broadcast(vueInst.buildFString('[c:DF]', e.clientX, e.clientY))
       })
     },
     resetCanvas: function () {
@@ -508,6 +509,9 @@ export default {
         elem.id = `cp-${username}`
         elem.style.position = 'absolute'
         elem.style.color = 'white'
+        elem.style.padding = '1px 2px 1px 2px'
+        elem.style.borderRadius = '50%'
+        elem.style.backgroundColor = 'rgb(24 24 27)'
         elem.style.fontSize = '0.75rem'
         elem.style.fontWeight = 'bold'
         const userTxt = document.createTextNode('◤ ' + username)
@@ -516,6 +520,7 @@ export default {
         userListElem.appendChild(elem)
       } else if (event.data.event === 'datachannel_message') {
         if (event.data.message.substring(0, 6) === '[c:CP]') {
+          // Cursor Position
           const valueList = event.data.message.substring(6).split(';')
           const usrElem = document.getElementById('cp-' + valueList[0])
           if (!usrElem) return
@@ -528,31 +533,31 @@ export default {
           const valueList = event.data.message.substring(6).split(';')
           const ctx = this.session.userCtx.get(valueList[0])
           ctx.moveTo(
-            parseInt(valueList[1]) - this.$refs.canvas.offsetLeft,
+            parseInt(valueList[1]),
             parseInt(valueList[2]))
           ctx.lineTo(
-            parseInt(valueList[3]) - this.$refs.canvas.offsetLeft,
-            parseInt(valueList[4]) - this.$refs.canvas.offsetTop)
+            parseInt(valueList[3]),
+            parseInt(valueList[4]))
           ctx.stroke()
         } else if (event.data.message.substring(0, 6) === '[c:DR]') {
           // Draw Rect
           const valueList = event.data.message.substring(6).split(';')
           const ctx = this.session.userCtx.get(valueList[0])
-          const X1 = parseInt(valueList[1]) - this.$refs.canvas.offsetLeft
+          const X1 = parseInt(valueList[1])
           const Y1 = parseInt(valueList[2])
           ctx.rect(
             X1,
             Y1,
-            parseInt(valueList[3]) - X1 - this.$refs.canvas.offsetLeft,
-            parseInt(valueList[4]) - Y1 - this.$refs.canvas.offsetTop)
+            parseInt(valueList[3]) - X1,
+            parseInt(valueList[4]) - Y1)
           ctx.stroke()
         } else if (event.data.message.substring(0, 6) === '[c:DF]') {
           // Draw Free
           const valueList = event.data.message.substring(6).split(';')
           const ctx = this.session.userCtx.get(valueList[0])
           ctx.lineTo(
-            parseInt(valueList[1]) - this.$refs.canvas.offsetLeft,
-            parseInt(valueList[2]) - this.$refs.canvas.offsetTop)
+            parseInt(valueList[1]),
+            parseInt(valueList[2]))
           ctx.stroke()
         } else if (event.data.message.substring(0, 6) === '[c:MU]') {
           // Mouse Up
@@ -676,7 +681,21 @@ export default {
         }
       }
     },
+    buildABString: function (prfx, oldX, oldY, x, y, lnW = null, sC = null, fC = null) {
+      if (lnW == null) lnW = this.userSettings.strokeSize
+      if (sC == null) sC = this.$refs.colorStroke.value
+      if (fC == null) fC = this.$refs.colorFill.value
+      return `${prfx}${this.$store.state.username};${oldX};${oldY};${x};${y};${lnW};${sC};${fC}`
+    },
+    buildFString: function (prfx, x, y, lnW = null, sC = null, fC = null) {
+      if (lnW == null) lnW = this.userSettings.strokeSize
+      if (sC == null) sC = this.$refs.colorStroke.value
+      if (fC == null) fC = this.$refs.colorFill.value
+      return `${prfx}${this.$store.state.username};${x};${y};${lnW};${sC};${fC}`
+    },
     broadcast: function (payload) {
+      if (this.session.connectedUsers.length < 1) return
+      console.log(payload)
       for (let i = 0; i < this.session.connectedUsers.length; i++) {
         this.session.connectedUsers[i].datachannel.send(payload)
       }
