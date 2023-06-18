@@ -532,6 +532,8 @@ export default {
           // Draw Line
           const valueList = event.data.message.substring(6).split(';')
           const ctx = this.session.userCtx.get(valueList[0])
+          ctx.lineWidth = parseInt(valueList[5])
+          ctx.strokeStyle = valueList[6]
           ctx.moveTo(
             parseInt(valueList[1]),
             parseInt(valueList[2]))
@@ -543,6 +545,8 @@ export default {
           // Draw Rect
           const valueList = event.data.message.substring(6).split(';')
           const ctx = this.session.userCtx.get(valueList[0])
+          ctx.lineWidth = parseInt(valueList[5])
+          ctx.strokeStyle = valueList[6]
           const X1 = parseInt(valueList[1])
           const Y1 = parseInt(valueList[2])
           ctx.rect(
@@ -555,6 +559,8 @@ export default {
           // Draw Free
           const valueList = event.data.message.substring(6).split(';')
           const ctx = this.session.userCtx.get(valueList[0])
+          ctx.lineWidth = parseInt(valueList[3])
+          ctx.strokeStyle = valueList[4]
           ctx.lineTo(
             parseInt(valueList[1]),
             parseInt(valueList[2]))
@@ -695,7 +701,6 @@ export default {
     },
     broadcast: function (payload) {
       if (this.session.connectedUsers.length < 1) return
-      console.log(payload)
       for (let i = 0; i < this.session.connectedUsers.length; i++) {
         this.session.connectedUsers[i].datachannel.send(payload)
       }
