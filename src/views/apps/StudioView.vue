@@ -706,6 +706,14 @@ export default {
             ctx.drawImage(imageToDraw, X1, Y1, X2, Y2)
           }
           imageToDraw.src = valueList[5]
+        } else if (event.data.message.substring(0, 6) === '[c:DT]') {
+          // Draw Text
+          const valueList = event.data.message.substring(6).split(';')
+          const ctx = this.session.userCtx.get(valueList[0])
+          ctx.fillStyle = valueList[4]
+          const X1 = parseInt(valueList[1])
+          const Y1 = parseInt(valueList[2])
+          ctx.fillText(valueList[3], X1, Y1)
         } else if (event.data.message.substring(0, 6) === '[c:DF]') {
           // Draw Free
           const valueList = event.data.message.substring(6).split(';')
