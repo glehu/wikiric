@@ -339,10 +339,11 @@ const WRTC = {
         }
       }
     }
-    this.peerConnections = new Map()
     if (!remoteId) {
+      this.peerConnections = new Map()
       if (this.doLog) console.log('%cHung up!', this.logStyle)
     } else {
+      this.peerConnections.delete(remoteId)
       if (this.doLog) console.log('%cRemoved a peer connection', this.logStyle, remoteId)
     }
   },

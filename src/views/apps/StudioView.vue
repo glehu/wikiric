@@ -3,7 +3,7 @@
     <div id="users" ref="users"></div>
     <div class="flex w-full h-full relative">
       <div class="border-b-[2px] border-b-neutral-700 w-full fixed top-0 left-0 pt-[55px]"></div>
-      <div class="fixed left-0 top-0 w-[250px] h-full medium_bg z-50 pt-[55px]">
+      <div class="fixed left-0 top-0 w-[250px] h-full medium_bg z-50 pt-[55px] z-50">
         <div class="py-1">
           <div class="flex items-center">
             <div v-on:click="clickedBack()"
@@ -37,6 +37,11 @@
                    v-on:click="setToolButton('draw')">
                 <PaintBrushIcon class="h-6 w-6 text-neutral-100"></PaintBrushIcon>
               </div>
+              <div id="btnCursorText" ref="btnCursorText"
+                   class="studioToolbarButton"
+                   v-on:click="setToolButton('text')">
+                <PencilSquareIcon class="h-6 w-6 text-neutral-100"></PencilSquareIcon>
+              </div>
             </div>
             <div class="flex w-full justify-evenly mb-2">
               <div id="btnShapeFree" ref="btnShapeFree"
@@ -55,7 +60,7 @@
                 <p class="text-sm">Rect.</p>
               </div>
             </div>
-            <div class="flex w-full items-center justify-evenly mb-2 py-2">
+            <div class="flex w-full items-center justify-evenly">
               <div>
                 <label for="strokeSize" class="text-sm text-neutral-300">
                   Size ({{ userSettings.strokeSize }} px)
@@ -79,12 +84,34 @@
                 <input type="color" name="colorFill" id="colorFill" ref="colorFill" value="#FFFFFF">
               </div>
             </div>
-            <div class="flex w-full pt-2">
-              <button class="ml-auto text-neutral-300 px-2 py-1 rounded medium_bg hover:darkest_bg"
+            <div class="flex w-full justify-end gap-x-2">
+              <button class="text-neutral-300 px-2 py-1 rounded medium_bg hover:darkest_bg"
                       v-on:click="resetCanvas()">
                 <span>Clear</span>
               </button>
             </div>
+          </div>
+        </div>
+        <div class="rounded m-2 p-2 dark_bg">
+          <p class="font-bold text-xs mb-2">Media</p>
+          <div class="p-1">
+            <template v-if="imageToDraw !== null">
+              <button class="text-neutral-300 px-2 py-1 rounded w-full
+                             bg-red-800 hover:bg-red-900 border-[1px] border-red-500"
+                      v-on:click="cancelAddMedia()">
+                <span>Cancel media</span>
+              </button>
+            </template>
+            <template v-else>
+              <button class="btn_small_icon text-neutral-300"
+                      v-on:click="isAddingMedia = true">
+                <DocumentArrowUpIcon
+                  class="mr-3 h-6 w-6"
+                  aria-hidden="true"
+                />
+                <span class="text-mg">Add image</span>
+              </button>
+            </template>
           </div>
         </div>
         <div class="rounded m-2 p-2 dark_bg">
@@ -94,11 +121,9 @@
               <Menu as="div" class="relative inline-block text-left">
                 <MenuButton
                   title="Options"
-                  class="hover:darkest_bg p-1 ml-2 bg-opacity-50 rounded flex items-center cursor-pointer">
-                  <div class="text-neutral-200 p-2 rounded-md hover:darkest_bg flex items-center">
-                    <UserPlusIcon class="w-[24px] h-[24px]"></UserPlusIcon>
-                    <span class="pl-2">Invite</span>
-                  </div>
+                  class="btn_small_icon text-neutral-300 flex items-center cursor-pointer">
+                  <UserPlusIcon class="w-6 h-6 mr-3"></UserPlusIcon>
+                  <span class="text-md">Invite</span>
                 </MenuButton>
                 <transition
                   enter-active-class="transition duration-100 ease-out"
@@ -131,7 +156,7 @@
                 <p>{{ connection.username }}</p>
                 <button class="px-2 py-1 rounded medium_bg hover:darkest_bg"
                         v-tooltip.top="{ content: 'Remove' }"
-                        v-on:click="removeConnection(connection.username)">
+                        v-on:click="removeConnection(connection)">
                   <span>x</span>
                 </button>
               </div>
@@ -139,16 +164,81 @@
           </div>
         </div>
       </div>
-      <canvas id="canvas" ref="canvas" class="w-full h-full absolute z-40"></canvas>
-      <canvas id="canvasTmp" ref="canvasTmp" class="w-full h-full absolute z-30"></canvas>
+      <canvas id="canvas" ref="canvas" class="w-full h-full absolute z-20 border-[2px] border-neutral-700"></canvas>
+      <canvas id="canvasTmp" ref="canvasTmp" class="w-full h-full absolute z-30 pointer-events-none"></canvas>
       <div id="userCanvases" ref="userCanvases" class="w-full h-full"></div>
+      <div :id="'draggableText_0_div'"
+           class="imgflip_text z-40 hidden">
+        <div class="flex gap-x-2 items-center">
+          <div :id="'draggableText_0_div_anchor'"
+               class="draggable_meme_text_anchor"
+               style="font-family: Arial, sans-serif; text-shadow: none">
+            <i class="bi bi-arrows-move" style="font-size: 75%; color: black"></i>
+          </div>
+          <div>
+            <button class="btn_bg_primary w-fit flex items-center justify-center"
+                    style="height: 24px !important;"
+                    v-on:click="renderText">
+              <span>Submit</span>
+            </button>
+          </div>
+        </div>
+        <textarea :id="'draggableText_0'" rows="1" cols="16"
+                  class="font-bold draggable_meme_text border-2 border-black"></textarea>
+      </div>
     </div>
   </template>
+  <modal
+    v-show="isAddingMedia"
+    @close="cancelAddMedia">
+    <template v-slot:header>
+      Add File
+    </template>
+    <template v-slot:body>
+      <template v-if="uploadFileType !== ''">
+        <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px"
+             class="markedView max-w-[400px]">
+          <img v-if="uploadFileType.includes('image')"
+               class="uploadFileSnippet"
+               v-bind:src="uploadFileBase64" :alt="'&nbsp;'"/>
+        </div>
+      </template>
+      <input type="file" class="file_input" id="studio_add_media" ref="studio_add_media" name="files[]"
+             accept="image/png, image/jpeg"
+             style="width: 100%"
+             multiple v-on:change="handleUploadFileSelect"/>
+      <template v-if="uploadFileBase64 !== ''">
+        <p class="text-neutral-300 font-bold">{{ this.uploadFileName }}</p>
+        <div class="mt-3 w-full">
+          <template v-if="uploadFileType.includes('image')">
+            <button class="darkbutton text-white p-2 w-full flex items-center justify-center rounded-full"
+                    style="height: 2.5em;
+                           border-color: transparent; margin: auto"
+                    title="Send"
+                    v-on:click="setImageMode">
+              <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Draw</span>
+              <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ this.uploadFileType }}</span>
+            </button>
+          </template>
+          <template v-else>
+            <div class="text-white p-2 w-full flex items-center justify-center rounded-full
+                        bg-red-800">
+              <p>File does not contain an image!</p>
+            </div>
+          </template>
+        </div>
+      </template>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
 </template>
 
 <script>
+// Own
+import modal from '../../components/Modal.vue'
 // Icons
-import { CursorArrowRaysIcon, PaintBrushIcon } from '@heroicons/vue/24/outline'
+import { CursorArrowRaysIcon, DocumentArrowUpIcon, PaintBrushIcon, PencilSquareIcon } from '@heroicons/vue/24/outline'
 import { UserPlusIcon } from '@heroicons/vue/24/solid'
 import WRTC from '@/libs/wRTC'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
@@ -156,13 +246,16 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 export default {
   name: 'StudioView',
   components: {
+    modal,
     CursorArrowRaysIcon,
     PaintBrushIcon,
     UserPlusIcon,
     Menu,
     MenuButton,
     MenuItems,
-    MenuItem
+    MenuItem,
+    DocumentArrowUpIcon,
+    PencilSquareIcon
   },
   data () {
     return {
@@ -174,8 +267,13 @@ export default {
       userId: '',
       connector: null,
       isoverlay: false,
+      isAddingMedia: false,
+      uploadFileName: '',
+      uploadFileType: '',
+      uploadFileBase64: '',
+      imageToDraw: null,
       userSettings: {
-        cursorMode: 'cursor', // cursor or draw
+        cursorMode: 'cursor', // cursor or draw or image
         shapeMode: 'free', // free or line or rect
         strokeSize: 5
       },
@@ -277,14 +375,20 @@ export default {
       }
       const btnCursor = this.$refs.btnCursorCursor
       const btnDraw = this.$refs.btnCursorDraw
+      const btnText = this.$refs.btnCursorText
+      btnCursor.classList.remove('btnActive')
+      btnDraw.classList.remove('btnActive')
+      btnText.classList.remove('btnActive')
       if (this.userSettings.cursorMode === 'cursor') {
         btnCursor.classList.add('btnActive')
-        btnDraw.classList.remove('btnActive')
         this.$refs.canvas.style.cursor = 'default'
-      } else {
-        btnCursor.classList.remove('btnActive')
+      } else if (this.userSettings.cursorMode === 'draw') {
         btnDraw.classList.add('btnActive')
         this.$refs.canvas.style.cursor = 'crosshair'
+      } else if (this.userSettings.cursorMode === 'text') {
+        btnText.classList.add('btnActive')
+        this.$refs.canvas.style.cursor = 'default'
+        this.toggleTextMode()
       }
     },
     setShapeButton: function (override = null) {
@@ -294,17 +398,14 @@ export default {
       const btnFree = this.$refs.btnShapeFree
       const btnLine = this.$refs.btnShapeLine
       const btnRect = this.$refs.btnShapeRect
+      btnFree.classList.remove('btnActive')
+      btnLine.classList.remove('btnActive')
+      btnRect.classList.remove('btnActive')
       if (this.userSettings.shapeMode === 'free') {
         btnFree.classList.add('btnActive')
-        btnLine.classList.remove('btnActive')
-        btnRect.classList.remove('btnActive')
       } else if (this.userSettings.shapeMode === 'line') {
-        btnFree.classList.remove('btnActive')
         btnLine.classList.add('btnActive')
-        btnRect.classList.remove('btnActive')
       } else if (this.userSettings.shapeMode === 'rect') {
-        btnFree.classList.remove('btnActive')
-        btnLine.classList.remove('btnActive')
         btnRect.classList.add('btnActive')
       }
     },
@@ -317,13 +418,24 @@ export default {
       this.ctx2 = canvas2.getContext('2d')
       // ---
       const stroke = this.$refs.colorStroke
+      const fill = this.$refs.colorFill
       const vueInst = this
       // ---
+      canvas.style.minWidth = canvas.parentElement.clientWidth + 'px'
+      canvas.style.maxWidth = canvas.style.minWidth
+      canvas.style.minHeight = canvas.parentElement.clientHeight + 'px'
+      canvas.style.maxHeight = canvas.style.minHeight
       canvas.width = canvas.parentElement.clientWidth
       canvas.height = canvas.parentElement.clientHeight
       this.ctx.lineCap = 'round'
       this.ctx.strokeStyle = stroke.value
+      this.ctx.fillStyle = fill.value
       this.ctx.lineWidth = this.userSettings.strokeSize
+      this.ctx.font = "20px 'Open Sans'"
+      canvas2.style.minWidth = canvas.style.minWidth
+      canvas2.style.maxWidth = canvas.style.minWidth
+      canvas2.style.minHeight = canvas.style.minHeight
+      canvas2.style.maxHeight = canvas.style.minHeight
       canvas2.width = canvas2.parentElement.clientWidth
       canvas2.height = canvas2.parentElement.clientHeight
       this.ctx2.strokeStyle = '#FFFF00'
@@ -335,7 +447,7 @@ export default {
         const shape = vueInst.userSettings.shapeMode
         if (shape === 'free') {
           vueInst.userState.isDrawing = true
-        } else if (shape === 'rect' || shape === 'line') {
+        } else if (shape === 'rect' || shape === 'line' || shape === 'image') {
           if (vueInst.userState.isPreparing) return
           vueInst.userState.prevX = e.clientX
           vueInst.userState.prevY = e.clientY
@@ -368,6 +480,14 @@ export default {
             vueInst.broadcast(
               vueInst.buildABString('[c:DL]', vueInst.userState.prevX, vueInst.userState.prevY, e.clientX, e.clientY)
             )
+          } else if (shape === 'image') {
+            const X2 = e.clientX - X1
+            const Y2 = e.clientY - Y1
+            vueInst.ctx.drawImage(vueInst.imageToDraw, X1, Y1, X2, Y2)
+            vueInst.broadcast(
+              vueInst.buildIString('[c:DI]', vueInst.userState.prevX, vueInst.userState.prevY, e.clientX, e.clientY)
+            )
+            vueInst.cancelAddMedia()
           }
         }
         vueInst.ctx.stroke()
@@ -385,7 +505,7 @@ export default {
           vueInst.ctx2.beginPath()
           const X1 = vueInst.userState.prevX
           const Y1 = vueInst.userState.prevY
-          if (shape === 'rect') {
+          if (shape === 'rect' || shape === 'image') {
             const X2 = e.clientX - X1
             const Y2 = e.clientY - Y1
             vueInst.ctx2.rect(X1, Y1, X2, Y2)
@@ -424,7 +544,9 @@ export default {
     },
     inviteUser: async function (remoteId) {
       if (remoteId == null) return
-      if (this.wRTC.getPeerConnection(remoteId) !== null) return
+      if (this.wRTC.getPeerConnection(remoteId) !== null) {
+        this.wRTC.hangup(remoteId)
+      }
       this.wRTC.initiatePeerConnection(null, this.userId, remoteId, true)
       const offer = await this.wRTC.createOffer(remoteId)
       if (offer.offer) {
@@ -482,18 +604,30 @@ export default {
         // await this.startCall(event.data.remoteId, this.peerStreamOutgoingConstraints)
         console.log('>>> RENEGOTIATION')
       } else if (event.data.event === 'datachannel_open') {
+        const username = this.getUserFromId(event.data.remoteId)
+        // Report back
+        this.$notify(
+          {
+            title: 'User joined!',
+            text: `${username} is now collaborating with you.`,
+            type: 'info'
+          })
         // Add data channel and connection
         const dC = this.wRTC.getPeerConnection(event.data.remoteId).dataChannel
         dC.send('HEY')
-        const username = this.getUserFromId(event.data.remoteId)
         this.session.connectedUsers.push({
           username: username,
-          datachannel: dC
+          datachannel: dC,
+          remoteId: event.data.remoteId
         })
         // Create canvas for remote user
         const remoteCanvas = document.createElement('canvas')
         remoteCanvas.id = `rc-${username}`
         remoteCanvas.style.position = 'absolute'
+        remoteCanvas.style.minWidth = this.$refs.canvas.style.minWidth
+        remoteCanvas.style.maxWidth = this.$refs.canvas.style.maxWidth
+        remoteCanvas.style.minHeight = this.$refs.canvas.style.minHeight
+        remoteCanvas.style.maxHeight = this.$refs.canvas.style.maxHeight
         remoteCanvas.width = this.$refs.canvas.parentElement.clientWidth
         remoteCanvas.height = this.$refs.canvas.parentElement.clientHeight
         const userCanvasListElem = document.getElementById('userCanvases')
@@ -502,7 +636,9 @@ export default {
         const remoteCtx = document.getElementById(`rc-${username}`).getContext('2d')
         remoteCtx.lineCap = 'round'
         remoteCtx.strokeStyle = '#FFFFFF'
+        remoteCtx.fillStyle = '#FFFFFF'
         remoteCtx.lineWidth = 5
+        remoteCtx.font = "20px 'Open Sans'"
         this.session.userCtx.set(username, remoteCtx)
         // Add remote visualizer element
         const elem = document.createElement('div')
@@ -549,12 +685,27 @@ export default {
           ctx.strokeStyle = valueList[6]
           const X1 = parseInt(valueList[1])
           const Y1 = parseInt(valueList[2])
+          const X2 = parseInt(valueList[3])
+          const Y2 = parseInt(valueList[4])
           ctx.rect(
             X1,
             Y1,
-            parseInt(valueList[3]) - X1,
-            parseInt(valueList[4]) - Y1)
+            X2 - X1,
+            Y2 - Y1)
           ctx.stroke()
+        } else if (event.data.message.substring(0, 6) === '[c:DI]') {
+          // Draw Image
+          const valueList = event.data.message.substring(6).split(';')
+          const ctx = this.session.userCtx.get(valueList[0])
+          const X1 = parseInt(valueList[1])
+          const Y1 = parseInt(valueList[2])
+          const X2 = parseInt(valueList[3])
+          const Y2 = parseInt(valueList[4])
+          const imageToDraw = new Image()
+          imageToDraw.onload = function () {
+            ctx.drawImage(imageToDraw, X1, Y1, X2, Y2)
+          }
+          imageToDraw.src = valueList[5]
         } else if (event.data.message.substring(0, 6) === '[c:DF]') {
           // Draw Free
           const valueList = event.data.message.substring(6).split(';')
@@ -666,7 +817,9 @@ export default {
         }
       }
     },
-    removeConnection: function (username) {
+    removeConnection: function (connection) {
+      if (connection == null) return
+      const username = connection.username
       if (username == null || username === '') return
       // Remove user context
       this.session.userCtx.delete(username)
@@ -678,6 +831,7 @@ export default {
           this.session.connectedUsers[i].datachannel.send('[c:X]' + this.$store.state.username)
           this.session.connectedUsers[i].datachannel.close()
           this.session.connectedUsers.splice(i)
+          this.wRTC.hangup(connection.remoteId)
           // Delete user elements from screen
           let elem = document.getElementById('rc-' + username)
           if (elem) elem.remove()
@@ -699,10 +853,185 @@ export default {
       if (fC == null) fC = this.$refs.colorFill.value
       return `${prfx}${this.$store.state.username};${x};${y};${lnW};${sC};${fC}`
     },
+    buildIString: function (prfx, oldX, oldY, x, y) {
+      return `${prfx}${this.$store.state.username};${oldX};${oldY};${x};${y};${this.uploadFileBase64}`
+    },
+    buildTString: function (prfx, x, y, text, fC = null) {
+      if (fC == null) fC = this.$refs.colorFill.value
+      return `${prfx}${this.$store.state.username};${x};${y};${text};${fC}`
+    },
     broadcast: function (payload) {
       if (this.session.connectedUsers.length < 1) return
       for (let i = 0; i < this.session.connectedUsers.length; i++) {
         this.session.connectedUsers[i].datachannel.send(payload)
+      }
+    },
+    handleUploadFileSelect: async function (evt, drop = false) {
+      if (!evt) return
+      evt.stopPropagation()
+      evt.preventDefault()
+      let files
+      if (drop) {
+        files = evt.dataTransfer.files
+      } else {
+        files = evt.target.files
+      }
+      this.uploadFileBase64 = await this.getBase64(files[0])
+      this.uploadFileType = files[0].type
+      this.uploadFileName = files[0].name
+    },
+    getBase64: function (file) {
+      return new Promise(function (resolve, reject) {
+        const reader = new FileReader()
+        reader.onload = function () {
+          resolve(reader.result)
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+    },
+    cancelAddMedia: function () {
+      this.isAddingMedia = false
+      this.uploadFileType = ''
+      this.uploadFileName = ''
+      this.uploadFileBase64 = ''
+      this.imageToDraw = null
+      this.userSettings.shapeMode = 'free'
+      this.setShapeButton('free')
+    },
+    uploadSnippet: function () {
+      const content = JSON.stringify({
+        type: this.uploadFileType,
+        payload: this.uploadFileBase64,
+        name: this.uploadFileName
+      })
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: 'm6/create',
+        body: content
+      })
+        .then((data) => (this.processUploadSnippetResponse(data.result)))
+        .catch((err) => (this.handleUploadSnippetError(err.message)))
+    },
+    handleUploadSnippetError: function (errorMessage = '') {
+      console.debug(errorMessage)
+      this.$notify(
+        {
+          title: 'File Not Uploaded',
+          text: 'An Error occurred while uploading the file.',
+          type: 'error'
+        })
+    },
+    processUploadSnippetResponse: async function (response) {
+      if (response.httpCode !== 201) {
+        this.handleUploadSnippetError()
+        return
+      }
+      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.guid
+      let prefix
+      if (this.uploadFileType.includes('image')) {
+        prefix = ' !'
+      } else {
+        prefix = ' '
+      }
+      let filename = this.uploadFileName
+      if (filename == null || filename === '') filename = 'Snippet'
+      let text = prefix + '[' + filename + '](' + contentURL + ')'
+      if (prefix === ' !') {
+        text = '\n\n' + text + '\n\n'
+      }
+      console.log(text)
+      setTimeout(() => {
+        // this.addToTextArea(this.editingProcess.guid + '_description_edit', text)
+      }, 0)
+      this.cancelAddMedia()
+    },
+    setImageMode: function () {
+      const imageToDraw = new Image()
+      const vueInst = this
+      imageToDraw.onload = function () {
+        vueInst.userSettings.cursorMode = 'draw'
+        vueInst.userSettings.shapeMode = 'image'
+        vueInst.imageToDraw = this
+        vueInst.isAddingMedia = false
+        vueInst.setToolButton('draw')
+        vueInst.setShapeButton('image')
+      }
+      imageToDraw.src = this.uploadFileBase64
+    },
+    toggleTextMode: function () {
+      const elem = document.getElementById('draggableText_0_div')
+      elem.style.left = '320px'
+      elem.style.top = '200px'
+      const defaultTextarea = document.getElementById('draggableText_0')
+      defaultTextarea.value = ''
+      elem.style.display = 'block'
+      this.makeElementDraggable(elem)
+      setTimeout(() => {
+        defaultTextarea.focus()
+        defaultTextarea.select()
+      }, 100)
+    },
+    renderText: function () {
+      const defaultTextarea = document.getElementById('draggableText_0')
+      if (defaultTextarea == null || defaultTextarea.value == null || defaultTextarea.value === '') return
+      const elem = document.getElementById('draggableText_0_div')
+      // Render
+      let y = parseInt(elem.style.top)
+      y = y + 52
+      let x = parseInt(elem.style.left)
+      x = x + 12
+      this.ctx.fillStyle = this.$refs.colorFill.value
+      this.ctx.fillText(defaultTextarea.value, x, y)
+      // Broadcast
+      this.broadcast(
+        this.buildTString('[c:DT]', x, y, defaultTextarea.value)
+      )
+      // Reset
+      elem.style.display = 'none'
+      elem.onmousedown = null
+      elem.onmousemove = null
+      elem.style.left = '320px'
+      elem.style.top = '200px'
+      this.userSettings.cursorMode = 'draw'
+      this.setToolButton('draw')
+    },
+    makeElementDraggable: function (element) {
+      let pos1 = 0
+      let pos2 = 0
+      let pos3 = 0
+      let pos4 = 0
+      const elem = document.getElementById(element.id + '_anchor')
+      if (elem) {
+        elem.onmousedown = dragMouseDown
+      } else {
+        element.onmousedown = dragMouseDown
+      }
+
+      function dragMouseDown (e) {
+        e = e || window.event
+        e.preventDefault()
+        pos3 = e.clientX
+        pos4 = e.clientY
+        document.onmouseup = closeDragElement
+        document.onmousemove = elementDrag
+      }
+
+      function elementDrag (e) {
+        e = e || window.event
+        e.preventDefault()
+        pos1 = pos3 - e.clientX
+        pos2 = pos4 - e.clientY
+        pos3 = e.clientX
+        pos4 = e.clientY
+        element.style.top = (element.offsetTop - pos2) + 'px'
+        element.style.left = (element.offsetLeft - pos1) + 'px'
+      }
+
+      function closeDragElement () {
+        document.onmouseup = null
+        document.onmousemove = null
       }
     }
   }
@@ -734,6 +1063,43 @@ export default {
   @apply absolute top-0 mb-2 w-80 divide-y divide-zinc-400 border-[1px] border-zinc-400
   shadow-zinc-900 shadow-2xl rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10
   max-h-40 overflow-y-scroll;
+}
+
+.darkbutton {
+  @apply darkest_bg px-2 py-2;
+}
+
+.darkbutton:hover {
+  @apply bg-black;
+}
+
+.imgflip_text {
+  width: calc(100% - 330px);
+  height: 55px;
+  position: absolute;
+  left: 320px;
+  top: 200px;
+  color: white;
+  background: transparent;
+  border: none;
+}
+
+.draggable_meme_text {
+  resize: horizontal;
+  color: white;
+  padding-left: 10px;
+  @apply bg-black;
+}
+
+.draggable_meme_text_anchor {
+  width: 24px;
+  height: 24px;
+  background-color: white;
+  cursor: move;
+  border: 1px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center
 }
 
 </style>
