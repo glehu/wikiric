@@ -91,11 +91,11 @@ onmessage = function (e) {
       .then((res) => res.json())
       .then((data) => (response = data))
       .then(() => {
+        e.ports[0].postMessage({
+          success: response.success,
+          result: response
+        })
         if (response.success) {
-          e.ports[0].postMessage({
-            success: true,
-            result: response
-          })
           refreshToken()
         }
       })

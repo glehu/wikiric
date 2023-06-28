@@ -228,8 +228,12 @@ export default {
           uRaw: this.user.email + ':' + this.user.password,
           username: this.user.username
         })
-          .then((data) => (this.response = data))
-          .then(this.processRegistration)
+          .then((data) => {
+            this.response = data
+          })
+          .then(() => {
+            this.processRegistration()
+          })
           .catch((err) => console.log(err.message))
       }
     },
@@ -248,7 +252,12 @@ export default {
         this.user.email = ''
         this.user.password = ''
         this.user.passwordRpt = ''
-        alert(this.response.message)
+        this.$notify(
+          {
+            title: 'Register Failed',
+            text: this.response.result.message,
+            type: 'error'
+          })
       }
     },
     redirectGitHub () {
@@ -284,8 +293,12 @@ export default {
         uRaw: this.metamask.account + ':' + response,
         username: this.user.username
       })
-        .then((data) => (this.response = data))
-        .then(this.processRegistration)
+        .then((data) => {
+          this.response = data
+        })
+        .then(() => {
+          this.processRegistration()
+        })
         .catch((err) => console.log(err.message))
     },
     checkForPhantom: function () {
@@ -317,14 +330,19 @@ export default {
         'https://wikiric.xyz.'
       const encodedMessage = new TextEncoder().encode(signingMessage)
       const signedMessage = await provider.signMessage(encodedMessage, 'utf8')
+      const signedString = btoa(String.fromCharCode.apply(null, signedMessage.signature))
       this.$Worker.execute({
         action: 'signup',
-        u: Base64.encode(this.phantom.account + ':' + signedMessage),
-        uRaw: this.phantom.account + ':' + signedMessage,
+        u: Base64.encode(this.phantom.account + ':' + signedString),
+        uRaw: this.phantom.account + ':' + signedString,
         username: this.user.username
       })
-        .then((data) => (this.response = data))
-        .then(this.processRegistration)
+        .then((data) => {
+          this.response = data
+        })
+        .then(() => {
+          this.processRegistration()
+        })
         .catch((err) => console.log(err.message))
     }
   }

@@ -50,59 +50,63 @@
           </div>
         </div>
       </section>
-      <section class="flex justify-center">
-        <div id="metamask_registration" class="container h-full p-3">
-          <div class="justify-center items-center h-full">
-            <div class="bright_card">
-              <div class="p-4 text-center">
-                <div class="md:mt-0">
-                  <p class="pointer-events-none">Sign in via</p>
-                  <h1 class="font-bold text-4xl"
-                      style="pointer-events: none">
-                    MetaMask
-                  </h1>
-                  <div class="w-full h-[128px] flex justify-center">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"
-                         class="w-full h-full py-2"
-                         alt="MetaMask Icon">
+      <template v-if="hasMetaMask">
+        <section class="flex justify-center">
+          <div id="metamask_registration" class="container h-full p-3">
+            <div class="justify-center items-center h-full">
+              <div class="bright_card">
+                <div class="p-4 text-center">
+                  <div class="md:mt-0">
+                    <p class="pointer-events-none">Sign in via</p>
+                    <h1 class="font-bold text-4xl"
+                        style="pointer-events: none">
+                      MetaMask
+                    </h1>
+                    <div class="w-full h-[128px] flex justify-center">
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg"
+                           class="w-full h-full py-2"
+                           alt="MetaMask Icon">
+                    </div>
+                    <button class="btn_bg_primary"
+                            type="button"
+                            v-on:click="handleMetaMaskLogin">
+                      Connect
+                    </button>
                   </div>
-                  <button class="btn_bg_primary"
-                          type="button"
-                          v-on:click="handleMetaMaskLogin">
-                    Connect
-                  </button>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-      <section class="flex justify-center">
-        <div id="phantom_registration" class="container h-full p-3">
-          <div class="justify-center items-center h-full">
-            <div class="bright_card">
-              <div class="p-4 text-center">
-                <div class="md:mt-0">
-                  <p class="pointer-events-none">Sign in via</p>
-                  <h1 class="font-bold text-4xl"
-                      style="pointer-events: none">
-                    Phantom
-                  </h1>
-                  <div class="w-full h-[128px] flex justify-center">
-                    <img src='@/assets/phantom/phantom-icon-purple.svg' alt="Phantom Logo"
-                         class="h-full w-full py-3">
+        </section>
+      </template>
+      <template v-if="hasPhantom">
+        <section class="flex justify-center">
+          <div id="phantom_registration" class="container h-full p-3">
+            <div class="justify-center items-center h-full">
+              <div class="bright_card">
+                <div class="p-4 text-center">
+                  <div class="md:mt-0">
+                    <p class="pointer-events-none">Sign in via</p>
+                    <h1 class="font-bold text-4xl"
+                        style="pointer-events: none">
+                      Phantom
+                    </h1>
+                    <div class="w-full h-[128px] flex justify-center">
+                      <img src='@/assets/phantom/phantom-icon-purple.svg' alt="Phantom Logo"
+                           class="h-full w-full py-3">
+                    </div>
+                    <button class="btn_bg_primary"
+                            type="button"
+                            v-on:click="handlePhantomLogin">
+                      Connect
+                    </button>
                   </div>
-                  <button class="btn_bg_primary"
-                          type="button"
-                          v-on:click="handlePhantomLogin">
-                    Connect
-                  </button>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </template>
     </form>
   </div>
 </template>
