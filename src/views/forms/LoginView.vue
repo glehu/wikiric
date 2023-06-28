@@ -221,7 +221,11 @@ export default {
     },
     checkForMetaMask: async function () {
       try {
-        const provider = await detectEthereumProvider()
+        const provider = await detectEthereumProvider({
+          mustBeMetaMask: true,
+          silent: true,
+          timeout: 3000
+        })
         if (provider && provider === window.ethereum) {
           this.hasMetaMask = true
         }
