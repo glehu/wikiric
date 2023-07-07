@@ -48,7 +48,8 @@
     "vuedraggable": "^4.1.0",
     "vuex": "^4.1.0",
     "vuex-persistedstate": "^4.1.0",
-    "web3": "^1.10.0"
+    "web3": "^1.10.0",
+    "webrtc-adapter": "^8.2.3"
   },
   "devDependencies": {
     "@babel/core": "^7.22.5",

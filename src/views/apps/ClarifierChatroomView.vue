@@ -1817,7 +1817,11 @@ export default {
     setUpWRTC: function () {
       // Initialize wRTC.js
       this.wRTC = WRTC
-      this.wRTC.sayHi() // :D
+      this.wRTC.worker = this.$Worker
+      this.wRTC.selfName = this.$store.state.username
+      this.wRTC.selfId = this.userId
+      this.wRTC.doLogVerbose = true
+      this.wRTC.initialize() // :D
       // Create BroadcastChannel to listen to wRTC events!
       const eventChannel = new BroadcastChannel('wrtcevents')
       eventChannel.onmessage = event => {
@@ -1828,25 +1832,6 @@ export default {
       if (!event || !event.data) return
       if (event.data.event === 'connection_change') {
         if (this.wRTC.doLog) console.debug('%c' + event.data.status, this.wRTC.logStyle)
-      } else if (event.data.event === 'new_ice') {
-        const candidateId = event.data.candidateId
-        const peerConnection = await this.wRTC.getPeerConnection(event.data.remoteId)
-        for (let i = 0; i < peerConnection.candidates.length; i++) {
-          if (peerConnection.candidates[i].id === candidateId) {
-            const candidatePayload = {
-              selfId: peerConnection.remoteId,
-              remoteId: this.userId,
-              candidate: peerConnection.candidates[i].candidate
-            }
-            if (this.wRTC.doLog && this.wRTC.doLogVerbose) {
-              console.debug('%cSending renegotiated Candidate',
-                this.wRTC.logStyle,
-                peerConnection.candidates[i].candidate)
-            }
-            this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
-            break
-          }
-        }
       } else if (event.data.event === 'incoming_track') {
         this.isStreamingVideo = true
         this.streamStartTime = Math.floor(Date.now() / 1000)
@@ -1863,8 +1848,6 @@ export default {
         }
         videoElem.srcObject = remoteStream
         videoElem.setAttribute('controls', '')
-      } else if (event.data.event === 'negotiationneeded') {
-        await this.startCall(event.data.remoteId, this.peerStreamOutgoingConstraints)
       }
       return new Promise((resolve) => {
         resolve()
@@ -2523,72 +2506,8 @@ export default {
     },
     processRawMessage: async function (msg, draft = false) {
       if (msg.substring(0, 6) === '[c:SC]') {
-        // Incoming ActionTrigger message (former Screen Share Payload)
         const tmp = msg.substring(6)
-        if (tmp.substring(0, 3) === '[A]') {
-          // Offer
-          const rtcOffer = JSON.parse(tmp.substring(3))
-          if (rtcOffer.selfId === this.userId) {
-            let approval
-            if (this.params) {
-              approval = true
-            } else if (this.isStreamingVideo === false) {
-              if (this.currentSubchat.type === 'screenshare') {
-                approval = confirm('Incoming Screen Share. Join?')
-              } else if (this.currentSubchat.type === 'webcam') {
-                approval = confirm('Incoming Video Call. Join?')
-              }
-            } else {
-              // Don't prompt user more than once!
-              approval = true
-            }
-            if (approval) {
-              let stream = null
-              if (this.currentSubchat.type === 'webcam' || this.params) {
-                try {
-                  const streamLocal = await navigator.mediaDevices.getUserMedia(
-                    this.peerStreamOutgoingConstraints
-                  )
-                  const videoElem = document.getElementById('screenshare_video')
-                  videoElem.srcObject = streamLocal
-                  if (streamLocal) stream = streamLocal
-                } catch (e) {
-                  console.debug(e.message)
-                }
-              }
-              await this.acceptWebRTCOffer(rtcOffer, stream)
-            }
-          }
-        } else if (tmp.substring(0, 3) === '[B]') {
-          // Answer
-          const rtcAnswer = JSON.parse(tmp.substring(3))
-          await this.acceptWebRTCAnswer(rtcAnswer)
-        } else if (tmp.substring(0, 3) === '[C]') {
-          // ICE Candidates
-          const rtcCandidatePayload = JSON.parse(tmp.substring(3))
-          if (rtcCandidatePayload.selfId === this.userId) {
-            await this.setICECandidate(rtcCandidatePayload)
-          }
-        } else if (tmp.substring(0, 3) === '[D]') {
-          // ICE Candidates
-          const payload = JSON.parse(tmp.substring(3))
-          const peerConnection = await this.wRTC.getPeerConnection(payload.remoteId)
-          if (peerConnection && peerConnection.candidates) {
-            for (let i = 0; i < peerConnection.candidates.length; i++) {
-              const candidatePayload = {
-                selfId: payload.remoteId,
-                remoteId: this.userId,
-                candidate: peerConnection.candidates[i].candidate
-              }
-              if (this.wRTC.doLog && this.wRTC.doLogVerbose) {
-                console.debug('%cSending gathered Candidate',
-                  this.wRTC.logStyle,
-                  peerConnection.candidates[i].candidate)
-              }
-              this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
-            }
-          }
-        } else if (tmp.substring(0, 10) === '[activity]') {
+        if (tmp.substring(0, 10) === '[activity]') {
           this.receiveActivity(tmp.substring(10))
         } else if (tmp.substring(0, 8) === '[online]') {
           this.setActiveMembers([tmp.substring(8)])
@@ -4323,45 +4242,13 @@ export default {
       }
       return i
     },
-    acceptWebRTCOffer: async function (payload, stream) {
-      if (this.peerType === 'caller') {
-        if (this.wRTC.doLog) console.debug('Receiving offer as caller!')
-      } else {
-        this.peerType = 'callee'
-      }
-      const answer = await this.wRTC.acceptOffer(payload.selfId, payload.remoteId, payload.offer, stream)
-      if (answer.answer) {
-        this.addMessagePar('[c:SC]' + '[B]' + JSON.stringify(answer))
-      }
-    },
-    acceptWebRTCAnswer: async function (payload) {
-      const accepted = await this.wRTC.acceptAnswer(payload.remoteId, payload.answer)
-      if (!accepted) return
-      const resp = {
-        selfId: payload.remoteId,
-        remoteId: payload.selfId
-      }
-      if (this.wRTC.doLog) {
-        console.debug('%cAccepted Answer... sending and triggering ICE on REMOTE', this.wRTC.logStyle)
-      }
-      this.addMessagePar('[c:SC]' + '[D]' + JSON.stringify(resp))
-      const peerConnection = await this.wRTC.getPeerConnection(payload.remoteId)
-      if (peerConnection.candidates) {
-        for (let i = 0; i < peerConnection.candidates.length; i++) {
-          const candidatePayload = {
-            selfId: peerConnection.remoteId,
-            remoteId: this.userId,
-            candidate: peerConnection.candidates[i].candidate
-          }
-          if (this.wRTC.doLog && this.wRTC.doLogVerbose) {
-            console.debug('%cSending Candidate', this.wRTC.logStyle, peerConnection.candidates[i].candidate)
-          }
-          this.addMessagePar('[c:SC]' + '[C]' + JSON.stringify(candidatePayload))
+    getUserFromId: function (userId) {
+      if (this.members.length < 1) return null
+      for (let i = 0; i < this.members.length; i++) {
+        if (this.members[i].id === userId) {
+          return this.members[i].usr
         }
       }
-    },
-    setICECandidate: async function (payload) {
-      await this.wRTC.setICECandidate(payload.remoteId, payload.candidate)
     },
     createOutgoingPeerConnections: async function (stream, userId) {
       const calleeList = []
@@ -4376,13 +4263,10 @@ export default {
         }
       }
       // Create a WebRTC Peer to Peer Connection for each callee
-      let offer = null
+      let remoteName
       for (let i = 0; i < calleeList.length; i++) {
-        this.wRTC.initiatePeerConnection(stream, this.userId, calleeList[i])
-        offer = await this.wRTC.createOffer(calleeList[i])
-        if (offer.offer) {
-          this.addMessagePar('[c:SC]' + '[A]' + JSON.stringify(offer))
-        }
+        remoteName = this.getUserFromId(calleeList[i])
+        this.wRTC.initiatePeerConnection(stream, this.userId, calleeList[i], remoteName)
       }
     },
     makeElementDraggable: function (element) {
@@ -4921,13 +4805,6 @@ export default {
       const messagesSection = this.$refs.messages_section
       messagesSection.style.width = '350px'
       this.mediaMaxWidth = 'clamp(200px, 100%, 255px)'
-    },
-    getUserFromId: function (userId) {
-      for (let i = 0; i < this.members.length; i++) {
-        if (this.members[i].id === userId) {
-          return this.members[i].usr
-        }
-      }
     },
     createProcess: async function () {
       return new Promise((resolve) => {

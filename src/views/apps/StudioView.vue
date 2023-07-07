@@ -300,8 +300,6 @@ export default {
       this.setToolButton()
       this.setShapeButton()
       this.initCanvas()
-      this.setUpWRTC()
-      this.setUpConnector()
       // ---
       const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop)
@@ -314,6 +312,7 @@ export default {
       this.srcGUID = srcGUID
       await this.getKnowledge(srcGUID)
       await this.getUniChatroom(srcGUID)
+      this.setUpWRTC()
     },
     getKnowledge: async function (sessionID) {
       return new Promise((resolve) => {
@@ -421,23 +420,36 @@ export default {
       const fill = this.$refs.colorFill
       const vueInst = this
       // ---
-      canvas.style.minWidth = canvas.parentElement.clientWidth + 'px'
+      // canvas.style.minWidth = canvas.parentElement.clientWidth + 'px'
+      // canvas.style.maxWidth = canvas.style.minWidth
+      // canvas.style.minHeight = canvas.parentElement.clientHeight + 'px'
+      // canvas.style.maxHeight = canvas.style.minHeight
+      // canvas.width = canvas.parentElement.clientWidth
+      // canvas.height = canvas.parentElement.clientHeight
+      canvas.style.minWidth = '2000px'
       canvas.style.maxWidth = canvas.style.minWidth
-      canvas.style.minHeight = canvas.parentElement.clientHeight + 'px'
+      canvas.style.minHeight = '2000px'
       canvas.style.maxHeight = canvas.style.minHeight
-      canvas.width = canvas.parentElement.clientWidth
-      canvas.height = canvas.parentElement.clientHeight
+      canvas.width = 2000
+      canvas.height = 2000
+      // ---
       this.ctx.lineCap = 'round'
       this.ctx.strokeStyle = stroke.value
       this.ctx.fillStyle = fill.value
       this.ctx.lineWidth = this.userSettings.strokeSize
-      this.ctx.font = "20px 'Open Sans'"
-      canvas2.style.minWidth = canvas.style.minWidth
+      this.ctx.font = '20px \'Open Sans\''
+      // canvas2.style.minWidth = canvas.style.minWidth
+      // canvas2.style.maxWidth = canvas.style.minWidth
+      // canvas2.style.minHeight = canvas.style.minHeight
+      // canvas2.style.maxHeight = canvas.style.minHeight
+      // canvas2.width = canvas2.parentElement.clientWidth
+      // canvas2.height = canvas2.parentElement.clientHeight
+      canvas2.style.minWidth = '2000px'
       canvas2.style.maxWidth = canvas.style.minWidth
-      canvas2.style.minHeight = canvas.style.minHeight
+      canvas2.style.minHeight = '2000px'
       canvas2.style.maxHeight = canvas.style.minHeight
-      canvas2.width = canvas2.parentElement.clientWidth
-      canvas2.height = canvas2.parentElement.clientHeight
+      canvas2.width = 2000
+      canvas2.height = 2000
       this.ctx2.strokeStyle = '#FFFF00'
       // Listeners
       canvas.addEventListener('mousedown', function (e) {
@@ -497,7 +509,7 @@ export default {
       })
       canvas.addEventListener('mousemove', function (e) {
         // Show cursor to others
-        vueInst.broadcast(`[c:CP]${vueInst.$store.state.username};${e.clientX};${e.clientY}`)
+        vueInst.broadcast(`[c:CP]${vueInst.$store.state.username}|${e.clientX}|${e.clientY}`)
         // ---
         if (vueInst.userState.isPreparing) {
           const shape = vueInst.userSettings.shapeMode
@@ -547,22 +559,18 @@ export default {
       if (this.wRTC.getPeerConnection(remoteId) !== null) {
         this.wRTC.hangup(remoteId)
       }
-      this.wRTC.initiatePeerConnection(null, this.userId, remoteId, true)
-      const offer = await this.wRTC.createOffer(remoteId)
-      if (offer.offer) {
-        const userTarget = this.getUserFromId(remoteId)
-        await this.$Worker.execute({
-          action: 'fwd',
-          username: userTarget,
-          type: '[A]',
-          value: JSON.stringify(offer)
-        })
-      }
+      const remoteName = this.getUserFromId(remoteId)
+      this.wRTC.initiatePeerConnection(
+        null, this.userId, remoteId, remoteName, true)
     },
     setUpWRTC: function () {
       // Initialize wRTC.js
       this.wRTC = WRTC
-      this.wRTC.sayHi() // :D
+      this.wRTC.worker = this.$Worker
+      this.wRTC.selfName = this.$store.state.username
+      this.wRTC.selfId = this.userId
+      this.wRTC.doLogVerbose = true
+      this.wRTC.initialize()
       // Create BroadcastChannel to listen to wRTC events!
       const eventChannel = new BroadcastChannel('wrtcevents')
       eventChannel.onmessage = event => {
@@ -572,37 +580,7 @@ export default {
     handleWRTCEvent: async function (event) {
       if (!event || !event.data) return
       if (event.data.event === 'connection_change') {
-        if (this.wRTC.doLog) console.debug('%c' + event.data.status, this.wRTC.logStyle)
-      } else if (event.data.event === 'new_ice') {
-        const candidateId = event.data.candidateId
-        const peerConnection = await this.wRTC.getPeerConnection(event.data.remoteId)
-        for (let i = 0; i < peerConnection.candidates.length; i++) {
-          if (peerConnection.candidates[i].id === candidateId) {
-            const candidatePayload = {
-              selfId: peerConnection.remoteId,
-              remoteId: this.userId,
-              candidate: peerConnection.candidates[i].candidate
-            }
-            if (this.wRTC.doLog && this.wRTC.doLogVerbose) {
-              console.debug('%cSending renegotiated Candidate',
-                this.wRTC.logStyle,
-                peerConnection.candidates[i].candidate)
-            }
-            const userTarget = this.getUserFromId(peerConnection.remoteId)
-            await this.$Worker.execute({
-              action: 'fwd',
-              username: userTarget,
-              type: '[C]',
-              value: JSON.stringify(candidatePayload)
-            })
-            break
-          }
-        }
-      } else if (event.data.event === 'incoming_track') {
-        // const remoteStream = this.wRTC.getStream(event.data.remoteId)
-      } else if (event.data.event === 'negotiationneeded') {
-        // await this.startCall(event.data.remoteId, this.peerStreamOutgoingConstraints)
-        console.log('>>> RENEGOTIATION')
+        console.log(`%c${event.data.status}`, this.wRTC.logStyle)
       } else if (event.data.event === 'datachannel_open') {
         const username = this.getUserFromId(event.data.remoteId)
         // Report back
@@ -614,7 +592,7 @@ export default {
           })
         // Add data channel and connection
         const dC = this.wRTC.getPeerConnection(event.data.remoteId).dataChannel
-        dC.send('HEY')
+        dC.send('DataChannel:OPEN')
         this.session.connectedUsers.push({
           username: username,
           datachannel: dC,
@@ -638,7 +616,7 @@ export default {
         remoteCtx.strokeStyle = '#FFFFFF'
         remoteCtx.fillStyle = '#FFFFFF'
         remoteCtx.lineWidth = 5
-        remoteCtx.font = "20px 'Open Sans'"
+        remoteCtx.font = '20px \'Open Sans\''
         this.session.userCtx.set(username, remoteCtx)
         // Add remote visualizer element
         const elem = document.createElement('div')
@@ -657,7 +635,7 @@ export default {
       } else if (event.data.event === 'datachannel_message') {
         if (event.data.message.substring(0, 6) === '[c:CP]') {
           // Cursor Position
-          const valueList = event.data.message.substring(6).split(';')
+          const valueList = event.data.message.substring(6).split('|')
           const usrElem = document.getElementById('cp-' + valueList[0])
           if (!usrElem) return
           usrElem.style.left = `${valueList[1]}px`
@@ -666,7 +644,7 @@ export default {
           this.removeConnection(event.data.message.substring(5))
         } else if (event.data.message.substring(0, 6) === '[c:DL]') {
           // Draw Line
-          const valueList = event.data.message.substring(6).split(';')
+          const valueList = event.data.message.substring(6).split('|')
           const ctx = this.session.userCtx.get(valueList[0])
           ctx.lineWidth = parseInt(valueList[5])
           ctx.strokeStyle = valueList[6]
@@ -679,7 +657,7 @@ export default {
           ctx.stroke()
         } else if (event.data.message.substring(0, 6) === '[c:DR]') {
           // Draw Rect
-          const valueList = event.data.message.substring(6).split(';')
+          const valueList = event.data.message.substring(6).split('|')
           const ctx = this.session.userCtx.get(valueList[0])
           ctx.lineWidth = parseInt(valueList[5])
           ctx.strokeStyle = valueList[6]
@@ -695,7 +673,7 @@ export default {
           ctx.stroke()
         } else if (event.data.message.substring(0, 6) === '[c:DI]') {
           // Draw Image
-          const valueList = event.data.message.substring(6).split(';')
+          const valueList = event.data.message.substring(6).split('|')
           const ctx = this.session.userCtx.get(valueList[0])
           const X1 = parseInt(valueList[1])
           const Y1 = parseInt(valueList[2])
@@ -703,12 +681,16 @@ export default {
           const Y2 = parseInt(valueList[4])
           const imageToDraw = new Image()
           imageToDraw.onload = function () {
-            ctx.drawImage(imageToDraw, X1, Y1, X2, Y2)
+            ctx.drawImage(imageToDraw,
+              X1,
+              Y1,
+              X2 - X1,
+              Y2 - Y1)
           }
           imageToDraw.src = valueList[5]
         } else if (event.data.message.substring(0, 6) === '[c:DT]') {
           // Draw Text
-          const valueList = event.data.message.substring(6).split(';')
+          const valueList = event.data.message.substring(6).split('|')
           const ctx = this.session.userCtx.get(valueList[0])
           ctx.fillStyle = valueList[4]
           const X1 = parseInt(valueList[1])
@@ -716,7 +698,7 @@ export default {
           ctx.fillText(valueList[3], X1, Y1)
         } else if (event.data.message.substring(0, 6) === '[c:DF]') {
           // Draw Free
-          const valueList = event.data.message.substring(6).split(';')
+          const valueList = event.data.message.substring(6).split('|')
           const ctx = this.session.userCtx.get(valueList[0])
           ctx.lineWidth = parseInt(valueList[3])
           ctx.strokeStyle = valueList[4]
@@ -726,7 +708,7 @@ export default {
           ctx.stroke()
         } else if (event.data.message.substring(0, 6) === '[c:MU]') {
           // Mouse Up
-          const valueList = event.data.message.substring(6).split(';')
+          const valueList = event.data.message.substring(6).split('|')
           const ctx = this.session.userCtx.get(valueList[0])
           ctx.beginPath()
         }
@@ -734,88 +716,6 @@ export default {
       return new Promise((resolve) => {
         resolve()
       })
-    },
-    setUpConnector: function () {
-      this.connector = new BroadcastChannel('connector')
-      this.connector.onmessage = async event => {
-        if (event.data.type == null) return
-        if (event.data.type.substring(0, 4) === 'fwd:' && event.data.type.length > 4) {
-          const type = event.data.type.substring(4)
-          if (type === '[A]') {
-            // Received offer
-            const offer = JSON.parse(event.data.msg)
-            if (offer.selfId !== this.userId) return
-            const answer = await this.wRTC.acceptOffer(offer.selfId, offer.remoteId, offer.offer, null)
-            if (answer.answer) {
-              const userTarget = this.getUserFromId(offer.remoteId)
-              await this.$Worker.execute({
-                action: 'fwd',
-                username: userTarget,
-                type: '[B]',
-                value: JSON.stringify(answer)
-              })
-            }
-          } else if (type === '[B]') {
-            // Received answer
-            const answer = JSON.parse(event.data.msg)
-            const accepted = await this.wRTC.acceptAnswer(answer.remoteId, answer.answer)
-            if (!accepted) return
-            const resp = {
-              selfId: answer.remoteId,
-              remoteId: answer.selfId
-            }
-            const userTarget = this.getUserFromId(answer.remoteId)
-            await this.$Worker.execute({
-              action: 'fwd',
-              username: userTarget,
-              type: '[D]',
-              value: JSON.stringify(resp)
-            })
-            const peerConnection = await this.wRTC.getPeerConnection(answer.remoteId)
-            if (peerConnection.candidates) {
-              for (let i = 0; i < peerConnection.candidates.length; i++) {
-                const candidatePayload = {
-                  selfId: peerConnection.remoteId,
-                  remoteId: this.userId,
-                  candidate: peerConnection.candidates[i].candidate
-                }
-                await this.$Worker.execute({
-                  action: 'fwd',
-                  username: userTarget,
-                  type: '[C]',
-                  value: JSON.stringify(candidatePayload)
-                })
-              }
-            }
-          } else if (type === '[C]') {
-            // ICE Candidates
-            const rtcCandidatePayload = JSON.parse(event.data.msg)
-            if (rtcCandidatePayload.selfId === this.userId) {
-              await this.wRTC.setICECandidate(rtcCandidatePayload.remoteId, rtcCandidatePayload.candidate)
-            }
-          } else if (type === '[D]') {
-            // Accepted -> ICE Candidates
-            const payload = JSON.parse(event.data.msg)
-            const peerConnection = await this.wRTC.getPeerConnection(payload.remoteId)
-            if (peerConnection && peerConnection.candidates) {
-              const userTarget = this.getUserFromId(payload.remoteId)
-              for (let i = 0; i < peerConnection.candidates.length; i++) {
-                const candidatePayload = {
-                  selfId: payload.remoteId,
-                  remoteId: this.userId,
-                  candidate: peerConnection.candidates[i].candidate
-                }
-                await this.$Worker.execute({
-                  action: 'fwd',
-                  username: userTarget,
-                  type: '[C]',
-                  value: JSON.stringify(candidatePayload)
-                })
-              }
-            }
-          }
-        }
-      }
     },
     getUserFromId: function (userId) {
       if (this.members.length < 1) return null
@@ -853,20 +753,20 @@ export default {
       if (lnW == null) lnW = this.userSettings.strokeSize
       if (sC == null) sC = this.$refs.colorStroke.value
       if (fC == null) fC = this.$refs.colorFill.value
-      return `${prfx}${this.$store.state.username};${oldX};${oldY};${x};${y};${lnW};${sC};${fC}`
+      return `${prfx}${this.$store.state.username}|${oldX}|${oldY}|${x}|${y}|${lnW}|${sC}|${fC}`
     },
     buildFString: function (prfx, x, y, lnW = null, sC = null, fC = null) {
       if (lnW == null) lnW = this.userSettings.strokeSize
       if (sC == null) sC = this.$refs.colorStroke.value
       if (fC == null) fC = this.$refs.colorFill.value
-      return `${prfx}${this.$store.state.username};${x};${y};${lnW};${sC};${fC}`
+      return `${prfx}${this.$store.state.username}|${x}|${y}|${lnW}|${sC}|${fC}`
     },
     buildIString: function (prfx, oldX, oldY, x, y) {
-      return `${prfx}${this.$store.state.username};${oldX};${oldY};${x};${y};${this.uploadFileBase64}`
+      return `${prfx}${this.$store.state.username}|${oldX}|${oldY}|${x}|${y}|${this.uploadFileBase64}`
     },
     buildTString: function (prfx, x, y, text, fC = null) {
       if (fC == null) fC = this.$refs.colorFill.value
-      return `${prfx}${this.$store.state.username};${x};${y};${text};${fC}`
+      return `${prfx}${this.$store.state.username}|${x}|${y}|${text}|${fC}`
     },
     broadcast: function (payload) {
       if (this.session.connectedUsers.length < 1) return
@@ -906,54 +806,6 @@ export default {
       this.imageToDraw = null
       this.userSettings.shapeMode = 'free'
       this.setShapeButton('free')
-    },
-    uploadSnippet: function () {
-      const content = JSON.stringify({
-        type: this.uploadFileType,
-        payload: this.uploadFileBase64,
-        name: this.uploadFileName
-      })
-      this.$Worker.execute({
-        action: 'api',
-        method: 'post',
-        url: 'm6/create',
-        body: content
-      })
-        .then((data) => (this.processUploadSnippetResponse(data.result)))
-        .catch((err) => (this.handleUploadSnippetError(err.message)))
-    },
-    handleUploadSnippetError: function (errorMessage = '') {
-      console.debug(errorMessage)
-      this.$notify(
-        {
-          title: 'File Not Uploaded',
-          text: 'An Error occurred while uploading the file.',
-          type: 'error'
-        })
-    },
-    processUploadSnippetResponse: async function (response) {
-      if (response.httpCode !== 201) {
-        this.handleUploadSnippetError()
-        return
-      }
-      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.guid
-      let prefix
-      if (this.uploadFileType.includes('image')) {
-        prefix = ' !'
-      } else {
-        prefix = ' '
-      }
-      let filename = this.uploadFileName
-      if (filename == null || filename === '') filename = 'Snippet'
-      let text = prefix + '[' + filename + '](' + contentURL + ')'
-      if (prefix === ' !') {
-        text = '\n\n' + text + '\n\n'
-      }
-      console.log(text)
-      setTimeout(() => {
-        // this.addToTextArea(this.editingProcess.guid + '_description_edit', text)
-      }, 0)
-      this.cancelAddMedia()
     },
     setImageMode: function () {
       const imageToDraw = new Image()
