@@ -566,11 +566,7 @@ export default {
     setUpWRTC: function () {
       // Initialize wRTC.js
       this.wRTC = WRTC
-      this.wRTC.worker = this.$Worker
-      this.wRTC.selfName = this.$store.state.username
-      this.wRTC.selfId = this.userId
-      this.wRTC.doLogVerbose = true
-      this.wRTC.initialize()
+      this.wRTC.initialize(this.$Worker, this.$store.state.username, this.userId, true, true)
       // Create BroadcastChannel to listen to wRTC events!
       const eventChannel = new BroadcastChannel('wrtcevents')
       eventChannel.onmessage = event => {
@@ -602,12 +598,18 @@ export default {
         const remoteCanvas = document.createElement('canvas')
         remoteCanvas.id = `rc-${username}`
         remoteCanvas.style.position = 'absolute'
-        remoteCanvas.style.minWidth = this.$refs.canvas.style.minWidth
-        remoteCanvas.style.maxWidth = this.$refs.canvas.style.maxWidth
-        remoteCanvas.style.minHeight = this.$refs.canvas.style.minHeight
-        remoteCanvas.style.maxHeight = this.$refs.canvas.style.maxHeight
-        remoteCanvas.width = this.$refs.canvas.parentElement.clientWidth
-        remoteCanvas.height = this.$refs.canvas.parentElement.clientHeight
+        // remoteCanvas.style.minWidth = this.$refs.canvas.style.minWidth
+        // remoteCanvas.style.maxWidth = this.$refs.canvas.style.maxWidth
+        // remoteCanvas.style.minHeight = this.$refs.canvas.style.minHeight
+        // remoteCanvas.style.maxHeight = this.$refs.canvas.style.maxHeight
+        // remoteCanvas.width = this.$refs.canvas.parentElement.clientWidth
+        // remoteCanvas.height = this.$refs.canvas.parentElement.clientHeight
+        remoteCanvas.style.minWidth = '2000px'
+        remoteCanvas.style.maxWidth = remoteCanvas.style.minWidth
+        remoteCanvas.style.minHeight = '2000px'
+        remoteCanvas.style.maxHeight = remoteCanvas.style.minHeight
+        remoteCanvas.width = 2000
+        remoteCanvas.height = 2000
         const userCanvasListElem = document.getElementById('userCanvases')
         userCanvasListElem.appendChild(remoteCanvas)
         // Add to map for performance reasons

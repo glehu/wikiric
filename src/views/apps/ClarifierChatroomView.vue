@@ -557,6 +557,12 @@
                             <i class="bi bi-star-fill text-inherit"></i>
                           </button>
                         </div>
+                        <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
+                          <button title="Create Wisdom" class="orange-hover"
+                                  v-on:click="createWisdomForMessage(msg)">
+                            <i class="bi bi-book-half text-inherit"></i>
+                          </button>
+                        </div>
                       </div>
                       <template v-if="msg.mType === 'RegistrationNotification'">
                         <div class="serverMessage">
@@ -1692,6 +1698,8 @@ export default {
       params: false,
       processGUID: '',
       viewingImageURL: '',
+      knowledge: {},
+      knowledgeExists: false,
       plugins: [
         {
           plugin: markdownItMermaid
@@ -1722,7 +1730,7 @@ export default {
   },
   computed: {
     peerConnectionsComp () {
-      if (this.wRTC) {
+      if (this.wRTC && this.wRTC.peerConnections) {
         return Array.from(this.wRTC.peerConnections, function (entry) {
           return {
             key: entry[0],
@@ -1758,7 +1766,6 @@ export default {
       this.$store.commit('setE2EncryptionSeen', true)
     },
     initFunction: async function () {
-      this.setUpWRTC()
       this.$store.commit('setLastClarifierGUID', this.$route.params.id)
       // this.toggleElement('init_loading', 'flex')
       window.addEventListener('resize', this.resizeCanvas, false)
@@ -1811,16 +1818,41 @@ export default {
         // Connect to the session
         await this.connect()
       }
+      this.getKnowledge(this.getSession())
       // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
       this.isModalVisible = !this.$store.getters.hasSeenE2ENotification()
     },
+    getKnowledge: async function (sessionID) {
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm7/get?src=' + sessionID + '&from=clarifier'
+        })
+          .then((data) => {
+            this.knowledgeExists = true
+            this.knowledge = data.result
+            // if (this.knowledge.categories != null) {
+            //   for (let i = 0; i < this.knowledge.categories.length; i++) {
+            //     this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
+            //   }
+            // }
+            resolve()
+          })
+          .catch((err) => {
+            console.debug(err.message)
+            this.knowledgeExists = false
+          })
+      })
+    },
     setUpWRTC: function () {
+      if (this.wRTC.selfId != null) return
       // Initialize wRTC.js
       this.wRTC = WRTC
       this.wRTC.worker = this.$Worker
       this.wRTC.selfName = this.$store.state.username
       this.wRTC.selfId = this.userId
-      this.wRTC.doLogVerbose = true
+      // this.wRTC.doLogVerbose = true
       this.wRTC.initialize() // :D
       // Create BroadcastChannel to listen to wRTC events!
       const eventChannel = new BroadcastChannel('wrtcevents')
@@ -1830,9 +1862,7 @@ export default {
     },
     handleWRTCEvent: async function (event) {
       if (!event || !event.data) return
-      if (event.data.event === 'connection_change') {
-        if (this.wRTC.doLog) console.debug('%c' + event.data.status, this.wRTC.logStyle)
-      } else if (event.data.event === 'incoming_track') {
+      if (event.data.event === 'incoming_track') {
         this.isStreamingVideo = true
         this.streamStartTime = Math.floor(Date.now() / 1000)
         this.startTimeCounter()
@@ -1950,6 +1980,9 @@ export default {
                     this.showMessage(event.data)
                   }
                 ))
+              .then(() => (
+                this.setUpWRTC()
+              ))
               .then(() => {
                 if (this.currentSubchat.type === 'webcam' || this.params) {
                   this.startCall(undefined, {
@@ -2208,6 +2241,7 @@ export default {
         }))
       )
       // Send message to server
+      if (this.connection.readyState !== 1) return
       this.connection.send('[c:MSG<ENCR]' + encryptedMessage)
       // Post-Message Actions
       this.new_message = ''
@@ -2276,6 +2310,7 @@ export default {
     },
     addMessagePar: function (text, closeGIFSelection = false) {
       if (!this.connection) return
+      if (this.connection.readyState !== 1) return
       if (text !== '') this.connection.send(text)
       if (closeGIFSelection) this.isViewingGIFSelection = false
     },
@@ -3665,6 +3700,45 @@ export default {
         type: t
       })
       this.addMessagePar('[c:REACT<JSON]' + payload)
+    },
+    createWisdomForMessage: function (msg) {
+      if (!this.knowledgeExists) {
+        this.$notify(
+          {
+            title: 'No Knowledge created!',
+            text: 'Please click on Knowledge to create one.',
+            type: 'error'
+          })
+        return
+      }
+      const payload = {
+        title: '',
+        description: msg.msg.trim(),
+        knowledgeGUID: this.knowledge.guid,
+        keywords: 'msg message',
+        copyContent: '',
+        categories: []
+      }
+      // Lesson (teach) or Question (ask)?
+      const endpoint = 'teach'
+      // Create entry on the backend
+      const bodyPayload = JSON.stringify(payload)
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'm7/' + endpoint,
+          body: bodyPayload
+        })
+          .then((data) => {
+            const guid = data.result
+            this.$router.push('/apps/knowledge/' + guid + '?src=' + this.getSession())
+          })
+          .then(() => resolve())
+          .catch((err) => {
+            console.debug(err.message)
+          })
+      })
     },
     editMessage: function (msg, remove = false) {
       if (remove === true) {
