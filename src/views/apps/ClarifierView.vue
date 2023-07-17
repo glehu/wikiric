@@ -24,8 +24,8 @@
                   </div>
                   <!-- -->
                   <div class="m-2 divide-y-2 divide-zinc-600">
-                    <template v-if="friends && friends.length > 0">
-                      <template v-for="friend in friends" :key="friend">
+                    <template v-if="friends && friends.size > 0">
+                      <template v-for="friend in friends.values()" :key="friend">
                         <div class="w-full h-20 flex items-center pt-1 my-1">
                           <div v-on:click="joinActive(friend.chatroom.guid)"
                                class="w-full h-20 p-2 cursor-pointer medium_bg text-neutral-300
@@ -37,14 +37,19 @@
                             </div>
                             <div class="w-full">
                               <div class="flex items-center w-full">
-                                <div class="font-bold">
+                                <div class="font-bold text-neutral-100">
                                   {{ getDirectChatroomName(friend.chatroom.directMessageUsername) }}
                                 </div>
                                 <div class="ml-auto text-sm">
                                   {{ getHumanReadableDateText(friend.ts) }}
                                 </div>
                               </div>
-                              <div class="text-neutral-300 max-h-12 overflow-hidden text-ellipsis break-all">
+                              <div class="text-neutral-300 h-12 max-h-12 overflow-hidden text-ellipsis break-all">
+                                <template v-if="friend.loading">
+                                  <div class="p-1 mt-3">
+                                    <div class="w-2 h-2 rounded-full bg-neutral-400 animate-ping"></div>
+                                  </div>
+                                </template>
                                 {{ friend.msg }}
                               </div>
                             </div>
@@ -91,7 +96,8 @@
                                      v-bind:src="getImg(group.img,true)" :alt="getImgAlt(group.title)"/>
                               </template>
                               <template v-else>
-                                <div class="darkest_bg flex items-center justify-center w-[40px] h-[40px] z-10 rounded-lg">
+                                <div
+                                  class="darkest_bg flex items-center justify-center w-[40px] h-[40px] z-10 rounded-lg">
                                   {{ getImgAlt(group.title) }}
                                 </div>
                               </template>
@@ -203,7 +209,7 @@ export default {
       join_type: '',
       time: '',
       hour: 0,
-      friends: [],
+      friends: new Map(),
       wcrypt: null,
       isAddingFriend: false,
       friendName: ''
@@ -313,56 +319,71 @@ export default {
       })
         .then(async (data) => {
           if (data.result && data.result.chatrooms && data.result.chatrooms.length > 0) {
-            this.friends = []
+            this.friends = new Map()
             // Iterate over all direct chatrooms
+            const promises = []
             for (let i = 0; i < data.result.chatrooms.length; i++) {
-              let userId = 'none'
-              // Iterate over all members of a single direct chatroom
-              // We do this to figure out the user ID for decryption
-              for (let j = 0; j < data.result.chatrooms[i].members.length; j++) {
-                const member = JSON.parse(data.result.chatrooms[i].members[j])
-                if (member.usr === this.$store.state.username) {
-                  userId = member.id
-                  break
-                }
-              }
-              const lastMessage = await this.getLastMessage(data.result.chatrooms[i].guid)
-              if (lastMessage.src !== '_server') {
-                const key = await this.$store.getters.getClarifierKeyPair(data.result.chatrooms[i].guid)
-                if (key != null) {
-                  try {
-                    const decryptedMessage = await this.wcrypt.decryptPayload(lastMessage, userId, key)
-                    this.friends.push({
-                      chatroom: data.result.chatrooms[i],
-                      msg: lastMessage.src + ': ' + decryptedMessage.substring(0, 100).trim(),
-                      ts: new Date(lastMessage.ts)
-                    })
-                  } catch (e) {
-                    console.debug(e.message)
-                    this.friends.push({
-                      chatroom: data.result.chatrooms[i],
-                      msg: '',
-                      ts: new Date(lastMessage.ts)
-                    })
-                  }
-                } else {
-                  this.friends.push({
-                    chatroom: data.result.chatrooms[i],
-                    msg: ''
-                  })
-                }
-              } else {
-                this.friends.push({
-                  chatroom: data.result.chatrooms[i],
-                  msg: ''
-                })
-              }
+              this.friends.set(data.result.chatrooms[i], {
+                chatroom: data.result.chatrooms[i],
+                msg: '',
+                loading: true
+              })
+              promises.push(this.processFriend(data, i))
             }
+            Promise.allSettled(promises).then((values) => {
+              values.forEach(value => {
+                if (value.value) {
+                  this.friends.set(value.value.chatroom, value.value)
+                }
+              })
+            })
           } else {
-            this.friends = []
+            this.friends = new Map()
           }
         })
         .catch((err) => console.debug(err.message))
+    },
+    processFriend: async function (data, i) {
+      let userId = 'none'
+      // Iterate over all members of a single direct chatroom
+      // We do this to figure out the user ID for decryption
+      for (let j = 0; j < data.result.chatrooms[i].members.length; j++) {
+        const member = JSON.parse(data.result.chatrooms[i].members[j])
+        if (member.usr === this.$store.state.username) {
+          userId = member.id
+          break
+        }
+      }
+      const lastMessage = await this.getLastMessage(data.result.chatrooms[i].guid)
+      if (lastMessage.src !== '_server') {
+        const key = await this.$store.getters.getClarifierKeyPair(data.result.chatrooms[i].guid)
+        if (key != null) {
+          try {
+            const decryptedMessage = await this.wcrypt.decryptPayload(lastMessage, userId, key)
+            return {
+              chatroom: data.result.chatrooms[i],
+              msg: lastMessage.src + ': ' + decryptedMessage.substring(0, 100).trim(),
+              ts: new Date(lastMessage.ts)
+            }
+          } catch (e) {
+            return {
+              chatroom: data.result.chatrooms[i],
+              msg: '',
+              ts: new Date(lastMessage.ts)
+            }
+          }
+        } else {
+          return {
+            chatroom: data.result.chatrooms[i],
+            msg: ''
+          }
+        }
+      } else {
+        return {
+          chatroom: data.result.chatrooms[i],
+          msg: ''
+        }
+      }
     },
     getDirectChatroomName: function (username) {
       if (username == null) return ''

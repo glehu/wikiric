@@ -297,15 +297,15 @@
                           {{ $store.state.username }}
                         </p>
                       </div>
-                      <template v-for="peerCon in peerConnectionsComp" :key="peerCon.key">
-                        <div :id="'screenshare_container_' + peerCon.key"
+                      <template v-for="peerCon in remotePeerConnections" :key="peerCon.remoteId">
+                        <div :id="'screenshare_container_' + peerCon.remoteId"
                              hidden
                              class="relative overflow-hidden w-full h-full">
-                          <video :id="'screenshare_video_' + peerCon.key"
+                          <video :id="'screenshare_video_' + peerCon.remoteId"
                                  autoplay playsinline
                                  class="w-full h-full max-w-full max-h-full conference_media_element"></video>
                           <p class="absolute top-0 left-0 text-sm bg-zinc-900 bg-opacity-75 p-0.5">
-                            {{ getUserFromId(peerCon.key) }}
+                            {{ getUserFromId(peerCon.remoteId) }}
                           </p>
                         </div>
                       </template>
@@ -368,7 +368,7 @@
                   <template v-else>
                     <button class="p-2 border border-zinc-400 rounded-md gray-hover"
                             v-tooltip.top="{ content: 'Enable Camera' }"
-                            v-on:click="startCall(undefined, {video: true, audio: undefined})">
+                            v-on:click="callSetUserMedia({video: true, audio: undefined})">
                       <div class="relative">
                         <VideoCameraIcon class="h-8 w-8 text-neutral-400"></VideoCameraIcon>
                         <XMarkIcon class="h-8 w-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
@@ -428,7 +428,7 @@
             <div id="messages_container" ref="messages_container"
                  class="h-[calc(100%-130px)] max-h-[calc(100%-130px)] overflow-hidden
                         bright_bg lg:rounded-tl-lg">
-              <div id="messages_section" :ref="'messages_section'"
+              <div id="messages_section" ref="messages_section"
                    class="messages_section relative flex h-full
                           overflow-y-auto overflow-x-hidden"
                    style="flex-direction: column-reverse">
@@ -902,14 +902,12 @@
                   </div>
                 </template>
               </div>
-              <textarea id="new_comment" :ref="'new_comment'"
+              <textarea id="new_comment" ref="new_comment"
                         class="new_comment medium_bg py-2 px-3 placeholder-neutral-400"
                         type="text"
                         v-model="new_message"
                         maxlength="5000"
-                        :placeholder="'Message to ' + chatroom.t"
-                        v-on:keyup="auto_grow"
-                        v-on:click="hideAllSidebars"></textarea>
+                        :placeholder="'Message to ' + chatroom.t"></textarea>
               <button id="send_image_button"
                       class="message_button send_image_button medium_bg hover:brightness-200
                              flex justify-center items-center"
@@ -1618,11 +1616,11 @@ export default {
       peerDummyStreamOutgoing: null,
       peerStreamOutgoingConstraints: {
         video: false,
-        audio: true
+        audio: false
       },
       peerStreamOutgoingPreferences: {
-        video: true,
-        audio: true
+        video: false,
+        audio: false
       },
       peerStreamScreenshare: null,
       websocketState: 'CLOSED',
@@ -1638,6 +1636,7 @@ export default {
       lazyLoadingStatus: 'idle',
       mainMembers: [],
       members: [],
+      remotePeerConnections: [],
       new_message: '',
       last_message: {},
       gif_query_string: '',
@@ -1729,18 +1728,6 @@ export default {
     this.disconnect()
   },
   computed: {
-    peerConnectionsComp () {
-      if (this.wRTC && this.wRTC.peerConnections) {
-        return Array.from(this.wRTC.peerConnections, function (entry) {
-          return {
-            key: entry[0],
-            value: entry[1]
-          }
-        })
-      } else {
-        return []
-      }
-    },
     canShowVideoElements () {
       if (this.params) {
         return true
@@ -1772,7 +1759,7 @@ export default {
       this.resizeCanvas()
       document.addEventListener('keydown', this.handleGlobalKeyEvents, false)
       // Set message section with its scroll event
-      this.$refs.messages_section.addEventListener('scroll', this.checkScroll, false)
+      this.$refs.messages_section.onscroll = this.checkScroll
       // Broadcast channels to listen to firebase cloud messaging notifications
       const bc = new BroadcastChannel('dlChannel')
       bc.onmessage = event => {
@@ -1849,11 +1836,7 @@ export default {
       if (this.wRTC.selfId != null) return
       // Initialize wRTC.js
       this.wRTC = WRTC
-      this.wRTC.worker = this.$Worker
-      this.wRTC.selfName = this.$store.state.username
-      this.wRTC.selfId = this.userId
-      // this.wRTC.doLogVerbose = true
-      this.wRTC.initialize() // :D
+      this.wRTC.initialize(this.$Worker, this.$store.state.username, this.userId, true, false, true)
       // Create BroadcastChannel to listen to wRTC events!
       const eventChannel = new BroadcastChannel('wrtcevents')
       eventChannel.onmessage = event => {
@@ -1863,21 +1846,39 @@ export default {
     handleWRTCEvent: async function (event) {
       if (!event || !event.data) return
       if (event.data.event === 'incoming_track') {
-        this.isStreamingVideo = true
-        this.streamStartTime = Math.floor(Date.now() / 1000)
-        this.startTimeCounter()
-        this.enterCinemaMode()
-        const remoteStream = this.wRTC.getStream(event.data.remoteId)
-        let videoElem
-        if (this.currentSubchat.type === 'screenshare') {
-          videoElem = document.getElementById('screenshare_video')
-        } else if (this.currentSubchat.type === 'webcam' || this.params) {
-          videoElem = document.getElementById('screenshare_video_' + event.data.remoteId)
-          const container = document.getElementById('screenshare_container_' + event.data.remoteId)
-          container.style.display = 'block'
+        setTimeout(() => {
+          this.isStreamingVideo = true
+          this.streamStartTime = Math.floor(Date.now() / 1000)
+          this.startTimeCounter()
+          this.enterCinemaMode()
+          let videoElem
+          if (this.currentSubchat.type === 'screenshare') {
+            videoElem = document.getElementById('screenshare_video')
+          } else if (this.currentSubchat.type === 'webcam' || this.params) {
+            videoElem = document.getElementById('screenshare_video_' + event.data.remoteId)
+            const container = document.getElementById('screenshare_container_' + event.data.remoteId)
+            container.style.display = 'block'
+          }
+          if (!videoElem.srcObject) {
+            videoElem.srcObject = this.wRTC.getStream(event.data.remoteId)
+          }
+          videoElem.setAttribute('controls', '')
+        }, 2000)
+      } else if (event.data.event === 'connection_change') {
+        if (event.data.status === 'connected') {
+          // Check if we need to replace any tracks
+          if (this.currentSubchat.type === 'screenshare') {
+            await this.callSetDisplayMedia()
+          }
+          if (this.currentSubchat.type === 'webcam' || this.params) {
+            await this.callSetUserMedia()
+          }
+          if (this.isSharingScreen) {
+            await this.callStartOrStopScreenshare(false, true)
+          }
         }
-        videoElem.srcObject = remoteStream
-        videoElem.setAttribute('controls', '')
+      } else if (event.data.event === 'peer_init') {
+        this.peerDummyStreamOutgoing = this.getEmptyStream(640, 480, this.$store.state.username)
       }
       return new Promise((resolve) => {
         resolve()
@@ -1951,8 +1952,8 @@ export default {
       }
     },
     connect: async function (sessionID = this.getSession(), isSubchat = false, novisual = false) {
-      this.resetStats()
       return new Promise((resolve) => {
+        this.resetStats()
         this.isSubchat = isSubchat
         // Connect to the chat
         this.connection = new WebSocket('wss://wikiric.xyz/clarifier/' + sessionID)
@@ -1980,15 +1981,20 @@ export default {
                     this.showMessage(event.data)
                   }
                 ))
-              .then(() => (
+              .then(() => {
+                this.scrollToBottom()
                 this.setUpWRTC()
-              ))
+                this.wRTC.doPause()
+              })
               .then(() => {
                 if (this.currentSubchat.type === 'webcam' || this.params) {
+                  this.wRTC.doUnpause()
                   this.startCall(undefined, {
                     video: false,
-                    audio: true
+                    audio: false
                   })
+                } else if (this.currentSubchat.type === 'screenshare') {
+                  this.wRTC.doUnpause()
                 }
               })
               .then(resolve)
@@ -2368,10 +2374,9 @@ export default {
           })
           .then(() => (
             setTimeout(() => {
-              this.processMetaDataResponse(isSubchat)
+              this.processMetaDataResponse(isSubchat).then(() => resolve())
             }, 0)
           ))
-          .then(resolve)
           .catch((err) => console.debug(err.message))
       })
     },
@@ -2443,11 +2448,16 @@ export default {
         }, 1000)
         // Parse JSON serialized users for performance and determine current user's ID
         this.members = []
+        this.remotePeerConnections = []
         for (let i = 0; i < this.currentSubchat.members.length; i++) {
           this.members[i] = JSON.parse(this.currentSubchat.members[i])
           this.members[i].taggable = true
           if (this.members[i].usr === this.$store.state.username) {
             this.userId = this.members[i].id
+          } else {
+            this.remotePeerConnections.push({
+              remoteId: this.members[i].id
+            })
           }
         }
       }
@@ -2456,6 +2466,11 @@ export default {
         messagesSection.style.width = '350px'
         this.mediaMaxWidth = 'clamp(200px, 100%, 255px)'
       } else {
+        this.peerType = 'idle'
+        this.isStreamingVideo = false
+        this.streamStartTime = ''
+        this.streamDuration = ''
+        this.exitCinemaMode()
         messagesSection.style.width = 'initial'
         this.mediaMaxWidth = 'clamp(200px, 100%, 400px)'
       }
@@ -2469,9 +2484,9 @@ export default {
       } else {
         sessionID = this.getSession()
       }
-      this.getActiveMembers(sessionID)
+      await this.getActiveMembers(sessionID)
     },
-    getClarifierMessages: function (lazyLoad = false, sessionID) {
+    getClarifierMessages: async function (lazyLoad = false, sessionID) {
       if (sessionID == null) {
         sessionID = this.getSession()
       }
@@ -2514,9 +2529,7 @@ export default {
         for (const element of data.messages.reverse()) {
           messagesTemp.unshift(await this.processRawMessage(element))
         }
-        for (const element of messagesTemp) {
-          this.messages.push(element)
-        }
+        messagesTemp.forEach(element => this.messages.push(element))
       } else {
         // Lazy loading
         const tempArray = []
@@ -3510,6 +3523,7 @@ export default {
       this.toggleElement('confirm_settings_loading', 'flex')
     },
     checkScroll: function () {
+      if (this.websocketState !== 'OPEN') return
       const distanceToBottom = (this.$refs.messages_section.scrollTop * -1)
       const distanceToTop = this.$refs.messages_section.scrollHeight -
         this.$refs.messages_section.clientHeight - distanceToBottom
@@ -3581,11 +3595,13 @@ export default {
       })
     },
     disconnect: function () {
+      this.setTimestampRead()
+      this.messages = []
+      this.resetStats()
+      this.websocketState = 'CLOSED'
       if (this.connection == null) return
       this.addMessagePar('[c:SC]' + '[offline]' + this.$store.state.username)
       this.connection.close()
-      this.setTimestampRead()
-      this.messages = []
     },
     setTimestampRead: function () {
       let notify
@@ -4066,6 +4082,7 @@ export default {
     },
     startCall: async function (userId, constraints = null) {
       this.peerDummyStreamOutgoing = this.getEmptyStream(640, 480, this.$store.state.username)
+      this.peerStreamOutgoingPreferences = constraints
       // Set local stream
       const videoElem = document.getElementById('screenshare_video')
       if (!videoElem) return // TODO: Feedback to user needed
@@ -4077,17 +4094,7 @@ export default {
       this.streamStartTime = Math.floor(Date.now() / 1000)
       this.startTimeCounter()
       // Create peer to peer connections
-      await this.createOutgoingPeerConnections(this.peerDummyStreamOutgoing, userId)
-      // Check if we need to replace any tracks
-      if (this.currentSubchat.type === 'screenshare') {
-        await this.callSetDisplayMedia()
-      }
-      if (this.currentSubchat.type === 'webcam' || this.params) {
-        await this.callSetUserMedia(constraints)
-      }
-      if (this.isSharingScreen) {
-        await this.callStartOrStopScreenshare(false, true)
-      }
+      await this.createOutgoingPeerConnections(userId)
     },
     stopScreenshare: function () {
       this.wRTC.hangup()
@@ -4166,11 +4173,10 @@ export default {
         if (constraintsT.audio === undefined) {
           constraintsT.audio = this.peerStreamOutgoingConstraints.audio
         }
+        this.peerStreamOutgoingPreferences = constraintsT
       } else {
-        constraintsT = {
-          video: false,
-          audio: true
-        }
+        // Defaults to preferences
+        constraintsT = this.peerStreamOutgoingPreferences
       }
       let stream
       if (!this.peerStreamOutgoing || this.peerStreamOutgoingConstraints !== constraintsT) {
@@ -4198,9 +4204,13 @@ export default {
     callStartOrMuteVideo: function (override = null) {
       this.peerStreamOutgoingPreferences.video = override ?? !this.peerStreamOutgoingPreferences.video
       if (this.peerStreamOutgoingPreferences.video) {
-        this.wRTC.replaceTrack(this.peerStreamOutgoing, 'video')
-        const videoElem = document.getElementById('screenshare_video')
-        videoElem.srcObject = this.peerStreamOutgoing
+        if (!this.peerStreamOutgoing || !this.peerStreamOutgoingConstraints.video) {
+          this.callSetUserMedia()
+        } else {
+          this.wRTC.replaceTrack(this.peerStreamOutgoing, 'video')
+          const videoElem = document.getElementById('screenshare_video')
+          videoElem.srcObject = this.peerStreamOutgoing
+        }
       } else {
         this.wRTC.setVideo(this.peerStreamOutgoingPreferences.video)
         // If we disabled video, replace it with the dummy stream
@@ -4324,14 +4334,26 @@ export default {
         }
       }
     },
-    createOutgoingPeerConnections: async function (stream, userId) {
+    createOutgoingPeerConnections: async function (userId) {
       const calleeList = []
+      const activeMap = new Map()
       if (userId) {
         calleeList.push(userId)
       } else {
-        // If no userId is provided, add everybody except the current user as a Callee
+        // If no userId is provided, add everybody active except the current user as a callee
+        const guid = this.currentSubchat.guid
+        const actives = await this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'm5/activemembers/' + guid
+        })
+        for (let i = 0; i < actives.result.members.length; i++) {
+          activeMap.set(actives.result.members[i], true)
+        }
+        let isActive = false
         for (let i = 0; i < this.members.length; i++) {
-          if (this.members[i].id !== this.userId) {
+          isActive = activeMap.has(this.members[i].usr)
+          if (this.members[i].id !== this.userId && isActive) {
             calleeList.push(this.members[i].id)
           }
         }
@@ -4340,7 +4362,7 @@ export default {
       let remoteName
       for (let i = 0; i < calleeList.length; i++) {
         remoteName = this.getUserFromId(calleeList[i])
-        this.wRTC.initiatePeerConnection(stream, this.userId, calleeList[i], remoteName)
+        this.wRTC.initiatePeerConnection(null, this.userId, calleeList[i], remoteName)
       }
     },
     makeElementDraggable: function (element) {
@@ -4660,7 +4682,7 @@ export default {
         }
       }
     },
-    getActiveMembers: function (uniChatroomGUID) {
+    getActiveMembers: async function (uniChatroomGUID) {
       if (!uniChatroomGUID) return
       this.$Worker.execute({
         action: 'api',
@@ -4782,12 +4804,18 @@ export default {
         if (!this.inputField) {
           this.prepareInputField(++tries)
         }
+        // Set message section with its scroll event
+        this.$refs.messages_section.onscroll = this.checkScroll
         // Remove event listeners first to avoid having multiple
         this.inputField.removeEventListener('keydown', this.handleEnter, false)
         this.inputField.removeEventListener('input', this.handleCommentInput, false)
+        this.inputField.removeEventListener('click', this.hideAllSidebars, false)
+        this.inputField.removeEventListener('keyup', this.auto_grow, false)
         // Add event listeners
         this.inputField.addEventListener('keydown', this.handleEnter, false)
         this.inputField.addEventListener('input', this.handleCommentInput, false)
+        this.inputField.addEventListener('click', this.hideAllSidebars, false)
+        this.inputField.addEventListener('keyup', this.auto_grow, false)
         // Focus
         this.focusComment()
       }, 0)

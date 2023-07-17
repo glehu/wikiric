@@ -4,6 +4,7 @@ const WRTC = {
   /*
   PARAMETERS - Set those before calling initialize()
    */
+  pause: false,
   worker: null,
   doLog: true,
   doLogVerbose: false,
@@ -41,13 +42,15 @@ const WRTC = {
    * @param {string} selfId - Your user ID
    * @param {boolean} [doLog=true] - Enables simple logging
    * @param {boolean} [doLogVerbose=false] - Enables extensive logging
+   * @param {boolean} [pause=false] - If true, ignores new incoming connection attempts
    */
   initialize: function (
     worker,
     selfName,
     selfId,
     doLog = true,
-    doLogVerbose = false
+    doLogVerbose = false,
+    pause = false
   ) {
     // ### Check
     if (worker == null || selfName == null || selfId == null) {
@@ -55,6 +58,7 @@ const WRTC = {
         'worker, selfName and selfId are mandatory!')
     }
     // ### Initialize wRTC ###
+    this.pause = pause
     this.worker = worker
     this.selfName = selfName
     this.selfId = selfId
@@ -94,7 +98,7 @@ const WRTC = {
    * @param {string} remoteId - Remote ID
    * @param {string} remoteName - Remote username
    * @param {boolean} [createDataChannel=true] - Specifies if a data channel needs to be created
-   * @param {boolean} [polite=true] - TBD
+   * @param {boolean} [polite=false] - TBD
    */
   initiatePeerConnection: function (
     stream, selfId, remoteId, remoteName, createDataChannel = true, polite = false
@@ -119,8 +123,24 @@ const WRTC = {
       // Track could not be stopped
       // }
     } else {
-      if (this.doLog) console.log('%cInitializing Peer Connection', this.logStyle, 'to', remoteName, remoteId)
+      if (this.doLog) {
+        if (!polite) console.log('%cIMPOLITELY Initializing Peer Connection >:(', this.logStyle, 'to', remoteName, remoteId)
+        if (polite) console.log('%cPOLITELY Initializing Peer Connection O:)', this.logStyle, 'to', remoteName, remoteId)
+      }
       this.peerConnections.set(remoteId, new RTCPeerConnection(this.iceConfig))
+      // If no stream was provided, the connection attempt must have been a remote one -> Notify
+      if (stream == null) {
+        const payload = {
+          event: 'peer_init',
+          selfId: this.selfId,
+          remoteId: remoteId
+        }
+        this.eventChannel.postMessage(payload)
+        stream = this.getEmptyStream(640, 480, this.selfName)
+        if (this.doLog) {
+          console.log('%cDummy stream generated', this.logStyle, 'to', remoteName, remoteId)
+        }
+      }
     }
     // Create and initialize P2P connection
     const peerConnection = this.peerConnections.get(remoteId)
@@ -137,19 +157,26 @@ const WRTC = {
     peerConnection.isMakingOffer = false
     peerConnection.isIgnoringOffer = false
     peerConnection.polite = polite
+    peerConnection.hasStream = false
     // Add tracks if present
     if (stream != null) {
-      let sCount = 1
-      stream.getTracks().forEach(track => {
-        if (this.doLog) {
-          console.debug(`%cADD TRACK ${sCount}`, this.logStyle, 'for', remoteName, remoteId, track.kind)
-          sCount++
-        }
-        peerConnection.addTrack(track, stream)
-      })
+      if (peerConnection.hasStream === false) {
+        peerConnection.hasStream = true
+        let sCount = 1
+        stream.getTracks().forEach(track => {
+          if (this.doLog) {
+            console.debug(`%cADD TRACK ${sCount}`, this.logStyle, 'for', remoteName, remoteId, track.kind)
+            sCount++
+          }
+          peerConnection.addTrack(track, stream)
+        })
+      } else {
+        this.replaceTrack(stream, 'audio')
+        this.replaceTrack(stream, 'video')
+      }
     }
     // Create data channel if desired
-    if (createDataChannel) {
+    if (createDataChannel && !peerConnection.dataChannel) {
       if (this.doLog) {
         console.debug('%cADD DATA CHANNEL', this.logStyle, 'for', remoteName, remoteId)
       }
@@ -210,6 +237,18 @@ const WRTC = {
     }
     this.peerConnections.set(remoteId, peerConnection)
   },
+  doPause: function () {
+    this.pause = true
+    if (this.doLog) {
+      console.log('%cPaused', this.logStyle)
+    }
+  },
+  doUnpause: function () {
+    this.pause = false
+    if (this.doLog) {
+      console.log('%cUnpaused', this.logStyle)
+    }
+  },
   /***
    * Creates an Offer
    * @param remoteId
@@ -262,7 +301,7 @@ const WRTC = {
     }
     const peerConnection = this.peerConnections.get(remoteId)
     if (!peerConnection.stream) return null
-    if (this.doLog) console.log('%cRetrieving remote stream', this.logStyle)
+    if (this.doLog) console.log('%cRetrieving remote stream', this.logStyle, peerConnection.remoteName)
     return peerConnection.stream
   },
   hangup: function (remoteId = null) {
@@ -309,7 +348,6 @@ const WRTC = {
       }
       if (peerConnection.localDescription.type === 'answer') {
         peerConnection.isAccepted = true
-        // await this.addIncomingStoredICE(peerConnection)
       }
       this.worker.execute({
         action: 'fwd',
@@ -327,12 +365,9 @@ const WRTC = {
       if (this.doLog) {
         console.log('%cRenegotiation Failed!', this.logStyle, e.message)
       }
-    } finally {
-      peerConnection.isMakingOffer = false
     }
   },
   sendIceMessage: function (peerConnection, iceEvent) {
-    // if (peerConnection.endReached === true) return
     let candidate = iceEvent.candidate
     if (candidate && candidate.candidate !== '') {
       peerConnection.iceAvailable = true
@@ -359,16 +394,18 @@ const WRTC = {
   },
   handleIncomingTrack: function (peerConnection, trackEvent) {
     if (trackEvent.streams) {
-      // const [remoteStream] = trackEvent.streams
-      const remoteStream = trackEvent.streams[0]
-      peerConnection.streamCounter += 1
-      peerConnection.stream = remoteStream
-      const payload = {
-        event: 'incoming_track',
-        selfId: peerConnection.selfId,
-        remoteId: peerConnection.remoteId
+      trackEvent.track.onunmute = () => {
+        // const [remoteStream] = trackEvent.streams
+        const remoteStream = trackEvent.streams[0]
+        peerConnection.streamCounter += 1
+        peerConnection.stream = remoteStream
+        const payload = {
+          event: 'incoming_track',
+          selfId: peerConnection.selfId,
+          remoteId: peerConnection.remoteId
+        }
+        this.eventChannel.postMessage(payload)
       }
-      this.eventChannel.postMessage(payload)
     }
   },
   handleConnectionStateChange: function (peerConnection) {
@@ -381,7 +418,7 @@ const WRTC = {
     this.eventChannel.postMessage(payload)
     if (this.doLog) {
       console.log(`%c${peerConnection.connectionState}`,
-        this.wRTC.logStyle, peerConnection.remoteName)
+        this.logStyle, peerConnection.remoteName)
     }
     if (peerConnection.connectionState === 'failed') {
       if (this.doLog) {
@@ -391,8 +428,15 @@ const WRTC = {
     }
   },
   async handleIncomingDescription (remoteId, remoteName, description) {
+    console.log('INC DSC: ' + remoteId)
     let peerConnection = this.getPeerConnection(remoteId)
     if (peerConnection == null) {
+      if (this.pause) {
+        if (this.doLog) {
+          console.log('%cPAUSE Ignored offer', this.logStyle)
+        }
+        return
+      }
       this.initiatePeerConnection(
         null, this.selfId, remoteId, remoteName, true, true
       )
@@ -416,10 +460,11 @@ const WRTC = {
       console.debug(e.message)
     }
     if (description.type === 'offer') {
+      peerConnection.isMakingOffer = false
       await peerConnection.setLocalDescription()
       peerConnection.isAccepted = true
       if (this.doLog) {
-        console.log('%cAccepted:', this.logStyle, peerConnection.remoteName)
+        console.log('%cOffer accepted:', this.logStyle, peerConnection.remoteName)
       }
       if (this.doLog) {
         console.log(`%c${peerConnection.localDescription.type}`, this.logStyle, 'created')
@@ -436,13 +481,12 @@ const WRTC = {
           }
         )
       })
-      // await this.addIncomingStoredICE(peerConnection)
     } else if (description.type === 'answer') {
+      peerConnection.isMakingOffer = false
       peerConnection.isAccepted = true
       if (this.doLog) {
-        console.log('%cAccepted:', this.logStyle, peerConnection.remoteName)
+        console.log('%cAnswer accepted:', this.logStyle, peerConnection.remoteName)
       }
-      // await this.addIncomingStoredICE(peerConnection)
     }
   },
   async handleIncomingIce (remoteId, candidate) {
@@ -519,7 +563,7 @@ const WRTC = {
   },
   replaceTrack: function (stream, kind) {
     if (!stream || !kind) return
-    const [videoTracks] = stream.getVideoTracks()
+    const [videoTracks] = stream.getTracks()
     for (const peerCon of this.peerConnections.values()) {
       const senderList = peerCon.getSenders()
       senderList.forEach((sender) => {
@@ -537,6 +581,35 @@ const WRTC = {
         }
       })
     }
+  },
+  getEmptyStream: function (width = 640, height = 480, dummyText = null) {
+    const silence = () => {
+      const ctx = new AudioContext()
+      const oscillator = ctx.createOscillator()
+      const dst = oscillator.connect(ctx.createMediaStreamDestination())
+      oscillator.start()
+      return Object.assign(dst.stream.getAudioTracks()[0], { enabled: false })
+    }
+    const black = () => {
+      const canvas = Object.assign(document.createElement('canvas'), {
+        width,
+        height
+      })
+      const ctx = canvas.getContext('2d')
+      // Set black background
+      ctx.fillStyle = 'rgb(24, 24, 27)'
+      ctx.fillRect(0, 0, width, height)
+      // Write text if specified
+      if (dummyText) {
+        ctx.fillStyle = 'white'
+        ctx.textAlign = 'center'
+        ctx.font = 'bold 24px \'Open Sans\''
+        ctx.fillText(dummyText, width / 2, height / 2)
+      }
+      const stream = canvas.captureStream()
+      return Object.assign(stream.getVideoTracks()[0], { enabled: true })
+    }
+    return new MediaStream([black(width, height), silence()])
   }
 }
 export default WRTC
