@@ -267,15 +267,16 @@
                             width: 100%;
                             aspect-ratio: 16 / 9"
                      class="flex">
-                  <div v-if="!isStreamingVideo"
-                       class="flex pointer-events-none absolute w-full h-full items-center justify-center darkest_bg">
-                    <i class="bi bi-camera-video-off lead"></i>
-                    <p style="margin: 0 0 0 10px;
+                  <template v-if="!isStreamingVideo">
+                    <div class="flex pointer-events-none absolute w-full h-full items-center justify-center darkest_bg">
+                      <i class="bi bi-camera-video-off lead"></i>
+                      <p style="margin: 0 0 0 10px;
                               padding-left: 10px;
                               border-left: 1px solid rgba(174, 174, 183, 0.25)">
-                      STREAM OFFLINE
-                    </p>
-                  </div>
+                        STREAM OFFLINE
+                      </p>
+                    </div>
+                  </template>
                   <template v-if="currentSubchat.type === 'screenshare'">
                     <video id="screenshare_video" autoplay playsinline muted
                            class="conference_media_element"
@@ -286,14 +287,22 @@
                          class="grid w-full overflow-hidden"
                          style="grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));">
                       <div class="relative overflow-hidden w-full h-full">
+                        <div class="flex w-full h-full items-center justify-center
+                                      absolute top-0 left-0">
+                          <user-circle-icon class="w-8 h-8 text-neutral-100 mr-2"></user-circle-icon>
+                          <p class="text-lg text-neutral-100 font-bold">
+                            {{ $store.state.username }}
+                          </p>
+                        </div>
                         <video id="screenshare_video"
                                autoplay playsinline muted
-                               class="w-full h-full max-w-full max-h-full conference_media_element"></video>
+                               class="w-full h-full max-w-full max-h-full conference_media_element
+                                          absolute z-10"></video>
                         <video id="screenshare_video_alternate"
                                autoplay playsinline muted controls
                                class="absolute top-0 left-0 w-full h-full max-w-full max-h-full
                                       conference_media_element hidden"></video>
-                        <p class="absolute top-0 left-0 text-sm bg-zinc-900 bg-opacity-75 p-0.5">
+                        <p class="absolute top-0 left-0 text-sm bg-zinc-900 bg-opacity-75 p-0.5 z-20">
                           {{ $store.state.username }}
                         </p>
                       </div>
@@ -301,10 +310,32 @@
                         <div :id="'screenshare_container_' + peerCon.remoteId"
                              hidden
                              class="relative overflow-hidden w-full h-full">
+                          <div class="flex w-full h-full items-center justify-center
+                                      absolute top-0 left-0">
+                            <template v-if="peerCon.iurl && peerCon.iurl !== ''">
+                              <img :src="getImg(peerCon.iurl, true)" alt="?"
+                                   class="sender_avatar">
+                              <template v-if="peerCon.iurla && peerCon.iurla !== ''">
+                                <img :src="getImg(peerCon.iurla, true)" alt="?"
+                                     class="sender_avatar absolute hidden sender_avatar_animated">
+                              </template>
+                            </template>
+                            <template v-else>
+                              <UserCircleIcon class="w-8 h-8 text-neutral-100 mr-2 sender_avatar"></UserCircleIcon>
+                            </template>
+                            <p class="text-lg text-neutral-100 font-bold">
+                              {{ getUserFromId(peerCon.remoteId) }}
+                            </p>
+                          </div>
                           <video :id="'screenshare_video_' + peerCon.remoteId"
                                  autoplay playsinline
-                                 class="w-full h-full max-w-full max-h-full conference_media_element"></video>
-                          <p class="absolute top-0 left-0 text-sm bg-zinc-900 bg-opacity-75 p-0.5">
+                                 class="w-full h-full max-w-full max-h-full conference_media_element
+                                          absolute z-10"></video>
+                          <audio :id="'screenshare_audio_' + peerCon.remoteId"
+                                 autoplay controls
+                                 class="absolute bottom-0 left-0 conference_media_element
+                                          m-2 w-full h-[32px] rounded-none"></audio>
+                          <p class="absolute top-0 left-0 text-sm bg-zinc-900 bg-opacity-75 p-0.5 z-20">
                             {{ getUserFromId(peerCon.remoteId) }}
                           </p>
                         </div>
@@ -1613,14 +1644,13 @@ export default {
       connection: null,
       peerType: 'idle',
       peerStreamOutgoing: null,
-      peerDummyStreamOutgoing: null,
       peerStreamOutgoingConstraints: {
         video: false,
         audio: false
       },
       peerStreamOutgoingPreferences: {
         video: false,
-        audio: false
+        audio: true
       },
       peerStreamScreenshare: null,
       websocketState: 'CLOSED',
@@ -1833,10 +1863,11 @@ export default {
       })
     },
     setUpWRTC: function () {
-      if (this.wRTC.selfId != null) return
+      if (this.wRTC.selfId === this.userId) return
       // Initialize wRTC.js
       this.wRTC = WRTC
-      this.wRTC.initialize(this.$Worker, this.$store.state.username, this.userId, true, false, true)
+      this.wRTC.initialize(
+        this.$Worker, this.$store.state.username, this.userId, true, false, true)
       // Create BroadcastChannel to listen to wRTC events!
       const eventChannel = new BroadcastChannel('wrtcevents')
       eventChannel.onmessage = event => {
@@ -1847,22 +1878,47 @@ export default {
       if (!event || !event.data) return
       if (event.data.event === 'incoming_track') {
         setTimeout(() => {
-          this.isStreamingVideo = true
-          this.streamStartTime = Math.floor(Date.now() / 1000)
-          this.startTimeCounter()
-          this.enterCinemaMode()
           let videoElem
+          let audioElem
+          let container
           if (this.currentSubchat.type === 'screenshare') {
             videoElem = document.getElementById('screenshare_video')
           } else if (this.currentSubchat.type === 'webcam' || this.params) {
             videoElem = document.getElementById('screenshare_video_' + event.data.remoteId)
-            const container = document.getElementById('screenshare_container_' + event.data.remoteId)
+            audioElem = document.getElementById('screenshare_audio_' + event.data.remoteId)
+            container = document.getElementById('screenshare_container_' + event.data.remoteId)
+            if (!videoElem || !audioElem || !container) return
             container.style.display = 'block'
           }
-          if (!videoElem.srcObject) {
-            videoElem.srcObject = this.wRTC.getStream(event.data.remoteId)
+          const remoteStream = this.wRTC.getStream(event.data.remoteId)
+          let hasVideo = false
+          let hasAudio = false
+          remoteStream.getTracks().forEach(track => {
+            if (track.kind === 'audio') hasAudio = true
+            if (track.kind === 'video') hasVideo = true
+          })
+          // Show remote tracks
+          if (hasVideo) {
+            videoElem.srcObject = remoteStream
+            videoElem.setAttribute('controls', '')
+            audioElem.srcObject = null
+            audioElem.removeAttribute('controls')
+          } else {
+            videoElem.srcObject = null
+            if (hasAudio) {
+              audioElem.srcObject = remoteStream
+              audioElem.setAttribute('controls', '')
+            } else {
+              audioElem.srcObject = null
+            }
           }
-          videoElem.setAttribute('controls', '')
+          // ---
+          if (!this.isStreamingVideo) {
+            this.isStreamingVideo = true
+            this.streamStartTime = Math.floor(Date.now() / 1000)
+            this.startTimeCounter()
+            this.enterCinemaMode()
+          }
         }, 2000)
       } else if (event.data.event === 'connection_change') {
         if (event.data.status === 'connected') {
@@ -1877,8 +1933,6 @@ export default {
             await this.callStartOrStopScreenshare(false, true)
           }
         }
-      } else if (event.data.event === 'peer_init') {
-        this.peerDummyStreamOutgoing = this.getEmptyStream(640, 480, this.$store.state.username)
       }
       return new Promise((resolve) => {
         resolve()
@@ -1990,8 +2044,8 @@ export default {
                 if (this.currentSubchat.type === 'webcam' || this.params) {
                   this.wRTC.doUnpause()
                   this.startCall(undefined, {
-                    video: false,
-                    audio: false
+                    video: undefined,
+                    audio: undefined
                   })
                 } else if (this.currentSubchat.type === 'screenshare') {
                   this.wRTC.doUnpause()
@@ -2308,6 +2362,7 @@ export default {
       })
     },
     focusComment: function (instantly = false) {
+      if (!this.inputField) return
       if (instantly) {
         this.inputField.focus()
       } else {
@@ -2320,7 +2375,7 @@ export default {
       if (text !== '') this.connection.send(text)
       if (closeGIFSelection) this.isViewingGIFSelection = false
     },
-    getClarifierMetaData: function (sessionID = this.getSession(), isSubchat = false, novisual = false) {
+    getClarifierMetaData: async function (sessionID = this.getSession(), isSubchat = false, novisual = false) {
       if (sessionID == null || sessionID === 'undefined') {
         this.$notify(
           {
@@ -2456,7 +2511,9 @@ export default {
             this.userId = this.members[i].id
           } else {
             this.remotePeerConnections.push({
-              remoteId: this.members[i].id
+              remoteId: this.members[i].id,
+              iurl: this.members[i].iurl,
+              iurla: this.members[i].iurla
             })
           }
         }
@@ -4081,12 +4138,9 @@ export default {
       return new MediaStream([black(width, height), silence()])
     },
     startCall: async function (userId, constraints = null) {
-      this.peerDummyStreamOutgoing = this.getEmptyStream(640, 480, this.$store.state.username)
+      // Retrieve media stream
+      await this.callSetUserMedia(constraints)
       this.peerStreamOutgoingPreferences = constraints
-      // Set local stream
-      const videoElem = document.getElementById('screenshare_video')
-      if (!videoElem) return // TODO: Feedback to user needed
-      videoElem.srcObject = this.peerDummyStreamOutgoing
       this.isStreamingVideo = true
       // Go into distraction free cinema mode
       this.enterCinemaMode()
@@ -4166,25 +4220,32 @@ export default {
       let constraintsT
       if (constraints) {
         constraintsT = constraints
-        // If video or audio is undefined, take the already existing settings
+        // If video or audio is undefined, replace with preferences
         if (constraintsT.video === undefined) {
-          constraintsT.video = this.peerStreamOutgoingConstraints.video
+          constraintsT.video = this.peerStreamOutgoingPreferences.video
         }
         if (constraintsT.audio === undefined) {
-          constraintsT.audio = this.peerStreamOutgoingConstraints.audio
+          constraintsT.audio = this.peerStreamOutgoingPreferences.audio
         }
         this.peerStreamOutgoingPreferences = constraintsT
       } else {
-        // Defaults to preferences
+        // Defaults to preferences if no constraints were provided
         constraintsT = this.peerStreamOutgoingPreferences
       }
       let stream
+      // Get user media if there is no stream or constraints have changed
       if (!this.peerStreamOutgoing || this.peerStreamOutgoingConstraints !== constraintsT) {
-        stream = await navigator.mediaDevices.getUserMedia(constraintsT)
+        if (constraintsT.video || constraintsT.audio) {
+          stream = await navigator.mediaDevices.getUserMedia(constraintsT)
+        } else {
+          stream = null
+        }
         this.stopOutgoingStreamTracks()
         this.peerStreamOutgoing = stream
+        this.wRTC.addStreamTracks(stream)
       } else {
         stream = this.peerStreamOutgoing
+        this.wRTC.addStreamTracks(stream)
       }
       if (constraintsT.audio) {
         this.wRTC.replaceTrack(stream, 'audio')
@@ -4205,7 +4266,10 @@ export default {
       this.peerStreamOutgoingPreferences.video = override ?? !this.peerStreamOutgoingPreferences.video
       if (this.peerStreamOutgoingPreferences.video) {
         if (!this.peerStreamOutgoing || !this.peerStreamOutgoingConstraints.video) {
-          this.callSetUserMedia()
+          this.callSetUserMedia({
+            video: true,
+            audio: undefined
+          })
         } else {
           this.wRTC.replaceTrack(this.peerStreamOutgoing, 'video')
           const videoElem = document.getElementById('screenshare_video')
@@ -4213,10 +4277,8 @@ export default {
         }
       } else {
         this.wRTC.setVideo(this.peerStreamOutgoingPreferences.video)
-        // If we disabled video, replace it with the dummy stream
-        this.wRTC.replaceTrack(this.peerDummyStreamOutgoing, 'video')
         const videoElem = document.getElementById('screenshare_video')
-        videoElem.srcObject = this.peerDummyStreamOutgoing
+        videoElem.srcObject = null
       }
     },
     callStartOrMuteAudio: function (override = null) {
@@ -4226,13 +4288,13 @@ export default {
     callStartOrStopScreenshare: async function (forceStop = false, forceStart = false) {
       if (!forceStop && (forceStart || !this.isSharingScreen)) {
         // Turn on screen sharing
-        const constraintsT = {
-          video: {
-            cursor: 'always'
-          },
-          audio: true
-        }
         if (!this.isSharingScreen) {
+          const constraintsT = {
+            video: {
+              cursor: 'always'
+            },
+            audio: true
+          }
           this.peerStreamScreenshare = await navigator.mediaDevices.getDisplayMedia(constraintsT)
         }
         if (this.peerStreamOutgoingConstraints.video) {
@@ -4263,10 +4325,9 @@ export default {
           videoElem.style.display = 'block'
           videoElem.srcObject = this.peerStreamOutgoing
         } else {
-          this.wRTC.replaceTrack(this.peerDummyStreamOutgoing, 'video')
           const videoElem = document.getElementById('screenshare_video')
           videoElem.style.display = 'block'
-          videoElem.srcObject = this.peerDummyStreamOutgoing
+          videoElem.srcObject = null
         }
       }
       return new Promise((resolve) => {
@@ -4362,7 +4423,7 @@ export default {
       let remoteName
       for (let i = 0; i < calleeList.length; i++) {
         remoteName = this.getUserFromId(calleeList[i])
-        this.wRTC.initiatePeerConnection(null, this.userId, calleeList[i], remoteName)
+        this.wRTC.initiatePeerConnection(this.peerStreamOutgoing, this.userId, calleeList[i], remoteName)
       }
     },
     makeElementDraggable: function (element) {

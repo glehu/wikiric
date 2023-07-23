@@ -564,6 +564,7 @@ export default {
         null, this.userId, remoteId, remoteName, true)
     },
     setUpWRTC: function () {
+      if (this.wRTC.selfId != null) return
       // Initialize wRTC.js
       this.wRTC = WRTC
       this.wRTC.initialize(this.$Worker, this.$store.state.username, this.userId, true, true)

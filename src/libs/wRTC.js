@@ -10,6 +10,7 @@ const WRTC = {
   doLogVerbose: false,
   selfName: null,
   selfId: null,
+  dummyStream: null,
   /*
   DATA
    */
@@ -43,6 +44,7 @@ const WRTC = {
    * @param {boolean} [doLog=true] - Enables simple logging
    * @param {boolean} [doLogVerbose=false] - Enables extensive logging
    * @param {boolean} [pause=false] - If true, ignores new incoming connection attempts
+   * @param {MediaStream|null} [dummyStream=null] - Dummy video stream to be used on new connections prior to real media
    */
   initialize: function (
     worker,
@@ -50,7 +52,8 @@ const WRTC = {
     selfId,
     doLog = true,
     doLogVerbose = false,
-    pause = false
+    pause = false,
+    dummyStream = null
   ) {
     // ### Check
     if (worker == null || selfName == null || selfId == null) {
@@ -64,6 +67,7 @@ const WRTC = {
     this.selfId = selfId
     this.doLog = doLog
     this.doLogVerbose = doLogVerbose
+    this.dummyStream = dummyStream
     // ###
     console.log(`%cHey, ${this.selfName}!`, this.logStyle,
       'Running on', adapter.browserDetails.browser, adapter.browserDetails.version)
@@ -136,9 +140,11 @@ const WRTC = {
           remoteId: remoteId
         }
         this.eventChannel.postMessage(payload)
-        stream = this.getEmptyStream(640, 480, this.selfName)
-        if (this.doLog) {
-          console.log('%cDummy stream generated', this.logStyle, 'to', remoteName, remoteId)
+        if (this.dummyStream) {
+          stream = this.dummyStream
+          if (this.doLog) {
+            console.log('%cDummy stream used', this.logStyle, 'for', remoteName, remoteId)
+          }
         }
       }
     }
@@ -160,20 +166,20 @@ const WRTC = {
     peerConnection.hasStream = false
     // Add tracks if present
     if (stream != null) {
-      if (peerConnection.hasStream === false) {
-        peerConnection.hasStream = true
-        let sCount = 1
-        stream.getTracks().forEach(track => {
-          if (this.doLog) {
-            console.debug(`%cADD TRACK ${sCount}`, this.logStyle, 'for', remoteName, remoteId, track.kind)
-            sCount++
-          }
-          peerConnection.addTrack(track, stream)
-        })
-      } else {
-        this.replaceTrack(stream, 'audio')
-        this.replaceTrack(stream, 'video')
-      }
+      // if (peerConnection.hasStream === false) {
+      // peerConnection.hasStream = true
+      let sCount = 1
+      stream.getTracks().forEach(track => {
+        if (this.doLog) {
+          console.debug(`%cADD TRACK ${sCount}`, this.logStyle, 'for', remoteName, remoteId, track.kind)
+          sCount++
+        }
+        peerConnection.addTrack(track, stream)
+      })
+      // } else {
+      //   this.replaceTrack(stream, 'audio')
+      //   this.replaceTrack(stream, 'video')
+      // }
     }
     // Create data channel if desired
     if (createDataChannel && !peerConnection.dataChannel) {
@@ -576,40 +582,31 @@ const WRTC = {
               sender.track.enabled = true
             })
             .catch(async () => {
-              await this.sendNegotiationMessage(peerCon)
+              this.sendNegotiationMessage(peerCon)
             })
         }
       })
     }
   },
-  getEmptyStream: function (width = 640, height = 480, dummyText = null) {
-    const silence = () => {
-      const ctx = new AudioContext()
-      const oscillator = ctx.createOscillator()
-      const dst = oscillator.connect(ctx.createMediaStreamDestination())
-      oscillator.start()
-      return Object.assign(dst.stream.getAudioTracks()[0], { enabled: false })
-    }
-    const black = () => {
-      const canvas = Object.assign(document.createElement('canvas'), {
-        width,
-        height
-      })
-      const ctx = canvas.getContext('2d')
-      // Set black background
-      ctx.fillStyle = 'rgb(24, 24, 27)'
-      ctx.fillRect(0, 0, width, height)
-      // Write text if specified
-      if (dummyText) {
-        ctx.fillStyle = 'white'
-        ctx.textAlign = 'center'
-        ctx.font = 'bold 24px \'Open Sans\''
-        ctx.fillText(dummyText, width / 2, height / 2)
+  addStreamTracks: function (stream) {
+    if (stream) {
+      for (const peerConnection of this.peerConnections.values()) {
+        let sCount = 1
+        stream.getTracks().forEach(track => {
+          if (this.doLog) {
+            console.debug(`%cADD TRACK ${sCount}`,
+              this.logStyle, 'for', peerConnection.remoteName,
+              peerConnection.remoteId, track.kind)
+            sCount++
+          }
+          try {
+            peerConnection.addTrack(track, stream)
+          } catch (e) {
+            console.debug(e.message)
+          }
+        })
       }
-      const stream = canvas.captureStream()
-      return Object.assign(stream.getVideoTracks()[0], { enabled: true })
     }
-    return new MediaStream([black(width, height), silence()])
   }
 }
 export default WRTC
