@@ -401,6 +401,7 @@ const WRTC = {
   handleIncomingTrack: function (peerConnection, trackEvent) {
     if (trackEvent.streams) {
       trackEvent.track.onunmute = () => {
+        trackEvent.track.onunmute = null
         // const [remoteStream] = trackEvent.streams
         const remoteStream = trackEvent.streams[0]
         peerConnection.streamCounter += 1
@@ -588,21 +589,23 @@ const WRTC = {
       })
     }
   },
-  addStreamTracks: function (stream) {
+  addStreamTracks: function (stream, forceType = null) {
     if (stream) {
       for (const peerConnection of this.peerConnections.values()) {
         let sCount = 1
         stream.getTracks().forEach(track => {
-          if (this.doLog) {
-            console.debug(`%cADD TRACK ${sCount}`,
-              this.logStyle, 'for', peerConnection.remoteName,
-              peerConnection.remoteId, track.kind)
-            sCount++
-          }
-          try {
-            peerConnection.addTrack(track, stream)
-          } catch (e) {
-            console.debug(e.message)
+          if (!forceType || track.kind === forceType) {
+            if (this.doLog) {
+              console.debug(`%cADD TRACK ${sCount}`,
+                this.logStyle, 'for', peerConnection.remoteName,
+                peerConnection.remoteId, track.kind)
+              sCount++
+            }
+            try {
+              peerConnection.addTrack(track, stream)
+            } catch (e) {
+              console.debug(e.message)
+            }
           }
         })
       }

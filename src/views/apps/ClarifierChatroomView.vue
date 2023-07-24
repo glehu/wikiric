@@ -268,7 +268,8 @@
                             aspect-ratio: 16 / 9"
                      class="flex">
                   <template v-if="!isStreamingVideo">
-                    <div class="flex pointer-events-none absolute w-full h-full items-center justify-center darkest_bg">
+                    <div class="flex pointer-events-none absolute w-full h-full items-center justify-center
+                                darkest_bg z-30">
                       <i class="bi bi-camera-video-off lead"></i>
                       <p style="margin: 0 0 0 10px;
                               padding-left: 10px;
@@ -1899,14 +1900,18 @@ export default {
           })
           // Show remote tracks
           if (hasVideo) {
-            videoElem.srcObject = remoteStream
+            if (!videoElem.srcObject || videoElem.srcObject !== remoteStream) {
+              videoElem.srcObject = remoteStream
+            }
             videoElem.setAttribute('controls', '')
             audioElem.srcObject = null
             audioElem.removeAttribute('controls')
           } else {
             videoElem.srcObject = null
             if (hasAudio) {
-              audioElem.srcObject = remoteStream
+              if (!audioElem.srcObject || audioElem.srcObject !== remoteStream) {
+                audioElem.srcObject = remoteStream
+              }
               audioElem.setAttribute('controls', '')
             } else {
               audioElem.srcObject = null
@@ -4300,6 +4305,8 @@ export default {
         if (this.peerStreamOutgoingConstraints.video) {
           // Disable video to save bandwidth while transmitting screen
           this.callStartOrMuteVideo(false)
+        } else {
+          this.wRTC.addStreamTracks(this.peerStreamScreenshare, 'video')
         }
         this.wRTC.replaceTrack(this.peerStreamScreenshare, 'video')
         let videoElem = document.getElementById('screenshare_video_alternate')
