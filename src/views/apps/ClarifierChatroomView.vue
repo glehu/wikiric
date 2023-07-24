@@ -161,28 +161,35 @@
                      style="font-size: 150%"></i>
                 </button>
               </div>
-              <div v-for="subchat in chatroom.subChatrooms" :key="subchat"
-                   :id="subchat.guid + '_subc'"
-                   class="subchat"
-                   style="display: flex"
-                   v-on:click="gotoSubchat(subchat.guid)">
-                <i :id="subchat.guid + '_notify'"
-                   class="absolute -translate-x-4
+              <template v-for="subchat in chatroom.subChatrooms" :key="subchat">
+                <div :id="subchat.guid + '_subc'"
+                     class="subchat"
+                     style="display: flex"
+                     v-on:click="gotoSubchat(subchat.guid)">
+                  <i :id="subchat.guid + '_notify'"
+                     class="absolute -translate-x-4
                           w-[6px] h-[28px] rounded-r-full
                           z-50 bg-orange-500 hidden">
-                  <span class="hidden">{{ hasUnread(subchat.guid) }}</span>
-                </i>
-                <template v-if="subchat.type === 'screenshare'">
-                  <WindowIcon class="h-5 w-5"></WindowIcon>
+                    <span class="hidden">{{ hasUnread(subchat.guid) }}</span>
+                  </i>
+                  <template v-if="subchat.type === 'screenshare'">
+                    <WindowIcon class="h-5 w-5"></WindowIcon>
+                  </template>
+                  <template v-else-if="subchat.type === 'webcam'">
+                    <i class="bi bi-camera-video h-5 w-5 flex items-center justify-center text-lg"></i>
+                  </template>
+                  <template v-else>
+                    <HashtagIcon class="h-5 w-5"></HashtagIcon>
+                  </template>
+                  <span class="relative left-[20px]">{{ subchat.t }}</span>
+                </div>
+                <template v-if="subchat._subMembers">
+                  <div v-for="subMember in subchat._subMembers" :key="subMember"
+                       class="flex items-center pl-3.5 ml-3.5 border-l-[4px] border-neutral-900">
+                    <div class="text-sm pt-1">{{ subMember.usr }}</div>
+                  </div>
                 </template>
-                <template v-else-if="subchat.type === 'webcam'">
-                  <i class="bi bi-camera-video h-5 w-5 flex items-center justify-center text-lg"></i>
-                </template>
-                <template v-else>
-                  <HashtagIcon class="h-5 w-5"></HashtagIcon>
-                </template>
-                <span class="relative left-[20px]">{{ subchat.t }}</span>
-              </div>
+              </template>
             </template>
             <template v-else>
               <div class="w-full p-4 text-neutral-300">
@@ -1368,17 +1375,6 @@
               <span class="text-neutral-400 text-xs">Meet up, talk and video chat with others.</span>
             </div>
           </button>
-          <button v-on:click="createSubchatroom('screenshare')"
-                  id="new_subchat_type_screenshare" class="btn darkbutton mt-2 text-neutral-400"
-                  style="width: 100%; text-align: left; display: flex;
-                         align-items: center; border-radius: 10px">
-            <span style="font-size: 200%"><i class="bi bi-window-fullscreen"></i></span>
-            <div class="ml-3">
-              <span class="text-neutral-300">Screenshare Subchat</span>
-              <br>
-              <span class="text-neutral-400 text-xs">Share your screen for others.</span>
-            </div>
-          </button>
         </div>
       </div>
     </template>
@@ -1750,6 +1746,12 @@ export default {
             this.mainMembers[i].online = true
           }
         }
+      } else if (event.data.type === 'fwd:subchat_join') {
+        const payload = JSON.parse(event.data.msg)
+        this.notifyJoinedSubchat(payload.guid, payload.user)
+      } else if (event.data.type === 'fwd:subchat_leave') {
+        const payload = JSON.parse(event.data.msg)
+        this.notifyJoinedSubchat(payload.guid, payload.user, false, true)
       }
     }
   },
@@ -2052,6 +2054,7 @@ export default {
                     video: undefined,
                     audio: undefined
                   })
+                  this.notifyJoinedSubchat(this.currentSubchat.guid, this.$store.state.username, true)
                 } else if (this.currentSubchat.type === 'screenshare') {
                   this.wRTC.doUnpause()
                 }
@@ -2416,6 +2419,9 @@ export default {
                 // Parse JSON serialized subchats for performance
                 for (let i = 0; i < this.chatroom.subChatrooms.length; i++) {
                   this.chatroom.subChatrooms[i] = JSON.parse(this.chatroom.subChatrooms[i])
+                  if (this.chatroom.subChatrooms[i].type === 'webcam') {
+                    this.getActiveMembers(this.chatroom.subChatrooms[i].guid, true)
+                  }
                 }
               }
               if (!novisual && (this.chatroom.type === undefined || this.chatroom.type !== 'direct')) {
@@ -3661,6 +3667,9 @@ export default {
       this.messages = []
       this.resetStats()
       this.websocketState = 'CLOSED'
+      if (this.currentSubchat && this.currentSubchat.type === 'webcam') {
+        this.notifyJoinedSubchat(this.currentSubchat.guid, this.$store.state.username, true, true)
+      }
       if (this.connection == null) return
       this.addMessagePar('[c:SC]' + '[offline]' + this.$store.state.username)
       this.connection.close()
@@ -4750,7 +4759,7 @@ export default {
         }
       }
     },
-    getActiveMembers: async function (uniChatroomGUID) {
+    getActiveMembers: async function (uniChatroomGUID, subchatMemberMode = false) {
       if (!uniChatroomGUID) return
       this.$Worker.execute({
         action: 'api',
@@ -4761,17 +4770,28 @@ export default {
           for (let i = 0; i < this.mainMembers.length; i++) {
             this.mainMembers[i].active = (this.mainMembers[i].usr === this.$store.state.username)
           }
-          this.setActiveMembers(data.result.members)
-          this.getOnlineUsers()
+          this.setActiveMembers(data.result.members, true, subchatMemberMode, uniChatroomGUID)
+          if (!subchatMemberMode) {
+            this.getOnlineUsers()
+          }
         })
         .finally(() => {
-          setTimeout(() => {
-            this.addMessagePar('[c:SC]' + '[online]' + this.$store.state.username)
-          }, 0)
+          if (!subchatMemberMode) {
+            setTimeout(() => {
+              this.addMessagePar('[c:SC]' + '[online]' + this.$store.state.username)
+            }, 0)
+          }
         })
     },
-    setActiveMembers: function (members, override = true) {
+    setActiveMembers: function (members, override = true, subchatMemberMode = false, subchatGUID = null) {
       if (!members) return
+      if (subchatMemberMode) {
+        if (subchatGUID == null) return
+        for (let i = 0; i < members.length; i++) {
+          this.notifyJoinedSubchat(subchatGUID, members[i])
+        }
+        return
+      }
       const dict = new Map()
       for (let i = 0; i < members.length; i++) {
         dict[members[i]] = true
@@ -5016,6 +5036,51 @@ export default {
       if (!url) return
       this.isViewingImage = true
       this.viewingImageURL = url
+    },
+    notifyJoinedSubchat (guid, user, forward = false, leave = false) {
+      this.chatroom.subChatrooms.forEach((value) => {
+        if (value.guid === guid) {
+          if (!value._subMembers || !Array.isArray(value._subMembers)) {
+            value._subMembers = []
+          } else {
+            const index = value._subMembers.findIndex(value => value.usr === user)
+            if (index !== -1) {
+              if (!leave) {
+                return
+              } else {
+                value._subMembers.splice(index, 1)
+              }
+            }
+          }
+          if (!leave) {
+            value._subMembers.push({
+              usr: user
+            })
+          }
+          if (forward) {
+            if (this.mainMembers.length <= 0) return
+            for (let i = 0; i < this.mainMembers.length; i++) {
+              if (this.mainMembers[i].online && this.mainMembers[i].usr !== this.$store.state.username) {
+                let type
+                if (!leave) {
+                  type = 'subchat_join'
+                } else {
+                  type = 'subchat_leave'
+                }
+                this.$Worker.execute({
+                  action: 'fwd',
+                  username: this.mainMembers[i].usr,
+                  type: type,
+                  value: JSON.stringify({
+                    user: user,
+                    guid: guid
+                  })
+                })
+              }
+            }
+          }
+        }
+      })
     }
   }
 }
