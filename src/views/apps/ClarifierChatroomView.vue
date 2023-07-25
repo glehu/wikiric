@@ -2195,7 +2195,9 @@ export default {
         this.messages.unshift(message)
       }
       if (message.mType === 'RegistrationNotification') {
-        this.getClarifierMetaData()
+        setTimeout(() => {
+          this.getClarifierMetaData()
+        }, 2500)
       }
       setTimeout(() => {
         mermaid.init()
