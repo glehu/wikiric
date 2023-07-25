@@ -1866,7 +1866,7 @@ export default {
       })
     },
     setUpWRTC: function () {
-      if (this.wRTC.selfId === this.userId) return
+      if (this.wRTC.selfId && this.wRTC.selfId === this.userId) return
       // Initialize wRTC.js
       this.wRTC = WRTC
       this.wRTC.initialize(
@@ -1926,7 +1926,7 @@ export default {
             this.startTimeCounter()
             this.enterCinemaMode()
           }
-        }, 2000)
+        }, 500)
       } else if (event.data.event === 'connection_change') {
         if (event.data.status === 'connected') {
           // Check if we need to replace any tracks
@@ -4215,7 +4215,7 @@ export default {
         video: {
           cursor: 'always'
         },
-        audio: true
+        audio: false // See further down
       }
       let stream
       if (!this.peerStreamOutgoing || this.peerStreamOutgoingConstraints !== constraintsT) {
@@ -4224,7 +4224,7 @@ export default {
       } else {
         stream = this.peerStreamOutgoing
       }
-      this.wRTC.replaceTrack(stream, 'audio')
+      // this.wRTC.replaceTrack(stream, 'audio') // TODO: Figure out how to send two audio tracks
       this.wRTC.replaceTrack(stream, 'video')
       return new Promise((resolve) => {
         resolve()

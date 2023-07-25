@@ -556,17 +556,17 @@ export default {
     },
     inviteUser: async function (remoteId) {
       if (remoteId == null) return
-      if (this.wRTC.getPeerConnection(remoteId) !== null) {
-        this.wRTC.hangup(remoteId)
+      if (this.session.wRTC.getPeerConnection(remoteId) !== null) {
+        this.session.wRTC.hangup(remoteId)
       }
       const remoteName = this.getUserFromId(remoteId)
-      this.wRTC.initiatePeerConnection(
+      this.session.wRTC.initiatePeerConnection(
         null, this.userId, remoteId, remoteName, true)
     },
     setUpWRTC: function () {
       // Initialize wRTC.js
-      this.wRTC = WRTC
-      this.wRTC.initialize(this.$Worker, this.$store.state.username, this.userId, true, true)
+      this.session.wRTC = WRTC
+      this.session.wRTC.initialize(this.$Worker, this.$store.state.username, this.userId, true, true)
       // Create BroadcastChannel to listen to wRTC events!
       const eventChannel = new BroadcastChannel('wrtcevents')
       eventChannel.onmessage = event => {
@@ -576,7 +576,7 @@ export default {
     handleWRTCEvent: async function (event) {
       if (!event || !event.data) return
       if (event.data.event === 'connection_change') {
-        console.log(`%c${event.data.status}`, this.wRTC.logStyle)
+        console.log(`%c${event.data.status}`, this.session.wRTC.logStyle)
       } else if (event.data.event === 'datachannel_open') {
         const username = this.getUserFromId(event.data.remoteId)
         // Report back
@@ -587,7 +587,7 @@ export default {
             type: 'info'
           })
         // Add data channel and connection
-        const dC = this.wRTC.getPeerConnection(event.data.remoteId).dataChannel
+        const dC = this.session.wRTC.getPeerConnection(event.data.remoteId).dataChannel
         dC.send('DataChannel:OPEN')
         this.session.connectedUsers.push({
           username: username,
@@ -741,7 +741,7 @@ export default {
           this.session.connectedUsers[i].datachannel.send('[c:X]' + this.$store.state.username)
           this.session.connectedUsers[i].datachannel.close()
           this.session.connectedUsers.splice(i)
-          this.wRTC.hangup(connection.remoteId)
+          this.session.wRTC.hangup(connection.remoteId)
           // Delete user elements from screen
           let elem = document.getElementById('rc-' + username)
           if (elem) elem.remove()
