@@ -41,7 +41,9 @@ export default createStore({
     // Wisdom
     wisdomTutorialSeen: false,
     accountType: '',
-    plannerCalendarOpen: true
+    plannerCalendarOpen: true,
+    clarifierMembersOpen: true,
+    clarifierSidebar2Open: true
   },
   mutations: {
     logIn (state, user) {
@@ -218,6 +220,20 @@ export default createStore({
     },
     togglePlannerCalendar (state) {
       state.plannerCalendarOpen = !state.plannerCalendarOpen
+    },
+    toggleClarifierMembers (state, force = null) {
+      if (force != null) {
+        state.clarifierMembersOpen = force
+      } else {
+        state.clarifierMembersOpen = !state.clarifierMembersOpen
+      }
+    },
+    toggleClarifierSidebar2 (state, force = null) {
+      if (force != null) {
+        state.clarifierSidebar2Open = force
+      } else {
+        state.clarifierSidebar2Open = !state.clarifierSidebar2Open
+      }
     }
   },
   actions: {},
@@ -245,6 +261,12 @@ export default createStore({
     },
     isPlannerCalendarOpen: (state) => () => {
       return state.plannerCalendarOpen
+    },
+    isClarifierMembersOpen: (state) => () => {
+      return state.clarifierMembersOpen
+    },
+    isClarifierSidebar2Open: (state) => () => {
+      return state.clarifierSidebar2Open
     }
   }
 })

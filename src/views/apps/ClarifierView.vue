@@ -134,7 +134,7 @@
               <div class="md:mt-0">
                 <h1 class="font-bold mb-2 text-3xl text-neutral-300"
                     style="pointer-events: none">
-                  Add or Join
+                  Join or Add
                 </h1>
                 <p style="text-align: justify; text-justify: inter-word; width: 100%; pointer-events: none"
                    class="text-neutral-300">
