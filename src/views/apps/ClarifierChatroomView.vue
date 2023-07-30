@@ -967,6 +967,340 @@
               </div>
             </div>
           </div>
+          <div class="user_profile overflow-x-hidden overflow-y-auto"
+               v-show="isViewingUserProfile" @click.stop>
+            <div class="relative h-full">
+              <i class="bi bi-x-lg lead orange-hover"
+                 style="cursor: pointer; position:absolute; right: 0" title="Close"
+                 v-on:click="hideAllWindows()"></i>
+              <div class="flex items-center">
+                <template v-if="viewedUserProfile.iurl && viewedUserProfile.iurl !== ''">
+                  <img :src="getImg(viewedUserProfile.iurl, true)" alt="?"
+                       class="sender_avatar_big">
+                  <template v-if="viewedUserProfile.iurla && viewedUserProfile.iurla !== ''">
+                    <img :src="getImg(viewedUserProfile.iurla, true)" alt="?"
+                         class="sender_avatar_big absolute sender_avatar_animated">
+                  </template>
+                </template>
+                <template v-else>
+                  <UserCircleIcon class="sender_avatar_big">
+                  </UserCircleIcon>
+                </template>
+                <div class="w-[80px] h-[80px] absolute flex items-end justify-end">
+                  <template v-if="viewedUserProfile.online">
+                    <div class="w-[24px] h-[24px] rounded-full bg-green-500 border-2 border-zinc-900"
+                         v-tooltip.top="{ content: 'Online' }"></div>
+                  </template>
+                  <template v-else-if="viewedUserProfile.recent">
+                    <div class="w-[24px] h-[24px] rounded-full bg-zinc-900 border-2 border-zinc-900"
+                         v-tooltip.top="{ content: 'AFK' }">
+                      <MoonIcon class="w-full h-full text-orange-400"></MoonIcon>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="w-[24px] h-[24px] rounded-full bg-zinc-500 border-2 border-zinc-900"
+                         v-tooltip.top="{ content: 'Offline' }"></div>
+                  </template>
+                </div>
+                <div class="block ml-2">
+                  <h2 class="font-bold text-2xl">
+                    {{ viewedUserProfile.usr }}
+                  </h2>
+                  <div title="This member's messages are being End-to-End encrypted"
+                       style="display: flex; align-items: center">
+                    <i class="bi bi-shield-lock-fill" style="margin-right: 1ch"></i>
+                    <p class="c_lightgray" style="cursor: default; font-size: 75%; margin: 0">
+                      RSA-OAEP
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="items-center flex mt-3">
+                <template v-if="viewedUserProfile.usr === $store.state.username">
+                  <button class="user_profile_button"
+                          v-on:click="isEditingProfile = true">
+                    <i class="bi bi-pencil mr-2"></i>Edit Profile
+                  </button>
+                  <button class="user_profile_button"
+                          v-on:click="startTransferring()">
+                    <span class="flex items-center"><QrCodeIcon class="h-5 w-5 mr-1"></QrCodeIcon>Transfer</span>
+                  </button>
+                </template>
+                <template v-else>
+                  <button class="user_profile_button"
+                          v-on:click="gotoDirectMessages(viewedUserProfile.usr)">
+                    <i class="bi bi-send mr-2"></i>Direct Message
+                  </button>
+                  <button class="user_profile_button">
+                    <i class="bi bi-arrow-bar-left mr-2"></i>Kick
+                  </button>
+                  <button class="user_profile_button">
+                    <i class="bi bi-hammer mr-2"></i>Ban
+                  </button>
+                </template>
+              </div>
+              <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Roles</h5>
+              <div style="display: flex; flex-wrap: wrap">
+                <div v-for="role in this.viewedUserProfile.roles" :key="role"
+                     class="dark_bg"
+                     style="border-radius: 5px; padding: 0 6px 4px 6px; margin-right: 1ch; margin-bottom: 1ch">
+                  <i v-show="isEditingRoles" class="bi bi-x-circle-fill orange-hover"
+                     style="margin-right: 4px"></i>
+                  <span class="text-neutral-400">{{ JSON.parse(role).name.replace(' ', '&nbsp;') }}</span>
+                </div>
+                <span style="border-radius: 2rem; margin-right: 1em" class="orange-hover"
+                      v-on:click="addUserRole" title="Add new Role">
+          <i class="bi bi-plus-circle"></i>
+        </span>
+              </div>
+              <div class="user_role b_darkergray items-center"
+                   v-show="isAddingRole" @click.stop>
+                <div style="position: relative">
+                  <i class="bi bi-x-lg lead" style="cursor: pointer; position: absolute; right: 0" title="Close"
+                     v-on:click="isAddingRole = false"></i>
+                  <h4 class="font-bold">Add a new Role</h4>
+                  <input id="new_role"
+                         type="text"
+                         class="font-bold b_darkergray my-4"
+                         style="height: 4ch; padding-left: 1ch; color: white; width: calc(100% - 1ch);
+                        border: 1px solid white; border-radius: 10px"
+                         v-model="new_role"
+                         :placeholder="'Role'"
+                         v-on:keyup.enter="commitUserRole">
+                </div>
+              </div>
+              <template v-if="chatroom.rank > 1">
+                <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Badges</h5>
+                <template v-if="this.viewedUserProfile.badges == null || this.viewedUserProfile.badges.length < 1">
+                  <div style="border: 1px solid gray; border-radius: 10px; width: 100%; padding: 10%"
+                       class="c_lightgray text-center items-center pointer-events-none">
+                    <i class="bi bi-award-fill lead"></i>
+                    <br>Keep communicating to earn badges!
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="w-full grid grid-cols-2 gap-3 mb-4">
+                    <div v-for="badge in this.viewedUserProfile.badges" :key="badge.handle"
+                         class="c_lightgray text-center rounded-xl border-2 border-zinc-600 py-1 px-2 hover:medium_bg">
+                      <div class="pointer-events-none">
+                        <div v-if="badge.handle.startsWith('msg')"
+                             style="font-size: 150%">
+                          📢
+                        </div>
+                        <div v-else-if="badge.handle.startsWith('rt')"
+                             style="font-size: 150%">
+                          💕
+                        </div>
+                        <h5 style="margin: 5px 0 5px 0">
+                          {{ badge.title }}
+                        </h5>
+                        <div style="font-size: 75%; margin-bottom: 5px">
+                          {{ badge.description }}
+                        </div>
+                        <span> +{{ badge.xpGain }} xp</span>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </template>
+            </div>
+          </div>
+          <div class="giphygrid medium_bg p-3 h-full"
+               style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
+            <div style="height: calc(100% - 50px); width: 100%; overflow-x: clip; overflow-y: auto"
+                 class="b_darkergray rounded-lg">
+              <div v-for="gif in gifSelection" :key="gif"
+                   style="padding-top: 10px; padding-left: 10px; display: inline-flex"
+                   v-on:click="this.sendSelectedGIF(gif.images.fixed_height.url)">
+                <img :src="gif.images.fixed_height.url" alt="Loading" class="selectableGIF"
+                     style="width: 100%; max-height: 150px">
+              </div>
+            </div>
+            <div style="width: 100%; height: 50px"
+                 class="flex items-center">
+              <input id="gif_query"
+                     type="text"
+                     class="font-bold b_darkergray rounded-lg px-2 py-1"
+                     style="height: 34px; color: white; border: none"
+                     v-model="gif_query_string"
+                     :placeholder="'Search on GIPHY'"
+                     v-on:keyup.enter="getGIFSelection(gif_query_string)">
+              <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
+                   style="width: 90px; height: 10px" class="ml-2"/>
+            </div>
+          </div>
+          <div class="session_settings medium_bg shadow"
+               style="overflow-x: hidden; overflow-y: auto"
+               v-show="isViewingSessionSettings" @click.stop>
+            <div style="position: relative; width: 100%">
+              <i class="bi bi-x-lg lead orange-hover"
+                 style="cursor: pointer; position:absolute; right: 0" title="Close"
+                 v-on:click="hideAllWindows()"></i>
+              <h2 class="font-bold nopointer text-xl mb-2">Group Settings</h2>
+              <div style="display: flex; width: 100%; margin-bottom: 10px">
+                <template v-if="chatroom.imgGUID && chatroom.imgGUID !== ''">
+                  <img class="w-[80px] h-[80px] z-10 rounded-lg"
+                       v-bind:src="getImg(chatroom.imgGUID,true)" :alt="getImgAlt(chatroom.t)"/>
+                </template>
+                <template v-else>
+                  <div class="medium_bg flex items-center justify-center w-[80px] h-[80px] z-10 rounded-lg">
+                    {{ getImgAlt(chatroom.t) }}
+                  </div>
+                </template>
+                <div class="drop_zone" style="margin-left: 10px" id="drop_zone" :ref="'drop_zone'"
+                     v-on:drop="handleFileSelectDrop()" v-on:dragover="handleDragOver()">
+                  Upload a picture!
+                </div>
+              </div>
+              <input type="file" class="file_input" id="files" name="files[]"
+                     style="width: 100%"
+                     multiple v-on:change="handleFileSelect"/>
+              <div id="confirm_settings_loading" class="ml-3 mt-3" style="display: none">
+                <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
+                <span class="jetb ms-2">Uploading...</span>
+              </div>
+              <h4 class="text-neutral-300 font-bold text-lg nopointer mt-2">
+                Reward Program
+              </h4>
+              <p style="font-size: 75%" class="c_lightgray mb-3">
+                Communicate to unlock powerful upgrades for your group!
+              </p>
+              <div style="display: flex; align-items: center"
+                   class="c_lightgray mb-2">
+        <span class="b_purple font-bold nopointer"
+              style="border-radius: 5px; padding: 0 4px 4px 4px;
+                     margin-right: 5px">
+          Rank {{ chatroom.rank }}
+        </span>
+                <span class="b_purple font-bold nopointer"
+                      style="border-radius: 5px; padding: 0 4px 4px 4px;
+                     margin-right: 5px">
+          {{ chatroom.rankDescription }}
+        </span>
+                <button class="btn font-bold golden-hover golden-hover-glow"
+                        style="border-radius: 5px; padding: 0 6px 4px 4px"
+                        v-on:click="upgradeChatroom()">
+                  <i class="bi bi-lightning-charge-fill"></i>
+                  Upgrade to Rank {{ chatroom.rank + 1 }}
+                </button>
+              </div>
+              <div class="c_lightgray nopointer mb-2">
+                Benefits:
+              </div>
+              <div style="overflow-y: auto; font-size: 75%"
+                   class="c_lightgray">
+                <div class="flex gap-1 mb-1" style="width: 100%">
+                  <template v-if="chatroom.rank < 2">
+                    <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
+                         class="text-center">
+                      <i class="bi bi-lock"></i>
+                      <br><span>Badges</span>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div style="border: 2px solid rebeccapurple; border-radius: 10px; padding: 20px"
+                         class="text-center">
+                      <i class="bi bi-award-fill lead"></i>
+                      <br><span class="font-bold">Badges</span>
+                    </div>
+                  </template>
+                  <template v-if="chatroom.rank < 3">
+                    <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
+                         class="text-center">
+                      <i class="bi bi-lock"></i>
+                      <br><span>Knowledge</span>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div style="border: 2px solid rebeccapurple; border-radius: 10px; padding: 20px"
+                         class="text-center">
+                      <i class="bi bi-book-half lead"></i>
+                      <br><span class="font-bold">Knowledge</span>
+                    </div>
+                  </template>
+                  <div style="border: 2px dotted gray; border-radius: 10px; padding: 20px"
+                       class="text-center">
+                    <i class="bi bi-question"></i>
+                    <br><span>T.B.A.</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2 p-2 rounded dark_bg">
+                <h4 class="text-neutral-300 font-bold text-lg nopointer">
+                  Restoration
+                </h4>
+                <button class="mt-2 rounded bg-red-700 hover:bg-red-900 font-bold text-black p-2"
+                        v-on:click="generateRSAKeyPair(getChatGUID(),true)">
+                  Replace Encryption Key
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="session_settings shadow" style="overflow-x: hidden; overflow-y: auto"
+               v-show="isUploadingSnippet" @click.stop>
+            <div style="position: relative; padding-top: 10px; width: 100%">
+              <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
+                 v-on:click="closeUploadingSnippet()"></i>
+              <h2 class="font-bold text-2xl mb-4">File Upload</h2>
+              <template v-if="uploadFileType !== ''">
+                <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px"
+                     class="markedView max-w-[400px]">
+                  <img v-if="uploadFileType.includes('image')"
+                       class="uploadFileSnippet"
+                       v-bind:src="uploadFileBase64" :alt="'&nbsp;'"/>
+                  <audio v-else-if="uploadFileType.includes('audio')"
+                         controls preload="auto"
+                         class="uploadFileSnippet">
+                    <source :src="uploadFileBase64" :type="uploadFileType">
+                    Your browser does not support playing audio.
+                  </audio>
+                  <template v-else-if="uploadFileType.includes('zip')">
+                    <FolderArrowDownIcon class="h-10 w-10"></FolderArrowDownIcon>
+                  </template>
+                  <template v-else-if="uploadFileType.includes('text')">
+                    <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
+                  </template>
+                  <template v-else-if="uploadFileType.includes('pdf')">
+                    <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
+                  </template>
+                </div>
+              </template>
+              <template v-if="uploadFileBase64 === ''">
+                <div class="drop_zone mb-2" id="snippet_drop_zone" :ref="'snippet_drop_zone'"
+                     v-on:drop="handleUploadImageSelectDrop()" v-on:dragover="handleDragOver()">
+                  Drop a file here!
+                </div>
+                <input type="file" class="file_input" id="snippet_files" :ref="'snippet_files'" name="files[]"
+                       v-on:drop="handleUploadImageSelectDrop()" v-on:dragover="handleDragOver()"
+                       style="width: 100%"
+                       multiple v-on:change="handleUploadFileSelect"/>
+              </template>
+              <div id="confirm_snippet_loading" class="ml-2 my-2" style="display: none">
+                <span class="animate-spin c_orange" role="status" aria-hidden="true"></span>
+                <span class="jetb ms-2">Uploading...</span>
+              </div>
+              <template v-if="uploadFileBase64 !== ''">
+                <p class="text-neutral-300 font-bold">{{ this.uploadFileName }}</p>
+                <div class="mt-3 w-full">
+                  <button class="darkbutton text-white p-2 w-full
+                         flex items-center justify-center rounded-full"
+                          style="height: 2.5em; border-color: transparent;
+                         margin: auto"
+                          title="Send"
+                          v-on:click="addMessage">
+                    <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Submit</span>
+                    <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ this.uploadFileType }}</span>
+                  </button>
+                </div>
+              </template>
+            </div>
+          </div>
+          <template v-if="isViewingFiles">
+            <div class="session_settings h-full w-full">
+              <fileviewer :isoverlay="true" :chatguid="chatroom?.guid"
+                          @close="isViewingFiles = false"/>
+            </div>
+          </template>
         </template>
         <template v-else-if="overlayType === 'knowledgefinder'"
                   class="h-[calc(100%-55px)] w-full translate-y-[55px] overflow-clip
@@ -982,12 +1316,6 @@
              style="padding-left: 20px">
             Members&nbsp;-&nbsp;{{ getMemberCount() }}
           </p>
-          <button class="btn-no-outline member_section_toggler c_lightgray"
-                  style="position: absolute; right: 10px"
-                  title="Hide Members"
-                  v-on:click="toggleMemberSidebar">
-            <i class="bi bi-eye-slash-fill orange-hover"></i>
-          </button>
         </div>
         <div style="padding: 5px">
           <div v-for="usr in this.mainMembers" :key="usr"
@@ -1041,144 +1369,6 @@
       </div>
     </div>
   </div>
-  <div class="user_profile overflow-x-hidden overflow-y-auto"
-       v-show="isViewingUserProfile" @click.stop>
-    <div class="relative h-full">
-      <i class="bi bi-x-lg lead orange-hover"
-         style="cursor: pointer; position:absolute; right: 0" title="Close"
-         v-on:click="hideAllWindows()"></i>
-      <div class="flex items-center">
-        <template v-if="viewedUserProfile.iurl && viewedUserProfile.iurl !== ''">
-          <img :src="getImg(viewedUserProfile.iurl, true)" alt="?"
-               class="sender_avatar_big">
-          <template v-if="viewedUserProfile.iurla && viewedUserProfile.iurla !== ''">
-            <img :src="getImg(viewedUserProfile.iurla, true)" alt="?"
-                 class="sender_avatar_big absolute sender_avatar_animated">
-          </template>
-        </template>
-        <template v-else>
-          <UserCircleIcon class="sender_avatar_big">
-          </UserCircleIcon>
-        </template>
-        <div class="w-[80px] h-[80px] absolute flex items-end justify-end">
-          <template v-if="viewedUserProfile.online">
-            <div class="w-[24px] h-[24px] rounded-full bg-green-500 border-2 border-zinc-900"
-                 v-tooltip.top="{ content: 'Online' }"></div>
-          </template>
-          <template v-else-if="viewedUserProfile.recent">
-            <div class="w-[24px] h-[24px] rounded-full bg-zinc-900 border-2 border-zinc-900"
-                 v-tooltip.top="{ content: 'AFK' }">
-              <MoonIcon class="w-full h-full text-orange-400"></MoonIcon>
-            </div>
-          </template>
-          <template v-else>
-            <div class="w-[24px] h-[24px] rounded-full bg-zinc-500 border-2 border-zinc-900"
-                 v-tooltip.top="{ content: 'Offline' }"></div>
-          </template>
-        </div>
-        <div class="block ml-2">
-          <h2 class="font-bold text-2xl">
-            {{ viewedUserProfile.usr }}
-          </h2>
-          <div title="This member's messages are being End-to-End encrypted"
-               style="display: flex; align-items: center">
-            <i class="bi bi-shield-lock-fill" style="margin-right: 1ch"></i>
-            <p class="c_lightgray" style="cursor: default; font-size: 75%; margin: 0">
-              RSA-OAEP
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="items-center flex mt-3">
-        <template v-if="viewedUserProfile.usr === $store.state.username">
-          <button class="user_profile_button"
-                  v-on:click="isEditingProfile = true">
-            <i class="bi bi-pencil mr-2"></i>Edit Profile
-          </button>
-          <button class="user_profile_button"
-                  v-on:click="startTransferring()">
-            <span class="flex items-center"><QrCodeIcon class="h-5 w-5 mr-1"></QrCodeIcon>Transfer</span>
-          </button>
-        </template>
-        <template v-else>
-          <button class="user_profile_button"
-                  v-on:click="gotoDirectMessages(viewedUserProfile.usr)">
-            <i class="bi bi-send mr-2"></i>Direct Message
-          </button>
-          <button class="user_profile_button">
-            <i class="bi bi-arrow-bar-left mr-2"></i>Kick
-          </button>
-          <button class="user_profile_button">
-            <i class="bi bi-hammer mr-2"></i>Ban
-          </button>
-        </template>
-      </div>
-      <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Roles</h5>
-      <div style="display: flex; flex-wrap: wrap">
-        <div v-for="role in this.viewedUserProfile.roles" :key="role"
-             class="dark_bg"
-             style="border-radius: 5px; padding: 0 6px 4px 6px; margin-right: 1ch; margin-bottom: 1ch">
-          <i v-show="isEditingRoles" class="bi bi-x-circle-fill orange-hover"
-             style="margin-right: 4px"></i>
-          <span class="text-neutral-400">{{ JSON.parse(role).name.replace(' ', '&nbsp;') }}</span>
-        </div>
-        <span style="border-radius: 2rem; margin-right: 1em" class="orange-hover"
-              v-on:click="addUserRole" title="Add new Role">
-          <i class="bi bi-plus-circle"></i>
-        </span>
-      </div>
-      <div class="user_role b_darkergray items-center"
-           v-show="isAddingRole" @click.stop>
-        <div style="position: relative">
-          <i class="bi bi-x-lg lead" style="cursor: pointer; position: absolute; right: 0" title="Close"
-             v-on:click="isAddingRole = false"></i>
-          <h4 class="font-bold">Add a new Role</h4>
-          <input id="new_role"
-                 type="text"
-                 class="font-bold b_darkergray my-4"
-                 style="height: 4ch; padding-left: 1ch; color: white; width: calc(100% - 1ch);
-                        border: 1px solid white; border-radius: 10px"
-                 v-model="new_role"
-                 :placeholder="'Role'"
-                 v-on:keyup.enter="commitUserRole">
-        </div>
-      </div>
-      <template v-if="chatroom.rank > 1">
-        <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Badges</h5>
-        <template v-if="this.viewedUserProfile.badges == null || this.viewedUserProfile.badges.length < 1">
-          <div style="border: 1px solid gray; border-radius: 10px; width: 100%; padding: 10%"
-               class="c_lightgray text-center items-center pointer-events-none">
-            <i class="bi bi-award-fill lead"></i>
-            <br>Keep communicating to earn badges!
-          </div>
-        </template>
-        <template v-else>
-          <div class="w-full grid grid-cols-2 gap-3 mb-4">
-            <div v-for="badge in this.viewedUserProfile.badges" :key="badge.handle"
-                 class="c_lightgray text-center rounded-xl border-2 border-zinc-600 py-1 px-2 hover:medium_bg">
-              <div class="pointer-events-none">
-                <div v-if="badge.handle.startsWith('msg')"
-                     style="font-size: 150%">
-                  📢
-                </div>
-                <div v-else-if="badge.handle.startsWith('rt')"
-                     style="font-size: 150%">
-                  💕
-                </div>
-                <h5 style="margin: 5px 0 5px 0">
-                  {{ badge.title }}
-                </h5>
-                <div style="font-size: 75%; margin-bottom: 5px">
-                  {{ badge.description }}
-                </div>
-                <span> +{{ badge.xpGain }} xp</span>
-              </div>
-            </div>
-          </div>
-        </template>
-      </template>
-    </div>
-  </div>
   <modal
     v-show="isEditingProfile"
     @close="isEditingProfile = false">
@@ -1212,137 +1402,6 @@
     <template v-slot:footer>
     </template>
   </modal>
-  <div class="giphygrid medium_bg p-3 h-full"
-       style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
-    <div style="height: calc(100% - 50px); width: 100%; overflow-x: clip; overflow-y: auto"
-         class="b_darkergray rounded-lg">
-      <div v-for="gif in gifSelection" :key="gif"
-           style="padding-top: 10px; padding-left: 10px; display: inline-flex"
-           v-on:click="this.sendSelectedGIF(gif.images.fixed_height.url)">
-        <img :src="gif.images.fixed_height.url" alt="Loading" class="selectableGIF"
-             style="width: 100%; max-height: 150px">
-      </div>
-    </div>
-    <div style="width: 100%; height: 50px"
-         class="flex items-center">
-      <input id="gif_query"
-             type="text"
-             class="font-bold b_darkergray rounded-lg px-2 py-1"
-             style="height: 34px; color: white; border: none"
-             v-model="gif_query_string"
-             :placeholder="'Search on GIPHY'"
-             v-on:keyup.enter="getGIFSelection(gif_query_string)">
-      <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
-           style="width: 90px; height: 10px" class="ml-2"/>
-    </div>
-  </div>
-  <div class="session_settings medium_bg shadow"
-       style="overflow-x: hidden; overflow-y: auto"
-       v-show="isViewingSessionSettings" @click.stop>
-    <div style="position: relative; width: 100%">
-      <i class="bi bi-x-lg lead orange-hover"
-         style="cursor: pointer; position:absolute; right: 0" title="Close"
-         v-on:click="hideAllWindows()"></i>
-      <h2 class="font-bold nopointer text-xl mb-2">Group Settings</h2>
-      <div style="display: flex; width: 100%; margin-bottom: 10px">
-        <template v-if="chatroom.imgGUID && chatroom.imgGUID !== ''">
-          <img class="w-[80px] h-[80px] z-10 rounded-lg"
-               v-bind:src="getImg(chatroom.imgGUID,true)" :alt="getImgAlt(chatroom.t)"/>
-        </template>
-        <template v-else>
-          <div class="medium_bg flex items-center justify-center w-[80px] h-[80px] z-10 rounded-lg">
-            {{ getImgAlt(chatroom.t) }}
-          </div>
-        </template>
-        <div class="drop_zone" style="margin-left: 10px" id="drop_zone" :ref="'drop_zone'"
-             v-on:drop="handleFileSelectDrop()" v-on:dragover="handleDragOver()">
-          Upload a picture!
-        </div>
-      </div>
-      <input type="file" class="file_input" id="files" name="files[]"
-             style="width: 100%"
-             multiple v-on:change="handleFileSelect"/>
-      <div id="confirm_settings_loading" class="ml-3 mt-3" style="display: none">
-        <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
-        <span class="jetb ms-2">Uploading...</span>
-      </div>
-      <h4 class="text-neutral-300 font-bold text-lg nopointer mt-2">
-        Reward Program
-      </h4>
-      <p style="font-size: 75%" class="c_lightgray mb-3">
-        Communicate to unlock powerful upgrades for your group!
-      </p>
-      <div style="display: flex; align-items: center"
-           class="c_lightgray mb-2">
-        <span class="b_purple font-bold nopointer"
-              style="border-radius: 5px; padding: 0 4px 4px 4px;
-                     margin-right: 5px">
-          Rank {{ chatroom.rank }}
-        </span>
-        <span class="b_purple font-bold nopointer"
-              style="border-radius: 5px; padding: 0 4px 4px 4px;
-                     margin-right: 5px">
-          {{ chatroom.rankDescription }}
-        </span>
-        <button class="btn font-bold golden-hover golden-hover-glow"
-                style="border-radius: 5px; padding: 0 6px 4px 4px"
-                v-on:click="upgradeChatroom()">
-          <i class="bi bi-lightning-charge-fill"></i>
-          Upgrade to Rank {{ chatroom.rank + 1 }}
-        </button>
-      </div>
-      <div class="c_lightgray nopointer mb-2">
-        Benefits:
-      </div>
-      <div style="overflow-y: auto; font-size: 75%"
-           class="c_lightgray">
-        <div class="flex gap-1 mb-1" style="width: 100%">
-          <template v-if="chatroom.rank < 2">
-            <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
-                 class="text-center">
-              <i class="bi bi-lock"></i>
-              <br><span>Badges</span>
-            </div>
-          </template>
-          <template v-else>
-            <div style="border: 2px solid rebeccapurple; border-radius: 10px; padding: 20px"
-                 class="text-center">
-              <i class="bi bi-award-fill lead"></i>
-              <br><span class="font-bold">Badges</span>
-            </div>
-          </template>
-          <template v-if="chatroom.rank < 3">
-            <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
-                 class="text-center">
-              <i class="bi bi-lock"></i>
-              <br><span>Knowledge</span>
-            </div>
-          </template>
-          <template v-else>
-            <div style="border: 2px solid rebeccapurple; border-radius: 10px; padding: 20px"
-                 class="text-center">
-              <i class="bi bi-book-half lead"></i>
-              <br><span class="font-bold">Knowledge</span>
-            </div>
-          </template>
-          <div style="border: 2px dotted gray; border-radius: 10px; padding: 20px"
-               class="text-center">
-            <i class="bi bi-question"></i>
-            <br><span>T.B.A.</span>
-          </div>
-        </div>
-      </div>
-      <div class="mt-2 p-2 rounded dark_bg">
-        <h4 class="text-neutral-300 font-bold text-lg nopointer">
-          Restoration
-        </h4>
-        <button class="mt-2 rounded bg-red-700 hover:bg-red-900 font-bold text-black p-2"
-                v-on:click="generateRSAKeyPair(getChatGUID(),true)">
-          Replace Encryption Key
-        </button>
-      </div>
-    </div>
-  </div>
   <modal
     v-show="isViewingNewSubchat"
     @close="hideAllWindows()">
@@ -1385,65 +1444,6 @@
     <template v-slot:footer>
     </template>
   </modal>
-  <div class="session_settings shadow" style="overflow-x: hidden; overflow-y: auto"
-       v-show="isUploadingSnippet" @click.stop>
-    <div style="position: relative; padding-top: 10px; width: 100%">
-      <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
-         v-on:click="closeUploadingSnippet()"></i>
-      <h2 class="font-bold text-2xl mb-4">File Upload</h2>
-      <template v-if="uploadFileType !== ''">
-        <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px"
-             class="markedView max-w-[400px]">
-          <img v-if="uploadFileType.includes('image')"
-               class="uploadFileSnippet"
-               v-bind:src="uploadFileBase64" :alt="'&nbsp;'"/>
-          <audio v-else-if="uploadFileType.includes('audio')"
-                 controls preload="auto"
-                 class="uploadFileSnippet">
-            <source :src="uploadFileBase64" :type="uploadFileType">
-            Your browser does not support playing audio.
-          </audio>
-          <template v-else-if="uploadFileType.includes('zip')">
-            <FolderArrowDownIcon class="h-10 w-10"></FolderArrowDownIcon>
-          </template>
-          <template v-else-if="uploadFileType.includes('text')">
-            <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
-          </template>
-          <template v-else-if="uploadFileType.includes('pdf')">
-            <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
-          </template>
-        </div>
-      </template>
-      <template v-if="uploadFileBase64 === ''">
-        <div class="drop_zone mb-2" id="snippet_drop_zone" :ref="'snippet_drop_zone'"
-             v-on:drop="handleUploadImageSelectDrop()" v-on:dragover="handleDragOver()">
-          Drop a file here!
-        </div>
-        <input type="file" class="file_input" id="snippet_files" :ref="'snippet_files'" name="files[]"
-               v-on:drop="handleUploadImageSelectDrop()" v-on:dragover="handleDragOver()"
-               style="width: 100%"
-               multiple v-on:change="handleUploadFileSelect"/>
-      </template>
-      <div id="confirm_snippet_loading" class="ml-2 my-2" style="display: none">
-        <span class="animate-spin c_orange" role="status" aria-hidden="true"></span>
-        <span class="jetb ms-2">Uploading...</span>
-      </div>
-      <template v-if="uploadFileBase64 !== ''">
-        <p class="text-neutral-300 font-bold">{{ this.uploadFileName }}</p>
-        <div class="mt-3 w-full">
-          <button class="darkbutton text-white p-2 w-full
-                         flex items-center justify-center rounded-full"
-                  style="height: 2.5em; border-color: transparent;
-                         margin: auto"
-                  title="Send"
-                  v-on:click="addMessage">
-            <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Submit</span>
-            <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ this.uploadFileType }}</span>
-          </button>
-        </div>
-      </template>
-    </div>
-  </div>
   <modal
     v-show="isModalVisible"
     @close="closeModal">
@@ -1532,12 +1532,6 @@
                        @close="processGUID = ''; isViewingProcess = false"/>
       </div>
     </template>
-  </template>
-  <template v-if="isViewingFiles">
-    <div class="session_settings h-full w-full">
-      <fileviewer :isoverlay="true" :chatguid="chatroom?.guid"
-                  @close="isViewingFiles = false"/>
-    </div>
   </template>
   <modal
     v-show="isViewingImage"
@@ -5271,7 +5265,7 @@ export default {
 .user_profile,
 .giphygrid,
 .session_settings {
-  position: fixed;
+  position: absolute;
   z-index: 800;
   bottom: 80px;
   right: 12px;
