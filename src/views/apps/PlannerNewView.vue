@@ -205,7 +205,7 @@
                                   <template v-for="cat in element.task.categories" :key="cat">
                                     <div v-if="JSON.parse(cat).category != null"
                                          class="text-neutral-400 border-[1px] border-zinc-600 flex items-center
-                                          py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm darkest_bg">
+                                                py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm darkest_bg">
                                       {{ JSON.parse(cat).category }}
                                     </div>
                                   </template>
@@ -655,7 +655,7 @@
       </div>
     </div>
   </template>
-  <modal @close="isShowingTask = false"
+  <modal @close="isShowingTask = false; sharing.collaborators = []"
          v-show="isShowingTask">
     <template v-slot:header>
       <div class="h-4 flex items-center text-neutral-400 text-xs">
@@ -693,12 +693,12 @@
                       :plugins="plugins"></Markdown>
           </div>
           <div class="w-full my-2">
-            <div class="flex items-center justify-between">
-              <label for="task_view_datetime"
-                     class="text-neutral-300 text-sm font-bold hidden sm:block">
-                Due Date
-              </label>
-              <input id="task_view_datetime" type="date" class="p_input ml-auto" style="color-scheme: dark;"
+            <label for="task_view_datetime"
+                   class="text-neutral-300 text-xs font-bold mb-1">
+              Due Date
+            </label>
+            <div class="flex items-center justify-start">
+              <input id="task_view_datetime" type="date" class="p_input" style="color-scheme: dark;"
                      v-model="showingTask.dueDateFormatted">
               <input id="task_view_time" type="time" class="p_input ml-1" style="color-scheme: dark;"
                      v-model="showingTask.dueTimeFormatted">
@@ -709,12 +709,14 @@
             </div>
           </div>
           <div class="w-full my-2">
-            <div class="flex items-center justify-between">
-              <div class="text-neutral-300 text-sm font-bold">Collaborators</div>
+            <div class="text-neutral-300 text-xs font-bold mb-1 flex">
+              <span>Collaborators</span>
+            </div>
+            <div class="flex items-center justify-start w-full overflow-x-auto pb-1">
               <template v-if="showingTask.collaborators && showingTask.collaborators.length > 0">
                 <template v-for="collaborator in showingTask.collaborators" :key="collaborator">
                   <div v-if="JSON.parse(collaborator) != null"
-                       class="text-white border-[2px] border-zinc-300 flex items-center
+                       class="text-white flex items-center
                               py-1 px-2 rounded mr-1 mb-1 pointer-events-none text-sm">
                     <UserIcon class="h-4 h-4 mr-1"></UserIcon>
                     {{ JSON.parse(collaborator).username }}
@@ -728,7 +730,8 @@
               </template>
             </div>
             <div class="flex w-full items-center">
-              <Listbox v-model="sharing.collaborators" multiple id="collabos" class="w-full">
+              <Listbox v-model="sharing.collaborators" multiple id="collabos"
+                       class="w-[calc(100%-40px)]">
                 <div class="relative my-2">
                   <ListboxButton
                     class="medium_bg w-full relative cursor-default rounded-lg py-2 pl-3
@@ -756,7 +759,9 @@
                     leave-from-class="opacity-100"
                     leave-to-class="opacity-0">
                     <ListboxOptions
-                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md dark_bg py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md dark_bg py-1
+                             text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none
+                             sm:text-sm"
                     >
                       <ListboxOption
                         v-slot="{ active, selected }"
@@ -783,7 +788,7 @@
                   </transition>
                 </div>
               </Listbox>
-              <button class="rounded-lg dark_bg hover:darkest_bg py-2.5 px-2 my-2 ml-1
+              <button class="rounded-lg dark_bg hover:darkest_bg py-2.5 px-2 my-2 ml-1 w-[40px]
                              text-xs text-neutral-300"
                       v-on:click="addTaskCollaborators()">
                 Add
@@ -794,10 +799,12 @@
             <div class="w-full">
               <textarea type="text" id="input_comment" v-model="showingTaskComment" rows="1"
                         placeholder="Write a comment"
-                        class="w-full border-b border-zinc-400 text-neutral-300 bright_bg bg-opacity-20 focus:outline-none px-2 py-1 p_input"
+                        class="w-full border-b border-zinc-400 text-neutral-300 bright_bg
+                               focus:outline-none px-2 py-1 p_input"
                         v-on:keyup="showingTaskKeyup()"></textarea>
               <div hidden
-                   class="p-2 rounded-full hover:medium_bg text-neutral-300 hover:text-white relative right-1 sidebar_button cursor-pointer">
+                   class="p-2 rounded-full hover:medium_bg text-neutral-300 hover:text-white
+                          relative right-1 sidebar_button cursor-pointer">
                 <Squares2X2Icon class="h-6 w-6"></Squares2X2Icon>
               </div>
             </div>
@@ -812,7 +819,7 @@
             <template v-else>
               <div class="flex items-center mt-4 mb-3 pointer-events-none">
                 <ChatBubbleLeftEllipsisIcon class="w-6 h-6 mr-2 text-neutral-300"></ChatBubbleLeftEllipsisIcon>
-                <p class="text-neutral-300 font-bold">
+                <p class="text-neutral-300 font-bold text-sm">
                   {{ showingTaskRelated.comments.length }} {{ commentsText }}:
                 </p>
               </div>
@@ -824,7 +831,8 @@
                           :plugins="plugins"></Markdown>
                 <div class="flex w-full">
                   <div
-                    class="text-neutral-400 ml-auto dark_bg rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-between flex items-center">
+                    class="text-neutral-400 ml-auto dark_bg rounded-br-xl rounded-tl-xl py-1
+                           px-2 min-w-[20%] justify-between flex items-center">
                     <p class="text-neutral-500 text-xs mr-2">
                       {{ getHumanReadableDateText(comment.cdate) }}</p>
                     <p class="text-sm">{{ comment.author }}</p>
@@ -1813,6 +1821,7 @@ export default {
         this.isSharingTask = false
         document.activeElement.blur()
         document.body.focus()
+        this.sharing.collaborators = []
         this.moveToSelectedTask()
       } else if (ev.key === 't') {
         if (this.isShowingTask) return
@@ -2453,7 +2462,7 @@ export default {
 }
 
 .p_input {
-  @apply rounded py-1 px-3 dark_bg hover:darkest_bg focus:darkest_bg bg-opacity-50 placeholder-neutral-400;
+  @apply rounded py-1 px-3 dark_bg hover:darkest_bg focus:darkest_bg placeholder-neutral-400;
 }
 
 .p_input_icon {

@@ -205,15 +205,13 @@
           </div>
         </div>
       </div>
-      <div id="clarifier_chatroom" :ref="'clarifier_chatroom'"
+      <div id="clarifier_chatroom" ref="clarifier_chatroom"
            class="clarifier_chatroom flex overflow-clip mt-[55px]"
            v-on:click="closeModals()">
         <template v-if="overlayType === 'msg'">
-          <div id="chat_section"
-               class="chat_section w-full h-full overflow-clip
-                      medium_bg rounded-tl-lg lg:rounded-tl-none lg:rounded-tr-lg
-                      flex items-center justify-center">
-            <div class="xl:max-w-[75vw] w-full h-full">
+          <div id="chat_section" ref="chat_section"
+               class="chat_section">
+            <div class="w-full h-full">
               <div class="chat_header medium_bg">
                 <div
                   style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%; align-items: center">
@@ -379,99 +377,100 @@
                     </template>
                   </div>
                 </div>
-                <div class="w-full h-[55px] flex items-center justify-center gap-x-4">
-                  <template v-if="isStreamingVideo">
-                    <button v-on:click="stopScreenshare()"
-                            v-tooltip.top="{ content: 'Hang Up' }"
-                            class="p-2 border border-red-500 rounded-md gray-hover">
-                      <PhoneXMarkIcon class="h-8 w-8 text-red-500"></PhoneXMarkIcon>
-                    </button>
-                    <template v-if="peerStreamOutgoingConstraints.video">
-                      <template v-if="peerStreamOutgoingPreferences.video">
-                        <button class="p-2 border border-zinc-400 rounded-md gray-hover"
-                                v-tooltip.top="{ content: 'Turn Off Camera' }"
-                                v-on:click="callStartOrMuteVideo()">
-                          <VideoCameraIcon class="h-8 w-8 text-neutral-400"></VideoCameraIcon>
-                        </button>
+                <div class="w-full h-[55px] flex items-center justify-center">
+                  <div class="flex items-center justify-center gap-x-2 w-fit
+                              p-2 border-[2px] border-neutral-900 bg-neutral-800 rounded-lg">
+                    <template v-if="isStreamingVideo">
+                      <button v-on:click="stopScreenshare()"
+                              v-tooltip.top="{ content: 'Hang Up' }"
+                              class="p-1 border border-red-500 rounded-md gray-hover">
+                        <PhoneXMarkIcon class="w-8 h-8 text-red-500"></PhoneXMarkIcon>
+                      </button>
+                      <template v-if="peerStreamOutgoingConstraints.video">
+                        <template v-if="peerStreamOutgoingPreferences.video">
+                          <button class="p-1 border border-zinc-400 rounded-md gray-hover"
+                                  v-tooltip.top="{ content: 'Turn Off Camera' }"
+                                  v-on:click="callStartOrMuteVideo()">
+                            <VideoCameraIcon class="w-8 h-8 text-neutral-400"></VideoCameraIcon>
+                          </button>
+                        </template>
+                        <template v-else>
+                          <button class="p-1 border border-zinc-400 rounded-md gray-hover"
+                                  v-tooltip.top="{ content: 'Turn On Camera' }"
+                                  v-on:click="callStartOrMuteVideo()">
+                            <div class="relative">
+                              <VideoCameraIcon class="h-8 w-8 text-neutral-400"></VideoCameraIcon>
+                              <XMarkIcon class="w-8 h-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
+                              <XMarkIcon class="w-8 h-8 text-zinc-900 stroke-2 absolute top-0 left-0"></XMarkIcon>
+                            </div>
+                          </button>
+                        </template>
                       </template>
                       <template v-else>
-                        <button class="p-2 border border-zinc-400 rounded-md gray-hover"
-                                v-tooltip.top="{ content: 'Turn On Camera' }"
-                                v-on:click="callStartOrMuteVideo()">
+                        <button class="p-1 border border-zinc-400 rounded-md gray-hover"
+                                v-tooltip.top="{ content: 'Enable Camera' }"
+                                v-on:click="callSetUserMedia({video: true, audio: undefined})">
                           <div class="relative">
-                            <VideoCameraIcon class="h-8 w-8 text-neutral-400"></VideoCameraIcon>
-                            <XMarkIcon class="h-8 w-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
-                            <XMarkIcon class="h-8 w-8 text-zinc-900 stroke-2 absolute top-0 left-0"></XMarkIcon>
+                            <VideoCameraIcon class="w-8 h-8 text-neutral-400"></VideoCameraIcon>
+                            <XMarkIcon class="w-8 h-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
+                            <XMarkIcon class="w-8 h-8 text-zinc-900 stroke-2 absolute top-0 left-0"></XMarkIcon>
                           </div>
                         </button>
                       </template>
+                      <template v-if="peerStreamOutgoingPreferences.audio">
+                        <button class="p-1 border border-zinc-400 rounded-md gray-hover relative"
+                                v-tooltip.top="{ content: 'Turn Off Microphone' }"
+                                v-on:click="callStartOrMuteAudio()">
+                          <MicrophoneIcon class="w-8 h-8 text-neutral-400"></MicrophoneIcon>
+                        </button>
+                      </template>
+                      <template v-else>
+                        <button class="p-1 border border-zinc-400 rounded-md gray-hover"
+                                v-tooltip.top="{ content: 'Turn On Microphone' }"
+                                v-on:click="callStartOrMuteAudio()">
+                          <div class="relative">
+                            <MicrophoneIcon class="w-8 h-8 text-neutral-400"></MicrophoneIcon>
+                            <XMarkIcon class="w-8 h-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
+                            <XMarkIcon class="w-8 h-8 text-zinc-900 stroke-2 absolute top-0 left-0"></XMarkIcon>
+                          </div>
+                        </button>
+                      </template>
+                      <template v-if="!isSharingScreen">
+                        <button v-tooltip.top="{ content: 'Share Screen' }"
+                                class="p-1 border border-zinc-400 rounded-md gray-hover"
+                                v-on:click="callStartOrStopScreenshare()">
+                          <WindowIcon class="w-8 h-8 text-neutral-400"></WindowIcon>
+                        </button>
+                      </template>
+                      <template v-else>
+                        <button v-tooltip.top="{ content: 'Stop Sharing' }"
+                                class="p-1 border border-green-500 rounded-md gray-hover"
+                                v-on:click="callStartOrStopScreenshare()">
+                          <WindowIcon class="w-8 h-8 text-green-600"></WindowIcon>
+                        </button>
+                      </template>
                     </template>
                     <template v-else>
-                      <button class="p-2 border border-zinc-400 rounded-md gray-hover"
-                              v-tooltip.top="{ content: 'Enable Camera' }"
-                              v-on:click="callSetUserMedia({video: true, audio: undefined})">
-                        <div class="relative">
-                          <VideoCameraIcon class="h-8 w-8 text-neutral-400"></VideoCameraIcon>
-                          <XMarkIcon class="h-8 w-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
-                          <XMarkIcon class="h-8 w-8 text-zinc-900 stroke-2 absolute top-0 left-0"></XMarkIcon>
-                        </div>
-                      </button>
+                      <template v-if="currentSubchat.type === 'webcam' || params">
+                        <button class="p-1 border border-zinc-500 rounded-md text-neutral-300 hover:dark_bg"
+                                v-tooltip.top="{ content: 'Audio Call' }"
+                                v-on:click="startCall(undefined, {video: false, audio: true})">
+                          <PhoneIcon class="w-8 h-8"></PhoneIcon>
+                        </button>
+                        <button class="p-1 border border-zinc-500 rounded-md text-neutral-300 hover:dark_bg"
+                                v-tooltip.top="{ content: 'Video Call' }"
+                                v-on:click="startCall(undefined, {video: true, audio: true})">
+                          <VideoCameraIcon class="w-8 h-8"></VideoCameraIcon>
+                        </button>
+                      </template>
                     </template>
-                    <template v-if="peerStreamOutgoingPreferences.audio">
-                      <button class="p-2 border border-zinc-400 rounded-md gray-hover relative"
-                              v-tooltip.top="{ content: 'Turn Off Microphone' }"
-                              v-on:click="callStartOrMuteAudio()">
-                        <MicrophoneIcon class="h-8 w-8 text-neutral-400"></MicrophoneIcon>
-                      </button>
-                    </template>
-                    <template v-else>
-                      <button class="p-2 border border-zinc-400 rounded-md gray-hover"
-                              v-tooltip.top="{ content: 'Turn On Microphone' }"
-                              v-on:click="callStartOrMuteAudio()">
-                        <div class="relative">
-                          <MicrophoneIcon class="h-8 w-8 text-neutral-400"></MicrophoneIcon>
-                          <XMarkIcon class="h-8 w-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
-                          <XMarkIcon class="h-8 w-8 text-zinc-900 stroke-2 absolute top-0 left-0"></XMarkIcon>
-                        </div>
-                      </button>
-                    </template>
-                    <template v-if="!isSharingScreen">
-                      <button v-tooltip.top="{ content: 'Share Screen' }"
-                              class="p-2 border border-zinc-400 rounded-md gray-hover"
-                              v-on:click="callStartOrStopScreenshare()">
-                        <WindowIcon class="h-8 w-8 text-neutral-400"></WindowIcon>
-                      </button>
-                    </template>
-                    <template v-else>
-                      <button v-tooltip.top="{ content: 'Stop Sharing' }"
-                              class="p-2 border border-green-500 rounded-md gray-hover"
-                              v-on:click="callStartOrStopScreenshare()">
-                        <WindowIcon class="h-8 w-8 text-green-600"></WindowIcon>
-                      </button>
-                    </template>
-                  </template>
-                  <template v-else>
-                    <template v-if="currentSubchat.type === 'webcam' || params">
-                      <button class="p-2 border border-zinc-500 rounded-md text-neutral-300 hover:dark_bg"
-                              v-tooltip.top="{ content: 'Audio Call' }"
-                              v-on:click="startCall(undefined, {video: false, audio: true})">
-                        <PhoneIcon class="h-8 w-8"></PhoneIcon>
-                      </button>
-                      <button class="p-2 border border-zinc-500 rounded-md text-neutral-300 hover:dark_bg"
-                              v-tooltip.top="{ content: 'Video Call' }"
-                              v-on:click="startCall(undefined, {video: true, audio: true})">
-                        <VideoCameraIcon class="h-8 w-8"></VideoCameraIcon>
-                      </button>
-                    </template>
-                  </template>
+                  </div>
                 </div>
               </div>
               <div id="messages_container" ref="messages_container"
-                   class="h-[calc(100%-130px)] max-h-[calc(100%-130px)] overflow-hidden
-                          bright_bg lg:rounded-tl-lg">
+                   class="messages_container">
                 <div id="messages_section" ref="messages_section"
-                     class="messages_section relative flex h-full
-                            overflow-y-auto overflow-x-hidden"
+                     class="messages_section"
                      style="flex-direction: column-reverse">
                   <div id="init_loading" style="display: none">
                     <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
@@ -1678,7 +1677,6 @@ export default {
       showInviteCopied: false,
       new_subchat_name: '',
       inputField: null,
-      message_section: null,
       uploadFileBase64: '',
       uploadFileType: '',
       uploadFileName: '',
@@ -3138,22 +3136,38 @@ export default {
       this.handleSidebarToggle(this.$refs.sidebar, true)
     },
     toggleSidebar2: function () {
-      this.handleSidebarToggle(this.$refs.sidebar2)
-      this.$store.commit('toggleClarifierSidebar2')
+      const state = this.handleSidebarToggle(this.$refs.sidebar2)
+      this.$store.commit('toggleClarifierSidebar2', state)
+      if (!state) {
+        this.$refs.chat_section.classList.add('tl_br_force')
+        this.$refs.messages_container.classList.add('tl_br_none_force')
+      } else {
+        this.$refs.chat_section.classList.remove('tl_br_force')
+        this.$refs.messages_container.classList.remove('tl_br_none_force')
+      }
     },
     toggleMemberSidebar: function () {
-      this.handleSidebarToggle(document.getElementById('member_section'), false, true)
-      this.$store.commit('toggleClarifierMembers')
+      const state = this.handleSidebarToggle(document.getElementById('member_section'),
+        false,
+        true)
+      this.$store.commit('toggleClarifierMembers', state)
+      if (!state) {
+        this.$refs.chat_section.classList.add('tr_br_none_force')
+      } else {
+        this.$refs.chat_section.classList.remove('tr_br_none_force')
+      }
     },
     handleSidebarToggle: function (element, setSidebarVariable = false, elementOnly = false) {
       if (element.classList.contains('active')) {
         if (window.innerWidth >= 1025 && !elementOnly) this.showSidebar2()
         element.classList.remove('active')
         if (setSidebarVariable) this.sidebar.active = false
+        return false
       } else {
         if (!elementOnly) this.hideSidebar2()
         element.classList.add('active')
         if (setSidebarVariable) this.sidebar.active = true
+        return true
       }
     },
     auto_grow: function () {
@@ -3167,6 +3181,7 @@ export default {
       this.$refs.messages_section.style.bottom = (this.inputField.scrollHeight - 40) + 'px'
     },
     resizeCanvas: function () {
+      if (this.overlayType !== 'msg') return
       if (window.innerWidth >= 1025) {
         this.hideSidebar()
         this.showSidebar2()
@@ -3193,11 +3208,25 @@ export default {
     },
     showSidebar2: function () {
       const preference = this.$store.getters.isClarifierSidebar2Open()
-      if (!preference) return
+      if (!preference) {
+        if (this.$refs.chat_section) {
+          this.$refs.chat_section.classList.add('tl_br_force')
+        }
+        if (this.$refs.messges_container) {
+          this.$refs.messages_container.classList.add('tl_br_none_force')
+        }
+        return
+      }
       const sidebar = document.getElementById('sidebar2')
       if (!sidebar) return
       if (!sidebar.classList.contains('active')) {
         sidebar.classList.add('active')
+        if (this.$refs.chat_section) {
+          this.$refs.chat_section.classList.remove('tl_br_force')
+        }
+        if (this.$refs.messages_container) {
+          this.$refs.messages_container.classList.remove('tl_br_none_force')
+        }
       }
     },
     hideSidebar2: function () {
@@ -3205,15 +3234,29 @@ export default {
       if (!sidebar) return
       if (sidebar.classList.contains('active')) {
         sidebar.classList.remove('active')
+        if (this.$refs.chat_section) {
+          this.$refs.chat_section.classList.add('tl_br_force')
+        }
+        if (this.$refs.messges_container) {
+          this.$refs.messages_container.classList.add('tl_br_none_force')
+        }
       }
     },
     showMemberSidebar: function () {
       const preference = this.$store.getters.isClarifierMembersOpen()
-      if (!preference) return
+      if (!preference) {
+        if (this.$refs.chat_section) {
+          this.$refs.chat_section.classList.add('tr_br_none_force')
+        }
+        return
+      }
       const memberSidebar = document.getElementById('member_section')
       if (!memberSidebar) return
       if (!memberSidebar.classList.contains('active')) {
         memberSidebar.classList.add('active')
+        if (this.$refs.chat_section) {
+          this.$refs.chat_section.classList.remove('tr_br_none_force')
+        }
       }
     },
     hideMemberSidebar: function () {
@@ -3221,6 +3264,9 @@ export default {
       if (!memberSidebar) return
       if (memberSidebar.classList.contains('active')) {
         memberSidebar.classList.remove('active')
+        if (this.$refs.chat_section) {
+          this.$refs.chat_section.classList.add('tr_br_none_force')
+        }
       }
     },
     hideAllSidebars: function (force = false) {
@@ -3725,6 +3771,7 @@ export default {
       this.userActivity = []
       this.userActivityIdle = []
       this.overlayType = 'msg'
+      this.setOverlay('msg')
     },
     uploadSnippet: function () {
       this.toggleElement('confirm_snippet_loading', 'flex')
@@ -4861,14 +4908,18 @@ export default {
     },
     setOverlay: function (type) {
       this.hideAllWindows()
-      this.hideAllSidebars()
-      this.hideMemberSidebar()
+      this.hideAllSidebars(true)
       if (this.overlayType === type) {
         this.overlayType = 'msg'
-        this.prepareInputField()
-        if (window.innerWidth >= 1025) this.showMemberSidebar()
       } else {
         this.overlayType = type
+      }
+      if (this.overlayType === 'msg') {
+        this.prepareInputField()
+        if (window.innerWidth >= 1025) {
+          this.showSidebar2()
+          this.showMemberSidebar()
+        }
       }
     },
     gotoDirectMessages: async function (username) {
@@ -4910,27 +4961,28 @@ export default {
       this.connect(chatroomId, false, novisual)
     },
     prepareInputField: function (tries = 0) {
-      if (tries > 10) return
-      setTimeout(() => {
-        this.inputField = this.$refs.new_comment
-        if (!this.inputField) {
+      if (tries >= 10) return
+      this.inputField = this.$refs.new_comment
+      if (!this.inputField || !this.$refs.messages_section) {
+        setTimeout(() => {
           this.prepareInputField(++tries)
-        }
-        // Set message section with its scroll event
-        this.$refs.messages_section.onscroll = this.checkScroll
-        // Remove event listeners first to avoid having multiple
-        this.inputField.removeEventListener('keydown', this.handleEnter, false)
-        this.inputField.removeEventListener('input', this.handleCommentInput, false)
-        this.inputField.removeEventListener('click', this.hideAllSidebars, false)
-        this.inputField.removeEventListener('keyup', this.auto_grow, false)
-        // Add event listeners
-        this.inputField.addEventListener('keydown', this.handleEnter, false)
-        this.inputField.addEventListener('input', this.handleCommentInput, false)
-        this.inputField.addEventListener('click', this.hideAllSidebars, false)
-        this.inputField.addEventListener('keyup', this.auto_grow, false)
-        // Focus
-        this.focusComment()
-      }, 0)
+        }, 10)
+        return
+      }
+      // Set message section with its scroll event
+      this.$refs.messages_section.onscroll = this.checkScroll
+      // Remove event listeners first to avoid having multiple
+      this.inputField.removeEventListener('keydown', this.handleEnter, false)
+      this.inputField.removeEventListener('input', this.handleCommentInput, false)
+      this.inputField.removeEventListener('click', this.hideAllSidebars, false)
+      this.inputField.removeEventListener('keyup', this.auto_grow, false)
+      // Add event listeners
+      this.inputField.addEventListener('keydown', this.handleEnter, false)
+      this.inputField.addEventListener('input', this.handleCommentInput, false)
+      this.inputField.addEventListener('click', this.hideAllSidebars, false)
+      this.inputField.addEventListener('keyup', this.auto_grow, false)
+      // Focus
+      this.focusComment()
     },
     getHumanReadableDateText: function (date, withTime = false, fullDate = false) {
       const time = DateTime.fromISO(date).toLocaleString(DateTime.TIME_24_SIMPLE)
@@ -5288,6 +5340,22 @@ export default {
   @apply h-[calc(100%-55px)] w-full;
 }
 
+.chat_section {
+  @apply w-full h-full overflow-clip
+  medium_bg rounded-tl lg:rounded-tl-none lg:rounded-tr
+  flex items-center justify-center
+}
+
+.messages_container {
+  @apply h-[calc(100%-130px)] max-h-[calc(100%-130px)] overflow-hidden
+  bright_bg lg:rounded-tl
+}
+
+.messages_section {
+  @apply relative flex h-full
+  overflow-y-auto overflow-x-hidden
+}
+
 .channel_section::-webkit-scrollbar {
   display: none;
 }
@@ -5419,12 +5487,6 @@ export default {
 
   .sidebar.active .sidebar_bg {
     border-radius: 0 140px 0 0;
-  }
-
-  .user_profile,
-  .giphygrid,
-  .session_settings {
-    transform: translateX(-250px);
   }
 }
 
@@ -5753,6 +5815,22 @@ export default {
 
 .shadow-hover:hover {
   box-shadow: 0 0 0 1px rgb(128, 128, 128);
+}
+
+.tl_br_force {
+  @apply rounded-tl !important
+}
+
+.tl_br_none_force {
+  @apply rounded-tl-none !important
+}
+
+.tr_br_force {
+  @apply rounded-tr !important
+}
+
+.tr_br_none_force {
+  @apply rounded-tr-none !important
 }
 
 </style>

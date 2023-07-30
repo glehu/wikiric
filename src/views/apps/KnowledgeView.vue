@@ -3,8 +3,8 @@
        class="bright_bg w-full h-full relative overflow-hidden rounded-tr-lg">
     <div class="flex h-full w-full">
       <div id="sidebar"
-           class="h-full min-w-[40px] max-w-[40px] flex flex-col
-                  items-center overflow-y-auto ml-2">
+           class="h-full min-w-[40px] max-w-[40px] flex-col
+                  items-center overflow-y-auto ml-2 hidden lg:flex">
         <div class="text-neutral-300 h-full">
           <div class="sidebar_button rounded-xl medium_bg">
             <div v-on:click="clickedBack()"
@@ -69,6 +69,68 @@
            class="h-full w-full flex justify-center overflow-y-auto pb-10
                   overflow-x-hidden mr-2 pr-1">
         <div class="h-fit w-full max-w-[1000px] px-3">
+          <div id="sidebar_small"
+               class="w-full py-2 block lg:hidden">
+            <div class="text-neutral-300 h-full flex items-center">
+              <div class="sidebar_button rounded-xl medium_bg">
+                <div v-on:click="clickedBack()"
+                     v-tooltip.right="{
+                       content: 'Exit'
+                     }"
+                     class="cursor-pointer hover:text-neutral-200 p-2 mx-2">
+                  <XMarkIcon class="h-6 w-6"></XMarkIcon>
+                </div>
+              </div>
+              <div class="flex mx-2">
+                <div class="sidebar_button rounded-xl">
+                  <div v-on:click="reactToMessage(wisdom, '+')"
+                       v-tooltip.right="{
+                       content: 'Upvote'
+                     }"
+                       class="cursor-pointer hover:text-neutral-200 p-2 mx-2">
+                    <HandThumbUpIcon class="h-6 w-6"></HandThumbUpIcon>
+                  </div>
+                </div>
+                <div class="sidebar_button rounded-xl">
+                  <div v-on:click="reactToMessage(wisdom, '-')"
+                       v-tooltip.right="{
+                       content: 'Downvote'
+                     }"
+                       class="cursor-pointer hover:text-neutral-200 p-2 mx-2">
+                    <HandThumbDownIcon class="h-6 w-6"></HandThumbDownIcon>
+                  </div>
+                </div>
+                <div class="sidebar_button rounded-xl">
+                  <div v-on:click="reactToMessage(wisdom, '⭐')"
+                       v-tooltip.right="{
+                       content: 'Wow!'
+                     }"
+                       class="cursor-pointer hover:text-neutral-200 p-2 mx-2">
+                    <StarIcon class="h-6 w-6"></StarIcon>
+                  </div>
+                </div>
+                <div class="sidebar_button rounded-xl">
+                  <div v-on:click="shareWisdom(wisdom)"
+                       class="cursor-pointer hover:text-neutral-200 p-2 mx-2"
+                       v-tooltip.right="{
+                       content: 'Share'
+                     }">
+                    <ShareIcon class="h-6 w-6"></ShareIcon>
+                  </div>
+                </div>
+              </div>
+              <template v-if="wisdom.copyContent && wisdom.copyContent !== ''">
+                <div v-on:click="copy(wisdom.copyContent)"
+                     v-tooltip.right="{
+                       content: 'QuickCopy'
+                     }"
+                     class="cursor-pointer hover:text-neutral-200 p-2 mx-2
+                        sidebar_button rounded-xl">
+                  <ClipboardIcon class="h-6 w-6"></ClipboardIcon>
+                </div>
+              </template>
+            </div>
+          </div>
           <div id="taskstart" class="flex mb-2 items-center pt-3">
             <TagIcon class="text-neutral-300 h-5 w-5 mr-2"></TagIcon>
             <template v-if="wisdom.categories && wisdom.categories.length > 0">
