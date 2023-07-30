@@ -554,6 +554,7 @@ const WRTC = {
       senderList.forEach((sender) => {
         if (sender.track && sender.track.kind === 'video') {
           sender.track.enabled = valueBoolean
+          if (valueBoolean === false) sender.track.stop()
         }
       })
     }

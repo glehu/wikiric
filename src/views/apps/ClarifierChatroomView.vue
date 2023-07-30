@@ -292,7 +292,7 @@
                     </template>
                     <template v-else-if="currentSubchat.type === 'webcam' || params">
                       <div id="conference_grid" ref="conference_grid"
-                           class="grid w-full overflow-hidden"
+                           class="grid w-full overflow-hidden bg-zinc-900"
                            style="grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));">
                         <div class="relative overflow-hidden w-full h-full">
                           <div class="flex w-full h-full items-center justify-center
@@ -343,7 +343,7 @@
                                    autoplay controls
                                    class="absolute bottom-0 left-0 conference_media_element
                                             m-2 w-full h-[32px] rounded-none"></audio>
-                            <p class="absolute top-0 left-0 text-sm bg-zinc-900 bg-opacity-75 p-0.5 z-20">
+                            <p class="absolute top-0 left-0 text-sm bg-zinc-900 p-0.5 z-20">
                               {{ getUserFromId(peerCon.remoteId) }}
                             </p>
                           </div>
@@ -378,24 +378,24 @@
                   </div>
                 </div>
                 <div class="w-full h-[55px] flex items-center justify-center">
-                  <div class="flex items-center justify-center gap-x-2 w-fit
-                              p-2 border-[2px] border-neutral-900 bg-neutral-800 rounded-lg">
+                  <div class="flex items-center justify-center gap-x-2 w-full
+                              p-2 border-t-[2px] border-zinc-700 bg-zinc-900">
                     <template v-if="isStreamingVideo">
                       <button v-on:click="stopScreenshare()"
                               v-tooltip.top="{ content: 'Hang Up' }"
-                              class="p-1 border border-red-500 rounded-md gray-hover">
+                              class="p-1 rounded-md gray-hover">
                         <PhoneXMarkIcon class="w-8 h-8 text-red-500"></PhoneXMarkIcon>
                       </button>
                       <template v-if="peerStreamOutgoingConstraints.video">
                         <template v-if="peerStreamOutgoingPreferences.video">
-                          <button class="p-1 border border-zinc-400 rounded-md gray-hover"
+                          <button class="p-1 rounded-md gray-hover"
                                   v-tooltip.top="{ content: 'Turn Off Camera' }"
                                   v-on:click="callStartOrMuteVideo()">
                             <VideoCameraIcon class="w-8 h-8 text-neutral-400"></VideoCameraIcon>
                           </button>
                         </template>
                         <template v-else>
-                          <button class="p-1 border border-zinc-400 rounded-md gray-hover"
+                          <button class="p-1 rounded-md gray-hover"
                                   v-tooltip.top="{ content: 'Turn On Camera' }"
                                   v-on:click="callStartOrMuteVideo()">
                             <div class="relative">
@@ -407,7 +407,7 @@
                         </template>
                       </template>
                       <template v-else>
-                        <button class="p-1 border border-zinc-400 rounded-md gray-hover"
+                        <button class="p-1 rounded-md gray-hover"
                                 v-tooltip.top="{ content: 'Enable Camera' }"
                                 v-on:click="callSetUserMedia({video: true, audio: undefined})">
                           <div class="relative">
@@ -418,14 +418,14 @@
                         </button>
                       </template>
                       <template v-if="peerStreamOutgoingPreferences.audio">
-                        <button class="p-1 border border-zinc-400 rounded-md gray-hover relative"
+                        <button class="p-1 rounded-md gray-hover relative"
                                 v-tooltip.top="{ content: 'Turn Off Microphone' }"
                                 v-on:click="callStartOrMuteAudio()">
                           <MicrophoneIcon class="w-8 h-8 text-neutral-400"></MicrophoneIcon>
                         </button>
                       </template>
                       <template v-else>
-                        <button class="p-1 border border-zinc-400 rounded-md gray-hover"
+                        <button class="p-1 rounded-md gray-hover"
                                 v-tooltip.top="{ content: 'Turn On Microphone' }"
                                 v-on:click="callStartOrMuteAudio()">
                           <div class="relative">
@@ -437,7 +437,7 @@
                       </template>
                       <template v-if="!isSharingScreen">
                         <button v-tooltip.top="{ content: 'Share Screen' }"
-                                class="p-1 border border-zinc-400 rounded-md gray-hover"
+                                class="p-1 rounded-md gray-hover"
                                 v-on:click="callStartOrStopScreenshare()">
                           <WindowIcon class="w-8 h-8 text-neutral-400"></WindowIcon>
                         </button>
@@ -452,12 +452,12 @@
                     </template>
                     <template v-else>
                       <template v-if="currentSubchat.type === 'webcam' || params">
-                        <button class="p-1 border border-zinc-500 rounded-md text-neutral-300 hover:dark_bg"
+                        <button class="p-1 rounded-md text-neutral-300 hover:dark_bg"
                                 v-tooltip.top="{ content: 'Audio Call' }"
                                 v-on:click="startCall(undefined, {video: false, audio: true})">
                           <PhoneIcon class="w-8 h-8"></PhoneIcon>
                         </button>
-                        <button class="p-1 border border-zinc-500 rounded-md text-neutral-300 hover:dark_bg"
+                        <button class="p-1 rounded-md text-neutral-300 hover:dark_bg"
                                 v-tooltip.top="{ content: 'Video Call' }"
                                 v-on:click="startCall(undefined, {video: true, audio: true})">
                           <VideoCameraIcon class="w-8 h-8"></VideoCameraIcon>
@@ -2453,7 +2453,7 @@ export default {
           .replaceAll('|' + this.$store.state.username + '|', '||')
           .replaceAll('|', ' ').replaceAll('  ', ' ').trim()
       } else {
-        chatElem.classList.remove('clarifier_chatroom_big')
+        if (chatElem) chatElem.classList.remove('clarifier_chatroom_big')
       }
       this.canShowSidebar = this.chatroom.type !== 'direct'
       if (isSubchat === false) {
@@ -4184,35 +4184,6 @@ export default {
       }
       return bytes.buffer
     },
-    getEmptyStream: function (width = 640, height = 480, dummyText = null) {
-      const silence = () => {
-        const ctx = new AudioContext()
-        const oscillator = ctx.createOscillator()
-        const dst = oscillator.connect(ctx.createMediaStreamDestination())
-        oscillator.start()
-        return Object.assign(dst.stream.getAudioTracks()[0], { enabled: false })
-      }
-      const black = () => {
-        const canvas = Object.assign(document.createElement('canvas'), {
-          width,
-          height
-        })
-        const ctx = canvas.getContext('2d')
-        // Set black background
-        ctx.fillStyle = 'rgb(24, 24, 27)'
-        ctx.fillRect(0, 0, width, height)
-        // Write text if specified
-        if (dummyText) {
-          ctx.fillStyle = 'white'
-          ctx.textAlign = 'center'
-          ctx.font = 'bold 24px \'Open Sans\''
-          ctx.fillText(dummyText, width / 2, height / 2)
-        }
-        const stream = canvas.captureStream()
-        return Object.assign(stream.getVideoTracks()[0], { enabled: true })
-      }
-      return new MediaStream([black(width, height), silence()])
-    },
     startCall: async function (userId, constraints = null) {
       // Retrieve media stream
       await this.callSetUserMedia(constraints)
@@ -4258,16 +4229,24 @@ export default {
         messagesSection.style.width = '100%'
       }
     },
-    stopOutgoingStreamTracks: function () {
-      if (this.peerStreamOutgoingConstraints.audio) this.wRTC.setAudio(false)
-      if (this.peerStreamOutgoingConstraints.video) this.wRTC.setVideo(false)
+    stopOutgoingStreamTracks: function (videoOnly = false, audioOnly = false) {
+      if (this.peerStreamOutgoingConstraints.audio && !videoOnly) {
+        this.wRTC.setAudio(false)
+        this.peerStreamOutgoingConstraints.audio = false
+      }
+      if (this.peerStreamOutgoingConstraints.video && !audioOnly) {
+        this.wRTC.setVideo(false)
+        this.peerStreamOutgoingConstraints.video = false
+      }
       if (this.isSharingScreen) this.callStartOrStopScreenshare(true)
       if (this.peerStreamOutgoing) {
         this.peerStreamOutgoing.getTracks().forEach(function (track) {
-          track.enabled = false
-          track.stop()
+          if ((track.kind === 'video' && !audioOnly) || (track.kind === 'audio' && !videoOnly)) {
+            track.enabled = false
+            track.stop()
+          }
         })
-        this.peerStreamOutgoing = null
+        if (!videoOnly && !audioOnly) this.peerStreamOutgoing = null
       } else {
         // No tracks found?
       }
@@ -4352,9 +4331,10 @@ export default {
           videoElem.srcObject = this.peerStreamOutgoing
         }
       } else {
-        this.wRTC.setVideo(this.peerStreamOutgoingPreferences.video)
+        this.wRTC.setVideo(this.peerStreamOutgoingPreferences.video, false)
         const videoElem = document.getElementById('screenshare_video')
         videoElem.srcObject = null
+        this.stopOutgoingStreamTracks(true)
       }
     },
     callStartOrMuteAudio: function (override = null) {
@@ -5678,7 +5658,7 @@ export default {
 
 .scroll_to_bottom {
   position: absolute;
-  bottom: 55px;
+  bottom: 40px;
   height: 20px;
   width: calc(100% - 20px);
   border-radius: 20px;
