@@ -438,14 +438,14 @@
                       <template v-if="!isSharingScreen">
                         <button v-tooltip.top="{ content: 'Share Screen' }"
                                 class="p-1 rounded-md gray-hover"
-                                v-on:click="callStartOrStopScreenshare()">
+                                v-on:click="callStartOrStopScreenshare(false, true)">
                           <WindowIcon class="w-8 h-8 text-neutral-400"></WindowIcon>
                         </button>
                       </template>
                       <template v-else>
                         <button v-tooltip.top="{ content: 'Stop Sharing' }"
                                 class="p-1 border border-green-500 rounded-md gray-hover"
-                                v-on:click="callStartOrStopScreenshare()">
+                                v-on:click="callStartOrStopScreenshare(true)">
                           <WindowIcon class="w-8 h-8 text-green-600"></WindowIcon>
                         </button>
                       </template>
@@ -4229,7 +4229,7 @@ export default {
         messagesSection.style.width = '100%'
       }
     },
-    stopOutgoingStreamTracks: function (videoOnly = false, audioOnly = false) {
+    stopOutgoingStreamTracks: function (videoOnly = false, audioOnly = false, ignoreScreenShare = false) {
       if (this.peerStreamOutgoingConstraints.audio && !videoOnly) {
         this.wRTC.setAudio(false)
         this.peerStreamOutgoingConstraints.audio = false
@@ -4238,7 +4238,9 @@ export default {
         this.wRTC.setVideo(false)
         this.peerStreamOutgoingConstraints.video = false
       }
-      if (this.isSharingScreen) this.callStartOrStopScreenshare(true)
+      if (this.isSharingScreen && !ignoreScreenShare) {
+        this.callStartOrStopScreenshare(true)
+      }
       if (this.peerStreamOutgoing) {
         this.peerStreamOutgoing.getTracks().forEach(function (track) {
           if ((track.kind === 'video' && !audioOnly) || (track.kind === 'audio' && !videoOnly)) {
@@ -4317,7 +4319,7 @@ export default {
         resolve()
       })
     },
-    callStartOrMuteVideo: function (override = null) {
+    callStartOrMuteVideo: function (override = null, ignoreScreenShare = false) {
       this.peerStreamOutgoingPreferences.video = override ?? !this.peerStreamOutgoingPreferences.video
       if (this.peerStreamOutgoingPreferences.video) {
         if (!this.peerStreamOutgoing || !this.peerStreamOutgoingConstraints.video) {
@@ -4334,7 +4336,7 @@ export default {
         this.wRTC.setVideo(this.peerStreamOutgoingPreferences.video, false)
         const videoElem = document.getElementById('screenshare_video')
         videoElem.srcObject = null
-        this.stopOutgoingStreamTracks(true)
+        this.stopOutgoingStreamTracks(true, false, ignoreScreenShare)
       }
     },
     callStartOrMuteAudio: function (override = null) {
@@ -4344,22 +4346,19 @@ export default {
     callStartOrStopScreenshare: async function (forceStop = false, forceStart = false) {
       if (!forceStop && (forceStart || !this.isSharingScreen)) {
         // Turn on screen sharing
-        if (!this.isSharingScreen) {
-          const constraintsT = {
-            video: {
-              cursor: 'always'
-            },
-            audio: true
-          }
-          this.peerStreamScreenshare = await navigator.mediaDevices.getDisplayMedia(constraintsT)
+        const constraintsT = {
+          video: {
+            cursor: 'always'
+          },
+          audio: true
         }
+        this.peerStreamScreenshare = await navigator.mediaDevices.getDisplayMedia(constraintsT)
         if (this.peerStreamOutgoingConstraints.video) {
           // Disable video to save bandwidth while transmitting screen
-          this.callStartOrMuteVideo(false)
+          this.callStartOrMuteVideo(false, true)
         } else {
           this.wRTC.addStreamTracks(this.peerStreamScreenshare, 'video')
         }
-        this.wRTC.replaceTrack(this.peerStreamScreenshare, 'video')
         let videoElem = document.getElementById('screenshare_video_alternate')
         videoElem.srcObject = this.peerStreamScreenshare
         videoElem.style.display = 'block'
