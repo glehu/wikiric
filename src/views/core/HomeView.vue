@@ -192,7 +192,7 @@
 export default {
   data () {
     return {
-      userCount: '13'
+      userCount: '19'
     }
   },
   created () {
