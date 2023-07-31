@@ -74,7 +74,7 @@
             <div class="text-neutral-300 h-full flex items-center">
               <div class="sidebar_button rounded-xl medium_bg">
                 <div v-on:click="clickedBack()"
-                     v-tooltip.right="{
+                     v-tooltip.bottom="{
                        content: 'Exit'
                      }"
                      class="cursor-pointer hover:text-neutral-200 p-2 mx-2">
@@ -84,7 +84,7 @@
               <div class="flex mx-2">
                 <div class="sidebar_button rounded-xl">
                   <div v-on:click="reactToMessage(wisdom, '+')"
-                       v-tooltip.right="{
+                       v-tooltip.bottom="{
                        content: 'Upvote'
                      }"
                        class="cursor-pointer hover:text-neutral-200 p-2 mx-2">
@@ -93,7 +93,7 @@
                 </div>
                 <div class="sidebar_button rounded-xl">
                   <div v-on:click="reactToMessage(wisdom, '-')"
-                       v-tooltip.right="{
+                       v-tooltip.bottom="{
                        content: 'Downvote'
                      }"
                        class="cursor-pointer hover:text-neutral-200 p-2 mx-2">
@@ -102,7 +102,7 @@
                 </div>
                 <div class="sidebar_button rounded-xl">
                   <div v-on:click="reactToMessage(wisdom, '⭐')"
-                       v-tooltip.right="{
+                       v-tooltip.bottom="{
                        content: 'Wow!'
                      }"
                        class="cursor-pointer hover:text-neutral-200 p-2 mx-2">
@@ -112,7 +112,7 @@
                 <div class="sidebar_button rounded-xl">
                   <div v-on:click="shareWisdom(wisdom)"
                        class="cursor-pointer hover:text-neutral-200 p-2 mx-2"
-                       v-tooltip.right="{
+                       v-tooltip.bottom="{
                        content: 'Share'
                      }">
                     <ShareIcon class="h-6 w-6"></ShareIcon>
@@ -121,7 +121,7 @@
               </div>
               <template v-if="wisdom.copyContent && wisdom.copyContent !== ''">
                 <div v-on:click="copy(wisdom.copyContent)"
-                     v-tooltip.right="{
+                     v-tooltip.bottom="{
                        content: 'QuickCopy'
                      }"
                      class="cursor-pointer hover:text-neutral-200 p-2 mx-2
@@ -227,8 +227,8 @@
           </div>
           <template v-if="wisdom.type === 'question' && wisdom.finished !== true">
             <div class="w-full">
-              <p class="mt-2 mb-4 p-2 border-l-4 border-l-orange-600 bg-orange-800
-                        bg-opacity-50 text-neutral-200 text-sm rounded-r-md">
+              <p class="mt-2 mb-4 p-2 border-l-8 border-l-orange-600 bg-orange-900
+                        text-neutral-200 text-sm rounded w-fit">
                 This question is unanswered (or at least not yet confirmed)!
                 <br>Help by submitting a comment, providing useful information on this topic.
               </p>
@@ -302,7 +302,7 @@
               </div>
               <div class="w-fit rounded-tr-md dark_bg py-1 pr-2">
                 <p class="text-xs text-neutral-300 font-bold pointer-events-none">
-                  Reply to {{ related.srcWisdom.author }}:
+                  {{ capitalizeFirstLetter(wisdom.type) }} to {{ related.srcWisdom.author }}:
                 </p>
               </div>
             </div>
@@ -318,7 +318,11 @@
                 <p class="text-neutral-400">(No Title)</p>
               </template>
               <div v-on:click="editWisdom(wisdom)"
-                   class="p-2 cursor-pointer flex items-center text-neutral-400 w-fit ml-auto mr-1 hover:text-white">
+                   class="p-2 cursor-pointer flex items-center text-neutral-200 w-fit ml-auto mr-1 hover:text-white
+                          hover:bg-neutral-800 rounded"
+                   v-tooltip.left="{
+                       content: 'Edit'
+                     }">
                 <PencilSquareIcon class="h-6 w-6"></PencilSquareIcon>
               </div>
             </div>
@@ -612,9 +616,11 @@
                   v-if="wisdom.type === 'question' && wisdom.finished !== true && wisdom.author === $store.state.username">
                   <div class="mb-4 mt-1 w-full flex">
                     <button v-on:click="finishQuestion(wisdom, comment)"
-                            class="text-emerald-500 hover:text-black border-2 border-emerald-500 hover:bg-emerald-700
-                                   rounded-lg px-1 py-0.5 font-bold ml-auto transition-colors">
-                      Mark as Answer
+                            class="text-neutral-100 border-2 border-emerald-500 bg-emerald-800 hover:bg-emerald-900
+                                   rounded-lg px-1 py-0.5 font-bold ml-auto transition-colors
+                                   flex items-center justify-center">
+                      <CheckIcon class="w-6 h-6 mr-1"></CheckIcon>
+                      <span>Mark as Answer</span>
                     </button>
                   </div>
                 </template>
@@ -670,7 +676,7 @@
           <label for="wisTitle" class="text-xl font-bold">Title:</label>
           <br>
           <input type="text" id="wisTitle" v-model="wisTitle"
-                 class="medium_bg rounded-md w-full py-2 px-3 text-neutral-200">
+                 class="medium_bg rounded-md w-full py-2 px-3 mt-1 text-neutral-200">
           <br>
           <div class="block lg:flex w-full">
             <div class="lg:w-1/2">
@@ -731,25 +737,49 @@
               <label for="wisKeywords" class="text-xl mt-2 font-bold">Keywords:</label>
               <br>
               <input type="text" id="wisKeywords" v-model="wisKeywords"
-                     class="medium_bg rounded-md py-2 px-3 w-full text-neutral-200">
+                     class="medium_bg rounded-md py-2 px-3 mt-1 w-full text-neutral-200">
             </div>
           </div>
-          <label for="wisDescription" class="text-xl mt-2 font-bold">Description:</label>
-          <br>
-          <div class="w-full">
+          <div class="flex items-baseline mt-2">
+            <label for="wisDescription" class="text-xl font-bold">Description:</label>
+            <div class="ml-2 p-1">
+              <button class="btn_small_icon text-neutral-200"
+                      v-on:click="isAddingMedia = true">
+                <DocumentArrowUpIcon
+                  class="h-6 w-6 mr-1"
+                  aria-hidden="true"
+                />
+                Add File
+              </button>
+            </div>
+          </div>
+          <div class="w-full mt-1">
             <textarea type="text" id="wisDescription" v-model="wisDescription"
                       rows="20" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
           </div>
-          <br>
-          <div class="block md:hidden flex mt-2 w-full">
-            <div class="mb-3 ml-auto text-black font-bold">
+          <div class="md:hidden flex mt-2 w-full">
+            <div class="mb-3 ml-auto text-black font-bold bg-zinc-800 rounded p-2">
               <button v-on:click="editLesson()"
-                      class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-lg
-                             bg-gray-200 hover:bg-gray-400">
+                      class="mr-2 btn_bg_primary"
+                      v-tooltip.top="{
+                       content: 'Save changes'
+                     }">
                 Submit
               </button>
+              <button v-on:click="isWritingLesson = false"
+                      class="mr-2 py-2 px-3 border-2 border-zinc-400 rounded-md hover:bg-zinc-700
+                             text-neutral-200"
+                      v-tooltip.top="{
+                       content: 'Discard changes'
+                     }">
+                Cancel
+              </button>
               <button v-on:click="deleteLesson()"
-                      class="py-2 px-3 border-2 border-red-700 rounded-lg bg-red-700 hover:bg-red-900">
+                      class="py-2 px-3 border-2 border-red-600 rounded-md bg-red-900 hover:bg-red-800
+                             text-neutral-200"
+                      v-tooltip.top="{
+                       content: 'Delete entry'
+                     }">
                 Delete
               </button>
             </div>
@@ -757,31 +787,98 @@
           <br>
           <label for="wisCopyContent" class="text-xl mt-2 font-bold">Copy Content:</label>
           <br>
-          <div class="rounded-md w-full overflow-hidden">
+          <div class="w-full overflow-hidden mt-1">
             <textarea type="text" id="wisCopyContent" v-model="wisCopyContent"
-                      rows="5" class="w-full medium_bg py-2 px-3"></textarea>
+                      rows="5" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
           </div>
         </div>
         <div class="hidden md:block w-1/2">
-          <p class="text-xl font-bold pointer-events-none">Preview:</p>
-          <div class="medium_bg rounded-md p-2 cursor-not-allowed">
-            <Markdown :source="'# ' + wisTitle" class="w-full markedView" :plugins="plugins"></Markdown>
-            <Markdown :source="wisDescription" class="w-full mt-4 markedView" :plugins="plugins"></Markdown>
-          </div>
-          <div class="flex mt-2 mb-4 w-full">
-            <div class="mb-3 ml-auto text-black font-bold">
+          <label class="text-xl font-bold pointer-events-none">Preview:</label>
+          <br>
+          <div class="flex mt-1 w-full">
+            <div class="text-black font-bold bg-zinc-800 p-4 rounded-md">
               <button v-on:click="editLesson()"
-                      class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-400">
+                      class="mr-2 btn_bg_primary"
+                      v-tooltip.top="{
+                       content: 'Save changes'
+                     }">
                 Submit
               </button>
+              <button v-on:click="isWritingLesson = false"
+                      class="mr-2 py-2 px-3 border-2 border-zinc-400 rounded-md hover:bg-zinc-700
+                             text-neutral-200"
+                      v-tooltip.top="{
+                       content: 'Discard changes'
+                     }">
+                Cancel
+              </button>
               <button v-on:click="deleteLesson()"
-                      class="py-2 px-3 border-2 border-red-700 rounded-lg bg-red-700 hover:bg-red-900">
+                      class="py-2 px-3 border-2 border-red-600 rounded-md bg-red-900 hover:bg-red-800
+                             text-neutral-200"
+                      v-tooltip.top="{
+                       content: 'Delete entry'
+                     }">
                 Delete
               </button>
             </div>
           </div>
+          <div class="medium_bg rounded-md p-2 mt-1 cursor-not-allowed">
+            <Markdown :source="'# ' + wisTitle" class="w-full markedView" :plugins="plugins"></Markdown>
+            <Markdown :source="wisDescription" class="w-full mt-4 markedView" :plugins="plugins"></Markdown>
+          </div>
         </div>
       </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
+  <modal
+    v-show="isAddingMedia"
+    @close="cancelAddMedia">
+    <template v-slot:header>
+      Add File
+    </template>
+    <template v-slot:body>
+      <template v-if="uploadFileType !== ''">
+        <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px"
+             class="markedView max-w-[400px]">
+          <img v-if="uploadFileType.includes('image')"
+               class="uploadFileSnippet"
+               v-bind:src="uploadFileBase64" :alt="'&nbsp;'"/>
+          <audio v-else-if="uploadFileType.includes('audio')"
+                 controls preload="auto"
+                 class="uploadFileSnippet">
+            <source :src="uploadFileBase64" :type="uploadFileType">
+            Your browser does not support playing audio.
+          </audio>
+          <template v-else-if="uploadFileType.includes('zip')">
+            <FolderArrowDownIcon class="h-10 w-10"></FolderArrowDownIcon>
+          </template>
+          <template v-else-if="uploadFileType.includes('text')">
+            <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
+          </template>
+          <template v-else-if="uploadFileType.includes('pdf')">
+            <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
+          </template>
+        </div>
+      </template>
+      <input type="file" class="file_input" id="process_add_media" :ref="'process_add_media'" name="files[]"
+             style="width: 100%"
+             multiple v-on:change="handleUploadFileSelect"/>
+      <template v-if="uploadFileBase64 !== ''">
+        <p class="text-neutral-300 font-bold">{{ this.uploadFileName }}</p>
+        <div class="mt-3 w-full">
+          <button class="darkbutton text-white p-2 w-full
+                           flex items-center justify-center rounded-full"
+                  style="height: 2.5em;
+                           border-color: transparent; margin: auto"
+                  title="Send"
+                  v-on:click="uploadSnippet">
+            <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Submit</span>
+            <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ this.uploadFileType }}</span>
+          </button>
+        </div>
+      </template>
     </template>
     <template v-slot:footer>
     </template>
@@ -799,6 +896,9 @@ import {
   ChatBubbleLeftEllipsisIcon,
   ClipboardIcon,
   CubeTransparentIcon,
+  DocumentArrowUpIcon,
+  DocumentTextIcon,
+  FolderArrowDownIcon,
   HandThumbDownIcon,
   HandThumbUpIcon,
   PencilSquareIcon,
@@ -834,6 +934,9 @@ export default {
   },
   emits: ['close'],
   components: {
+    DocumentTextIcon,
+    FolderArrowDownIcon,
+    DocumentArrowUpIcon,
     modal,
     Markdown,
     ClipboardIcon,
@@ -890,6 +993,10 @@ export default {
       relatedSearch: [],
       wisComment: '',
       inputComment: null,
+      isAddingMedia: false,
+      uploadFileName: '',
+      uploadFileType: '',
+      uploadFileBase64: '',
       plugins: [
         {
           plugin: markdownItMermaid
@@ -1472,6 +1579,101 @@ export default {
           text: '',
           type: 'info'
         })
+    },
+    addToTextArea: function (id, text) {
+      if (text == null || text === '') return
+      const textarea = document.getElementById(id)
+      if (textarea == null) return
+      const startPosition = textarea.selectionStart
+      const endPosition = textarea.selectionEnd
+
+      textarea.value = `${textarea.value.substring(
+        0,
+        startPosition
+      )}${text}${textarea.value.substring(
+        endPosition,
+        textarea.value.length
+      )}`
+
+      this.wisDescription = textarea.value
+    },
+    handleUploadFileSelect: async function (evt, drop = false) {
+      if (!evt) return
+      evt.stopPropagation()
+      evt.preventDefault()
+      let files
+      if (drop) {
+        files = evt.dataTransfer.files
+      } else {
+        files = evt.target.files
+      }
+      this.uploadFileBase64 = await this.getBase64(files[0])
+      this.uploadFileType = files[0].type
+      this.uploadFileName = files[0].name
+    },
+    getBase64: function (file) {
+      return new Promise(function (resolve, reject) {
+        const reader = new FileReader()
+        reader.onload = function () {
+          resolve(reader.result)
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+    },
+    cancelAddMedia: function () {
+      this.isAddingMedia = false
+      this.uploadFileType = ''
+      this.uploadFileName = ''
+      this.uploadFileBase64 = ''
+    },
+    uploadSnippet: function () {
+      const content = JSON.stringify({
+        type: this.uploadFileType,
+        payload: this.uploadFileBase64,
+        name: this.uploadFileName
+      })
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: 'm6/create',
+        body: content
+      })
+        .then((data) => (this.processUploadSnippetResponse(data.result)))
+        .catch((err) => (this.handleUploadSnippetError(err.message)))
+    },
+    handleUploadSnippetError: function (errorMessage = '') {
+      console.debug(errorMessage)
+      this.$notify(
+        {
+          title: 'File Not Uploaded',
+          text: 'An Error occurred while uploading the file.',
+          type: 'error'
+        })
+    },
+    processUploadSnippetResponse: async function (response) {
+      if (response.httpCode !== 201) {
+        this.handleUploadSnippetError()
+        return
+      }
+      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.guid
+      let prefix
+      if (this.uploadFileType.includes('image')) {
+        prefix = '!'
+      } else {
+        prefix = '\n\n'
+      }
+      let filename = this.uploadFileName
+      if (filename == null || filename === '') filename = 'Snippet'
+      let text = prefix + '[' + filename + '](' + contentURL + ')'
+      if (prefix === '!') {
+        text = '\n\n' + text + '\n\n'
+      }
+      setTimeout(() => {
+        this.addToTextArea('wisDescription', text)
+        this.renderMermaid()
+      }, 0)
+      this.cancelAddMedia()
     }
   }
 }

@@ -99,6 +99,18 @@
         @apply mt-0 !important;
     }
 
+    .markedView blockquote {
+        @apply py-2 px-4 border-l-8 border-l-indigo-500 rounded bg-indigo-900 mb-4;
+    }
+
+    .markedView blockquote > :last-child {
+        @apply mb-0 !important;
+    }
+
+    .markedView blockquote > :first-child {
+        @apply mt-0 !important;
+    }
+
     .brightest_bg {
         @apply bg-zinc-500
     }

@@ -167,10 +167,10 @@
                 <template v-else>
                   <div class="rounded w-full">
                     <div class="my-1 p-1">
-                      <button class="btn_small_icon text-neutral-300"
+                      <button class="btn_small_icon text-neutral-200"
                               v-on:click="isAddingMedia = true">
                         <DocumentArrowUpIcon
-                          class="mr-3 h-6 w-6"
+                          class="mr-1 h-6 w-6"
                           aria-hidden="true"
                         />
                         Add File
@@ -1132,18 +1132,19 @@ export default {
       const contentURL = this.$store.state.serverIP + '/m6/get/' + response.guid
       let prefix
       if (this.uploadFileType.includes('image')) {
-        prefix = ' !'
+        prefix = '!'
       } else {
-        prefix = ' '
+        prefix = '\n\n'
       }
       let filename = this.uploadFileName
       if (filename == null || filename === '') filename = 'Snippet'
       let text = prefix + '[' + filename + '](' + contentURL + ')'
-      if (prefix === ' !') {
+      if (prefix === '!') {
         text = '\n\n' + text + '\n\n'
       }
       setTimeout(() => {
         this.addToTextArea(this.editingProcess.guid + '_description_edit', text)
+        this.renderMermaid()
       }, 0)
       this.cancelAddMedia()
     }
@@ -1171,11 +1172,7 @@ export default {
 }
 
 .editSubmit {
-  @apply relative right-0 p-2 m-2 rounded bright_bg font-bold text-sm text-neutral-300;
-}
-
-.editSubmit:hover {
-  @apply brightest_bg text-neutral-200;
+  @apply relative right-0 btn_bg_primary;
 }
 
 .segmentSettings {
