@@ -914,8 +914,9 @@
                     Click to jump to the newest messages
                     <i class="bi bi-arrow-down"></i>
                   </button>
-                  <div style="bottom: 0; left: 10px; opacity: 1"
-                       class="scroll_to_bottom flex items-center px-1 overflow-clip">
+                  <div style="left: 10px; opacity: 1"
+                       class="scroll_to_bottom flex items-center px-1 overflow-clip
+                              translate-y-[60px]">
                     <template v-if="userActivity.length > 0">
                       <ChartBarIcon class="h-3 w-3 text-neutral-300"></ChartBarIcon>
                       <div class="flex items-center divide-x divide-zinc-800">
@@ -1316,6 +1317,12 @@
              style="padding-left: 20px">
             Members&nbsp;-&nbsp;{{ getMemberCount() }}
           </p>
+          <button class="btn-no-outline member_section_toggler c_lightgray"
+                  style="position: absolute; right: 10px"
+                  title="Hide Members"
+                  v-on:click="toggleMemberSidebar">
+            <i class="bi bi-eye-slash-fill orange-hover"></i>
+          </button>
         </div>
         <div style="padding: 5px">
           <div v-for="usr in this.mainMembers" :key="usr"
@@ -1903,8 +1910,10 @@ export default {
               videoElem.srcObject = remoteStream
             }
             videoElem.setAttribute('controls', '')
-            audioElem.srcObject = null
-            audioElem.removeAttribute('controls')
+            if (hasAudio) {
+              audioElem.srcObject = null
+              audioElem.removeAttribute('controls')
+            }
           } else {
             videoElem.srcObject = null
             if (hasAudio) {
@@ -2049,7 +2058,7 @@ export default {
                   this.wRTC.doUnpause()
                   this.startCall(undefined, {
                     video: undefined,
-                    audio: undefined
+                    audio: true
                   })
                   this.notifyJoinedSubchat(this.currentSubchat.guid, this.$store.state.username, true)
                 } else if (this.currentSubchat.type === 'screenshare') {
@@ -2628,9 +2637,22 @@ export default {
           this.setActiveMembers([tmp.substring(8)])
         } else if (tmp.substring(0, 9) === '[offline]') {
           // Set offline user status and remove him from all activity
-          this.setActiveMembers([tmp.substring(9)], false)
-          this.removeUserFromActivity(tmp.substring(9))
-          this.removeUserFromIdle(tmp.substring(9))
+          const username = tmp.substring(9)
+          this.setActiveMembers([username], false)
+          this.removeUserFromActivity(username)
+          this.removeUserFromIdle(username)
+          if ((this.currentSubchat.type === 'webcam' || this.params) && this.wRTC.selfId != null) {
+            const remoteId = this.getIdFromUser(username)
+            if (remoteId) {
+              this.wRTC.hangup(remoteId)
+              const videoElem = document.getElementById('screenshare_video_' + remoteId)
+              const audioElem = document.getElementById('screenshare_audio_' + remoteId)
+              const container = document.getElementById('screenshare_container_' + remoteId)
+              if (videoElem) videoElem.srcObject = null
+              if (audioElem) audioElem.srcObject = null
+              container.style.display = 'none'
+            }
+          }
         }
         return new Promise((resolve) => {
           resolve('')
@@ -3131,7 +3153,9 @@ export default {
     },
     toggleSidebar2: function () {
       const state = this.handleSidebarToggle(this.$refs.sidebar2)
-      this.$store.commit('toggleClarifierSidebar2', state)
+      if (window.innerWidth >= 1025) {
+        this.$store.commit('toggleClarifierSidebar2', state)
+      }
       if (!state) {
         this.$refs.chat_section.classList.add('tl_br_force')
         this.$refs.messages_container.classList.add('tl_br_none_force')
@@ -3144,7 +3168,9 @@ export default {
       const state = this.handleSidebarToggle(document.getElementById('member_section'),
         false,
         true)
-      this.$store.commit('toggleClarifierMembers', state)
+      if (window.innerWidth >= 1025) {
+        this.$store.commit('toggleClarifierMembers', state)
+      }
       if (!state) {
         this.$refs.chat_section.classList.add('tr_br_none_force')
       } else {
@@ -4297,7 +4323,7 @@ export default {
         } else {
           stream = null
         }
-        this.stopOutgoingStreamTracks()
+        // this.stopOutgoingStreamTracks()
         this.peerStreamOutgoing = stream
         this.wRTC.addStreamTracks(stream)
       } else {
@@ -4333,7 +4359,7 @@ export default {
           videoElem.srcObject = this.peerStreamOutgoing
         }
       } else {
-        this.wRTC.setVideo(this.peerStreamOutgoingPreferences.video, false)
+        this.wRTC.setVideo(false)
         const videoElem = document.getElementById('screenshare_video')
         videoElem.srcObject = null
         this.stopOutgoingStreamTracks(true, false, ignoreScreenShare)
@@ -4356,8 +4382,13 @@ export default {
         if (this.peerStreamOutgoingConstraints.video) {
           // Disable video to save bandwidth while transmitting screen
           this.callStartOrMuteVideo(false, true)
+          this.wRTC.replaceTrack(this.peerStreamScreenshare, 'video')
         } else {
           this.wRTC.addStreamTracks(this.peerStreamScreenshare, 'video')
+        }
+        if (this.peerStreamOutgoingConstraints.audio) {
+          this.wRTC.addStreamTracks(this.peerStreamOutgoing, 'audio')
+          this.wRTC.replaceTrack(this.peerStreamOutgoing, 'audio')
         }
         let videoElem = document.getElementById('screenshare_video_alternate')
         videoElem.srcObject = this.peerStreamScreenshare
@@ -4449,6 +4480,14 @@ export default {
       for (let i = 0; i < this.members.length; i++) {
         if (this.members[i].id === userId) {
           return this.members[i].usr
+        }
+      }
+    },
+    getIdFromUser: function (username) {
+      if (this.members.length < 1) return null
+      for (let i = 0; i < this.members.length; i++) {
+        if (this.members[i].usr === username) {
+          return this.members[i].id
         }
       }
     },

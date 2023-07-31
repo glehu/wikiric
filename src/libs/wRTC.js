@@ -120,12 +120,6 @@ const WRTC = {
       if (this.doLog) {
         console.log('%cRenegotiating Peer Connection', this.logStyle, 'for', remoteName, remoteId)
       }
-      // try {
-      // Remove and stop the tracks first to make sure we're not sending stuff without a reason
-      // this.hangup(remoteId)
-      // catch (e) {
-      // Track could not be stopped
-      // }
     } else {
       if (this.doLog) {
         if (!polite) console.log('%cIMPOLITELY Initializing Peer Connection >:(', this.logStyle, 'to', remoteName, remoteId)
@@ -311,18 +305,11 @@ const WRTC = {
     return peerConnection.stream
   },
   hangup: function (remoteId = null) {
-    this.setVideo(false)
-    this.setAudio(false)
+    // Stop tracks to free up the resources
+    this.setVideo(false, remoteId)
+    this.setAudio(false, remoteId)
     for (const peerCon of this.peerConnections.values()) {
       if (!remoteId || peerCon.remoteId === remoteId) {
-        // Stop tracks to free up the resources
-        const senderList = peerCon.getSenders()
-        senderList.forEach((sender) => {
-          if (sender.track) {
-            sender.track.enabled = false
-            sender.track.stop()
-          }
-        })
         // Close connection
         try {
           setTimeout(() => {
@@ -548,25 +535,29 @@ const WRTC = {
       }
     }
   },
-  setVideo: function (valueBoolean) {
+  setVideo: function (valueBoolean, remoteId = null) {
     for (const peerCon of this.peerConnections.values()) {
-      const senderList = peerCon.getSenders()
-      senderList.forEach((sender) => {
-        if (sender.track && sender.track.kind === 'video') {
-          sender.track.enabled = valueBoolean
-          if (valueBoolean === false) sender.track.stop()
-        }
-      })
+      if (!remoteId || peerCon.remoteId === remoteId) {
+        const senderList = peerCon.getSenders()
+        senderList.forEach((sender) => {
+          if (sender.track && sender.track.kind === 'video') {
+            sender.track.enabled = valueBoolean
+            if (valueBoolean === false) sender.track.stop()
+          }
+        })
+      }
     }
   },
-  setAudio: function (valueBoolean) {
+  setAudio: function (valueBoolean, remoteId = null) {
     for (const peerCon of this.peerConnections.values()) {
-      const senderList = peerCon.getSenders()
-      senderList.forEach((sender) => {
-        if (sender.track && sender.track.kind === 'audio') {
-          sender.track.enabled = valueBoolean
-        }
-      })
+      if (!remoteId || peerCon.remoteId === remoteId) {
+        const senderList = peerCon.getSenders()
+        senderList.forEach((sender) => {
+          if (sender.track && sender.track.kind === 'audio') {
+            sender.track.enabled = valueBoolean
+          }
+        })
+      }
     }
   },
   replaceTrack: function (stream, kind) {
