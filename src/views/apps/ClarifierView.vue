@@ -321,22 +321,19 @@ export default {
           if (data.result && data.result.chatrooms && data.result.chatrooms.length > 0) {
             this.friends = new Map()
             // Iterate over all direct chatrooms
-            const promises = []
             for (let i = 0; i < data.result.chatrooms.length; i++) {
               this.friends.set(data.result.chatrooms[i], {
                 chatroom: data.result.chatrooms[i],
                 msg: '',
                 loading: true
               })
-              promises.push(this.processFriend(data, i))
+              this.processFriend(data, i)
+                .then((result) => {
+                  if (result.chatroom) {
+                    this.friends.set(result.chatroom, result)
+                  }
+                })
             }
-            Promise.allSettled(promises).then((values) => {
-              values.forEach(value => {
-                if (value.value) {
-                  this.friends.set(value.value.chatroom, value.value)
-                }
-              })
-            })
           } else {
             this.friends = new Map()
           }
