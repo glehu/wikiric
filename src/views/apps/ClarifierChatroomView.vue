@@ -1936,14 +1936,11 @@ export default {
       } else if (event.data.event === 'connection_change') {
         if (event.data.status === 'connected') {
           // Check if we need to replace any tracks
-          if (this.currentSubchat.type === 'screenshare') {
-            await this.callSetDisplayMedia()
-          }
           if (this.currentSubchat.type === 'webcam' || this.params) {
             await this.callSetUserMedia()
           }
-          if (this.isSharingScreen) {
-            await this.callStartOrStopScreenshare(false, true)
+          if (this.currentSubchat.type === 'screenshare' || this.isSharingScreen) {
+            await this.callSetDisplayMedia()
           }
         }
       }
@@ -3155,6 +3152,8 @@ export default {
       const state = this.handleSidebarToggle(this.$refs.sidebar2)
       if (window.innerWidth >= 1025) {
         this.$store.commit('toggleClarifierSidebar2', state)
+      } else {
+        this.hideMemberSidebar()
       }
       if (!state) {
         this.$refs.chat_section.classList.add('tl_br_force')
@@ -3170,6 +3169,8 @@ export default {
         true)
       if (window.innerWidth >= 1025) {
         this.$store.commit('toggleClarifierMembers', state)
+      } else {
+        this.hideSidebar2()
       }
       if (!state) {
         this.$refs.chat_section.classList.add('tr_br_none_force')
@@ -4287,11 +4288,11 @@ export default {
         audio: false // See further down
       }
       let stream
-      if (!this.peerStreamOutgoing || this.peerStreamOutgoingConstraints !== constraintsT) {
+      if (!this.peerStreamScreenshare) {
         stream = await navigator.mediaDevices.getDisplayMedia(constraintsT)
-        this.peerStreamOutgoing = stream
+        this.peerStreamScreenshare = stream
       } else {
-        stream = this.peerStreamOutgoing
+        stream = this.peerStreamScreenshare
       }
       // this.wRTC.replaceTrack(stream, 'audio') // TODO: Figure out how to send two audio tracks
       this.wRTC.replaceTrack(stream, 'video')
