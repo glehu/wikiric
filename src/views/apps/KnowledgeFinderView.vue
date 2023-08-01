@@ -4,10 +4,10 @@
     <template v-if="knowledgeExists">
       <div class="h-full w-full overflow-y-auto">
         <template v-if="!isViewingWisdom && !isViewingProcess">
-          <div class="xl:grid xl:grid-cols-5 w-full h-fit xl:h-full xl:gap-x-3 p-3">
+          <div class="lg:flex w-full h-fit lg:h-full lg:gap-x-3 p-3">
             <div id="knowledgeFinder_sidebar"
                  class="h-full rounded-lg overflow-hidden medium_bg
-                        xl:col-span-2">
+                        lg:w-[clamp(450px,33%,550px)]">
               <div class="h-full relative">
                 <div class="py-1">
                   <div class="flex items-center">
@@ -21,7 +21,7 @@
                         <div class="text-xl border-l border-gray-300 pl-5 text-neutral-300 font-bold">
                           {{ this.knowledge.t }}
                         </div>
-                        <div class="text-sm border-l border-gray-300 pl-5 text-neutral-300 text-neutral-400">
+                        <div class="text-sm border-l border-gray-300 pl-5 text-neutral-300">
                           {{ this.knowledge.desc }}
                         </div>
                       </div>
@@ -37,7 +37,7 @@
                            v-on:keyup.enter="searchWisdom(); getProcesses()"
                            v-model="queryText">
                   </div>
-                  <template class="hidden xl:block">
+                  <template class="hidden lg:block">
                     <div
                       style="width: 100%; height: 35px; padding-top: 5px; display: flex; position: relative; align-items: center">
                       <span class="font-bold text-neutral-300 pointer-events-none">Categories</span>
@@ -72,7 +72,7 @@
                   </template>
                 </div>
                 <!-- QUICK VIEW -->
-                <div class="px-3 py-3 xl:absolute xl:bottom-0 xl:w-full">
+                <div class="px-3 py-3 lg:absolute lg:bottom-0 lg:w-full">
                   <div class="flex">
                     <button v-on:click="writeWisdom('ask')"
                             class="border-orange-600 hover:bg-orange-700 border-2
@@ -90,8 +90,9 @@
                 </div>
               </div>
             </div>
-            <div class="xl:col-span-3 pt-2 xl:pt-3 overflow-y-scroll overflow-x-hidden h-full">
-              <TabGroup as="div" class="">
+            <div class="pt-2 lg:pt-3 overflow-y-scroll overflow-x-hidden h-full pr-[6px]
+                        lg:w-full">
+              <TabGroup as="div" class="w-full">
                 <TabList as="div" class="tab-group">
                   <Tab class="w-full" v-slot="{ selected }">
                     <button :class="[
@@ -101,7 +102,7 @@
                               : 'hover:dark_bg hover:text-white',
                             ]"
                             class="tab"
-                            v-on:click="tabSelection = 'knowledge'">
+                            v-on:click="tabSelection = 'knowledge'; getRecentKeywords()">
                       Knowledge
                     </button>
                   </Tab>
@@ -126,7 +127,7 @@
                           <p class="text-xl font-bold my-2 pointer-events-none text-neutral-300">
                             Top Contributors
                           </p>
-                          <div class="flex w-full overflow-x-auto mb-2">
+                          <div class="flex w-full overflow-x-auto mb-2 pb-[6px]">
                             <div v-for="author in topWriters.contributors" :key="author.username"
                                  class="mr-4 text-neutral-400">
                               <div class="medium_bg rounded-t-lg py-2 px-3 pointer-events-none">
@@ -185,25 +186,28 @@
                       </div>
                     </template>
                     <template v-if="noResults">
-                      <div class="flex w-full justify-center items-center xl:mt-10">
+                      <div class="flex w-full justify-center items-center lg:mt-10">
                         <div class="dark_bg rounded-md p-3 text-neutral-300">
                           <p class="pointer-events-none text-center">No Results for...</p>
                           <p class="text-neutral-300 text-center my-2">{{ querySubmission }}</p>
                           <p
-                            class="text-neutral-300 pointer-events-none mt-3 text-center border-t border-t-gray-400 pt-3">
+                            class="text-neutral-300 pointer-events-none mt-3 text-center
+                                   border-t border-t-gray-400 pt-3">
                             Ask a question or teach people!
                           </p>
                           <div class="mt-2">
                             <div class="flex">
                               <button v-on:click="writeWisdom('ask')"
                                       class="border-orange-500 hover:bg-orange-700 border-2
-                                             rounded-md py-1 px-2 text-neutral-200 hover:text-neutral-200 mr-3 w-1/2">
+                                             rounded-md py-1 px-2 text-neutral-200
+                                             hover:text-neutral-200 mr-3 w-1/2">
                                 <i class="bi bi-question-lg mr-2"></i>
                                 Ask
                               </button>
                               <button v-on:click="writeWisdom('teach')"
                                       class="border-indigo-500 bg-indigo-600 hover:bg-indigo-700 border-2
-                                             rounded-md py-1 px-2 text-neutral-200 hover:text-neutral-200 w-1/2">
+                                             rounded-md py-1 px-2 text-neutral-200
+                                             hover:text-neutral-200 w-1/2">
                                 <i class="bi bi-lightbulb small mr-2"></i>
                                 Teach
                               </button>
@@ -418,7 +422,7 @@
                     </div>
                     <div class="h-full w-full">
                       <template v-if="processes.length < 1">
-                        <div class="flex w-full justify-center items-center xl:mt-10">
+                        <div class="flex w-full justify-center items-center lg:mt-10">
                           <div class="dark_bg rounded-md p-3 text-neutral-300">
                             <p class="pointer-events-none text-center">No Processes for...</p>
                             <p class="text-neutral-300 text-center my-2">{{ querySubmission }}</p>
@@ -524,18 +528,18 @@
     <modal @close="isAddingCategory = false"
            v-show="isAddingCategory">
       <template v-slot:header>
-        <span class="text-3xl font-bold">Add Category</span>
+        <span class="text-xl font-bold">Add Category</span>
       </template>
       <template v-slot:body>
         <div class="m-3">
-          <label for="new_category" class="text-2xl mb-2">Category:</label>
+          <label for="new_category" class="mb-2 font-bold">Name:</label>
           <br>
           <input type="text" id="new_category" v-model="newCategory"
                  class="search-field py-1 px-2 darkest_bg text-lg border-2 border-neutral-800"
                  v-on:keyup.enter="addCategory()">
           <br>
           <button v-on:click="addCategory()"
-                  class="mt-3 py-2 px-3 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black">
+                  class="mt-3 btn_bg_primary">
             Add
           </button>
         </div>
@@ -550,12 +554,32 @@
         <template v-else-if="isWritingQuestion">Ask</template>
       </template>
       <template v-slot:body>
-        <div class="flex w-[90dvw]" style="max-height: 90vh">
-          <div class="w-full pr-12 xl:pr-0 xl:w-1/2">
+        <div class="flex w-[90dvw] max-h-[90dvh] gap-x-4 px-2">
+          <div class="w-full md:w-1/2">
+            <div class="md:hidden flex mt-2 w-full">
+              <div class="mb-3 text-black font-bold bg-zinc-800 rounded p-2
+                          w-full flex items-center justify-end">
+                <button v-on:click="createLesson()"
+                        class="mr-2 btn_bg_primary"
+                        v-tooltip.top="{
+                       content: 'Save changes'
+                     }">
+                  Submit
+                </button>
+                <button v-on:click="isWritingWisdom = false"
+                        class="mr-2 py-2 px-3 border-2 border-zinc-500 rounded-md hover:bg-zinc-800
+                               text-neutral-200 bg-zinc-700"
+                        v-tooltip.top="{
+                       content: 'Discard changes'
+                     }">
+                  Cancel
+                </button>
+              </div>
+            </div>
             <label for="wisTitle" class="text-xl font-bold">Title:</label>
             <br>
             <input type="text" id="wisTitle" v-model="wisTitle"
-                   class="medium_bg rounded-md w-full py-2 px-3 text-neutral-200">
+                   class="medium_bg rounded-md w-full py-2 px-3 mt-1 text-neutral-200">
             <br>
             <div class="block lg:flex w-full">
               <div class="lg:w-1/2">
@@ -564,17 +588,15 @@
                 <Listbox v-model="wisCategories" multiple id="wisCategories">
                   <div class="relative mt-1">
                     <ListboxButton
-                      class="medium_bg w-full relative cursor-default rounded-lg py-2 pl-3
-                             pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500
-                             focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75
-                             focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
+                      class="medium_bg w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                    >
                       <template v-if="wisCategories.length > 0">
                         <div class="block truncate font-bold text-neutral-300">
                           {{ wisCategories.map((cat) => cat.category).join(', ') }}
                         </div>
                       </template>
                       <template v-else>
-                        <span class="block truncate font-bold text-neutral-500">Select...</span>
+                        <span class="block truncate font-bold text-neutral-400">Select...</span>
                       </template>
                       <div
                         class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -586,9 +608,8 @@
                       leave-from-class="opacity-100"
                       leave-to-class="opacity-0">
                       <ListboxOptions
-                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md dark_bg
-                               py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5
-                               focus:outline-none sm:text-sm">
+                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md dark_bg py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                      >
                         <ListboxOption
                           v-slot="{ active, selected }"
                           v-for="cat in knowledge.categories"
@@ -615,52 +636,118 @@
                   </div>
                 </Listbox>
               </div>
-              <div class="xl:w-3/5 lg:ml-3">
+              <div class="lg:w-3/5 lg:ml-3">
                 <label for="wisKeywords" class="text-xl mt-2 font-bold">Keywords:</label>
                 <br>
                 <input type="text" id="wisKeywords" v-model="wisKeywords"
-                       class="medium_bg rounded-md py-2 px-3 w-full text-neutral-200">
+                       class="medium_bg rounded-md py-2 px-3 mt-1 w-full text-neutral-200">
               </div>
             </div>
-            <label for="wisDescription" class="text-xl mt-2 font-bold">Description:</label>
-            <br>
-            <div class="rounded-md w-full overflow-hidden">
+            <div class="flex items-baseline mt-2">
+              <label for="wisDescription" class="text-xl font-bold">Description:</label>
+              <div class="ml-2 p-1">
+                <button class="btn_small_icon text-neutral-200"
+                        v-on:click="isAddingMedia = true">
+                  <DocumentArrowUpIcon
+                    class="h-6 w-6 mr-1"
+                    aria-hidden="true"
+                  />
+                  Add File
+                </button>
+              </div>
+            </div>
+            <div class="w-full mt-1">
             <textarea type="text" id="wisDescription" v-model="wisDescription"
                       rows="20" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
             </div>
             <br>
-            <div class="block xl:hidden flex mt-2 mb-4 w-full">
-              <div class="mb-3 ml-auto text-black font-bold">
-                <button v-on:click="createLesson()"
-                        class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-400">
-                  <template v-if="isWritingLesson">Teach</template>
-                  <template v-else-if="isWritingQuestion">Ask</template>
-                </button>
-              </div>
-            </div>
-            <br>
             <label for="wisCopyContent" class="text-xl mt-2 font-bold">Copy Content:</label>
             <br>
-            <textarea type="text" id="wisCopyContent" v-model="wisCopyContent" rows="5"
-                      class="medium_bg rounded-md w-full py-2 px-3"></textarea>
-          </div>
-          <div class="hidden xl:block w-[46%] ml-2">
-            <p class="text-xl font-bold pointer-events-none">Preview:</p>
-            <div class="medium_bg rounded-md p-2 cursor-not-allowed">
-              <Markdown :source="'# ' + wisTitle" class="w-full markedView"></Markdown>
-              <Markdown :source="wisDescription" class="w-full mt-4 markedView"></Markdown>
+            <div class="w-full overflow-hidden mt-1">
+            <textarea type="text" id="wisCopyContent" v-model="wisCopyContent"
+                      rows="5" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
             </div>
-            <div class="flex mt-2 mb-4 w-full">
-              <div class="mb-3 ml-auto text-black font-bold">
+          </div>
+          <div class="hidden md:block w-1/2">
+            <label class="text-xl font-bold pointer-events-none">Preview:</label>
+            <br>
+            <div class="flex mt-1 w-full">
+              <div class="text-black font-bold bg-zinc-800 p-4 rounded-md w-full
+                          flex justify-end items-center mb-2">
                 <button v-on:click="createLesson()"
-                        class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-400">
-                  <template v-if="isWritingLesson">Teach</template>
-                  <template v-else-if="isWritingQuestion">Ask</template>
+                        class="mr-2 btn_bg_primary"
+                        v-tooltip.top="{
+                       content: 'Submit entry'
+                     }">
+                  Submit
+                </button>
+                <button v-on:click="isWritingLesson = false"
+                        class="mr-2 py-2 px-3 border-2 border-zinc-500 rounded-md hover:bg-zinc-800
+                               text-neutral-200 bg-zinc-700"
+                        v-tooltip.top="{
+                       content: 'Discard'
+                     }">
+                  Cancel
                 </button>
               </div>
+            </div>
+            <div class="medium_bg rounded-md p-2 mt-1 cursor-not-allowed">
+              <Markdown :source="'# ' + wisTitle" class="w-full markedView" :plugins="plugins"></Markdown>
+              <Markdown :source="wisDescription" class="w-full mt-4 markedView" :plugins="plugins"></Markdown>
             </div>
           </div>
         </div>
+      </template>
+      <template v-slot:footer>
+      </template>
+    </modal>
+    <modal
+      v-show="isAddingMedia"
+      @close="cancelAddMedia">
+      <template v-slot:header>
+        Add File
+      </template>
+      <template v-slot:body>
+        <template v-if="uploadFileType !== ''">
+          <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px"
+               class="markedView max-w-[400px]">
+            <img v-if="uploadFileType.includes('image')"
+                 class="uploadFileSnippet"
+                 v-bind:src="uploadFileBase64" :alt="'&nbsp;'"/>
+            <audio v-else-if="uploadFileType.includes('audio')"
+                   controls preload="auto"
+                   class="uploadFileSnippet">
+              <source :src="uploadFileBase64" :type="uploadFileType">
+              Your browser does not support playing audio.
+            </audio>
+            <template v-else-if="uploadFileType.includes('zip')">
+              <FolderArrowDownIcon class="h-10 w-10"></FolderArrowDownIcon>
+            </template>
+            <template v-else-if="uploadFileType.includes('text')">
+              <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
+            </template>
+            <template v-else-if="uploadFileType.includes('pdf')">
+              <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
+            </template>
+          </div>
+        </template>
+        <input type="file" class="file_input" id="process_add_media" :ref="'process_add_media'" name="files[]"
+               style="width: 100%"
+               multiple v-on:change="handleUploadFileSelect"/>
+        <template v-if="uploadFileBase64 !== ''">
+          <p class="text-neutral-300 font-bold">{{ this.uploadFileName }}</p>
+          <div class="mt-3 w-full">
+            <button class="darkbutton text-white p-2 w-full
+                           flex items-center justify-center rounded-full"
+                    style="height: 2.5em;
+                           border-color: transparent; margin: auto"
+                    title="Send"
+                    v-on:click="uploadSnippet">
+              <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Submit</span>
+              <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ this.uploadFileType }}</span>
+            </button>
+          </div>
+        </template>
       </template>
       <template v-slot:footer>
       </template>
@@ -671,7 +758,7 @@
         Create Process
       </template>
       <template v-slot:body>
-        <div class="flex w-full xl:w-[540px]">
+        <div class="flex w-full lg:w-[540px]">
           <div class="w-full">
             <label for="processTitle" class="text-xl font-bold">Title:</label>
             <br>
@@ -692,7 +779,7 @@
             <div class="flex mt-2 mb-4 w-full">
               <div class="mb-3 ml-auto text-black font-bold">
                 <button v-on:click="createProcess()"
-                        class="mr-2 py-2 px-5 border-2 border-gray-300 rounded-lg bg-gray-200 hover:bg-gray-400">
+                        class="mr-2 btn_bg_primary">
                   Create
                 </button>
               </div>
@@ -715,7 +802,7 @@ import 'highlight.js/styles/hybrid.css'
 import {
   BookOpenIcon,
   ChatBubbleLeftEllipsisIcon,
-  ClipboardIcon,
+  ClipboardIcon, DocumentArrowUpIcon, DocumentTextIcon, FolderArrowDownIcon,
   HandThumbDownIcon,
   HandThumbUpIcon,
   MagnifyingGlassIcon,
@@ -745,6 +832,8 @@ import {
 import * as d3 from 'd3'
 import * as d3Cloud from 'd3-cloud'
 import { DateTime } from 'luxon'
+import markdownItMermaid from 'markdown-it-mermaid'
+import mermaid from 'mermaid'
 
 export default {
   name: 'KnowledgeFinderView',
@@ -754,6 +843,9 @@ export default {
   },
   emits: ['close'],
   components: {
+    DocumentArrowUpIcon,
+    DocumentTextIcon,
+    FolderArrowDownIcon,
     modal,
     wisdomviewer,
     processviewer,
@@ -829,7 +921,16 @@ export default {
       tabSelection: 'knowledge',
       related: null,
       relatedFrom: '',
-      relatedLoading: false
+      relatedLoading: false,
+      isAddingMedia: false,
+      uploadFileName: '',
+      uploadFileType: '',
+      uploadFileBase64: '',
+      plugins: [
+        {
+          plugin: markdownItMermaid
+        }
+      ]
     }
   },
   created () {
@@ -1501,6 +1602,117 @@ export default {
       } else {
         return string.substring(0, length) + '...'
       }
+    },
+    addToTextArea: function (id, text) {
+      if (text == null || text === '') return
+      const textarea = document.getElementById(id)
+      if (textarea == null) return
+      const startPosition = textarea.selectionStart
+      const endPosition = textarea.selectionEnd
+
+      textarea.value = `${textarea.value.substring(
+        0,
+        startPosition
+      )}${text}${textarea.value.substring(
+        endPosition,
+        textarea.value.length
+      )}`
+
+      this.wisDescription = textarea.value
+    },
+    handleUploadFileSelect: async function (evt, drop = false) {
+      if (!evt) return
+      evt.stopPropagation()
+      evt.preventDefault()
+      let files
+      if (drop) {
+        files = evt.dataTransfer.files
+      } else {
+        files = evt.target.files
+      }
+      this.uploadFileBase64 = await this.getBase64(files[0])
+      this.uploadFileType = files[0].type
+      this.uploadFileName = files[0].name
+    },
+    getBase64: function (file) {
+      return new Promise(function (resolve, reject) {
+        const reader = new FileReader()
+        reader.onload = function () {
+          resolve(reader.result)
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+    },
+    cancelAddMedia: function () {
+      this.isAddingMedia = false
+      this.uploadFileType = ''
+      this.uploadFileName = ''
+      this.uploadFileBase64 = ''
+    },
+    uploadSnippet: function () {
+      const content = JSON.stringify({
+        type: this.uploadFileType,
+        payload: this.uploadFileBase64,
+        name: this.uploadFileName
+      })
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: 'm6/create',
+        body: content
+      })
+        .then((data) => (this.processUploadSnippetResponse(data.result)))
+        .catch((err) => (this.handleUploadSnippetError(err.message)))
+    },
+    handleUploadSnippetError: function (errorMessage = '') {
+      console.debug(errorMessage)
+      this.$notify(
+        {
+          title: 'File Not Uploaded',
+          text: 'An Error occurred while uploading the file.',
+          type: 'error'
+        })
+    },
+    processUploadSnippetResponse: async function (response) {
+      if (response.httpCode !== 201) {
+        this.handleUploadSnippetError()
+        return
+      }
+      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.guid
+      let prefix
+      if (this.uploadFileType.includes('image')) {
+        prefix = '!'
+      } else {
+        prefix = '\n\n'
+      }
+      let filename = this.uploadFileName
+      if (filename == null || filename === '') filename = 'Snippet'
+      let text = prefix + '[' + filename + '](' + contentURL + ')'
+      if (prefix === '!') {
+        text = '\n\n' + text + '\n\n'
+      }
+      setTimeout(() => {
+        this.addToTextArea('wisDescription', text)
+        this.renderMermaid()
+      }, 0)
+      this.cancelAddMedia()
+    },
+    renderMermaidInit: function () {
+      setTimeout(() => {
+        mermaid.initialize({
+          startOnLoad: true,
+          theme: 'dark'
+        })
+        setTimeout(() => {
+          mermaid.init()
+        }, 0)
+      }, 0)
+    },
+    renderMermaid: function () {
+      setTimeout(() => {
+        mermaid.init()
+      }, 0)
     }
   }
 }

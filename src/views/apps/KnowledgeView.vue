@@ -630,7 +630,8 @@
         </div>
       </div>
       <div id="rightbar"
-           class="h-full w-[350px] overflow-y-auto hidden xl:block">
+           class="max-h-[calc(100%-30px)] w-[350px] hidden xl:flex xl:flex-col
+                  overflow-hidden rounded-b-xl">
         <div class="rounded-l-xl text-neutral-300 p-2 mt-2 dark_bg">
           <div class="border-none mb-2 pointer-events-none">
             <div class="text-neutral-400 text-xs pr-2 font-bold">Author</div>
@@ -661,6 +662,13 @@
             </div>
           </template>
         </div>
+        <ul class="rounded-l-xl text-neutral-300 p-2 mt-2 dark_bg markedView
+                   overflow-y-auto max-h-full">
+          <li v-for="contentLink in contentLinks" :key="contentLink"
+              class="p-0.5">
+            <a :href="contentLink.link">{{ contentLink.title }}</a>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
@@ -673,6 +681,34 @@
     <template v-slot:body>
       <div class="flex w-[90dvw] max-h-[90dvh] gap-x-4 px-2">
         <div class="w-full md:w-1/2">
+          <div class="md:hidden flex mt-2 w-full">
+            <div class="mb-3 text-black font-bold bg-zinc-800 rounded p-2
+                        w-full flex items-center justify-end">
+              <button v-on:click="editLesson()"
+                      class="mr-2 btn_bg_primary"
+                      v-tooltip.top="{
+                       content: 'Save changes'
+                     }">
+                Submit
+              </button>
+              <button v-on:click="isWritingLesson = false"
+                      class="mr-2 py-2 px-3 border-2 border-zinc-500 rounded-md hover:bg-zinc-800
+                             text-neutral-200 bg-zinc-700"
+                      v-tooltip.top="{
+                       content: 'Discard changes'
+                     }">
+                Cancel
+              </button>
+              <button v-on:click="deleteLesson()"
+                      class="py-2 px-3 border-2 border-red-600 rounded-md bg-red-900 hover:bg-red-800
+                             text-neutral-200"
+                      v-tooltip.top="{
+                       content: 'Delete entry'
+                     }">
+                Delete
+              </button>
+            </div>
+          </div>
           <label for="wisTitle" class="text-xl font-bold">Title:</label>
           <br>
           <input type="text" id="wisTitle" v-model="wisTitle"
@@ -757,33 +793,6 @@
             <textarea type="text" id="wisDescription" v-model="wisDescription"
                       rows="20" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
           </div>
-          <div class="md:hidden flex mt-2 w-full">
-            <div class="mb-3 ml-auto text-black font-bold bg-zinc-800 rounded p-2">
-              <button v-on:click="editLesson()"
-                      class="mr-2 btn_bg_primary"
-                      v-tooltip.top="{
-                       content: 'Save changes'
-                     }">
-                Submit
-              </button>
-              <button v-on:click="isWritingLesson = false"
-                      class="mr-2 py-2 px-3 border-2 border-zinc-400 rounded-md hover:bg-zinc-700
-                             text-neutral-200"
-                      v-tooltip.top="{
-                       content: 'Discard changes'
-                     }">
-                Cancel
-              </button>
-              <button v-on:click="deleteLesson()"
-                      class="py-2 px-3 border-2 border-red-600 rounded-md bg-red-900 hover:bg-red-800
-                             text-neutral-200"
-                      v-tooltip.top="{
-                       content: 'Delete entry'
-                     }">
-                Delete
-              </button>
-            </div>
-          </div>
           <br>
           <label for="wisCopyContent" class="text-xl mt-2 font-bold">Copy Content:</label>
           <br>
@@ -796,7 +805,8 @@
           <label class="text-xl font-bold pointer-events-none">Preview:</label>
           <br>
           <div class="flex mt-1 w-full">
-            <div class="text-black font-bold bg-zinc-800 p-4 rounded-md">
+            <div class="text-black font-bold bg-zinc-800 p-4 rounded-md w-full
+                        flex items-center justify-end mb-4">
               <button v-on:click="editLesson()"
                       class="mr-2 btn_bg_primary"
                       v-tooltip.top="{
@@ -805,8 +815,8 @@
                 Submit
               </button>
               <button v-on:click="isWritingLesson = false"
-                      class="mr-2 py-2 px-3 border-2 border-zinc-400 rounded-md hover:bg-zinc-700
-                             text-neutral-200"
+                      class="mr-2 py-2 px-3 border-2 border-zinc-500 rounded-md hover:bg-zinc-800
+                             text-neutral-200 bg-zinc-700"
                       v-tooltip.top="{
                        content: 'Discard changes'
                      }">
@@ -982,6 +992,7 @@ export default {
       wisdom: {
         type: ''
       },
+      contentLinks: [],
       related: {
         answers: [],
         comments: [],
@@ -1092,8 +1103,11 @@ export default {
             // Cut away all hashtags and whitespace at the front
             this.wisdom.t = this.formatTitle(this.wisdom.t)
             this.wisGUID = this.wisdom.guid
-            resolve()
           })
+          .then(() => {
+            this.buildContentLinks()
+          })
+          .then(() => resolve())
           .catch((err) => {
             console.debug(err.message)
           })
@@ -1674,6 +1688,45 @@ export default {
         this.renderMermaid()
       }, 0)
       this.cancelAddMedia()
+    },
+    buildContentLinks: function () {
+      if (!this.wisdom || !this.wisdom.desc) {
+        this.contentLinks = []
+        return
+      }
+      const headers = [...this.wisdom.desc.matchAll(/^#+.*/gm)]
+      if (headers.length < 1) {
+        this.contentLinks = []
+        return
+      }
+      let header
+      let headerLink
+      let headerNumber
+      const counter = new Map()
+      for (let i = 0; i < headers.length; i++) {
+        header = headers[i].toString().replace(/^#+/g, '')
+        headerLink = this.convertToLink(header)
+        if (counter.has(headerLink)) {
+          headerNumber = counter.get(headerLink)
+          counter.set(headerLink, counter.get(headerLink) + 1)
+          headerLink = `${headerLink}-${headerNumber}`
+        } else {
+          counter.set(headerLink, 1)
+        }
+        this.contentLinks.push({
+          title: header,
+          link: headerLink
+        })
+      }
+    },
+    convertToLink: function (header) {
+      if (!header || header === '') {
+        return ''
+      }
+      header = header.trim()
+      header = header.replace(/\s/g, '-')
+      header = header.toLowerCase()
+      return '#' + header
     }
   }
 }

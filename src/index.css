@@ -24,7 +24,9 @@
     .markedView a::before {
         content: "»";
         box-shadow: 0 0 0 2px rgb(24 24 27);
-        @apply bg-indigo-600 mr-1 no-underline px-1 font-bold rounded text-neutral-200 text-sm;
+        @apply mr-1 no-underline px-1 font-bold rounded text-sm
+        bg-indigo-800 hover:bg-indigo-500
+        text-neutral-300 hover:text-neutral-200;
     }
 
     .markedView img {
