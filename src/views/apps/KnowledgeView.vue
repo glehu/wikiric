@@ -662,20 +662,22 @@
             </div>
           </template>
         </div>
-        <ul class="rounded-l-xl text-neutral-300 pl-2 py-2 mt-2 dark_bg markedView
+        <ul ref="contentLinks"
+            class="rounded-l-xl text-neutral-300 pl-2 py-2 mt-2 dark_bg markedView
                    overflow-y-auto max-h-full">
           <div class="bg-zinc-900 p-1 pr-0 rounded-tl-md">
             <span class="pl-2 text-xs font-bold text-neutral-300">Contents</span>
           </div>
           <div class="border-l-4 border-l-zinc-900 h-2 w-4"></div>
           <li v-for="contentLink in contentLinks.values()" :key="contentLink"
+              :id="'link_' + contentLink.link"
               class="py-0.5 flex items-center border-l-4"
               :class="{ 'border-l-indigo-600': contentLink.active, 'border-l-zinc-900': !contentLink.active }">
             <div v-for="level in contentLink.level" :key="level"
                  class="w-4 h-1"
                  :class="{ 'bg-indigo-600': contentLink.active, 'bg-zinc-900': !contentLink.active }">
             </div>
-            <a :href="contentLink.link" class="text-neutral-200 text-sm" :id="'link_' + contentLink.link">
+            <a :href="contentLink.link" class="text-neutral-200 text-sm">
               {{ contentLink.title }}
             </a>
           </li>
@@ -1818,7 +1820,6 @@ export default {
               tmp.active = true
               this.contentLinks.set(`#${headers[i].id}`, tmp)
               document.getElementById(`link_#${headers[i].id}`).scrollIntoView({
-                behavior: 'smooth',
                 block: 'center'
               })
             }
@@ -1831,7 +1832,6 @@ export default {
               tmp.active = false
               this.contentLinks.set(`#${headers[i].id}`, tmp)
               document.getElementById(`link_#${headers[i].id}`).scrollIntoView({
-                behavior: 'smooth',
                 block: 'center'
               })
             }
