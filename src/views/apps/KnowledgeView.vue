@@ -65,7 +65,7 @@
           </template>
         </div>
       </div>
-      <div id="main"
+      <div id="main" ref="wisdom"
            class="h-full w-full flex justify-center overflow-y-auto pb-10
                   overflow-x-hidden mr-2 pr-1">
         <div class="h-fit w-full max-w-[1000px] px-3">
@@ -307,7 +307,7 @@
               </div>
             </div>
           </template>
-          <div class="medium_bg p-2 rounded-tr rounded-b">
+          <div id="wisdom_content" ref="wisdom_content" class="medium_bg p-2 rounded-tr rounded-b">
             <div class="flex">
               <template v-if="wisdom.t">
                 <Markdown class="markedView"
@@ -662,11 +662,22 @@
             </div>
           </template>
         </div>
-        <ul class="rounded-l-xl text-neutral-300 p-2 mt-2 dark_bg markedView
+        <ul class="rounded-l-xl text-neutral-300 pl-2 py-2 mt-2 dark_bg markedView
                    overflow-y-auto max-h-full">
-          <li v-for="contentLink in contentLinks" :key="contentLink"
-              class="p-0.5">
-            <a :href="contentLink.link">{{ contentLink.title }}</a>
+          <div class="bg-zinc-900 p-1 pr-0 rounded-tl-md">
+            <span class="pl-2 text-xs font-bold text-neutral-300">Contents</span>
+          </div>
+          <div class="border-l-4 border-l-zinc-900 h-2 w-4"></div>
+          <li v-for="contentLink in contentLinks.values()" :key="contentLink"
+              class="py-0.5 flex items-center border-l-4"
+              :class="{ 'border-l-indigo-600': contentLink.active, 'border-l-zinc-900': !contentLink.active }">
+            <div v-for="level in contentLink.level" :key="level"
+                 class="w-4 h-1"
+                 :class="{ 'bg-indigo-600': contentLink.active, 'bg-zinc-900': !contentLink.active }">
+            </div>
+            <a :href="contentLink.link" class="text-neutral-200 text-sm" :id="'link_' + contentLink.link">
+              {{ contentLink.title }}
+            </a>
           </li>
         </ul>
       </div>
@@ -679,7 +690,7 @@
       Edit
     </template>
     <template v-slot:body>
-      <div class="flex w-[90dvw] max-h-[90dvh] gap-x-4 px-2">
+      <div class="flex w-[95dvw] max-h-[full] gap-x-2">
         <div class="w-full md:w-1/2">
           <div class="md:hidden flex mt-2 w-full">
             <div class="mb-3 text-black font-bold bg-zinc-800 rounded p-2
@@ -790,7 +801,7 @@
             </div>
           </div>
           <div class="w-full mt-1">
-            <textarea type="text" id="wisDescription" v-model="wisDescription"
+            <textarea type="text" id="wisDescription" v-model="wisDescription" ref="wisDescription"
                       rows="20" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
           </div>
           <br>
@@ -992,7 +1003,7 @@ export default {
       wisdom: {
         type: ''
       },
-      contentLinks: [],
+      contentLinks: new Map(),
       related: {
         answers: [],
         comments: [],
@@ -1008,6 +1019,8 @@ export default {
       uploadFileName: '',
       uploadFileType: '',
       uploadFileBase64: '',
+      currentHeaders: new Map(),
+      highlightHeader: null,
       plugins: [
         {
           plugin: markdownItMermaid
@@ -1071,6 +1084,8 @@ export default {
       input.addEventListener('keydown', this.handleEnter, false)
       this.inputComment = input
       this.auto_grow()
+      // Scroll event
+      this.$refs.wisdom.onscroll = this.throttle(() => this.handleScroll())
       // Set window padding
       const mainDiv = this.$refs.knowledgeViewer
       if (mainDiv) {
@@ -1303,6 +1318,10 @@ export default {
       this.wisCopyContent = wisdom.copyContent
       this.wisGUID = wisdom.guid
       this.renderMermaid()
+      setTimeout(() => {
+        this.$refs.wisDescription.style.height = (this.$refs.wisDescription.scrollHeight) + 'px'
+        this.$refs.wisDescription.onkeyup = this.auto_grow_wisDescription
+      }, 1000)
     },
     getKnowledge: async function (sessionID) {
       return new Promise((resolve) => {
@@ -1415,6 +1434,9 @@ export default {
       this.inputComment.style.height = '36px' // Default
       this.inputComment.style.height = (this.inputComment.scrollHeight) + 'px' // Grow if scrollHeight > 0
       // this.mainContent.style.bottom = (this.inputComment.scrollHeight - 40) + 'px'
+    },
+    auto_grow_wisDescription: function () {
+      this.$refs.wisDescription.style.height = (this.$refs.wisDescription.scrollHeight) + 'px'
     },
     gotoComments: function () {
       document.getElementById('wisdomComments').scrollIntoView({ behavior: 'smooth' })
@@ -1690,20 +1712,34 @@ export default {
       this.cancelAddMedia()
     },
     buildContentLinks: function () {
+      this.contentLinks = new Map()
       if (!this.wisdom || !this.wisdom.desc) {
-        this.contentLinks = []
         return
       }
       const headers = [...this.wisdom.desc.matchAll(/^#+.*/gm)]
       if (headers.length < 1) {
-        this.contentLinks = []
         return
       }
       let header
       let headerLink
       let headerNumber
+      let linkLevel
+      // Title
+      if (this.wisdom.t && this.wisdom.t !== '') {
+        linkLevel = this.getLinkLevel(this.wisdom.t)
+        header = this.wisdom.t.replace(/^#+/g, '')
+        headerLink = this.convertToLink(header)
+        this.contentLinks.set(headerLink, {
+          title: header,
+          link: headerLink,
+          level: linkLevel,
+          active: false
+        })
+      }
+      // Description
       const counter = new Map()
       for (let i = 0; i < headers.length; i++) {
+        linkLevel = this.getLinkLevel(headers[i].toString())
         header = headers[i].toString().replace(/^#+/g, '')
         headerLink = this.convertToLink(header)
         if (counter.has(headerLink)) {
@@ -1713,9 +1749,11 @@ export default {
         } else {
           counter.set(headerLink, 1)
         }
-        this.contentLinks.push({
+        this.contentLinks.set(headerLink, {
           title: header,
-          link: headerLink
+          link: headerLink,
+          level: linkLevel,
+          active: false
         })
       }
     },
@@ -1724,9 +1762,82 @@ export default {
         return ''
       }
       header = header.trim()
-      header = header.replace(/\s/g, '-')
+      header = header.replace(/\s+/g, '-')
       header = header.toLowerCase()
+      header = encodeURIComponent(header)
       return '#' + header
+    },
+    /**
+     * Returns the link level (# lvl 0, ## lvl 1, ### lvl 2, etc.)
+     * @param {string} header
+     * @returns {Array}
+     */
+    getLinkLevel: function (header) {
+      if (!header || header === '' || typeof header !== 'string') {
+        return []
+      }
+      const length = header.length
+      const level = []
+      let levelCounter = 0
+      let sub
+      for (let i = 0; i < length; i++) {
+        sub = header.substring(i, i + 1)
+        if (sub === '#') {
+          levelCounter += 1
+          if (levelCounter > 1) {
+            level.push('-')
+          }
+        } else if (sub === ' ' || sub.match(/\w/g)) {
+          break
+        }
+      }
+      return level
+    },
+    throttle: function (callback, limit = 100) {
+      let waiting = false
+      return function () {
+        if (!waiting) {
+          callback.apply(this, arguments)
+          waiting = true
+          setTimeout(function () {
+            waiting = false
+          }, limit)
+        }
+      }
+    },
+    handleScroll: function () {
+      const headers = this.$refs.wisdom_content.querySelectorAll('h1, h2, h3, h4, h5, h6')
+      let offsetTop
+      for (let i = headers.length - 1; i >= 0; i--) {
+        offsetTop = headers[i].getBoundingClientRect().top - 80
+        if (offsetTop < 0) {
+          if (!this.currentHeaders.has(headers[i])) {
+            this.currentHeaders.set(headers[i], true)
+            const tmp = this.contentLinks.get(`#${headers[i].id}`)
+            if (tmp) {
+              tmp.active = true
+              this.contentLinks.set(`#${headers[i].id}`, tmp)
+              document.getElementById(`link_#${headers[i].id}`).scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+              })
+            }
+          }
+        } else {
+          if (this.currentHeaders.has(headers[i])) {
+            this.currentHeaders.delete(headers[i])
+            const tmp = this.contentLinks.get(`#${headers[i].id}`)
+            if (tmp) {
+              tmp.active = false
+              this.contentLinks.set(`#${headers[i].id}`, tmp)
+              document.getElementById(`link_#${headers[i].id}`).scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+              })
+            }
+          }
+        }
+      }
     }
   }
 }
