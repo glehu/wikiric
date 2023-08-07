@@ -613,6 +613,27 @@
             </template>
           </div>
         </template>
+        <template v-if="isLoading">
+          <div class="top-0 right-0 bottom-0 left-0 overflow-hidden flex items-center justify-center
+                      absolute z-50 bg-zinc-900 bg-opacity-50 transition-all">
+            <div class="bg-zinc-900 bg-opacity-60 p-2 rounded-md">
+              <div class="px-4 py-2 flex items-center">
+                <div class="rounded-full h-4 w-4 bg-zinc-600 animate-ping border-2 border-indigo-500"></div>
+                <p class="ml-6 text-neutral-200 font-bold animate-pulse">
+                  Loading Tasks ...
+                </p>
+              </div>
+              <div class="flex items-center cursor-pointer hover:medium_bg
+                          p-2 w-full mt-2 rounded"
+                   v-on:click="$router.back()">
+                <div class="text-neutral-300">
+                  <p class="text-sm">Taking too long?</p>
+                  <p>Go Back</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
   </template>
@@ -1291,7 +1312,8 @@ export default {
       titleCreation: '',
       descriptionCreation: '',
       keywordsCreation: '',
-      connector: null
+      connector: null,
+      isLoading: true
     }
   },
   computed: {
@@ -1366,11 +1388,12 @@ export default {
         }
       }
       this.toggleSidebar(true)
-      await this.getKnowledge(srcGUID)
-      await this.getBoxes()
-      if (this.knowledge.mainChatroomGUID) {
-        this.getClarifierMetaData(this.knowledge.mainChatroomGUID)
-      }
+      this.getKnowledge(srcGUID).then(() => {
+        this.getBoxes()
+        if (this.knowledge.mainChatroomGUID) {
+          this.getClarifierMetaData(this.knowledge.mainChatroomGUID)
+        }
+      })
       this.connector = new BroadcastChannel('connector')
       this.connector.onmessage = event => {
         if (event.data.type === 'planner change') {
@@ -1402,6 +1425,7 @@ export default {
       })
     },
     getBoxes: async function (silent = true, showAll = false) {
+      this.isLoading = true
       return new Promise((resolve) => {
         let suffix = ''
         const checkbox = this.$refs.input_show_unfinished
@@ -1447,6 +1471,7 @@ export default {
                   type: 'info'
                 })
             }
+            this.isLoading = false
             resolve()
           })
           .catch((err) => {
