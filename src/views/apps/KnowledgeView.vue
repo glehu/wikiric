@@ -1006,6 +1006,7 @@ export default {
         type: ''
       },
       contentLinks: new Map(),
+      currentHeaders: new Map(),
       related: {
         answers: [],
         comments: [],
@@ -1021,8 +1022,6 @@ export default {
       uploadFileName: '',
       uploadFileType: '',
       uploadFileBase64: '',
-      currentHeaders: new Map(),
-      highlightHeader: null,
       plugins: [
         {
           plugin: markdownItMermaid

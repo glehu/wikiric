@@ -35,360 +35,386 @@
       </div>
     </div>
     <template v-if="processEvents.length > 0">
-      <div class="h-[calc(100%-40px)] w-full p-2 overflow-y-auto pb-40 flex justify-center bright_bg rounded-tl-md">
-        <div class="grid grid-cols-1 gap-0 w-full">
-          <template v-for="segment in processEvents" :key="segment.event.uID">
-            <div class="flex text-sm segment">
-              <div class="h-full pr-8 relative">
-                <template v-if="segment.event.mode === 'start'">
-                  <div class="absolute rounded-r-md darkest_bg flex items-center justify-center p-1">
-                    <RocketLaunchIcon class="w-[16px] h-[16px] text-neutral-300"></RocketLaunchIcon>
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="absolute rounded-r-md darkest_bg flex items-center justify-center p-1">
-                    <BoltIcon class="w-[16px] h-[16px] text-neutral-300"></BoltIcon>
-                  </div>
-                </template>
-                <div class="absolute flex h-full items-center">
-                  <Menu as="div" class="absolute inline-block text-left">
-                    <MenuButton
-                      title="Options"
-                      class="hover:darkest_bg p-1 bg-opacity-50 text-neutral-200 rounded-full
-                             flex items-center cursor-pointer">
-                      <EllipsisVerticalIcon class="h-7 w-7 segmentSettings"></EllipsisVerticalIcon>
-                    </MenuButton>
-                    <transition
-                      enter-active-class="transition duration-100 ease-out"
-                      enter-from-class="transform scale-95 opacity-0"
-                      enter-to-class="transform scale-100 opacity-100"
-                      leave-active-class="transition duration-75 ease-in"
-                      leave-from-class="transform scale-100 opacity-100"
-                      leave-to-class="transform scale-95 opacity-0"
-                    >
-                      <MenuItems
-                        class="p_card_menu_list dark_bg w-[150px]"
-                      >
-                        <div class="px-1 py-1 w-full">
-                          <MenuItem v-slot="{ active }">
-                            <button v-on:click="deleteEvent(segment.event)"
-                                    class="flex text-neutral-300 p-2 w-full rounded"
-                                    :class="
-                                      [active ? 'medium_bg' : '']
-                                    ">
-                              <TrashIcon
-                                :active="active"
-                                class="mr-2 h-5 w-5"
-                                aria-hidden="true"
-                              />
-                              <span class="font-bold">Delete</span>
-                            </button>
-                          </MenuItem>
-                        </div>
-                        <div class="px-1 py-1 w-full" v-if="segment.task">
-                          <MenuItem v-slot="{ active }">
-                            <button v-on:click="finishEventTask(segment.task)"
-                                    class="flex text-neutral-300 p-2 w-full rounded"
-                                    :class="
-                                      [active ? 'medium_bg' : '']
-                                    ">
-                              <CheckIcon
-                                :active="active"
-                                class="mr-2 h-5 w-5"
-                                aria-hidden="true"
-                              />
-                              <span class="font-bold">Finish Task</span>
-                            </button>
-                          </MenuItem>
-                        </div>
-                      </MenuItems>
-                    </transition>
-                  </Menu>
-                </div>
-                <div class="pathIndicator"></div>
-              </div>
-              <div class="medium_bg rounded w-full mr-2">
-                <div class="w-full">
-                  <template v-if="segment.task">
-                    <template v-if="segment.task.finished">
-                      <div class="px-1 py-1 rounded-tl rounded-br bg-green-800 flex w-16 mr-2 items-center">
-                        <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
-                        <span class="text-xs font-bold text-neutral-300">Done</span>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <div class="px-1 py-1 rounded-tl rounded-br bg-red-800 flex w-16 mr-2 items-center">
-                        <Cog6ToothIcon class="h-4 w-4 mr-1 text-neutral-300"></Cog6ToothIcon>
-                        <span class="text-xs font-bold text-neutral-300">W.I.P.</span>
-                      </div>
-                    </template>
-                  </template>
-                  <template v-if="!segment.event.editingTitle">
-                    <template v-if="segment.event.t">
-                      <Markdown class="markedView w-full p-2"
-                                v-on:click="editEventTitle(segment.event)"
-                                :source="'### ' + segment.event.t"
-                                :plugins="plugins"></Markdown>
-                    </template>
-                    <template v-else>
-                      <p class="text-neutral-400 w-full p-2"
-                         v-on:click="editEventTitle(segment.event)">
-                        (No Title)
-                      </p>
-                    </template>
+      <div class="h-[calc(100%-40px)] w-full p-2 flex justify-center bright_bg rounded-tl-md">
+        <div class="h-full w-full overflow-y-auto pb-40 flex justify-center" ref="processScroller">
+          <div class="grid grid-cols-1 gap-0 w-full max-w-screen-lg">
+            <template v-for="segment in processEvents" :key="segment.event.uID">
+              <div class="flex text-sm segment">
+                <div class="h-full pr-8 relative">
+                  <template v-if="segment.event.mode === 'start'">
+                    <div class="absolute rounded-r-md darkest_bg flex items-center justify-center p-1">
+                      <RocketLaunchIcon class="w-[16px] h-[16px] text-neutral-300"></RocketLaunchIcon>
+                    </div>
                   </template>
                   <template v-else>
-                    <div class="w-full">
+                    <div class="absolute rounded-r-md darkest_bg flex items-center justify-center p-1">
+                      <BoltIcon class="w-[16px] h-[16px] text-neutral-300"></BoltIcon>
+                    </div>
+                  </template>
+                  <div class="absolute flex h-full items-center">
+                    <Menu as="div" class="absolute inline-block text-left">
+                      <MenuButton
+                        title="Options"
+                        class="hover:darkest_bg p-1 bg-opacity-50 text-neutral-200 rounded-full
+                             flex items-center cursor-pointer">
+                        <EllipsisVerticalIcon class="h-7 w-7 segmentSettings"></EllipsisVerticalIcon>
+                      </MenuButton>
+                      <transition
+                        enter-active-class="transition duration-100 ease-out"
+                        enter-from-class="transform scale-95 opacity-0"
+                        enter-to-class="transform scale-100 opacity-100"
+                        leave-active-class="transition duration-75 ease-in"
+                        leave-from-class="transform scale-100 opacity-100"
+                        leave-to-class="transform scale-95 opacity-0"
+                      >
+                        <MenuItems
+                          class="p_card_menu_list dark_bg w-[150px]"
+                        >
+                          <div class="px-1 py-1 w-full">
+                            <MenuItem v-slot="{ active }">
+                              <button v-on:click="deleteEvent(segment.event)"
+                                      class="flex text-neutral-300 p-2 w-full rounded"
+                                      :class="
+                                      [active ? 'medium_bg' : '']
+                                    ">
+                                <TrashIcon
+                                  :active="active"
+                                  class="mr-2 h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                                <span class="font-bold">Delete</span>
+                              </button>
+                            </MenuItem>
+                          </div>
+                          <div class="px-1 py-1 w-full" v-if="segment.task">
+                            <MenuItem v-slot="{ active }">
+                              <button v-on:click="finishEventTask(segment.task)"
+                                      class="flex text-neutral-300 p-2 w-full rounded"
+                                      :class="
+                                      [active ? 'medium_bg' : '']
+                                    ">
+                                <CheckIcon
+                                  :active="active"
+                                  class="mr-2 h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                                <span class="font-bold">Finish Task</span>
+                              </button>
+                            </MenuItem>
+                          </div>
+                        </MenuItems>
+                      </transition>
+                    </Menu>
+                  </div>
+                  <div class="pathIndicator"></div>
+                </div>
+                <div class="medium_bg rounded w-full mr-2">
+                  <div class="w-full">
+                    <template v-if="segment.task">
+                      <template v-if="segment.task.finished">
+                        <div class="px-1 py-1 rounded-tl rounded-br bg-green-800 flex w-16 mr-2 items-center">
+                          <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
+                          <span class="text-xs font-bold text-neutral-300">Done</span>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <div class="px-1 py-1 rounded-tl rounded-br bg-red-800 flex w-16 mr-2 items-center">
+                          <Cog6ToothIcon class="h-4 w-4 mr-1 text-neutral-300"></Cog6ToothIcon>
+                          <span class="text-xs font-bold text-neutral-300">W.I.P.</span>
+                        </div>
+                      </template>
+                    </template>
+                    <template v-if="!segment.event.editingTitle">
+                      <template v-if="segment.event.t">
+                        <Markdown class="markedView w-full p-2"
+                                  v-on:click="editEventTitle(segment.event)"
+                                  :source="'# ' + segment.event.t"
+                                  :plugins="plugins"></Markdown>
+                      </template>
+                      <template v-else>
+                        <p class="text-neutral-400 w-full p-2"
+                           v-on:click="editEventTitle(segment.event)">
+                          (No Title)
+                        </p>
+                      </template>
+                    </template>
+                    <template v-else>
+                      <div class="w-full">
                     <textarea type="text" v-model="segment.event.t"
                               :id="segment.event.guid + '_title_edit'"
                               v-on:blur="updateEvent(segment.event)"
                               rows="1"
                               class="text-lg p-2 mb-2 rounded dark_bg text-neutral-200 w-full"></textarea>
-                      <button class="editSubmit">
+                        <button class="editSubmit">
+                          Submit
+                        </button>
+                      </div>
+                    </template>
+                  </div>
+                  <template v-if="!segment.event.editingDescription">
+                    <template v-if="segment.event.desc">
+                      <Markdown class="markedView w-full h-full p-2"
+                                :source="segment.event.desc"
+                                v-on:click="editEventDescription(segment.event)"
+                                :plugins="plugins"></Markdown>
+                    </template>
+                    <template v-else>
+                      <p class="text-neutral-400 w-full h-full p-2"
+                         v-on:click="editEventDescription(segment.event)">
+                        (No Description)
+                      </p>
+                    </template>
+                  </template>
+                  <template v-else>
+                    <div class="rounded w-full">
+                      <div class="my-1 p-1">
+                        <button class="btn_small_icon text-neutral-200"
+                                v-on:click="isAddingMedia = true">
+                          <DocumentArrowUpIcon
+                            class="mr-1 h-6 w-6"
+                            aria-hidden="true"
+                          />
+                          Add File
+                        </button>
+                      </div>
+                      <textarea :id="segment.event.guid + '_description_edit'"
+                                v-model="segment.event.desc"
+                                maxlength="3000"
+                                rows="10"
+                                class="p-2 mb-2 dark_bg text-neutral-200 w-full input"></textarea>
+                      <button class="editSubmit" v-on:click="updateEvent(segment.event)">
                         Submit
                       </button>
                     </div>
                   </template>
                 </div>
-                <template v-if="!segment.event.editingDescription">
-                  <template v-if="segment.event.desc">
-                    <Markdown class="markedView w-full h-full p-2"
-                              :source="segment.event.desc"
-                              v-on:click="editEventDescription(segment.event)"
-                              :plugins="plugins"></Markdown>
-                  </template>
-                  <template v-else>
-                    <p class="text-neutral-400 w-full h-full p-2"
-                       v-on:click="editEventDescription(segment.event)">
-                      (No Description)
-                    </p>
-                  </template>
-                </template>
-                <template v-else>
-                  <div class="rounded w-full">
-                    <div class="my-1 p-1">
-                      <button class="btn_small_icon text-neutral-200"
-                              v-on:click="isAddingMedia = true">
-                        <DocumentArrowUpIcon
-                          class="mr-1 h-6 w-6"
-                          aria-hidden="true"
-                        />
-                        Add File
-                      </button>
-                    </div>
-                    <textarea :id="segment.event.guid + '_description_edit'"
-                              v-model="segment.event.desc"
-                              maxlength="3000"
-                              rows="10"
-                              class="p-2 mb-2 dark_bg text-neutral-200 w-full input"></textarea>
-                    <button class="editSubmit" v-on:click="updateEvent(segment.event)">
-                      Submit
-                    </button>
-                  </div>
-                </template>
               </div>
-            </div>
-            <div class="flex">
-              <div class="h-full relative">
-                <template v-if="segment.alternatives && segment.alternatives.length <= 0">
-                  <div class="pathIndicator"></div>
-                  <div v-on:click="writeProcess(segment.event, !segment.event.hasNext)"
-                       v-tooltip.right="{ content: 'Add' }"
-                       class="adder_button ml-8" style="border-radius: 100%; background-color: transparent;">
-                    <PlusCircleIcon class="h-6 w-6"></PlusCircleIcon>
-                  </div>
-                  <template v-if="!segment.event.hasNext">
-                    <div v-on:click="writeProcess(segment.event)"
+              <div class="flex">
+                <div class="h-full relative">
+                  <template v-if="segment.alternatives && segment.alternatives.length <= 0">
+                    <div class="pathIndicator"></div>
+                    <div v-on:click="writeProcess(segment.event, !segment.event.hasNext)"
                          v-tooltip.right="{ content: 'Add' }"
-                         class="adder_button">
+                         class="adder_button ml-8" style="border-radius: 100%; background-color: transparent;">
                       <PlusCircleIcon class="h-6 w-6"></PlusCircleIcon>
                     </div>
+                    <template v-if="!segment.event.hasNext">
+                      <div v-on:click="writeProcess(segment.event)"
+                           v-tooltip.right="{ content: 'Add' }"
+                           class="adder_button">
+                        <PlusCircleIcon class="h-6 w-6"></PlusCircleIcon>
+                      </div>
+                    </template>
                   </template>
-                </template>
-                <div class="pathIndicator"></div>
-              </div>
-              <template v-if="segment.alternatives && segment.alternatives.length > 0 || drag">
-                <div class="w-full h-fit ml-8 my-2 grid grid-cols-1"
-                     :id="'box_events_guid_' + segment.event.guid"
-                     :ref="'box_events_guid_' + segment.event.guid">
-                  <draggable
-                    :list="segment.alternatives"
-                    :group="segment.event.guid"
-                    :id="segment.event.guid"
-                    v-bind="dragOptions"
-                    :disabled="this.isEditingProcess"
-                    @start="drag=true"
-                    @end="endDrag"
-                    @change="handleDragChange"
-                    @move="handleDragMove"
-                    ghostClass="ghost"
-                    tag="transition-group"
-                    fallbackTolerance="5"
-                    forceFallback="true"
-                    fallbackClass="chosen"
-                    :component-data="{
+                  <div class="pathIndicator"></div>
+                </div>
+                <template v-if="segment.alternatives && segment.alternatives.length > 0 || drag">
+                  <div class="w-full h-fit ml-8 my-2 grid grid-cols-1"
+                       :id="'box_events_guid_' + segment.event.guid"
+                       :ref="'box_events_guid_' + segment.event.guid">
+                    <draggable
+                      :list="segment.alternatives"
+                      :group="segment.event.guid"
+                      :id="segment.event.guid"
+                      v-bind="dragOptions"
+                      :disabled="this.isEditingProcess"
+                      @start="drag=true"
+                      @end="endDrag"
+                      @change="handleDragChange"
+                      @move="handleDragMove"
+                      ghostClass="ghost"
+                      tag="transition-group"
+                      fallbackTolerance="5"
+                      forceFallback="true"
+                      fallbackClass="chosen"
+                      :component-data="{
                         tag: 'div',
                         type: 'transition-group',
                         name: !drag ? 'flip-list' : null
                       }"
-                    item-key="order">
-                    <template #item="{element}">
-                      <div class="flex text-sm w-full segment relative" :key="element.event.guid">
-                        <div class="h-full pr-8">
-                          <div class="relative rounded-r-md darkest_bg flex items-center justify-center p-1">
-                            <BoltIcon class="w-[16px] h-[16px] text-neutral-300"></BoltIcon>
-                          </div>
-                          <div class="relative flex h-full items-center">
-                            <Menu as="div" class="absolute inline-block text-left mt-8">
-                              <MenuButton
-                                title="Options"
-                                class="hover:darkest_bg p-1 bg-opacity-50 text-neutral-200 rounded-full
+                      item-key="order">
+                      <template #item="{element}">
+                        <div class="flex text-sm w-full segment relative" :key="element.event.guid">
+                          <div class="h-full pr-8">
+                            <div class="relative rounded-r-md darkest_bg flex items-center justify-center p-1">
+                              <BoltIcon class="w-[16px] h-[16px] text-neutral-300"></BoltIcon>
+                            </div>
+                            <div class="relative flex h-full items-center">
+                              <Menu as="div" class="absolute inline-block text-left mt-8">
+                                <MenuButton
+                                  title="Options"
+                                  class="hover:darkest_bg p-1 bg-opacity-50 text-neutral-200 rounded-full
                                        flex items-center cursor-pointer">
-                                <EllipsisVerticalIcon class="h-7 w-7 segmentSettings"></EllipsisVerticalIcon>
-                              </MenuButton>
-                              <transition
-                                enter-active-class="transition duration-100 ease-out"
-                                enter-from-class="transform scale-95 opacity-0"
-                                enter-to-class="transform scale-100 opacity-100"
-                                leave-active-class="transition duration-75 ease-in"
-                                leave-from-class="transform scale-100 opacity-100"
-                                leave-to-class="transform scale-95 opacity-0"
-                              >
-                                <MenuItems
-                                  class="p_card_menu_list dark_bg w-[150px] drop-shadow-2xl"
+                                  <EllipsisVerticalIcon class="h-7 w-7 segmentSettings"></EllipsisVerticalIcon>
+                                </MenuButton>
+                                <transition
+                                  enter-active-class="transition duration-100 ease-out"
+                                  enter-from-class="transform scale-95 opacity-0"
+                                  enter-to-class="transform scale-100 opacity-100"
+                                  leave-active-class="transition duration-75 ease-in"
+                                  leave-from-class="transform scale-100 opacity-100"
+                                  leave-to-class="transform scale-95 opacity-0"
                                 >
-                                  <div class="px-1 py-1 w-full">
-                                    <MenuItem v-slot="{ active }">
-                                      <button v-on:click="deleteEvent(element.event)"
-                                              class="flex text-neutral-300 p-2 w-full rounded"
-                                              :class="
+                                  <MenuItems
+                                    class="p_card_menu_list dark_bg w-[150px] drop-shadow-2xl"
+                                  >
+                                    <div class="px-1 py-1 w-full">
+                                      <MenuItem v-slot="{ active }">
+                                        <button v-on:click="deleteEvent(element.event)"
+                                                class="flex text-neutral-300 p-2 w-full rounded"
+                                                :class="
                                       [active ? 'medium_bg' : '']
                                     ">
-                                        <TrashIcon
-                                          :active="active"
-                                          class="mr-2 h-5 w-5"
-                                          aria-hidden="true"
-                                        />
-                                        <span class="font-bold">Delete</span>
-                                      </button>
-                                    </MenuItem>
-                                  </div>
-                                  <div class="px-1 py-1 w-full" v-if="element.task">
-                                    <MenuItem v-slot="{ active }">
-                                      <button v-on:click="finishEventTask(element.task)"
-                                              class="flex text-neutral-300 p-2 w-full rounded"
-                                              :class="
+                                          <TrashIcon
+                                            :active="active"
+                                            class="mr-2 h-5 w-5"
+                                            aria-hidden="true"
+                                          />
+                                          <span class="font-bold">Delete</span>
+                                        </button>
+                                      </MenuItem>
+                                    </div>
+                                    <div class="px-1 py-1 w-full" v-if="element.task">
+                                      <MenuItem v-slot="{ active }">
+                                        <button v-on:click="finishEventTask(element.task)"
+                                                class="flex text-neutral-300 p-2 w-full rounded"
+                                                :class="
                                       [active ? 'medium_bg' : '']
                                     ">
-                                        <CheckIcon
-                                          :active="active"
-                                          class="mr-2 h-5 w-5"
-                                          aria-hidden="true"
-                                        />
-                                        <span class="font-bold">Finish Task</span>
-                                      </button>
-                                    </MenuItem>
-                                  </div>
-                                </MenuItems>
-                              </transition>
-                            </Menu>
+                                          <CheckIcon
+                                            :active="active"
+                                            class="mr-2 h-5 w-5"
+                                            aria-hidden="true"
+                                          />
+                                          <span class="font-bold">Finish Task</span>
+                                        </button>
+                                      </MenuItem>
+                                    </div>
+                                  </MenuItems>
+                                </transition>
+                              </Menu>
+                            </div>
+                            <div class="pathIndicator"></div>
                           </div>
-                          <div class="pathIndicator"></div>
-                        </div>
-                        <div class="medium_bg rounded w-full mr-2 mb-2 overflow-hidden">
-                          <div class="w-full">
-                            <template v-if="element.task">
-                              <template v-if="element.task.finished">
-                                <div class="px-1 py-1 rounded-tl rounded-br bg-green-800 flex w-16 mr-2 items-center">
-                                  <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
-                                  <span class="text-xs font-bold text-neutral-300">Done</span>
-                                </div>
+                          <div class="medium_bg rounded w-full mr-2 mb-2 overflow-hidden">
+                            <div class="w-full">
+                              <template v-if="element.task">
+                                <template v-if="element.task.finished">
+                                  <div class="px-1 py-1 rounded-tl rounded-br bg-green-800 flex w-16 mr-2 items-center">
+                                    <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
+                                    <span class="text-xs font-bold text-neutral-300">Done</span>
+                                  </div>
+                                </template>
+                                <template v-else>
+                                  <div class="px-1 py-1 rounded-tl rounded-br bg-red-800 flex w-16 mr-2 items-center">
+                                    <Cog6ToothIcon class="h-4 w-4 mr-1 text-neutral-300"></Cog6ToothIcon>
+                                    <span class="text-xs font-bold text-neutral-300">W.I.P.</span>
+                                  </div>
+                                </template>
+                              </template>
+                              <template v-if="!element.event.editingTitle">
+                                <template v-if="element.event.t">
+                                  <Markdown class="markedView w-full p-2 break-words"
+                                            v-on:click="editEventTitle(element.event)"
+                                            :source="'## ' + element.event.t"
+                                            :plugins="plugins"></Markdown>
+                                </template>
+                                <template v-else>
+                                  <p class="text-neutral-400 w-full p-2"
+                                     v-on:click="editEventTitle(element.event)">
+                                    (No Title)
+                                  </p>
+                                </template>
                               </template>
                               <template v-else>
-                                <div class="px-1 py-1 rounded-tl rounded-br bg-red-800 flex w-16 mr-2 items-center">
-                                  <Cog6ToothIcon class="h-4 w-4 mr-1 text-neutral-300"></Cog6ToothIcon>
-                                  <span class="text-xs font-bold text-neutral-300">W.I.P.</span>
-                                </div>
-                              </template>
-                            </template>
-                            <template v-if="!element.event.editingTitle">
-                              <template v-if="element.event.t">
-                                <Markdown class="markedView w-full p-2 break-words"
-                                          v-on:click="editEventTitle(element.event)"
-                                          :source="'### ' + element.event.t"
-                                          :plugins="plugins"></Markdown>
-                              </template>
-                              <template v-else>
-                                <p class="text-neutral-400 w-full p-2"
-                                   v-on:click="editEventTitle(element.event)">
-                                  (No Title)
-                                </p>
-                              </template>
-                            </template>
-                            <template v-else>
                             <textarea type="text" v-model="element.event.t"
                                       :id="element.event.guid + '_title_edit'"
                                       v-on:blur="updateEvent(element.event)"
                                       rows="1"
                                       class="text-lg p-2 mb-2 rounded dark_bg text-neutral-200 w-full"></textarea>
-                              <button
-                                class="editSubmit">
-                                Submit
-                              </button>
-                            </template>
-                          </div>
-                          <template v-if="!element.event.editingDescription">
-                            <template v-if="element.event.desc">
-                              <Markdown class="markedView w-full p-2 break-words"
-                                        :source="element.event.desc"
-                                        v-on:click="editEventDescription(element.event)"
-                                        :plugins="plugins"></Markdown>
+                                <button
+                                  class="editSubmit">
+                                  Submit
+                                </button>
+                              </template>
+                            </div>
+                            <template v-if="!element.event.editingDescription">
+                              <template v-if="element.event.desc">
+                                <Markdown class="markedView w-full p-2 break-words"
+                                          :source="element.event.desc"
+                                          v-on:click="editEventDescription(element.event)"
+                                          :plugins="plugins"></Markdown>
+                              </template>
+                              <template v-else>
+                                <p class="text-neutral-400 w-full p-2"
+                                   v-on:click="editEventDescription(element.event)">
+                                  (No Description)
+                                </p>
+                              </template>
                             </template>
                             <template v-else>
-                              <p class="text-neutral-400 w-full p-2"
-                                 v-on:click="editEventDescription(element.event)">
-                                (No Description)
-                              </p>
-                            </template>
-                          </template>
-                          <template v-else>
-                            <div class="rounded w-full">
-                              <div class="my-1 p-1">
-                                <button class="btn_small_icon text-neutral-300"
-                                        v-on:click="isAddingMedia = true">
-                                  <DocumentArrowUpIcon
-                                    class="mr-3 h-6 w-6"
-                                    aria-hidden="true"
-                                  />
-                                  Add File
+                              <div class="rounded w-full">
+                                <div class="my-1 p-1">
+                                  <button class="btn_small_icon text-neutral-300"
+                                          v-on:click="isAddingMedia = true">
+                                    <DocumentArrowUpIcon
+                                      class="mr-3 h-6 w-6"
+                                      aria-hidden="true"
+                                    />
+                                    Add File
+                                  </button>
+                                </div>
+                                <textarea :id="element.event.guid + '_description_edit'"
+                                          v-model="element.event.desc"
+                                          maxlength="3000"
+                                          rows="10"
+                                          class="p-2 mb-2 dark_bg text-neutral-200 w-full input"></textarea>
+                                <button v-on:click="updateEvent(element.event)"
+                                        class="editSubmit">
+                                  Submit
                                 </button>
                               </div>
-                              <textarea :id="element.event.guid + '_description_edit'"
-                                        v-model="element.event.desc"
-                                        maxlength="3000"
-                                        rows="10"
-                                        class="p-2 mb-2 dark_bg text-neutral-200 w-full input"></textarea>
-                              <button v-on:click="updateEvent(element.event)"
-                                      class="editSubmit">
-                                Submit
-                              </button>
-                            </div>
-                          </template>
+                            </template>
+                          </div>
                         </div>
+                      </template>
+                    </draggable>
+                    <div class="h-full relative">
+                      <div v-on:click="writeProcess(segment.event)"
+                           v-tooltip.right="{ content: 'Add' }"
+                           class="adder_button">
+                        <PlusCircleIcon class="h-6 w-6"></PlusCircleIcon>
                       </div>
-                    </template>
-                  </draggable>
-                  <div class="h-full relative">
-                    <div v-on:click="writeProcess(segment.event)"
-                         v-tooltip.right="{ content: 'Add' }"
-                         class="adder_button">
-                      <PlusCircleIcon class="h-6 w-6"></PlusCircleIcon>
                     </div>
                   </div>
-                </div>
-              </template>
+                </template>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div id="rightbar"
+             class="max-h-[calc(100%-30px)] w-[350px] hidden xl:flex xl:flex-col
+                    overflow-hidden rounded-b-xl">
+          <ul ref="contentLinks"
+              class="rounded text-neutral-300 pl-2 py-2 dark_bg markedView
+                     overflow-y-auto h-fit max-h-full w-full max-w-[350px]">
+            <div class="bg-zinc-900 p-1 pr-0 rounded-tl-md">
+              <span class="pl-2 text-xs font-bold text-neutral-300">Contents</span>
             </div>
-          </template>
+            <div class="border-l-4 border-l-zinc-900 h-2 w-4"></div>
+            <li v-for="contentLink in contentLinks.values()" :key="contentLink"
+                :id="'link_' + contentLink.link"
+                class="py-0.5 flex items-center border-l-4"
+                :class="{ 'border-l-indigo-600': contentLink.active, 'border-l-zinc-900': !contentLink.active }">
+              <div v-for="level in contentLink.level" :key="level"
+                   class="w-4 h-1"
+                   :class="{ 'bg-indigo-600': contentLink.active, 'bg-zinc-900': !contentLink.active }">
+              </div>
+              <a :href="contentLink.link" class="text-neutral-200 text-sm">
+                {{ contentLink.title }}
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
     </template>
@@ -610,6 +636,8 @@ export default {
       writingSource: {
         guid: ''
       },
+      contentLinks: new Map(),
+      currentHeaders: new Map(),
       plugins: [
         {
           plugin: markdownItMermaid
@@ -659,6 +687,7 @@ export default {
       }
       this.renderMermaidInit()
       await this.getProcessInformation()
+      this.$refs.processScroller.onscroll = this.throttle(() => this.handleScroll())
     },
     getKnowledge: async function (guid, from = 'clarifier') {
       if (!guid || !from) return
@@ -701,12 +730,21 @@ export default {
         })
           .then((data) => {
             if (srcguidOverride === '') {
+              this.contentLinks = new Map()
               if (data.result.path) this.processEvents = data.result.path
               if (this.processEvents.length > 0) {
                 this.docExists = this.processEvents[0].event.wisdomUID !== -1
               }
+              let elem
               for (let i = 0; i < this.processEvents.length; i++) {
                 this.processEvents[i].event.hasNext = ((i + 1) < this.processEvents.length)
+                elem = this.processEvents[i]
+                this.buildContentLinks(elem.event, false)
+                if (elem.alternatives && elem.alternatives.length > 0) {
+                  for (let j = 0; j < elem.alternatives.length; j++) {
+                    this.buildContentLinks(elem.alternatives[j].event, false)
+                  }
+                }
               }
             }
             resolve(data.result)
@@ -1147,6 +1185,133 @@ export default {
         this.renderMermaid()
       }, 0)
       this.cancelAddMedia()
+    },
+    buildContentLinks: function (process, reset = true) {
+      if (reset) {
+        this.contentLinks = new Map()
+      }
+      if (!process) {
+        return
+      }
+      let header
+      let headerLink
+      let headerNumber
+      let linkLevel
+      // Title
+      if (process.t && process.t !== '') {
+        linkLevel = this.getLinkLevel(process.t)
+        header = process.t.replace(/^#+/g, '')
+        headerLink = this.convertToLink(header)
+        this.contentLinks.set(headerLink, {
+          title: header,
+          link: headerLink,
+          level: linkLevel,
+          active: false
+        })
+      }
+      // Description
+      const headers = [...process.desc.matchAll(/^#+.*/gm)]
+      if (headers.length > 0) {
+        const counter = new Map()
+        for (let i = 0; i < headers.length; i++) {
+          linkLevel = this.getLinkLevel(headers[i].toString())
+          header = headers[i].toString().replace(/^#+/g, '')
+          headerLink = this.convertToLink(header)
+          if (counter.has(headerLink)) {
+            headerNumber = counter.get(headerLink)
+            counter.set(headerLink, counter.get(headerLink) + 1)
+            headerLink = `${headerLink}-${headerNumber}`
+          } else {
+            counter.set(headerLink, 1)
+          }
+          this.contentLinks.set(headerLink, {
+            title: header,
+            link: headerLink,
+            level: linkLevel,
+            active: false
+          })
+        }
+      }
+    },
+    convertToLink: function (header) {
+      if (!header || header === '') {
+        return ''
+      }
+      header = header.trim()
+      header = header.replace(/\s+/g, '-')
+      header = header.toLowerCase()
+      header = encodeURIComponent(header)
+      return '#' + header
+    },
+    /**
+     * Returns the link level (# lvl 0, ## lvl 1, ### lvl 2, etc.)
+     * @param {string} header
+     * @returns {Array}
+     */
+    getLinkLevel: function (header) {
+      if (!header || header === '' || typeof header !== 'string') {
+        return []
+      }
+      const length = header.length
+      const level = []
+      let levelCounter = 0
+      let sub
+      for (let i = 0; i < length; i++) {
+        sub = header.substring(i, i + 1)
+        if (sub === '#') {
+          levelCounter += 1
+          if (levelCounter > 1) {
+            level.push('-')
+          }
+        } else if (sub === ' ' || sub.match(/\w/g)) {
+          break
+        }
+      }
+      return level
+    },
+    throttle: function (callback, limit = 100) {
+      let waiting = false
+      return function () {
+        if (!waiting) {
+          callback.apply(this, arguments)
+          waiting = true
+          setTimeout(function () {
+            waiting = false
+          }, limit)
+        }
+      }
+    },
+    handleScroll: function () {
+      const headers = this.$refs.processScroller.querySelectorAll('h1, h2, h3, h4, h5, h6')
+      let offsetTop
+      for (let i = headers.length - 1; i >= 0; i--) {
+        offsetTop = headers[i].getBoundingClientRect().top - 80
+        if (offsetTop < 0) {
+          if (!this.currentHeaders.has(headers[i])) {
+            this.currentHeaders.set(headers[i], true)
+            const tmp = this.contentLinks.get(`#${headers[i].id}`)
+            if (tmp) {
+              tmp.active = true
+              this.contentLinks.set(`#${headers[i].id}`, tmp)
+              document.getElementById(`link_#${headers[i].id}`).scrollIntoView({
+                block: 'center'
+              })
+            }
+          }
+        } else {
+          if (this.currentHeaders.has(headers[i])) {
+            this.currentHeaders.delete(headers[i])
+            const tmp = this.contentLinks.get(`#${headers[i].id}`)
+            if (tmp) {
+              tmp.active = false
+              this.contentLinks.set(`#${headers[i].id}`, tmp)
+              document.getElementById(`link_#${headers[i].id}`).scrollIntoView({
+                block: 'center'
+              })
+            }
+          }
+        }
+      }
     }
   }
 }
