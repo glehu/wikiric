@@ -1,12 +1,13 @@
 <template>
   <div id="knowledgeFinder"
-       class="bright_bg w-full h-full relative overflow-hidden rounded-tr-lg">
+       class="bright_bg w-full h-full relative overflow-hidden"
+       :class="{'rounded-tl': isoverlay, 'rounded-tr': !isoverlay}">
     <template v-if="knowledgeExists">
       <div class="h-full w-full overflow-y-auto">
         <template v-if="!isViewingWisdom && !isViewingProcess">
           <div class="lg:flex w-full h-fit lg:h-full lg:gap-x-3 p-3">
             <div id="knowledgeFinder_sidebar"
-                 class="h-full rounded-lg overflow-hidden medium_bg
+                 class="h-full rounded-md overflow-hidden medium_bg
                         lg:w-[clamp(450px,33%,550px)]">
               <div class="h-full relative">
                 <div class="py-1">

@@ -1,6 +1,7 @@
 <template>
   <div id="processViewer" ref="processViewer"
-       class="medium_bg w-full h-full relative overflow-hidden rounded-tr-lg">
+       class="medium_bg w-full h-full relative overflow-hidden"
+       :class="{'rounded-tl': isoverlay, 'rounded-tr': !isoverlay}">
     <div class="text-neutral-300 w-full min-h-[50px] max-h-[50px] px-2 flex items-center medium_bg
                 divide-x-2 divide-neutral-600">
       <div class="sidebar_button bright_bg rounded-xl w-fit mr-2">
@@ -35,7 +36,7 @@
       </div>
     </div>
     <template v-if="processEvents.length > 0">
-      <div class="h-[calc(100%-40px)] w-full p-2 flex justify-center bright_bg rounded-tl-md">
+      <div class="h-[calc(100%-40px)] w-full p-2 flex justify-center bright_bg">
         <div class="h-full w-full overflow-y-auto pb-40 flex justify-center" ref="processScroller">
           <div class="grid grid-cols-1 gap-0 w-full max-w-screen-lg">
             <template v-for="segment in processEvents" :key="segment.event.uID">
@@ -393,22 +394,22 @@
           </div>
         </div>
         <div id="rightbar"
-             class="max-h-[calc(100%-30px)] w-[350px] hidden xl:flex xl:flex-col
+             class="max-h-[calc(100%-30px)] w-[350px] hidden lg:flex lg:flex-col
                     overflow-hidden rounded-b-xl">
           <ul ref="contentLinks"
-              class="rounded text-neutral-300 pl-2 py-2 dark_bg markedView
+              class="rounded text-neutral-300 pl-2 py-2 medium_bg markedView
                      overflow-y-auto h-fit max-h-full w-full max-w-[350px]">
             <div class="bg-zinc-900 p-1 pr-0 rounded-tl-md">
               <span class="pl-2 text-xs font-bold text-neutral-300">Contents</span>
             </div>
-            <div class="border-l-4 border-l-zinc-900 h-2 w-4"></div>
+            <div class="border-l-8 border-l-zinc-900 h-2 w-4"></div>
             <li v-for="contentLink in contentLinks.values()" :key="contentLink"
                 :id="'link_' + contentLink.link"
-                class="py-0.5 flex items-center border-l-4"
-                :class="{ 'border-l-indigo-600': contentLink.active, 'border-l-zinc-900': !contentLink.active }">
+                class="py-0.5 flex items-center border-l-8"
+                :class="{ 'border-l-indigo-900': contentLink.active, 'border-l-zinc-900': !contentLink.active }">
               <div v-for="level in contentLink.level" :key="level"
-                   class="w-4 h-1"
-                   :class="{ 'bg-indigo-600': contentLink.active, 'bg-zinc-900': !contentLink.active }">
+                   class="w-4 h-2"
+                   :class="{ 'bg-indigo-900': contentLink.active, 'bg-zinc-900': !contentLink.active }">
               </div>
               <a :href="contentLink.link" class="text-neutral-200 text-sm">
                 {{ contentLink.title }}
@@ -1285,7 +1286,7 @@ export default {
       const headers = this.$refs.processScroller.querySelectorAll('h1, h2, h3, h4, h5, h6')
       let offsetTop
       for (let i = headers.length - 1; i >= 0; i--) {
-        offsetTop = headers[i].getBoundingClientRect().top - 80
+        offsetTop = headers[i].getBoundingClientRect().top - 120
         if (offsetTop < 0) {
           if (!this.currentHeaders.has(headers[i])) {
             this.currentHeaders.set(headers[i], true)
