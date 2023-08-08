@@ -132,7 +132,7 @@
                   </template>
                   <template v-if="this.chatroom.rank > 2">
                     <div class="subchat w-full flex items-center">
-                      <div v-on:click="setOverlay('knowledgefinder')" class="w-full flex items-center">
+                      <div v-on:click="setOverlay(1)" class="w-full flex items-center">
                         <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
                         <span class="relative left-[20px]">Knowledge</span>
                       </div>
@@ -208,7 +208,7 @@
       <div id="clarifier_chatroom" ref="clarifier_chatroom"
            class="clarifier_chatroom flex overflow-clip mt-[55px]"
            v-on:click="closeModals()">
-        <template v-if="overlayType === 'msg'">
+        <template v-if="overlayType === 0">
           <div id="chat_section" ref="chat_section"
                class="chat_section">
             <div class="w-full h-full">
@@ -905,7 +905,7 @@
                 </template>
               </div>
               <div id="input_container" ref="input_container"
-                   class="bright_bg input_section" v-if="overlayType === 'msg'">
+                   class="bright_bg input_section" v-if="overlayType === 0">
                 <div class="absolute w-full h-fit flex-col-reverse flex">
                   <button class="c_lightgray text-center scroll_to_bottom orange-hover"
                           id="scroll_to_bottom"
@@ -1303,11 +1303,11 @@
             </div>
           </template>
         </template>
-        <template v-else-if="overlayType === 'knowledgefinder'"
+        <template v-else-if="overlayType === 1"
                   class="h-[calc(100%-55px)] w-full translate-y-[55px] overflow-clip
                          darkest_bg lg:rounded-xl sm:border-[1px] sm:border-[rgba(174,174,183,0.25)]">
           <knowledgefinder :isoverlay="true" :srcguid="getSession()"
-                           @close="setOverlay('msg'); prepareInputField()"/>
+                           @close="setOverlay(0); prepareInputField()"/>
         </template>
       </div>
       <div id="member_section" style="margin-top: 55px"
@@ -1711,7 +1711,7 @@ export default {
       isViewingFiles: false,
       isViewingImage: false,
       // Etc
-      overlayType: 'msg',
+      overlayType: 0,
       lastKeyPressed: '',
       viewedUserProfile: {
         id: -1,
@@ -1792,9 +1792,9 @@ export default {
     initFunction: async function () {
       this.$store.commit('setLastClarifierGUID', this.$route.params.id)
       // this.toggleElement('init_loading', 'flex')
-      window.addEventListener('resize', this.resizeCanvas, false)
+      window.onresize = this.resizeCanvas
       this.resizeCanvas()
-      document.addEventListener('keydown', this.handleGlobalKeyEvents, false)
+      document.onkeydown = this.handleGlobalKeyEvents
       // Set message section with its scroll event
       this.$refs.messages_section.onscroll = this.checkScroll
       // Broadcast channels to listen to firebase cloud messaging notifications
@@ -3180,7 +3180,9 @@ export default {
     },
     handleSidebarToggle: function (element, setSidebarVariable = false, elementOnly = false) {
       if (element.classList.contains('active')) {
-        if (window.innerWidth >= 1025 && !elementOnly) this.showSidebar2()
+        if (window.innerWidth >= 1025 && !elementOnly) {
+          this.showSidebar2()
+        }
         element.classList.remove('active')
         if (setSidebarVariable) this.sidebar.active = false
         return false
@@ -3202,8 +3204,9 @@ export default {
       this.$refs.messages_section.style.bottom = (this.inputField.scrollHeight - 40) + 'px'
     },
     resizeCanvas: function () {
-      if (this.overlayType !== 'msg') return
+      if (this.overlayType !== 0) return
       if (window.innerWidth >= 1025) {
+        console.log('overlay currently set to:', this.overlayType)
         this.hideSidebar()
         this.showSidebar2()
         this.showMemberSidebar()
@@ -3791,8 +3794,7 @@ export default {
       this.last_message = {}
       this.userActivity = []
       this.userActivityIdle = []
-      this.overlayType = 'msg'
-      this.setOverlay('msg')
+      this.setOverlay(0)
     },
     uploadSnippet: function () {
       this.toggleElement('confirm_snippet_loading', 'flex')
@@ -4920,20 +4922,18 @@ export default {
         })
     },
     setOverlay: function (type) {
-      this.hideAllWindows()
-      this.hideAllSidebars(true)
-      if (this.overlayType === type) {
-        this.overlayType = 'msg'
-      } else {
-        this.overlayType = type
-      }
-      if (this.overlayType === 'msg') {
-        this.prepareInputField()
-        if (window.innerWidth >= 1025) {
-          this.showSidebar2()
-          this.showMemberSidebar()
+      this.overlayType = type
+      setTimeout(() => {
+        this.hideAllWindows()
+        this.hideAllSidebars(true)
+        if (this.overlayType === 0) {
+          window.onresize = this.resizeCanvas
+          this.prepareInputField()
+          this.resizeCanvas()
+        } else {
+          window.onresize = null
         }
-      }
+      }, 0)
     },
     gotoDirectMessages: async function (username) {
       this.hideAllWindows()
