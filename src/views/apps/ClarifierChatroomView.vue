@@ -185,7 +185,7 @@
                 </div>
                 <template v-if="subchat._subMembers">
                   <div v-for="subMember in subchat._subMembers" :key="subMember"
-                       class="flex items-center pl-3.5 ml-3.5 border-l-[4px] border-neutral-900">
+                       class="flex items-center pl-3.5 ml-3.5 border-l-[4px] border-zinc-500">
                     <div class="text-sm pt-1">{{ subMember.usr }}</div>
                   </div>
                 </template>

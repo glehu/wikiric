@@ -632,13 +632,13 @@
       <div id="rightbar"
            class="max-h-[calc(100%-30px)] w-[350px] hidden xl:flex xl:flex-col
                   overflow-hidden rounded-b-xl">
-        <div class="rounded-l-xl text-neutral-300 p-2 mt-2 dark_bg">
+        <div class="rounded-l-xl text-neutral-300 p-2 mt-2 medium_bg">
           <div class="border-none mb-2 pointer-events-none">
-            <div class="text-neutral-400 text-xs pr-2 font-bold">Author</div>
+            <div class="text-neutral-300 text-xs pr-2 font-bold">Author</div>
             <div class="text-sm mb-2">{{ wisdom.author }}</div>
-            <div class="text-neutral-400 text-xs pr-2 font-bold">Source</div>
+            <div class="text-neutral-300 text-xs pr-2 font-bold">Source</div>
             <div class="text-sm mb-2">{{ knowledge.t }}</div>
-            <div class="text-neutral-400 text-xs pr-2 font-bold">Date</div>
+            <div class="text-neutral-300 text-xs pr-2 font-bold">Date</div>
             <div class="text-sm">{{ getHumanReadableDateText(wisdom.cdate, true, true) }}</div>
           </div>
           <template v-if="!$store.getters.hasSeenWisdomTutorial()">
@@ -663,24 +663,28 @@
           </template>
         </div>
         <ul ref="contentLinks"
-            class="rounded-l-xl text-neutral-300 pl-2 py-2 mt-2 medium_bg markedView
+            class="rounded-l-xl text-neutral-300 pl-2 py-2 mt-2 medium_bg
                      overflow-y-auto h-fit max-h-full w-full max-w-[350px]">
-          <div class="bg-zinc-900 p-1 pr-0 rounded-tl-md">
+          <div class="dark_bg p-1 pr-0 rounded-tl-md">
             <span class="pl-2 text-xs font-bold text-neutral-300">Contents</span>
           </div>
-          <div class="border-l-8 border-l-zinc-900 h-2 w-4"></div>
+          <div class="border-l-4 border-l-indigo-800 h-2 w-4"></div>
           <li v-for="contentLink in contentLinks.values()" :key="contentLink"
               :id="'link_' + contentLink.link"
-              class="py-0.5 flex items-center border-l-8"
-              :class="{ 'border-l-indigo-900': contentLink.active, 'border-l-zinc-900': !contentLink.active }">
+              class="flex items-center border-l-4 pl-1"
+              :class="{ 'border-l-indigo-800': contentLink.active, 'border-l-zinc-800': !contentLink.active }">
             <div v-for="level in contentLink.level" :key="level"
-                 class="w-4 h-2"
-                 :class="{ 'bg-indigo-900': contentLink.active, 'bg-zinc-900': !contentLink.active }">
+                 class="min-w-[1.5rem] h-full flex items-start justify-center">
+              <div v-if="level === '|'"
+                   class="h-1 w-1 rounded-full dark_bg"></div>
             </div>
-            <a :href="contentLink.link" class="text-neutral-200 text-sm">
+            <a :href="contentLink.link"
+               class="text-neutral-300 text-sm py-0.5 px-1 rounded
+                      hover:bg-indigo-800 border-[2px] border-transparent hover:border-indigo-600">
               {{ contentLink.title }}
             </a>
           </li>
+          <div class="border-l-4 border-l-zinc-800 h-1 w-1 rounded-b-full"></div>
         </ul>
       </div>
     </div>
@@ -1731,7 +1735,7 @@ export default {
         header = this.wisdom.t.replace(/^#+/g, '')
         headerLink = this.convertToLink(header)
         this.contentLinks.set(headerLink, {
-          title: header,
+          title: header.trim(),
           link: headerLink,
           level: linkLevel,
           active: false
@@ -1751,7 +1755,7 @@ export default {
           counter.set(headerLink, 1)
         }
         this.contentLinks.set(headerLink, {
-          title: header,
+          title: header.trim(),
           link: headerLink,
           level: linkLevel,
           active: false
@@ -1786,11 +1790,14 @@ export default {
         if (sub === '#') {
           levelCounter += 1
           if (levelCounter > 1) {
-            level.push('-')
+            level.push(' ')
           }
         } else if (sub === ' ' || sub.match(/\w/g)) {
           break
         }
+      }
+      if (level.length > 0) {
+        level[level.length - 1] = '|'
       }
       return level
     },

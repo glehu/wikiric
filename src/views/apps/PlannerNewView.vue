@@ -47,7 +47,7 @@
             </div>
           </div>
           <div class="flex items-center cursor-pointer hover:dark_bg p-2 rounded-md"
-               v-on:click="getBoxes(false)">
+               v-on:click="getBoxes()">
             <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
               <ArrowPathIcon class="h-6 w-6"></ArrowPathIcon>
             </div>
@@ -85,7 +85,7 @@
           </div>
           <div class="pl-4 ml-4 border-l-[2px] border-l-neutral-500"></div>
           <div class="flex items-center cursor-pointer hover:dark_bg rounded-md p-2"
-               v-on:click="getBoxes(true, true)">
+               v-on:click="getBoxes(false, true)">
             <input type="checkbox" id="input_show_unfinished" ref="input_show_unfinished" class="mr-2 cursor-pointer">
             <label for="input_show_unfinished" class="font-bold text-neutral-300 cursor-pointer">Show All</label>
           </div>
@@ -613,27 +613,27 @@
             </template>
           </div>
         </template>
-        <template v-if="isLoading">
-          <div class="top-0 right-0 bottom-0 left-0 overflow-hidden flex items-center justify-center
-                      absolute z-50 bg-zinc-900 bg-opacity-50 transition-all">
-            <div class="bg-zinc-900 bg-opacity-60 p-2 rounded-md">
-              <div class="px-4 py-2 flex items-center">
-                <div class="rounded-full h-4 w-4 bg-zinc-600 animate-ping border-2 border-indigo-500"></div>
-                <p class="ml-6 text-neutral-200 font-bold animate-pulse">
-                  Loading Tasks ...
-                </p>
-              </div>
-              <div class="flex items-center cursor-pointer hover:medium_bg
+        <div class="top-0 right-0 bottom-0 left-0 overflow-hidden flex items-center justify-center
+                    absolute z-50 transition-opacity ease-out delay-500"
+             :class="{'pointer-events-none opacity-0': !isLoading,
+                      'opacity-100 !important': isLoading}">
+          <div class="bg-zinc-900 bg-opacity-50 p-2 rounded-md">
+            <div class="px-4 py-2 flex items-center">
+              <div class="rounded-full h-4 w-4 bg-zinc-600 animate-ping border-2 border-indigo-500"></div>
+              <p class="ml-6 text-neutral-200 font-bold animate-pulse">
+                Loading Tasks ...
+              </p>
+            </div>
+            <div class="flex items-center cursor-pointer hover:medium_bg
                           p-2 w-full mt-2 rounded"
-                   v-on:click="$router.back()">
-                <div class="text-neutral-300">
-                  <p class="text-sm">Taking too long?</p>
-                  <p>Go Back</p>
-                </div>
+                 v-on:click="$router.back()">
+              <div class="text-neutral-400">
+                <p class="text-sm">Taking too long?</p>
+                <p>Go Back</p>
               </div>
             </div>
           </div>
-        </template>
+        </div>
       </div>
     </div>
   </template>
@@ -1424,8 +1424,10 @@ export default {
           })
       })
     },
-    getBoxes: async function (silent = true, showAll = false) {
-      this.isLoading = true
+    getBoxes: async function (silent = false, showAll = false) {
+      if (!silent) {
+        this.isLoading = true
+      }
       return new Promise((resolve) => {
         let suffix = ''
         const checkbox = this.$refs.input_show_unfinished
@@ -1463,19 +1465,13 @@ export default {
             }
             // Draw Mermaid content in tasks
             this.renderMermaid()
-            if (!silent) {
-              this.$notify(
-                {
-                  title: 'Success',
-                  text: 'You\'re up to date now.',
-                  type: 'info'
-                })
-            }
-            this.isLoading = false
             resolve()
           })
           .catch((err) => {
             console.debug(err.message)
+          })
+          .finally(() => {
+            this.isLoading = false
           })
       })
     },
@@ -1866,7 +1862,7 @@ export default {
         if (this.isShowingTask) return
         if (document.activeElement && document.activeElement.classList.contains('p_input')) return
         ev.preventDefault()
-        await this.getBoxes(false)
+        await this.getBoxes()
         this.renderMermaid()
       } else if (ev.key === 'f') {
         if (this.isShowingTask) return

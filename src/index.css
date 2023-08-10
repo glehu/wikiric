@@ -13,7 +13,7 @@
 
     .markedView a {
         @apply darkest_bg hover:underline
-        px-1 pb-0.5 text-neutral-200 rounded-md text-center;
+        px-1.5 pb-0.5 text-neutral-300 rounded text-center;
     }
 
     .markedView a:hover {
