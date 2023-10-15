@@ -32,7 +32,7 @@
                 </template>
                 <div class="ml-auto flex items-center text-neutral-500 py-0.5 justify-end">
                   <div class="text-xs ml-1">
-                    {{ showingTask.author }}
+                    {{ showingTask.usr }}
                   </div>
                   <UserIcon class="w-4 h-4 ml-1"></UserIcon>
                 </div>
@@ -42,7 +42,7 @@
         </div>
       </div>
       <div class="m-2 text-neutral-300">
-        <button v-on:click="this.$router.push('/apps/knowledge/' + showingTask.guid)"
+        <button v-on:click="this.$router.push('/apps/knowledge/' + showingTask.uid)"
                 class="py-2 px-3 rounded dark_bg hover:darkest_bg">
           <span class="font-bold text-sm mr-1">Open</span>
           <i class="bi bi-arrow-up-right text-sm"></i>
@@ -101,7 +101,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/learn/' + this.parsedMessage.guid
+          url: 'm7/learn/' + this.parsedMessage.uid
         })
           .then((data) => {
             this.showingTask = data.result

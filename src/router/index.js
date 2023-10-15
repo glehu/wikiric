@@ -28,7 +28,10 @@ const routes = [
     path: '/account',
     name: 'WAccount',
     component: () => import('../views/core/AccountView'),
-    meta: { logout: true, requiresAuth: true }
+    meta: {
+      logout: true,
+      requiresAuth: true
+    }
   },
   {
     path: '/songs',
@@ -49,7 +52,7 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/shop',
+    path: '/shopold',
     name: 'WShop',
     component: () => import('../views/core/ShopView.vue')
   },
@@ -131,6 +134,27 @@ const routes = [
     path: '/redirect',
     name: 'WRedirect',
     component: () => import('../views/info/RedirectView')
+  },
+  {
+    path: '/stores',
+    name: 'WStore Finder',
+    component: () => import('../views/core/StoreFinderView.vue')
+  },
+  {
+    path: '/store/:id',
+    name: 'WShop',
+    component: () => import('../views/core/StoreNewView.vue')
+  },
+  {
+    path: '/checkout/:id',
+    name: 'WCheckout',
+    component: () => import('../views/core/StoreCheckoutView.vue')
+  },
+  {
+    path: '/stores/own/items',
+    name: 'WStore Inventory',
+    component: () => import('../views/core/StoreInventoryView.vue'),
+    meta: { requiresAuth: true }
   },
   // ERROR HANDLING ROUTES --- MUST BE AT THE BOTTOM ---
   {

@@ -94,9 +94,9 @@
           <div id="board"
                class="h-full w-full flex p-1 overflow-x-auto overflow-y-auto fixed prevent-select">
             <template v-if="boxes.length > 0">
-              <template v-for="box in boxes" :key="box.box.uID">
+              <template v-for="box in boxes" :key="box.box.uid">
                 <div class="p_card box_container" style="margin-bottom: 312px !important"
-                     :ref="'boxcontainer_' + box.box.uID" :id="'boxcontainer_' + box.box.uID">
+                     :ref="'boxcontainer_' + box.box.uid" :id="'boxcontainer_' + box.box.uid">
                   <div class="p_card_header_section relative text-neutral-300 flex items-center p-2">
                     <Markdown class="p_markdown p_markdown_xl_only font-bold"
                               :source="box.box.t"
@@ -158,8 +158,8 @@
                     </div>
                   </div>
                   <div v-if="box.tasks"
-                       :id="'box_tasks_guid_' + box.box.guid"
-                       :ref="'box_tasks_guid_' + box.box.guid"
+                       :id="'box_tasks_guid_' + box.box.uid"
+                       :ref="'box_tasks_guid_' + box.box.uid"
                        class="mb-4">
                     <draggable
                       :list="box.tasks"
@@ -186,23 +186,29 @@
                         </div>
                       </template>
                       <template #item="{element}">
-                        <div :key="element.task.uID" class="p-1 task_container"
-                             :ref="'taskcontainer_' + element.task.uID" :id="'taskcontainer_' + element.task.uID">
-                          <div :ref="'task_' + element.task.uID" :id="'task_' + element.task.uID"
+                        <div :key="element.uid" class="p-1 task_container"
+                             :ref="'taskcontainer_' + element.uid" :id="'taskcontainer_' + element.uid">
+                          <div :ref="'task_' + element.uid" :id="'task_' + element.uid"
                                class="p_task">
-                            <div class="w-full h-full rounded py-1 px-1" v-on:click="openTask(element.task)">
-                              <template v-if="element.task.dueDate && element.task.dueDate !== ''">
-                                <div class="flex items-center text-neutral-300 p-2 mt-1 mx-1 mb-2 bg-orange-700
-                                      bg-opacity-25 justify-between rounded">
+                            <div class="w-full h-full rounded py-1 px-1" v-on:click="openTask(element)">
+                              <template v-if="element.due && element.due !== ''">
+                                <div class="due_date">
                                   <CalendarIcon class="w-4 h-4 mr-1"></CalendarIcon>
-                                  <div class="text-xs font-bold">
-                                    {{ getHumanReadableDateText(element.task.dueDate) }}
+                                  <div class="text-end">
+                                    <p class="text-xs font-bold">
+                                      Due {{ getHumanReadableDateText(element.due) }}
+                                    </p>
+                                    <template v-if="element.duet && element.duet !== ''">
+                                      <p class="text-xs font-bold">
+                                        Until {{ getHumanReadableDateText(element.duet) }}
+                                      </p>
+                                    </template>
                                   </div>
                                 </div>
                               </template>
-                              <template v-if="element.task.categories">
+                              <template v-if="element.categories">
                                 <div class="flex flex-wrap mb-2 items-center w-full overflow-x-hidden">
-                                  <template v-for="cat in element.task.categories" :key="cat">
+                                  <template v-for="cat in element.categories" :key="cat">
                                     <div v-if="JSON.parse(cat).category != null"
                                          class="text-neutral-400 border-[1px] border-zinc-600 flex items-center
                                                 py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm darkest_bg">
@@ -211,20 +217,22 @@
                                   </template>
                                 </div>
                               </template>
-                              <Markdown class="p_markdown p_markdown_xl_only font-bold text-neutral-200 w-full px-1
-                                         break-words"
-                                        :source="element.task.t"
+                              <Markdown class="p_markdown p_markdown_xl_only
+                                               font-bold text-neutral-200 w-full px-1
+                                               break-words"
+                                        :source="element.t"
                                         :plugins="plugins"></Markdown>
-                              <Markdown class="p_markdown p_markdown_xl_only text-neutral-300 text-sm mt-1 w-full px-1"
-                                        :source="element.task.desc"
+                              <Markdown class="p_markdown p_markdown_xl_only text-neutral-300
+                                               text-sm mt-1 w-full px-1"
+                                        :source="element.desc"
                                         :plugins="plugins"></Markdown>
-                              <template v-if="element.task.collaborators">
+                              <template v-if="element.collaborators">
                                 <div class="my-4">
-                                  <template v-for="collaborator in element.task.collaborators" :key="collaborator">
-                                    <div v-if="JSON.parse(collaborator) != null"
+                                  <template v-for="collaborator in element.collaborators" :key="collaborator">
+                                    <div v-if="collaborator != null"
                                          class="text-neutral-300 flex items-center m-1 pointer-events-none text-sm">
-                                      <UserIcon class="h-4 h-4 mr-1"></UserIcon>
-                                      {{ JSON.parse(collaborator).username }}
+                                      <UserIcon class="h-4 mr-1"></UserIcon>
+                                      {{ collaborator.username }}
                                     </div>
                                   </template>
                                 </div>
@@ -233,7 +241,7 @@
                                 <div class="ml-auto flex items-center">
                                   <div class="ml-auto flex items-center text-neutral-500 py-0.5 justify-end">
                                     <p class="text-xs ml-1">
-                                      {{ element.task.author }}
+                                      {{ element.name }}
                                     </p>
                                   </div>
                                 </div>
@@ -242,14 +250,14 @@
                             <template v-if="element.amountComments && element.recentComment">
                               <Menu as="div" class="absolute bottom-0 left-0">
                                 <MenuButton
-                                  v-on:click="getRelated(element.task, false)"
+                                  v-on:click="getRelated(element, false)"
                                   title="Show recent comment"
                                   class="flex mr-auto items-center justify-center p-1 text-neutral-200
                                    hover:text-neutral-100 cursor-pointer rounded hover:darkest_bg">
                                   <ChatBubbleLeftEllipsisIcon class="h-6 w-6 mr-1"></ChatBubbleLeftEllipsisIcon>
                                   <div class="text-start">
                                     <div class="text-xs text-neutral-400">
-                                      {{ getHumanReadableDateText(element.recentComment.cdate).replace(' ', '&nbsp;') }}
+                                      {{ getHumanReadableDateText(element.recentComment.ts).replace(' ', '&nbsp;') }}
                                     </div>
                                     <div class="text-xs">{{ element.amountComments }}</div>
                                   </div>
@@ -265,11 +273,11 @@
                                   <MenuItems
                                     class="p_card_menu_list_big_p darkest_bg notagger"
                                   >
-                                    <template v-if="taskRelated.comments == null">
+                                    <template v-if="taskRelated.replies == null">
                                       <MenuItem as="div" class="px-3 py-3">
                                         <div class="flex justify-between text-xs text-neutral-400">
-                                          <div>{{ element.recentComment.author }}</div>
-                                          <div>{{ getHumanReadableDateText(element.recentComment.cdate) }}</div>
+                                          <div>{{ element.recentComment.usr }}</div>
+                                          <div>{{ getHumanReadableDateText(element.recentComment.ts) }}</div>
                                         </div>
                                         <Markdown
                                           class="p_markdown p_markdown_xl_only text-neutral-300
@@ -279,11 +287,11 @@
                                       </MenuItem>
                                     </template>
                                     <template v-else>
-                                      <template v-for="related in taskRelated.comments" :key="related.guid">
+                                      <template v-for="related in taskRelated.replies" :key="related.uid">
                                         <MenuItem as="div" class="px-3 py-3">
                                           <div class="flex justify-between text-xs text-neutral-400">
-                                            <div>{{ related.author }}</div>
-                                            <div>{{ getHumanReadableDateText(related.cdate) }}</div>
+                                            <div>{{ related.usr }}</div>
+                                            <div>{{ getHumanReadableDateText(related.ts) }}</div>
                                           </div>
                                           <Markdown
                                             class="p_markdown p_markdown_xl_only text-neutral-300
@@ -318,7 +326,7 @@
                                   >
                                     <div class="px-1 py-1">
                                       <MenuItem v-slot="{ active }">
-                                        <button v-on:click="finishTask(element.task)"
+                                        <button v-on:click="finishTask(element)"
                                                 :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
                                           <CheckIcon
                                             :active="active"
@@ -329,7 +337,7 @@
                                         </button>
                                       </MenuItem>
                                       <MenuItem v-slot="{ active }">
-                                        <button v-on:click="finishTask(element.task, true)"
+                                        <button v-on:click="finishTask(element, true)"
                                                 :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
                                           <TrashIcon
                                             :active="active"
@@ -372,7 +380,7 @@
                                             <div class="px-1 py-1">
                                               <template v-for="group in $store.state.clarifierSessions" :key="group">
                                                 <MenuItem v-slot="{ active }" class="mb-1">
-                                                  <button v-on:click="showShareTask(group, element.task)"
+                                                  <button v-on:click="showShareTask(group, element)"
                                                           :class="[active ? 'p_card_menu_active' : 'text-neutral-300','group p_card_menu_item p-1']">
                                                     <img class="darkest_bg mr-2"
                                                          style="width: 32px; height: 32px; border-radius: 10px"
@@ -414,27 +422,27 @@
                   <div class="relative flex items-center cursor-pointer p-2">
                     <PlusCircleIcon class="h-6 w-6 mx-1 absolute text-neutral-400"></PlusCircleIcon>
                     <div class="p_input p_input_icon text-neutral-400"
-                         v-on:click="toggleAndFocusNewTask('taskname_' + box.box.uID)">
+                         v-on:click="toggleAndFocusNewTask('taskname_' + box.box.uid)">
                       Add a Task
                     </div>
                   </div>
-                  <div :id="'taskname_' + box.box.uID"
+                  <div :id="'taskname_' + box.box.uid"
                        class="w-full hidden mt-4 p_new_task_disclosure relative p-2">
                     <p class="absolute pt-1 pl-2 text-neutral-400">##</p>
-                    <input :id="'taskname_' + box.box.uID + '_input'"
+                    <input :id="'taskname_' + box.box.uid + '_input'"
                            type="text"
                            class="p_input w-full font-bold"
                            style="padding-left: 2rem"
                            placeholder="Title"
                            v-model="newTask.name"
-                           v-on:keydown="newTaskKeyUp(box.box, 'taskname_' + box.box.uID)">
-                    <textarea :id="'taskname_' + box.box.uID + '_desc'"
+                           v-on:keydown="newTaskKeyUp(box.box, 'taskname_' + box.box.uid)">
+                    <textarea :id="'taskname_' + box.box.uid + '_desc'"
                               type="text" v-model="newTask.description"
                               rows="1"
                               class="p_input w-full mt-2"
                               placeholder="Description"
-                              v-on:keydown="newTaskKeyUp(box.box, 'taskname_' + box.box.uID)"
-                              v-on:keyup="auto_grow('taskname_' + box.box.uID + '_desc')"></textarea>
+                              v-on:keydown="newTaskKeyUp(box.box, 'taskname_' + box.box.uid)"
+                              v-on:keyup="auto_grow('taskname_' + box.box.uid + '_desc')"></textarea>
                     <Listbox v-model="newTask.categories" multiple id="newtaskcategories">
                       <div class="relative mt-1">
                         <ListboxButton
@@ -517,9 +525,9 @@
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-zinc-500">
-                <template v-for="box in boxes" :key="box.box.uID">
+                <template v-for="box in boxes" :key="box.box.uid">
                   <tr class="text-neutral-300 z-10 list_boxcontainer my-1"
-                      :ref="'list_box_' + box.box.uID" :id="'list_box_' + box.box.uID">
+                      :ref="'list_box_' + box.box.uid" :id="'list_box_' + box.box.uid">
                     <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
                     <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
                     <td class="px-2 py-4 sticky top-0 darkest_bg">
@@ -540,13 +548,13 @@
                     <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
                   </tr>
                   <template v-if="box.tasks">
-                    <tr v-for="task in box.tasks" :key="task.task.uID"
-                        :ref="'list_task_' + task.task.uID" :id="'list_task_' + task.task.uID"
-                        v-on:click="openTask(task.task)"
+                    <tr v-for="task in box.tasks" :key="task.uid"
+                        :ref="'list_task_' + task.uid" :id="'list_task_' + task.uid"
+                        v-on:click="openTask(task)"
                         class="text-neutral-300 cursor-pointer hover:medium_bg
                              z-20 list_taskcontainer dark_bg">
                       <td class="p-2">
-                        <template v-if="task.task.finished">
+                        <template v-if="task.done">
                           <div class="px-1 py-1 rounded bg-green-800 flex w-24 mr-2 items-center">
                             <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
                             <span class="text-xs font-bold text-neutral-300">Done</span>
@@ -559,16 +567,16 @@
                           </div>
                         </template>
                       </td>
-                      <td class="p-2 text-neutral-200">{{ task.task.t }}</td>
+                      <td class="p-2 text-neutral-200">{{ task.t }}</td>
                       <td class="p-2">
                         <div class="max-h-10 overflow-hidden text-sm">
-                          {{ task.task.desc }}
+                          {{ task.desc }}
                         </div>
                       </td>
-                      <template v-if="task.task.categories">
+                      <template v-if="task.categories">
                         <td class="p-2">
                           <div class="flex flex-wrap items-center">
-                            <template v-for="cat in task.task.categories" :key="cat">
+                            <template v-for="cat in task.categories" :key="cat">
                               <div v-if="JSON.parse(cat).category != null"
                                    class="text-neutral-400 border-[1px] border-zinc-600 flex items-center
                                           py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm darkest_bg">
@@ -581,21 +589,21 @@
                       <template v-else>
                         <td class="p-2"></td>
                       </template>
-                      <template v-if="task.task.dueDate && task.task.dueDate !== ''">
-                        <td class="p-2 text-sm">{{ getHumanReadableDateText(task.task.dueDate) }}</td>
+                      <template v-if="task.due && task.due !== ''">
+                        <td class="p-2 text-sm">{{ getHumanReadableDateText(task.due) }}</td>
                       </template>
                       <template v-else>
                         <td class="p-2 text-neutral-500 text-xs">(No&nbsp;Due&nbsp;Date)</td>
                       </template>
-                      <template v-if="task.task.collaborators">
+                      <template v-if="task.collaborators">
                         <td class="p-2">
                           <div class="grid grid-cols-1 items-center">
-                            <template v-for="collaborator in task.task.collaborators" :key="collaborator">
-                              <div v-if="JSON.parse(collaborator) != null"
+                            <template v-for="collaborator in task.collaborators" :key="collaborator">
+                              <div v-if="collaborator != null"
                                    class="text-neutral-200 flex items-center
                                         rounded-lg mb-1 pointer-events-none text-sm w-fit">
                                 <UserIcon class="h-4 h-4 mr-1"></UserIcon>
-                                {{ JSON.parse(collaborator).username }}
+                                {{ collaborator.username }}
                               </div>
                             </template>
                           </div>
@@ -604,7 +612,7 @@
                       <template v-else>
                         <td class="p-2 text-neutral-500 text-xs">(No&nbsp;Collaborators)</td>
                       </template>
-                      <td class="p-2 text-sm">{{ task.task.author }}</td>
+                      <td class="p-2 text-sm">{{ task.usr }}</td>
                     </tr>
                   </template>
                 </template>
@@ -639,36 +647,32 @@
   </template>
   <template v-else>
     <div class="h-full w-full pt-[55px] bright_bg">
-      <div class="p-8 m-8 medium_bg rounded-md">
-        <div class="mb-5 pointer-events-none">
-          <p class="text-4xl md:text-5xl font-bold text-neutral-200 mb-2">Create Knowledge Hub</p>
-          <p class="md:text-xl text-neutral-300">
-            Before creating your first tasks, you need to create a place to keep all those entries.
-          </p>
+      <div class="px-8 pt-4 pb-8 m-8 dark_bg rounded-md dshadow max-w-screen-lg">
+        <div class="text-neutral-300 mb-5 pointer-events-none">
+          <span class="text-4xl font-bold">Create new Knowledge Hub</span>
         </div>
-        <form class="flex flex-wrap" @submit.prevent="createKnowledge()">
-          <div class="text-neutral-300 w-96 ml-5">
-            <label for="title" class="text-3xl mb-2">Title</label>
+        <form class="lg:flex lg:gap-x-4" @submit.prevent="createKnowledge()">
+          <div class="text-neutral-300 w-full lg:w-[50%]">
+            <label for="title" class="text-2xl">Title</label>
             <br>
             <input type="text" id="title" class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
                    required v-model="titleCreation">
             <br>
-            <label for="description" class="mt-3 mb-2 text-3xl">Description</label>
+            <label for="description" class="text-2xl">Description</label>
             <br>
             <textarea type="text" rows="3" id="description"
                       class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
                       v-model="descriptionCreation"></textarea>
           </div>
-          <div class="text-neutral-300 w-96 ml-5">
-            <label for="keywords" class="text-3xl mb-2 mr-3">Keywords</label>
-            <span class="text-neutral-400">Comma separated</span>
+          <div class="text-neutral-300 w-full lg:w-[50%]">
+            <label for="keywords" class="text-2xl mr-3">Keywords</label>
+            <span class="text-neutral-500">Comma separated</span>
             <br>
             <input type="text" id="keywords" class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
                    v-model="keywordsCreation">
             <br>
             <button type="submit"
-                    class="mt-3 py-2 px-3 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black
-                           font-bold text-lg">
+                    class="mt-6 btn_bg_primary">
               Create
             </button>
           </div>
@@ -680,20 +684,20 @@
          v-show="isShowingTask">
     <template v-slot:header>
       <div class="h-4 flex items-center text-neutral-400 text-xs">
-        <p class="mr-1">uID {{ showingTask.uID }}</p>
+        <p class="mr-1">{{ showingTask.uid }}</p>
         <i class="bi bi-dot mr-1"></i>
         <p class="mr-1">
-          {{ new Date(showingTask.cdate).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
+          {{ new Date(showingTask.ts).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
         </p>
         <i class="bi bi-dot mr-1"></i>
-        <p class="mr-1">{{ showingTask.author }}</p>
+        <p class="mr-1">{{ showingTask.name }}</p>
       </div>
     </template>
     <template v-slot:body>
       <div class="w-full sm:w-[600px] flex h-full relative">
         <div class="w-[calc(100%-50px)] sm:w-[calc(100%-100px)] h-full mr-1"
              v-if="!isShowingTaskHistory">
-          <div class="w-full medium_bg p-2 rounded">
+          <div class="w-full medium_bg p-2 rounded dshadow">
             <template v-if="showingTask.categories && showingTask.categories.length > 0">
               <div class="flex mb-2 items-center">
                 <template v-for="cat in showingTask.categories" :key="cat">
@@ -736,11 +740,11 @@
             <div class="flex items-center justify-start w-full overflow-x-auto pb-1">
               <template v-if="showingTask.collaborators && showingTask.collaborators.length > 0">
                 <template v-for="collaborator in showingTask.collaborators" :key="collaborator">
-                  <div v-if="JSON.parse(collaborator) != null"
+                  <div v-if="collaborator != null"
                        class="text-white flex items-center
                               py-1 px-2 rounded mr-1 mb-1 pointer-events-none text-sm">
                     <UserIcon class="h-4 h-4 mr-1"></UserIcon>
-                    {{ JSON.parse(collaborator).username }}
+                    {{ collaborator.username }}
                   </div>
                 </template>
               </template>
@@ -829,7 +833,7 @@
                 <Squares2X2Icon class="h-6 w-6"></Squares2X2Icon>
               </div>
             </div>
-            <template v-if="!showingTaskRelated.comments || showingTaskRelated.comments.length < 1">
+            <template v-if="!showingTaskRelated.replies || showingTaskRelated.replies.length < 1">
               <div class="flex w-full items-center justify-center py-4">
                 <div class="w-full text-neutral-400 pointer-events-none">
                   <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
@@ -841,10 +845,10 @@
               <div class="flex items-center mt-4 mb-3 pointer-events-none">
                 <ChatBubbleLeftEllipsisIcon class="w-6 h-6 mr-2 text-neutral-300"></ChatBubbleLeftEllipsisIcon>
                 <p class="text-neutral-300 font-bold text-sm">
-                  {{ showingTaskRelated.comments.length }} {{ commentsText }}:
+                  {{ showingTaskRelated.replies.length }} {{ commentsText }}:
                 </p>
               </div>
-              <div v-for="comment in showingTaskRelated.comments" :key="comment.uID"
+              <div v-for="comment in showingTaskRelated.replies" :key="comment.uid"
                    class="mb-2 w-full medium_bg rounded-r-xl rounded-l-lg border-b-2
                           border-r-2 border-b-zinc-500 border-r-zinc-500 comment break-words">
                 <Markdown :source="comment.desc"
@@ -855,8 +859,8 @@
                     class="text-neutral-400 ml-auto dark_bg rounded-br-xl rounded-tl-xl py-1
                            px-2 min-w-[20%] justify-between flex items-center">
                     <p class="text-neutral-500 text-xs mr-2">
-                      {{ getHumanReadableDateText(comment.cdate) }}</p>
-                    <p class="text-sm">{{ comment.author }}</p>
+                      {{ getHumanReadableDateText(comment.ts) }}</p>
+                    <p class="text-sm">{{ comment.name }}</p>
                   </div>
                 </div>
               </div>
@@ -876,7 +880,7 @@
                   {{ capitalizeFirstLetter(entry.type) }}
                 </td>
                 <td>
-                  {{ entry.author }}
+                  {{ entry.usr }}
                 </td>
                 <td class="text-neutral-400">
                   {{ entry.date.toLocaleString('de-DE').replace(' ', '&nbsp;') }}
@@ -960,7 +964,7 @@
                 </MenuItems>
               </transition>
             </Menu>
-            <button v-on:click="gotoWisdom(showingTask.guid)"
+            <button v-on:click="gotoWisdom(showingTask.uid)"
                     class="group p_card_menu_item text-neutral-300 hover:text-white hover:dark_bg">
               <WindowIcon
                 class="mr-2 h-6 w-6"
@@ -971,7 +975,7 @@
               </template>
             </button>
           </div>
-          <div class="p-1">
+          <div class="p-1 hidden">
             <button v-on:click="showTaskHistory()"
                     class="group p_card_menu_item text-neutral-300 hover:text-white hover:dark_bg">
               <template v-if="!isShowingTaskHistory">
@@ -1060,16 +1064,16 @@
           <div class="text-neutral-400 dark_bg w-full rounded py-1 px-2 mb-2 pointer-events-none">
             Subchatrooms
           </div>
-          <template v-if="sharing.chatroom && sharing.chatroom.subChatrooms">
+          <template v-if="sharing.chatroom && sharing.chatroom.subc">
             <div class="ml-3">
               <RadioGroup v-model="sharing.selectedSubchat">
                 <RadioGroupLabel class="sr-only">Subchatrooms</RadioGroupLabel>
                 <div class="space-y-2">
                   <RadioGroupOption
                     as="template"
-                    v-for="subchat in sharing.chatroom.subChatrooms"
+                    v-for="subchat in sharing.chatroom.subc"
                     :key="subchat"
-                    :value="subchat.guid"
+                    :value="subchat.uid"
                     v-slot="{ active, checked }">
                     <div
                       :class="[active ? 'ring-2 ring-white ring-opacity-20' : '',
@@ -1211,6 +1215,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { DateTime } from 'luxon'
 import draggable from 'vuedraggable'
+import { dbGetDisplayName } from '@/libs/wikistore'
 
 export default {
   name: 'PlannerNewView',
@@ -1318,8 +1323,8 @@ export default {
   },
   computed: {
     commentsText: function () {
-      if (this.showingTaskRelated.comments != null) {
-        if (this.showingTaskRelated.comments.length > 1) {
+      if (this.showingTaskRelated.replies != null) {
+        if (this.showingTaskRelated.replies.length > 1) {
           return 'Comments'
         } else {
           return 'Comment'
@@ -1364,6 +1369,7 @@ export default {
       this.inputComment.addEventListener('keydown', this.handleEnter, false)
 
       const updater = this.updateTaskDueDate
+      const opener = this.openTaskFromUID
 
       this.calendarOptions = {
         plugins: [timeGridPlugin, interactionPlugin],
@@ -1385,6 +1391,9 @@ export default {
           // alert(info.event.title + ' end is now ' + info.event.end.toISOString())
           // if (!confirm('is this okay?')) { info.revert() }
           updater(info.event.id, info.event.start, info.event.end)
+        },
+        eventClick: function (info) {
+          opener(info.event.id)
         }
       }
       this.toggleSidebar(true)
@@ -1406,7 +1415,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/get?src=' + sessionID + '&from=clarifier'
+          url: 'knowledge/private/chat/' + sessionID
         })
           .then((data) => {
             this.knowledgeExists = true
@@ -1440,9 +1449,9 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/tasks/' + this.knowledge.guid + suffix
+          url: 'wisdom/private/tasks/' + this.knowledge.uid + suffix
         })
-          .then((data) => {
+          .then(async (data) => {
             // Retrieve all boxes and tasks from server response
             this.boxes = data.result.boxes.reverse()
             this.calendarOptions.events = []
@@ -1451,13 +1460,14 @@ export default {
               if (this.boxes[i].tasks) {
                 // Iterate over all tasks of this box
                 for (let j = 0; j < this.boxes[i].tasks.length; j++) {
-                  if (this.boxes[i].tasks[j].task.dueDate) {
+                  this.boxes[i].tasks[j].name = await dbGetDisplayName(this.boxes[i].tasks[j].usr)
+                  if (this.boxes[i].tasks[j].due) {
                     // Add entry to calendar if there's a due date
                     this.calendarOptions.events.push({
-                      id: this.boxes[i].tasks[j].task.guid,
-                      title: this.boxes[i].tasks[j].task.t + ' - ' + this.boxes[i].tasks[j].task.desc,
-                      start: this.boxes[i].tasks[j].task.dueDate,
-                      end: this.boxes[i].tasks[j].task.dueDateUntil
+                      id: this.boxes[i].tasks[j].uid,
+                      title: this.boxes[i].tasks[j].t + ' - ' + this.boxes[i].tasks[j].desc,
+                      start: this.boxes[i].tasks[j].due,
+                      end: this.boxes[i].tasks[j].duet
                     })
                   }
                 }
@@ -1500,28 +1510,22 @@ export default {
     },
     createBox: async function () {
       const categories = []
-      let boxColumn = 0
-      if (this.boxes.length > 0) {
-        boxColumn = this.boxes.length
-      }
       const payload = {
-        title: this.newBox.name,
-        description: '',
-        knowledgeGUID: this.knowledge.guid,
-        keywords: '',
-        copyContent: '',
-        categories: categories,
-        isTask: true,
-        taskType: 'box',
-        columnIndex: boxColumn,
-        rowIndex: 0
+        t: this.newBox.name,
+        desc: '',
+        pid: this.knowledge.uid,
+        keys: '',
+        copy: '',
+        cats: categories,
+        type: 'box',
+        row: 0
       }
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/teach',
+          url: 'wisdom/private/create',
           body: bodyPayload
         })
           .then(() => {
@@ -1538,28 +1542,22 @@ export default {
     createTask: async function (box, taskUpdate = false) {
       let categories = []
       let payload = {}
-      let extension = ''
       if (!taskUpdate) {
-        const boxColumn = box.columnIndex
         for (let i = 0; i < this.newTask.categories.length; i++) {
-          categories.push(JSON.stringify(this.newTask.categories[i]))
+          categories.push(this.newTask.categories[i])
         }
         payload = {
-          title: this.newTask.name,
-          description: this.newTask.description,
-          knowledgeGUID: this.knowledge.guid,
-          keywords: this.newTask.name,
-          copyContent: '',
-          categories: categories,
-          isTask: true,
-          taskType: 'task',
-          columnIndex: boxColumn,
-          rowIndex: 0,
-          inBox: true,
-          boxGUID: box.guid
+          t: this.newTask.name,
+          desc: this.newTask.description,
+          pid: this.knowledge.uid,
+          keys: this.newTask.name,
+          copy: '',
+          cats: categories,
+          type: 'task',
+          row: 0.0,
+          ref: box.uid
         }
       } else if (taskUpdate) {
-        extension = '?guid=' + this.showingTask.guid
         categories = []
         if (this.showingTask.categories) {
           for (let i = 0; i < this.showingTask.categories.length; i++) {
@@ -1574,7 +1572,7 @@ export default {
           // If there was no date set, assume the current date was meant and set it accordingly
           if (combinedDateTime === '') {
             combinedDateTime = new Date().toISOString().split('T')[0]
-            this.showingTask.dueDate = combinedDateTime
+            this.showingTask.due = combinedDateTime
           }
           // Add time either way
           combinedDateTime += 'T' + this.showingTask.dueTimeFormatted
@@ -1585,18 +1583,15 @@ export default {
           }
         }
         payload = {
-          title: this.showingTask.t,
-          description: this.showingTask.desc,
-          knowledgeGUID: this.knowledge.guid,
-          keywords: this.newTask.name,
-          copyContent: '',
-          categories: categories,
-          isTask: true,
-          taskType: 'task',
-          columnIndex: this.showingTask.columnIndex,
+          t: this.showingTask.t,
+          desc: this.showingTask.desc,
+          pid: this.knowledge.uid,
+          keys: this.newTask.name,
+          copy: '',
+          cats: categories,
+          type: 'task',
           rowIndex: 0,
-          inBox: true,
-          boxGUID: this.showingTask.boxGUID,
+          ref: this.showingTask.ref,
           dueDate: combinedDateTime
         }
       }
@@ -1605,7 +1600,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/teach' + extension,
+          url: 'wisdom/private/create',
           body: bodyPayload
         })
           .then(() => {
@@ -1659,7 +1654,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/' + endpoint + '/' + task.guid
+          url: 'wisdom/private/' + endpoint + '/' + task.uid
         })
           .then(() => {
             if (this.isShowingTask) this.isShowingTask = false
@@ -1671,7 +1666,7 @@ export default {
             this.$notify(
               {
                 title: 'Error!',
-                text: 'Maybe you aren\'t the owner or a collaborator of this task?',
+                text: 'Maybe you aren\'t the owner or a collaborator of this entry?',
                 type: 'error'
               })
             console.debug(err.message)
@@ -1704,13 +1699,28 @@ export default {
         mermaid.init()
       }, 0)
     },
+    openTaskFromUID: function (guid) {
+      let done = false
+      if (this.boxes.length < 1) return
+      for (let i = 0; i < this.boxes.length; i++) {
+        if (done) break
+        if (this.boxes[i].tasks.length < 1) continue
+        for (let j = 0; j < this.boxes[i].tasks.length; j++) {
+          if (this.boxes[i].tasks[j].uid === guid) {
+            this.openTask(this.boxes[i].tasks[j])
+            done = true
+            break
+          }
+        }
+      }
+    },
     openTask: async function (task) {
-      if (!task.guid) return
+      if (!task.uid) return
       if (this.drag) return
       const tTask = task
-      if (tTask.dueDate) {
+      if (tTask.due) {
         try {
-          const lDT = DateTime.fromISO(tTask.dueDate)
+          const lDT = DateTime.fromISO(tTask.due)
           tTask.dueDateFormatted = lDT.toISODate()
           tTask.dueTimeFormatted = lDT.toLocaleString(DateTime.TIME_24_WITH_SECONDS)
         } catch (e) {
@@ -1719,8 +1729,9 @@ export default {
           tTask.dueTimeFormatted = ''
         }
       }
+      tTask.name = await dbGetDisplayName(tTask.usr)
       this.showingTask = tTask
-      this.showingTask.comments = []
+      this.showingTask.replies = []
       this.isShowingTask = true
       this.isShowingTaskHistory = false
       this.renderMermaid()
@@ -1734,9 +1745,14 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/investigate/' + task.guid
+          url: 'wisdom/private/investigate/' + task.uid
         })
-          .then((data) => {
+          .then(async (data) => {
+            if (data.result.replies != null && data.result.replies.length > 0) {
+              for (let i = 0; i < data.result.replies.length; i++) {
+                data.result.replies[i].name = await dbGetDisplayName(data.result.replies[i].usr)
+              }
+            }
             if (showingTask) {
               this.showingTaskRelated = data.result
             } else {
@@ -1773,17 +1789,19 @@ export default {
     postComment: async function () {
       if (this.showingTaskComment.trim() === '') return
       const payload = {
-        title: '',
-        description: this.showingTaskComment.trim(),
-        wisdomGUID: this.showingTask.guid,
-        keywords: ''
+        t: '',
+        desc: this.showingTaskComment.trim(),
+        ref: this.showingTask.uid,
+        keys: '',
+        pid: this.knowledge.uid,
+        type: 'reply'
       }
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/reply',
+          url: 'wisdom/private/reply',
           body: bodyPayload
         })
           .then(() => {
@@ -1850,7 +1868,7 @@ export default {
         if (!this.isTaskSelectionInitial()) {
           if (!this.boxes[this.selection.row]) return
           ev.preventDefault()
-          this.toggleAndFocusNewTask('taskname_' + this.boxes[this.selection.row].box.uID)
+          this.toggleAndFocusNewTask('taskname_' + this.boxes[this.selection.row].box.uid)
         }
       } else if (ev.key === 'c') {
         if (!this.isShowingTask) return
@@ -1966,7 +1984,7 @@ export default {
         tTask = tBox.tasks[yPos]
       }
       // Now check if the task is visible
-      let taskElem = document.getElementById('taskcontainer_' + tTask.uID)
+      let taskElem = document.getElementById('taskcontainer_' + tTask.uid)
       if (!taskElem || taskElem.style.display === 'none') {
         // Task is invisible or does not exist -> Check for others in this column
         tTask = null
@@ -1989,7 +2007,7 @@ export default {
             if (xPlus !== 0) this.moveAndMarkTask(xPlus + xPlus, yPlus)
             return
           }
-          taskElem = document.getElementById('taskcontainer_' + tTask.uID)
+          taskElem = document.getElementById('taskcontainer_' + tTask.uid)
           if (taskElem.style.display === 'none') {
             tTask = null
             continue
@@ -1998,7 +2016,7 @@ export default {
         }
       }
       // Reset previous task's active class
-      const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
+      const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uid
       const elemOld = document.getElementById(id)
       if (elemOld) {
         elemOld.classList.remove('active')
@@ -2012,38 +2030,130 @@ export default {
       return (this.selection.row === -1 && this.selection.col === -1)
     },
     setTaskDueDate: function () {
-      this.createTask(null, true)
+      this.updateTaskDueDate(this.showingTask.uid)
     },
     updateTaskDueDate: function (guid, start, end) {
-      let payload
-      if (end) {
-        payload = {
-          knowledgeGUID: this.knowledge.guid,
-          dueDate: start.toISOString(),
-          dueDateUntil: end.toISOString()
+      if (start == null || start === '') {
+        let combinedDateTime = ''
+        if (this.showingTask.dueDateFormatted) {
+          combinedDateTime = this.showingTask.dueDateFormatted
         }
+        // Get current timezone offset
+        const o = DateTime.now()
+        let c = ''
+        if (o.isOffsetFixed && o.offset === 0) {
+          c += 'Z'
+        } else if (o.o < 0) {
+          c += '-'
+          c += this.padStart(Math.trunc(-o.o / 60))
+          c += ':'
+          c += this.padStart(Math.trunc(-o.o % 60))
+        } else {
+          c += '+'
+          c += this.padStart(Math.trunc(o.o / 60))
+          c += ':'
+          c += this.padStart(Math.trunc(o.o % 60))
+        }
+        // Attach time
+        if (this.showingTask.dueTimeFormatted) {
+          // If there was no date set, assume the current date was meant and set it accordingly
+          if (combinedDateTime === '') {
+            combinedDateTime = new Date().toISOString().split('T')[0]
+            this.showingTask.due = combinedDateTime
+          }
+          // Add time either way
+          combinedDateTime += 'T' + this.showingTask.dueTimeFormatted
+          // Add seconds if missing
+          if (this.showingTask.dueTimeFormatted.length === 5) {
+            combinedDateTime += ':00'
+          }
+          // Add timezone offset
+          combinedDateTime += c
+        } else {
+          if (combinedDateTime !== '') {
+            combinedDateTime += 'T00:00:00' + c
+            this.showingTask.dueTimeFormatted = '00:00'
+          }
+        }
+        start = combinedDateTime
       } else {
-        payload = {
-          knowledgeGUID: this.knowledge.guid,
-          dueDate: start.toISOString()
-        }
+        start = start.toISOString()
       }
-      const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
+        // Create reminder (wikiric periodic action)
+        const recipients = []
+        recipients.push({ usr: this.$store.state.username })
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/teach?guid=' + guid + '&mode=due',
-          body: bodyPayload
+          url: 'wisdom/private/reminder/' + guid,
+          body: JSON.stringify({
+            t: this.showingTask.t,
+            desc: this.showingTask.desc,
+            due: start,
+            recipients: recipients
+          })
         })
-          .then(() => {
-            this.getBoxes()
+        if (end) {
+          this.$Worker.execute({
+            action: 'api',
+            method: 'post',
+            url: 'wisdom/private/mod/' + guid,
+            body: JSON.stringify({
+              type: 'edit',
+              field: 'due',
+              new: start
+            })
           })
-          .then(() => resolve())
-          .catch((err) => {
-            console.debug(err.message)
+            .then(() => {
+              this.$Worker.execute({
+                action: 'api',
+                method: 'post',
+                url: 'wisdom/private/mod/' + guid,
+                body: JSON.stringify({
+                  type: 'edit',
+                  field: 'dueEnd',
+                  new: end.toISOString()
+                })
+              })
+                .then(() => {
+                  this.getBoxes()
+                })
+                .then(() => resolve())
+                .catch((err) => {
+                  console.debug(err.message)
+                })
+            })
+        } else {
+          this.$Worker.execute({
+            action: 'api',
+            method: 'post',
+            url: 'wisdom/private/mod/' + guid,
+            body: JSON.stringify({
+              type: 'edit',
+              field: 'due',
+              new: start
+            })
           })
+            .then(() => {
+              this.getBoxes()
+            })
+            .then(() => resolve())
+            .catch((err) => {
+              console.debug(err.message)
+            })
+        }
       })
+    },
+    padStart: function (input, n = 2) {
+      const isNeg = input < 0
+      let padded
+      if (isNeg) {
+        padded = '-' + ('' + -input).padStart(n, '0')
+      } else {
+        padded = ('' + input).padStart(n, '0')
+      }
+      return padded
     },
     searchWisdom: async function () {
       this.resetLastSelection()
@@ -2052,13 +2162,13 @@ export default {
       this.results = []
       let filterOverrideArgs = ''
       if (this.filters.filterTitle) filterOverrideArgs += 'title,'
-      if (this.filters.filterKeywords) filterOverrideArgs += 'keywords,'
-      if (this.filters.filterDescription) filterOverrideArgs += 'description,'
-      if (this.filters.filterAuthor) filterOverrideArgs += 'author,'
+      if (this.filters.filterKeywords) filterOverrideArgs += 'keys,'
+      if (this.filters.filterDescription) filterOverrideArgs += 'desc,'
+      if (this.filters.filterAuthor) filterOverrideArgs += 'usr,'
       const payload = {
         query: this.searchQuery,
         type: 'task',
-        filterOverride: filterOverrideArgs
+        fields: filterOverrideArgs
       }
       return new Promise((resolve) => {
         if (this.searchQuery === '' || this.searchQuery === '.') {
@@ -2070,34 +2180,13 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/search/' + this.knowledge.guid,
+          url: 'wisdom/private/query/' + this.knowledge.uid,
           body: JSON.stringify(payload)
         })
           .then((data) => {
             const parsedData = data.result
-            if (parsedData.first != null) {
-              for (let i = 0; i < parsedData.first.length; i++) {
-                this.results.push({
-                  priority: 'high',
-                  result: parsedData.first[i].wisdom
-                })
-              }
-            }
-            if (parsedData.second != null) {
-              for (let i = 0; i < parsedData.second.length; i++) {
-                this.results.push({
-                  priority: 'medium',
-                  result: parsedData.second[i].wisdom
-                })
-              }
-            }
-            if (parsedData.third != null) {
-              for (let i = 0; i < parsedData.third.length; i++) {
-                this.results.push({
-                  priority: 'low',
-                  result: parsedData.third[i].wisdom
-                })
-              }
+            if (parsedData.tasks && parsedData.tasks.length > 0) {
+              this.addResults(parsedData.tasks, 'task')
             }
           })
           .then(() => {
@@ -2106,16 +2195,16 @@ export default {
             for (let i = 0; i < this.results.length; i++) {
               // Display box
               if (!this.isListView) {
-                elem = document.getElementById('boxcontainer_' + this.results[i].result.srcWisdomUID)
+                elem = document.getElementById('boxcontainer_' + this.results[i].result.ref)
               } else {
-                elem = document.getElementById('list_box_' + this.results[i].result.srcWisdomUID)
+                elem = document.getElementById('list_box_' + this.results[i].result.ref)
               }
               if (elem) elem.style.display = ''
               // Display task
               if (!this.isListView) {
-                elem = document.getElementById('taskcontainer_' + this.results[i].result.uID)
+                elem = document.getElementById('taskcontainer_' + this.results[i].result.uid)
               } else {
-                elem = document.getElementById('list_task_' + this.results[i].result.uID)
+                elem = document.getElementById('list_task_' + this.results[i].result.uid)
               }
               if (elem) elem.style.display = ''
             }
@@ -2125,6 +2214,33 @@ export default {
             console.debug(err.message)
           })
       })
+    },
+    addResults: function (results, type) {
+      let entry
+      console.log(results)
+      for (let i = 0; i < results.length; i++) {
+        results[i].t = this.formatTitle(results[i].t)
+        entry = {
+          priority: 'high',
+          type: type,
+          result: results[i]
+        }
+        this.results.push(entry)
+      }
+    },
+    formatTitle: function (title) {
+      if (!title || title.length < 1) return ''
+      if (title.startsWith('#')) {
+        let cutUntil = 0
+        for (let i = 0; i < title.length; i++) {
+          if (title.substring(i, i + 1) === '#') {
+            cutUntil++
+          }
+        }
+        return title.substring(cutUntil).trim()
+      } else {
+        return title
+      }
     },
     openSearch: function () {
       this.isSearching = true
@@ -2144,8 +2260,8 @@ export default {
     moveToSelectedTask (setActive = false) {
       if (this.selection.row === -1 || this.selection.col === -1) return
       // Set active class for currently selected tasks
-      const idContainer = 'taskcontainer_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
-      const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
+      const idContainer = 'taskcontainer_' + this.boxes[this.selection.row].tasks[this.selection.col].uid
+      const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uid
       const elemContainer = document.getElementById(idContainer)
       const elem = document.getElementById(id)
       if (elemContainer) {
@@ -2177,7 +2293,7 @@ export default {
     },
     resetLastSelection: function () {
       if (!this.isTaskSelectionInitial()) {
-        const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uID
+        const id = 'task_' + this.boxes[this.selection.row].tasks[this.selection.col].uid
         const elemOld = document.getElementById(id)
         if (elemOld) {
           elemOld.classList.remove('active')
@@ -2218,23 +2334,10 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm5/getchatroom/' + sessionID
+          url: 'chat/private/get/' + sessionID
         })
           .then((data) => {
             this.sharing.chatroom = data.result
-            if (this.sharing.chatroom.subChatrooms != null) {
-              // Parse JSON serialized subchats for performance
-              for (let i = 0; i < this.sharing.chatroom.subChatrooms.length; i++) {
-                this.sharing.chatroom.subChatrooms[i] = JSON.parse(this.sharing.chatroom.subChatrooms[i])
-              }
-            }
-            // Parse JSON serialized users for performance
-            if (this.sharing.chatroom.members) {
-              for (let i = 0; i < this.sharing.chatroom.members.length; i++) {
-                // Main Members
-                this.sharing.members[i] = JSON.parse(this.sharing.chatroom.members[i])
-              }
-            }
           })
           .then(resolve())
           .catch((err) => console.debug(err.message))
@@ -2243,7 +2346,7 @@ export default {
     shareTask: async function () {
       const message = {
         message: this.sharing.message,
-        guid: this.showingTask.guid
+        guid: this.showingTask.uid
       }
       const prefix = '[c:TASK]'
       const bodyPayload = {
@@ -2347,7 +2450,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/modifycollab/' + this.showingTask.guid,
+          url: 'm7/modifycollab/' + this.showingTask.uid,
           body: JSON.stringify(payload)
         })
           .then(() => {
@@ -2400,16 +2503,16 @@ export default {
       const prefix = 'box_tasks_guid_'
       if (e.added) {
         // Moved to another box!
-        console.log(e.added.element.task.guid, 'MOVED to index', e.added.newIndex,
+        console.log(e.added.element.uid, 'MOVED to index', e.added.newIndex,
           'for new box', this.lastDragMove.to.parentElement.id.substring(prefix.length))
         // Set new rowIndex and boxGUID for this task!
-        this.moveTask(e.added.element.task.guid, e.added.newIndex,
+        this.moveTask(e.added.element.uid, e.added.newIndex,
           this.lastDragMove.to.parentElement.id.substring(prefix.length))
       } else if (e.moved) {
         // Moved inside current box.
-        console.log(e.moved.element.task.guid, 'MOVED to index', e.moved.newIndex)
+        console.log(e.moved.element.uid, 'MOVED to index', e.moved.newIndex)
         // Set new rowIndex for this task!
-        this.moveTask(e.moved.element.task.guid, e.moved.newIndex,
+        this.moveTask(e.moved.element.uid, e.moved.newIndex,
           this.lastDragMove.to.parentElement.id.substring(prefix.length))
       }
     },
@@ -2418,20 +2521,20 @@ export default {
     },
     moveTask: function (taskGUID, newRowIndex, boxGUID) {
       for (const i in this.boxes) {
-        if (this.boxes[i].box.guid === boxGUID) {
+        if (this.boxes[i].box.uid === boxGUID) {
           if (this.boxes[i].tasks && this.boxes[i].tasks.length > 1) {
             if (newRowIndex > 0) {
               // rowIndex != 0 so compare the tasks before and after
-              const rowIndexTaskBefore = this.boxes[i].tasks[newRowIndex - 1].task.rowIndex
+              const rowIndexTaskBefore = this.boxes[i].tasks[newRowIndex - 1].row
               if (this.boxes[i].tasks.length - 1 > newRowIndex) {
-                const rowIndexTaskAfter = this.boxes[i].tasks[newRowIndex + 1].task.rowIndex
+                const rowIndexTaskAfter = this.boxes[i].tasks[newRowIndex + 1].row
                 newRowIndex = Math.floor((rowIndexTaskBefore + rowIndexTaskAfter) / 2)
               } else {
                 newRowIndex = rowIndexTaskBefore + 20000
               }
             } else {
               // rowIndex = 0 so just look at the second task if it exists
-              newRowIndex = Math.floor(this.boxes[i].tasks[1].task.rowIndex / 2)
+              newRowIndex = Math.floor(this.boxes[i].tasks[1].row / 2)
             }
           } else {
             // First task => Set it to 0
@@ -2439,18 +2542,20 @@ export default {
           }
         }
       }
+      if (newRowIndex <= 1) {
+        newRowIndex = 0.5
+      }
       console.log('New Row Index:', newRowIndex)
       const payload = {
-        knowledgeGUID: this.knowledge.guid,
-        rowIndex: newRowIndex,
-        boxGUID: boxGUID
+        row: newRowIndex,
+        toId: boxGUID
       }
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/teach?guid=' + taskGUID + '&mode=row',
+          url: 'wisdom/private/move/' + taskGUID,
           body: bodyPayload
         })
           .then(() => {
@@ -2609,7 +2714,7 @@ export default {
 }
 
 .p_sidebar_left.active {
-  @apply min-w-[80dvw] max-w-[80dvw];
+  @apply min-w-[95dvw] max-w-[95dvw];
 }
 
 .p_sidebar_left.active > .p_sidebar_toggler {
@@ -2630,7 +2735,7 @@ export default {
 .p_task {
   @apply mb-1 mx-1 w-[calc(100%-0.5rem)] medium_bg rounded
   flex items-center relative cursor-pointer
-  border-2 border-zinc-500 border-opacity-75;
+  dshadow;
 }
 
 #board {
@@ -2696,7 +2801,7 @@ export default {
 }
 
 .fc .fc-event-title {
-  @apply text-neutral-300 text-sm font-bold italic;
+  @apply text-neutral-300 text-sm font-bold;
 }
 
 .ghost {
@@ -2709,6 +2814,12 @@ export default {
 
 .chosen {
   @apply opacity-100 -rotate-3;
+}
+
+.due_date {
+  @apply flex items-center text-neutral-300 p-2 mt-1 mx-1 mb-2
+  bg-orange-700 bg-opacity-25 justify-between rounded
+  border-[1px] border-orange-800;
 }
 
 </style>

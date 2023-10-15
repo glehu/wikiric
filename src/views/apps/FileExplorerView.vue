@@ -1,7 +1,8 @@
 <template>
   <div id="fileExplorer" ref="fileExplorer"
        class="medium_bg w-full h-full relative overflow-hidden rounded-tr-lg">
-    <div class="text-neutral-300 w-full min-h-[50px] max-h-[50px] p-2 flex items-center medium_bg
+    <div class="text-neutral-300 w-full min-h-[56px] max-h-[56px] px-2 py-3
+                flex items-center medium_bg bshadow z-20 relative
                 divide-x-2 divide-neutral-600">
       <div class="sidebar_button bright_bg rounded-md w-fit mr-2">
         <div v-on:click="clickedBack()"
@@ -19,38 +20,38 @@
     </div>
     <template v-if="snippets && snippets.length > 0">
       <div class="h-[calc(100%-50px)] w-full flex flex-col relative gap-2
-                  overflow-x-hidden overflow-y-auto p-2">
-        <template v-for="snippet in snippets" :key="snippet.guid">
-          <template v-if="query === '' || snippet.filename.toLowerCase().includes(query)">
+                  overflow-x-hidden overflow-y-auto p-2 bright_bg">
+        <template v-for="snippet in snippets" :key="snippet.uid">
+          <template v-if="query === '' || snippet.t.toLowerCase().includes(query)">
             <div class="w-full h-fit relative file_outer pr-2">
               <div class="file_download absolute top-0 right-2 darkest_bg rounded p-2 cursor-pointer"
                    v-tooltip.left="{content: 'Delete File'}"
-                   v-on:click="deleteSnippet(snippet.guid)">
+                   v-on:click="deleteSnippet(snippet.uid)">
                 <TrashIcon class="h-6 w-6"></TrashIcon>
               </div>
-              <a :href="snippet.url"
+              <a :href="snippet.pth"
                  download>
                 <div class="btn_bg_primary cursor-pointer"
                      v-tooltip.top="{content: 'Download File'}">
-                  <template v-if="snippet.filetype.includes('image/')">
-                    <img :src="snippet.url"
+                  <template v-if="snippet.mime.includes('image/')">
+                    <img :src="snippet.pth"
                          alt="&nbsp;"
                          class="max-w-[128px] max-h-[128px] mb-1">
                   </template>
-                  <template v-else-if="snippet.filetype.includes('audio/')">
+                  <template v-else-if="snippet.mime.includes('audio/')">
                     <audio controls preload="auto"
                            class="mb-1">
-                      <source :src="snippet.url">
+                      <source :src="snippet.pth">
                       Your browser does not support playing audio.
                     </audio>
                   </template>
-                  <p class="font-bold text-sm mb-1">{{ snippet.filename }}</p>
+                  <p class="font-bold text-sm mb-1">{{ snippet.t }}</p>
                   <div class="flex gap-x-2 items-center">
                     <FolderArrowDownIcon class="h-6 w-6"></FolderArrowDownIcon>
-                    <p class="text-sm">{{ snippet.filesizeMB }} MB</p>
+                    <p class="text-sm">{{ snippet.mb }} MB</p>
                   </div>
                   <p class="font-bold text-xs text-end">
-                    {{ getHumanReadableDateText(snippet.filedate) }}
+                    {{ getHumanReadableDateText(snippet.ts) }}
                   </p>
                 </div>
               </a>
@@ -120,9 +121,12 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm6/clarifier/' + this.chatguid
+          url: 'files/private/chat/' + this.chatguid
         }).then((data) => {
-          this.snippets = data.result.snippets
+          this.snippets = data.result.files
+          for (let i = 0; i < this.snippets.length; i++) {
+            this.snippets[i].pth = this.$store.state.serverIP + '/' + this.snippets[i].pth
+          }
         })
           .then(() => resolve())
       })
@@ -171,7 +175,7 @@ export default {
       this.$Worker.execute({
         action: 'api',
         method: 'get',
-        url: 'm6/del/' + guid
+        url: 'files/private/delete/' + guid
       })
         .then(() => {
           this.getSnippets()

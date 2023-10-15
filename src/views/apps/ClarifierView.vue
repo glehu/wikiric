@@ -27,11 +27,11 @@
                     <template v-if="friends && friends.size > 0">
                       <template v-for="friend in friends.values()" :key="friend">
                         <div class="w-full h-20 flex items-center pt-1 my-1">
-                          <div v-on:click="joinActive(friend.chatroom.guid)"
+                          <div v-on:click="joinActive(friend.chatroom.uid)"
                                class="w-full h-20 p-2 cursor-pointer medium_bg text-neutral-300
                                     flex items-center
                                     hover:brightness-125 hover:rounded hover:text-white">
-                            <div v-show="hasUnread(friend.chatroom.guid)"
+                            <div v-show="hasUnread(friend.chatroom.uid)"
                                  class="flex items-center justify-center ml-2 mr-3">
                               <i class="bi bi-chat-quote-fill z-[500] text-orange-500 text-lg"></i>
                             </div>
@@ -81,39 +81,61 @@
                       </div>
                     </div>
                   </div>
-                  <div class="m-2 divide-y-2 divide-zinc-600">
+                  <div class="m-2 flex flex-col gap-y-2">
                     <template v-if="$store.state.clarifierSessions && $store.state.clarifierSessions.length > 0">
                       <template v-for="group in $store.state.clarifierSessions" :key="group">
                         <template v-if="group.type !== 'direct'">
-                          <div class="flex items-center h-20 pt-1 my-1">
-                            <div
-                              class="text-neutral-300 h-20 hover:text-white medium_bg
-                                   hover:brightness-125 cursor-pointer hover:rounded p-2 w-full"
-                              style="display: flex; align-items: center; justify-items: center"
-                              v-on:click="joinActive(group.id)">
+                          <div class="flex items-center h-16">
+                            <div class="text-neutral-300 h-full hover:text-white
+                                        medium_bg rounded dshadow overflow-hidden
+                                        hover:brightness-125 cursor-pointer
+                                        hover:rounded w-full relative
+                                        flex items-center justify-center
+                                        border-[1px] border-neutral-600"
+                                 v-on:click="joinActive(group.id)">
+                              <div class="flex absolute
+                                            w-full h-full overflow-hidden
+                                            items-center justify-center
+                                            brightness-75">
+                                <template v-if="group.banner && group.banner !== ''">
+                                  <img class=""
+                                       v-bind:src="getImg(group.banner,true)"
+                                       :alt="getImgAlt(group.t)"/>
+                                </template>
+                              </div>
                               <template v-if="group.img && group.img !== ''">
-                                <img class="w-[40px] h-[40px] z-10 rounded-lg"
-                                     v-bind:src="getImg(group.img,true)" :alt="getImgAlt(group.title)"/>
-                              </template>
-                              <template v-else>
-                                <div
-                                  class="darkest_bg flex items-center justify-center w-[40px] h-[40px] z-10 rounded-lg">
-                                  {{ getImgAlt(group.title) }}
+                                <div class="flex items-center p-1 pr-4 h-full">
+                                  <img class="w-[48px] h-[48px] z-10 rounded-lg ml-1"
+                                       v-bind:src="getImg(group.img,true)" :alt="getImgAlt(group.title)"/>
+                                  <p class="sb_link_text text-nowrap z-10 text-xl font-bold
+                                            ml-4 px-2"
+                                     style="text-shadow: 2px 2px 1px rgb(10 10 13)">
+                                    {{ group.title }}
+                                  </p>
                                 </div>
                               </template>
-                              <h5 class="sb_link_text text-nowrap"
-                                  style="margin: 0 0 0 10px; font-weight: bold">
-                                &nbsp;{{ group.title }}
-                              </h5>
-                              <i class="bi bi-shield-lock text-neutral-300"
+                              <template v-else>
+                                <div class="flex items-center h-full p-1">
+                                  <div class="darkest_bg flex items-center justify-center
+                                              w-[48px] h-[48px] z-10 rounded-lg ml-1">
+                                    {{ getImgAlt(group.title) }}
+                                  </div>
+                                  <p class="sb_link_text text-nowrap z-10 text-xl font-bold
+                                            rounded ml-4 px-2">
+                                    {{ group.title }}
+                                  </p>
+                                </div>
+                              </template>
+                              <i class="bi bi-shield-lock text-neutral-300 z-10"
                                  title="End-to-End Encrypted Group"
                                  style="margin-left: auto; margin-right: 4px"></i>
                             </div>
-                            <button class="text-neutral-300 ml-2 h-20 flex items-center justify-center"
+                            <button class="text-neutral-300 ml-2 h-10 w-10 flex items-center justify-center"
                                     title="Remove Group"
                                     v-on:click="removeGroup(group)">
-                              <i class="bi bi-x-lg p-2 rounded-xl dark_bg bg-opacity-50
-                                    hover:brightness-125"></i>
+                              <i class="bi bi-x-lg p-2 w-full h-full rounded-xl dark_bg bg-opacity-50
+                                    hover:brightness-125">
+                              </i>
                             </button>
                           </div>
                         </template>
@@ -178,12 +200,15 @@
       Add Friend
     </template>
     <template v-slot:body>
-      <div class="p-4">
+      <div class="flex flex-col w-full max-w-[300px]">
         <input type="text" v-model="friendName"
                class="px-2 py-1 medium_bg text-neutral-200"
                placeholder="Username">
-        <br>
-        <button class="my-2 px-2 py-1 rounded-md dark_bg hover:darkest_bg"
+        <textarea v-model="friendMsg"
+                  name="frequestMsg" id="frequestMsg" rows="3"
+                  class="my-1 medium_bg px-2 py-1 text-neutral-200"
+                  placeholder="Message (optional)"></textarea>
+        <button class="btn_bg_primary mt-4"
                 v-on:click="sendFriendRequest()">
           <span class="text-neutral-300">Send Request</span>
         </button>
@@ -212,7 +237,8 @@ export default {
       friends: new Map(),
       wcrypt: null,
       isAddingFriend: false,
-      friendName: ''
+      friendName: '',
+      friendMsg: ''
     }
   },
   created () {
@@ -232,13 +258,13 @@ export default {
       this.$Worker.execute({
         action: 'api',
         method: 'post',
-        url: 'm5/createchatroom',
+        url: 'chat/private/create',
         body: JSON.stringify({
-          title: this.input_string,
+          t: this.input_string,
           type: 'text'
         })
       })
-        .then((data) => (guid = data.result.guid))
+        .then((data) => (guid = data.result))
         .then(() => (this.$router.push('/apps/clarifier/wss/' + guid)))
         .catch((err) => console.log(err.message))
     },
@@ -247,7 +273,7 @@ export default {
         return ''
       } else {
         let ret = imgGUID
-        if (get) ret = this.$store.state.serverIP + '/m6/get/' + imgGUID
+        if (get) ret = this.$store.state.serverIP + '/' + imgGUID
         return ret
       }
     },
@@ -315,10 +341,11 @@ export default {
       this.$Worker.execute({
         action: 'api',
         method: 'get',
-        url: 'm5/direct/.*'
+        url: 'chat/private/users/friends'
       })
         .then(async (data) => {
-          if (data.result && data.result.chatrooms && data.result.chatrooms.length > 0) {
+          // OLD Code ahead
+          if (data.result.thiswillneverwork && data.result && data.result.friends && data.result.friends.length > 0) {
             this.friends = new Map()
             // Iterate over all direct chatrooms
             for (let i = 0; i < data.result.chatrooms.length; i++) {
@@ -351,15 +378,15 @@ export default {
           break
         }
       }
-      const lastMessage = await this.getLastMessage(data.result.chatrooms[i].guid)
-      if (lastMessage.src !== '_server') {
-        const key = await this.$store.getters.getClarifierKeyPair(data.result.chatrooms[i].guid)
+      const lastMessage = await this.getLastMessage(data.result.chatrooms[i].uid)
+      if (lastMessage.usr !== '_server') {
+        const key = await this.$store.getters.getClarifierKeyPair(data.result.chatrooms[i].uid)
         if (key != null) {
           try {
             const decryptedMessage = await this.wcrypt.decryptPayload(lastMessage, userId, key)
             return {
               chatroom: data.result.chatrooms[i],
-              msg: lastMessage.src + ': ' + decryptedMessage.substring(0, 100).trim(),
+              msg: lastMessage.usr + ': ' + decryptedMessage.substring(0, 100).trim(),
               ts: new Date(lastMessage.ts)
             }
           } catch (e) {
@@ -448,15 +475,21 @@ export default {
     sendFriendRequest: function () {
       const username = this.friendName.trim()
       if (username === '') return
+      const payload = {
+        usr: username,
+        msg: this.friendMsg.trim()
+      }
       this.$Worker.execute({
         action: 'api',
-        method: 'get',
-        url: 'm2/befriend/' + username
+        method: 'post',
+        url: 'users/private/befriend',
+        body: JSON.stringify(payload)
       })
         .then((data) => {
           console.log(data)
           this.isAddingFriend = false
           this.friendName = ''
+          this.friendMsg = ''
           this.getNotifications()
           this.$notify(
             {
@@ -473,7 +506,7 @@ export default {
       this.$Worker.execute({
         action: 'api',
         method: 'get',
-        url: 'm8/notifications'
+        url: 'notification/private/read'
       })
         .then((data) => {
           console.log(data)

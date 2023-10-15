@@ -5,10 +5,10 @@
     <template v-if="knowledgeExists">
       <div class="h-full w-full overflow-y-auto">
         <template v-if="!isViewingWisdom && !isViewingProcess">
-          <div class="lg:flex w-full h-fit lg:h-full lg:gap-x-3 p-3">
+          <div class="lg:flex w-full h-fit lg:h-full">
             <div id="knowledgeFinder_sidebar"
-                 class="h-full rounded-md overflow-hidden medium_bg
-                        lg:w-[clamp(450px,33%,550px)]">
+                 class="h-full overflow-hidden medium_bg
+                        lg:w-[clamp(450px,33%,550px)] bshadow">
               <div class="h-full relative">
                 <div class="py-1">
                   <div class="flex items-center">
@@ -51,7 +51,7 @@
                     </div>
                     <div class="pb-2 flex items-center w-full">
                       <div class="overflow-x-hidden overflow-y-auto pb-2 w-full">
-                        <template v-if="knowledge.categories && knowledge.categories.length > 0">
+                        <template v-if="knowledge.cats && knowledge.cats.length > 0">
                           <template v-for="category in knowledge.categories" :key="category">
                             <div
                               class="kf_category">
@@ -73,7 +73,7 @@
                   </template>
                 </div>
                 <!-- QUICK VIEW -->
-                <div class="px-3 py-3 lg:absolute lg:bottom-0 lg:w-full">
+                <div class="p-3 lg:absolute lg:bottom-0 lg:w-full">
                   <div class="flex">
                     <button v-on:click="writeWisdom('ask')"
                             class="border-orange-600 hover:bg-orange-700 border-2
@@ -91,15 +91,15 @@
                 </div>
               </div>
             </div>
-            <div class="pt-2 lg:pt-3 overflow-y-scroll overflow-x-hidden h-full pr-[6px]
+            <div class="lg:overflow-y-auto overflow-x-hidden h-full
                         lg:w-full">
               <TabGroup as="div" class="w-full">
-                <TabList as="div" class="tab-group">
+                <TabList as="div" class="tab-group dshadow p-1">
                   <Tab class="w-full" v-slot="{ selected }">
                     <button :class="[
                               'w-full',
                               selected
-                              ? 'bright_bg text-white'
+                              ? 'dark_bg text-white border-b-2 border-b-indigo-400'
                               : 'hover:dark_bg hover:text-white',
                             ]"
                             class="tab"
@@ -111,7 +111,7 @@
                     <button :class="[
                               'w-full',
                               selected
-                              ? 'bright_bg text-white'
+                              ? 'dark_bg text-white border-b-2 border-b-indigo-400'
                               : 'hover:dark_bg hover:text-white',
                             ]"
                             class="tab"
@@ -121,26 +121,37 @@
                   </Tab>
                 </TabList>
                 <TabPanels>
-                  <TabPanel id="knowledge_tab" ref="knowledge_tab">
+                  <TabPanel id="knowledge_tab" ref="knowledge_tab"
+                            class="p-4">
                     <template v-if="emptyState">
                       <div class="">
                         <div class="text-neutral-400">
-                          <p class="text-xl font-bold my-2 pointer-events-none text-neutral-300">
+                          <p class="text-xl font-bold mb-2 pointer-events-none text-neutral-300">
                             Top Contributors
                           </p>
-                          <div class="flex w-full overflow-x-auto mb-2 pb-[6px]">
-                            <div v-for="author in topWriters.contributors" :key="author.username"
-                                 class="mr-4 text-neutral-400">
-                              <div class="medium_bg rounded-t-lg py-2 px-3 pointer-events-none">
-                                <p class="text-xl">{{ author.username }}</p>
-                              </div>
-                              <div class="medium_bg rounded-b-lg py-1 px-3 pointer-events-none">
-                                <div class="flex items-center">
-                                  <BookOpenIcon class="h-6 w-6 mr-2"></BookOpenIcon>
-                                  <p class="text-xl">{{ author.lessons }}</p>
+                          <div class="flex w-full overflow-x-auto mb-2 pb-[6px] gap-x-4">
+                            <template v-if="topWriters.contributors && topWriters.contributors.length > 0">
+                              <div v-for="author in topWriters.contributors" :key="author.username"
+                                   class="text-neutral-400 dshadow rounded-lg overflow-hidden
+                                        medium_bg">
+                                <div class="py-2 px-3 pointer-events-none">
+                                  <p class="text-xl">{{ author.name }}</p>
+                                </div>
+                                <div class="py-1 px-3 pointer-events-none">
+                                  <div class="flex items-center">
+                                    <BookOpenIcon class="h-6 w-6 mr-2"></BookOpenIcon>
+                                    <p class="text-xl">{{ author.wisdomCount }}</p>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                            </template>
+                            <template v-else>
+                              <div class="medium_bg rounded-md m-1 px-3 py-2 dshadow">
+                                <p class="text-sm text-neutral-300 font-bold">
+                                  No contributions have been made yet.
+                                </p>
+                              </div>
+                            </template>
                           </div>
                         </div>
                         <div v-if="questions.length > 0" class="text-neutral-400">
@@ -156,13 +167,13 @@
                           <div class="flex w-full overflow-x-auto gap-x-2">
                             <template v-for="task in questions" :key="task.uID">
                               <div class="w-full">
-                                <div v-on:click="gotoWisdom(task.result.guid)"
+                                <div v-on:click="gotoWisdom(task.result.uid)"
                                      class="w-full rounded-lg cursor-pointer dark_bg hover:darkest_bg
                                       relative min-w-[250px] py-2 px-3">
                                   <div class="flex w-full mb-1 text-sm">
-                                    <p>{{ task.result.author }}</p>
+                                    <p>{{ task.name }}</p>
                                     <p class="ml-auto">
-                                      {{ getHumanReadableDateText(task.result.cdate, true) }}</p>
+                                      {{ getHumanReadableDateText(task.result.ts, true) }}</p>
                                   </div>
                                   <div class="text-neutral-300 pointer-events-none">
                                     <p class="font-bold text-lg">{{ task.result.t }}</p>
@@ -181,7 +192,7 @@
                         <p class="text-xl font-bold my-2 pointer-events-none text-neutral-300">
                           Keyword Cloud
                         </p>
-                        <div class="flex w-full justify-center items-center p-2 medium_bg rounded-lg">
+                        <div class="flex w-full justify-center items-center p-2 medium_bg rounded-lg dshadow">
                           <div id="d3wordcloud"></div>
                         </div>
                       </div>
@@ -220,28 +231,51 @@
                     <!-- RESULTS -->
                     <template v-if="results.length > 0">
                       <div>
-                        <div class="text-neutral-300 pointer-events-none px-3 pb-2">
-                          {{ results.length }} results in {{ results.time }} seconds
+                        <div class="flex items-center gap-x-2">
+                          <div class="metaTag pointer-events-none">
+                            <p class="text-xs text-neutral-300 font-bold">
+                              {{ results.length }} results in {{ results.time }} s
+                            </p>
+                          </div>
+                          <p class="pl-1 mb-2 text-xs text-neutral-300 font-bold">Sort by:</p>
+                          <div class="metaTag cursor-pointer" :class="{active: sort.byRelevance}"
+                               v-on:click="sortResults('relevance')">
+                            <div class="flex items-center text-neutral-300">
+                              <FunnelIcon class="h-4 w-4 mr-1"/>
+                              <p class="text-xs font-bold">
+                                Relevance
+                              </p>
+                            </div>
+                          </div>
+                          <div class="metaTag cursor-pointer" :class="{active: sort.byViews}"
+                               v-on:click="sortResults('views')">
+                            <div class="flex items-center text-neutral-300">
+                              <EyeIcon class="h-4 w-4 mr-1"/>
+                              <p class="text-xs font-bold">
+                                Views
+                              </p>
+                            </div>
+                          </div>
                         </div>
                         <template v-for="result in results" :key="result">
-                          <VMenu v-on:apply-show="investigate(result.result.guid)"
+                          <VMenu v-on:apply-show="investigate(result.result.uid)"
                                  handle-resize eager-mount instant-move
                                  :arrow-padding="15"
                                  :distance="-15" :flip="true"
                                  :delay="500"
                                  placement="top-end">
-                            <div v-on:click="gotoWisdom(result.result.guid)"
+                            <div v-on:click="gotoWisdom(result.result.uid)"
                                  class="result cursor-pointer">
                               <div class="text-neutral-300 flex items-center text-sm">
-                                <template v-if="result.priority === 'high'">
+                                <template v-if="result.priority === 'highx'">
                                   <SparklesIcon class="w-5 h-5 mr-2 text-amber-600"></SparklesIcon>
                                 </template>
                                 <div class="text-sm">
                                   <p class="text-neutral-200">
-                                    {{ result.result.author }}
+                                    {{ result.result.usr }}
                                   </p>
                                   <p class="text-neutral-300">
-                                    {{ getHumanReadableDateText(result.result.cdate, true) }}
+                                    {{ getHumanReadableDateText(result.result.ts, true) }}
                                   </p>
                                 </div>
                                 <div class="pointer-events-none ml-auto flex items-center">
@@ -264,28 +298,11 @@
                                   </template>
                                 </div>
                               </div>
-                              <template v-if="result.result && result.result.reacts">
-                                <div class="flex my-2">
-                                  <div v-for="reaction in result.result.reacts" :key="reaction.src"
-                                       style="padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                                       class="text-neutral-300 gray-hover flex items-center"
-                                       :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
-                                       :id="'react_' + result.result.guid + '_' + JSON.parse(reaction).t">
-                                    <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
-                                                     class="w-5 h-5 mr-1"></HandThumbUpIcon>
-                                    <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
-                                                       class="w-5 h-5 mr-1"></HandThumbDownIcon>
-                                    <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
-                                              class="w-5 h-5 mr-1"></StarIcon>
-                                    <span v-else> {{ JSON.parse(reaction).t }} </span>
-                                    {{ JSON.parse(reaction).src.length }}
-                                  </div>
-                                </div>
-                              </template>
                               <div class="w-full my-2">
-                                <div class="flex items-center overflow-hidden overflow-ellipsis mb-2">
+                                <div class="flex items-center overflow-hidden
+                                     overflow-ellipsis mb-1">
                                   <template v-if="result.result.type === 'task'">
-                                    <template v-if="result.result.finished">
+                                    <template v-if="result.result.done">
                                       <div class="px-1 py-1 rounded bg-green-800 flex w-16 mr-2 items-center">
                                         <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
                                         <span class="text-xs font-bold text-neutral-300">Done</span>
@@ -304,6 +321,32 @@
                                 </div>
                                 <p class="break-words">{{ result.result.desc }}</p>
                               </div>
+                              <div class="flex my-2 items-center">
+                                <div v-if="result.result.views"
+                                     class="text-neutral-300 gray-hover flex items-center
+                                            px-2 py-1 mr-1 rounded">
+                                  <EyeIcon class="w-4 h-4 mr-1"></EyeIcon>
+                                  <span class="font-bold text-sm">{{ result.result.views }}</span>
+                                </div>
+                                <template v-if="result.result && result.result.reacts">
+                                  <div class="flex">
+                                    <div v-for="reaction in result.result.reacts" :key="reaction.src"
+                                         class="text-neutral-300 gray-hover flex items-center
+                                                px-2 py-1 mr-1 rounded"
+                                         :title="reaction.src.toString() + ' reacted to this.'"
+                                         :id="'react_' + result.result.uid + '_' + reaction.t">
+                                      <HandThumbUpIcon v-if="reaction.t === '+'"
+                                                       class="w-4 h-4 mr-1"></HandThumbUpIcon>
+                                      <HandThumbDownIcon v-else-if="reaction.t === '-'"
+                                                         class="w-4 h-4 mr-1"></HandThumbDownIcon>
+                                      <StarIcon v-else-if="reaction.t === '⭐'"
+                                                class="w-4 h-4 mr-1"></StarIcon>
+                                      <span v-else> {{ reaction.t }} </span>
+                                      <span class="font-bold text-sm">{{ reaction.src.length }}</span>
+                                    </div>
+                                  </div>
+                                </template>
+                              </div>
                               <div class="flex">
                                 <template v-if="result.result.copyContent != null">
                                   <ClipboardIcon
@@ -311,11 +354,11 @@
                                            border-2 border-yellow-500 rounded-lg mr-1">
                                   </ClipboardIcon>
                                 </template>
-                                <template v-for="cat in result.result.categories" :key="cat">
-                                  <div v-if="JSON.parse(cat).category != null"
+                                <template v-for="cat in result.result.cats" :key="cat">
+                                  <div v-if="cat.category != null"
                                        class="text-neutral-400 border-[1px] border-zinc-600 flex items-center
                                     py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm darkest_bg">
-                                    {{ JSON.parse(cat).category }}
+                                    {{ cat }}
                                   </div>
                                 </template>
                               </div>
@@ -323,18 +366,18 @@
                             <template #popper>
                               <div class="flex vpopper">
                                 <div class="pl-1 pr-3">
-                                  <template v-if="related && related.srcWisdom">
+                                  <template v-if="related && related.ref">
                                     <button class="btn_small_icon"
-                                            v-on:click="gotoWisdom(related.srcWisdom.guid)">
+                                            v-on:click="gotoWisdom(related.ref.uid)">
                                       <WindowIcon
                                         class="mr-2 h-4 w-4"
                                         aria-hidden="true"
                                       />
                                       <span class="text-xs font-bold">View Source</span>
                                     </button>
-                                    <template v-if="related.comments && related.comments.length > 0">
+                                    <template v-if="related.replies && related.replies.length > 0">
                                       <button class="btn_small_icon"
-                                              v-on:click="gotoWisdom(result.result.guid)">
+                                              v-on:click="gotoWisdom(result.result.uid)">
                                         <ChatBubbleLeftEllipsisIcon
                                           class="mr-2 h-4 w-4"
                                           aria-hidden="true"
@@ -344,7 +387,7 @@
                                     </template>
                                   </template>
                                   <button class="btn_small_icon"
-                                          v-on:click="searchWisdom(result.result.author)">
+                                          v-on:click="searchWisdom(result.result.usr, false, 'usr')">
                                     <UserIcon
                                       class="mr-2 h-4 w-4"
                                       aria-hidden="true"
@@ -362,24 +405,24 @@
                                     </div>
                                   </template>
                                   <template v-else>
-                                    <template v-if="related && related.srcWisdom">
+                                    <template v-if="related && related.ref">
                                       <div>
                                         <p class="text-xs font-bold pointer-events-none">Source Entry:</p>
                                         <div class="mt-2 p-2 medium_bg rounded max-w-[200px] break-all">
                                           <div class="text-sm">
-                                            {{ related.srcWisdom.author }}
+                                            {{ related.ref.usr }}
                                           </div>
                                           <div class="text-lg font-bold">
-                                            {{ related.srcWisdom.t }}
+                                            {{ related.ref.t }}
                                           </div>
-                                          <template v-if="related.srcWisdom.desc">
+                                          <template v-if="related.ref.desc">
                                             <div class="text-sm my-1">
-                                              {{ limitTo(related.srcWisdom.desc, 100) }}
+                                              {{ limitTo(related.ref.desc, 100) }}
                                             </div>
                                           </template>
                                           <div class="mt-2 text-xs font-bold px-1 py-0.5
                                                     rounded darkest_bg w-fit pointer-events-none">
-                                            {{ capitalizeFirstLetter(related.srcWisdom.type) }}
+                                            {{ capitalizeFirstLetter(related.ref.type) }}
                                           </div>
                                         </div>
                                       </div>
@@ -400,8 +443,9 @@
                       </div>
                     </template>
                   </TabPanel>
-                  <TabPanel id="processes_tab" ref="processes_tab">
-                    <div class="darkest_bg rounded p-3 my-3">
+                  <TabPanel id="processes_tab" ref="processes_tab"
+                            class="p-4">
+                    <div class="darkest_bg rounded p-3 mb-3">
                       <div class="flex items-center text-neutral-200">
                         <BeakerIcon class="min-w-[55px] max-w-[55px] min-h-[55px] max-h-[55px] mr-3"></BeakerIcon>
                         <div>
@@ -445,16 +489,38 @@
                         </div>
                       </template>
                       <template v-else>
+                        <div class="flex items-center gap-x-2">
+                          <p class="pl-1 mb-2 text-xs text-neutral-300 font-bold">Show:</p>
+                          <div class="metaTag cursor-pointer" :class="{active: sort.byRootNodes}"
+                               v-on:click="sort.byAllNodes = false; sort.byRootNodes = true">
+                            <div class="flex items-center text-neutral-300">
+                              <FunnelIcon class="h-4 w-4 mr-1"/>
+                              <p class="text-xs font-bold">
+                                Root Nodes
+                              </p>
+                            </div>
+                          </div>
+                          <div class="metaTag cursor-pointer" :class="{active: sort.byAllNodes}"
+                               v-on:click="sort.byAllNodes = true; sort.byRootNodes = false">
+                            <div class="flex items-center text-neutral-300">
+                              <EyeIcon class="h-4 w-4 mr-1"/>
+                              <p class="text-xs font-bold">
+                                All Nodes
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                         <template v-for="result in processes" :key="result">
-                          <div v-on:click="gotoProcess(result.guid)"
+                          <div v-on:click="gotoProcess(result.uid)"
+                               v-if="result.root || sort.byAllNodes"
                                class="result cursor-pointer">
                             <div class="text-neutral-300 flex items-center text-sm">
                               <div class="text-sm">
                                 <p class="text-neutral-200">
-                                  {{ result.author }}
+                                  {{ result.usr }}
                                 </p>
                                 <p class="text-neutral-300">
-                                  {{ getHumanReadableDateText(result.cdate, true) }}
+                                  {{ getHumanReadableDateText(result.ts, true) }}
                                 </p>
                               </div>
                             </div>
@@ -491,34 +557,36 @@
       </div>
     </template>
     <template v-else>
-      <div class="h-full w-full pt-[55px] bright_bg">
-        <div class="p-8 m-8 medium_bg rounded-md">
+      <template v-if="!isoverlay">
+        <div class="pt-[55px]"></div>
+      </template>
+      <div class="h-full w-full bright_bg">
+        <div class="px-8 pt-4 pb-8 m-8 dark_bg rounded-md dshadow max-w-screen-lg">
           <div class="text-neutral-300 mb-5 pointer-events-none">
-            <span class="text-5xl font-bold">Create new Knowledge Hub</span>
+            <span class="text-4xl font-bold">Create new Knowledge Hub</span>
           </div>
-          <form class="flex" @submit.prevent="createKnowledge()">
-            <div class="text-neutral-300 w-96 ml-5">
-              <label for="title" class="text-3xl mb-2">Title</label>
+          <form class="lg:flex lg:gap-x-4" @submit.prevent="createKnowledge()">
+            <div class="text-neutral-300 w-full lg:w-[50%]">
+              <label for="title" class="text-2xl">Title</label>
               <br>
               <input type="text" id="title" class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
                      required v-model="titleCreation">
               <br>
-              <label for="description" class="mt-3 mb-2 text-3xl">Description</label>
+              <label for="description" class="text-2xl">Description</label>
               <br>
               <textarea type="text" rows="3" id="description"
                         class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
                         v-model="descriptionCreation"></textarea>
             </div>
-            <div class="text-neutral-300 w-96 ml-5">
-              <label for="keywords" class="text-3xl mb-2 mr-3">Keywords</label>
+            <div class="text-neutral-300 w-full lg:w-[50%]">
+              <label for="keywords" class="text-2xl mr-3">Keywords</label>
               <span class="text-neutral-500">Comma separated</span>
               <br>
               <input type="text" id="keywords" class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
                      v-model="keywordsCreation">
               <br>
               <button type="submit"
-                      class="mt-3 py-2 px-3 border-2 border-gray-300 rounded-full hover:bg-gray-200 hover:text-black
-                           font-bold text-lg">
+                      class="mt-6 btn_bg_primary">
                 Create
               </button>
             </div>
@@ -759,7 +827,7 @@
         Create Process
       </template>
       <template v-slot:body>
-        <div class="flex w-full lg:w-[540px]">
+        <div class="flex min-w-[75vw] w-[50vw] lg:min-w-fit lg:w-[540px]">
           <div class="w-full">
             <label for="processTitle" class="text-xl font-bold">Title:</label>
             <br>
@@ -803,19 +871,24 @@ import 'highlight.js/styles/hybrid.css'
 import {
   BookOpenIcon,
   ChatBubbleLeftEllipsisIcon,
-  ClipboardIcon, DocumentArrowUpIcon, DocumentTextIcon, FolderArrowDownIcon,
-  HandThumbDownIcon,
-  HandThumbUpIcon,
-  MagnifyingGlassIcon,
-  StarIcon
+  ClipboardIcon,
+  DocumentArrowUpIcon,
+  DocumentTextIcon,
+  FolderArrowDownIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/vue/24/outline'
 import {
   ArrowsUpDownIcon,
   BeakerIcon,
   CheckIcon,
   Cog6ToothIcon,
+  EyeIcon,
+  FunnelIcon,
+  HandThumbDownIcon,
+  HandThumbUpIcon,
   PlusCircleIcon,
   SparklesIcon,
+  StarIcon,
   UserIcon,
   WindowIcon
 } from '@heroicons/vue/24/solid'
@@ -835,6 +908,7 @@ import * as d3Cloud from 'd3-cloud'
 import { DateTime } from 'luxon'
 import markdownItMermaid from 'markdown-it-mermaid'
 import mermaid from 'mermaid'
+import { dbGetDisplayName } from '@/libs/wikistore'
 
 export default {
   name: 'KnowledgeFinderView',
@@ -874,7 +948,9 @@ export default {
     PlusCircleIcon,
     WindowIcon,
     ChatBubbleLeftEllipsisIcon,
-    UserIcon
+    UserIcon,
+    EyeIcon,
+    FunnelIcon
   },
   data () {
     return {
@@ -927,6 +1003,12 @@ export default {
       uploadFileName: '',
       uploadFileType: '',
       uploadFileBase64: '',
+      sort: {
+        byRelevance: true,
+        byViews: false,
+        byRootNodes: true,
+        byAllNodes: false
+      },
       plugins: [
         {
           plugin: markdownItMermaid
@@ -958,9 +1040,10 @@ export default {
       const input = document.getElementById('search-field')
       if (input) input.focus()
       // Whose knowledge are we trying to see? Return if there is no source
+      let fromChat = false
       let srcGUID = this.srcguid
-      let from = 'clarifier'
       if (this.srcguid != null) {
+        fromChat = true
         const chatroom = await this.getClarifierChatroom(srcGUID)
         if (chatroom != null) {
           this.source = chatroom.t
@@ -968,9 +1051,8 @@ export default {
       } else {
         srcGUID = params.kguid
         if (!srcGUID) return
-        from = 'guid'
       }
-      const knowledge = await this.getKnowledge(srcGUID, from)
+      const knowledge = await this.getKnowledge(srcGUID, fromChat)
       if (knowledge != null) {
         this.knowledge = knowledge
       }
@@ -993,26 +1075,27 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm5/getchatroom/' + sessionID
+          url: 'chat/private/get/' + sessionID
         }).then((data) => resolve(data.result))
           .catch((err) => console.debug(err.message))
       })
     },
-    getKnowledge: async function (guid, from = 'clarifier') {
-      if (!guid || !from) return
+    getKnowledge: async function (guid, fromChat = false) {
+      if (!guid) return
       return new Promise((resolve) => {
+        let url
+        if (fromChat) {
+          url = 'knowledge/private/chat/'
+        } else {
+          url = 'knowledge/private/get/'
+        }
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/get?src=' + guid + '&from=' + from
+          url: url + guid
         }).then((data) => {
+          this.knowledgeExists = true
           this.knowledge = data.result
-          if (this.knowledge.categories != null) {
-            for (let i = 0; i < this.knowledge.categories.length; i++) {
-              this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
-              this.knowledge.categories[i].count = 0
-            }
-          }
           resolve()
         })
           .catch((err) => {
@@ -1022,22 +1105,21 @@ export default {
     },
     createKnowledge: async function () {
       const payload = {
-        mainChatroomGUID: this.srcguid,
-        title: this.titleCreation,
-        description: this.descriptionCreation,
-        keywords: this.keywordsCreation,
-        isPrivate: true
+        pid: this.srcguid,
+        t: this.titleCreation,
+        desc: this.descriptionCreation,
+        keys: this.keywordsCreation
       }
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/create',
+          url: 'knowledge/private/create',
           body: JSON.stringify(payload)
         })
-          .then(() => {
+          .then((data) => {
             this.knowledgeExists = true
-            if (this.srcguid) this.getKnowledge(this.srcguid)
+            this.getKnowledge(data.result, false)
           })
           .then(() => resolve())
           .catch((err) => console.debug(err.message))
@@ -1052,7 +1134,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/edit/categories/' + this.knowledge.guid,
+          url: 'm7/edit/categories/' + this.knowledge.uid,
           body: JSON.stringify(payload)
         })
           .then(() => {
@@ -1065,7 +1147,7 @@ export default {
           .catch((err) => console.debug(err.message))
       })
     },
-    searchWisdom: async function (substitute = null, questionsOnly = false) {
+    searchWisdom: async function (substitute = null, questionsOnly = false, fields = '') {
       if (!questionsOnly) {
         this.results = []
         this.emptyState = false
@@ -1090,92 +1172,51 @@ export default {
         await this.getRecentQuestions()
         return
       }
-      let entryType = ''
-      // Are we looking for a specific wisdom type?
-      // Extract the type using regex, looking for the pattern: "type:<userInput>"
-      if (/type:\w+/g.test(this.querySubmission)) {
-        // If found, extract the type by splitting away the prefix "type:"
-        try {
-          entryType = this.querySubmission.match(/type:\w+/g)[0].split(':')[1]
-          if (entryType === 'ask' || entryType === 'q') entryType = 'question'
-          if (entryType === 'ans' || entryType === 'a') entryType = 'answer'
-          if (entryType === 'teach' || entryType === 'l') entryType = 'lesson'
-          if (entryType === 'todo' || entryType === 't') entryType = 'task'
-          if (entryType === 'reply' || entryType === 'c') entryType = 'comment'
-        } catch (e) {
-          console.debug(e.message)
-        }
-      }
-      let state = ''
-      // Are we looking for a specific wisdom finished state?
-      if (/state:\w+/g.test(this.querySubmission)) {
-        try {
-          state = this.querySubmission.match(/state:\w+/g)[0].split(':')[1]
-          if (state === 'done' || state === 'finished' || state === 'closed') state = 'true'
-          if (state === 'todo' || state === 'unfinished' || state === 'open') state = 'false'
-        } catch (e) {
-          console.debug(e.message)
-        }
-      }
+      const entryType = this.extractEntryType()
+      const state = this.extractEntryState()
       const payload = {
         query: this.querySubmission,
-        entryType: entryType,
-        state: state
+        type: entryType,
+        state: state,
+        fields: fields
       }
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/search/' + this.knowledge.guid,
+          url: 'wisdom/private/query/' + this.knowledge.uid,
           body: JSON.stringify(payload)
         })
           .then((data) => {
             if (!questionsOnly) this.noResults = false
+            let tmpNoResults = true
             const parsedData = data.result
-            let entry
-            if (parsedData.first && parsedData.first.length > 0) {
-              for (let i = 0; i < parsedData.first.length; i++) {
-                parsedData.first[i].wisdom.t = this.formatTitle(parsedData.first[i].wisdom.t)
-                entry = {
-                  priority: 'high',
-                  result: parsedData.first[i].wisdom
-                }
-                if (questionsOnly) {
-                  this.questions.push(entry)
-                } else {
-                  this.results.push(entry)
-                }
-              }
+            this.results.time = parsedData.respTime
+            if (parsedData.lessons && parsedData.lessons.length > 0) {
+              tmpNoResults = false
+              this.addResults(parsedData.lessons, 'lesson', questionsOnly)
             }
-            if (parsedData.second && parsedData.second.length > 0) {
-              for (let i = 0; i < parsedData.second.length; i++) {
-                parsedData.second[i].wisdom.t = this.formatTitle(parsedData.second[i].wisdom.t)
-                entry = {
-                  priority: 'medium',
-                  result: parsedData.second[i].wisdom
-                }
-                if (questionsOnly) {
-                  this.questions.push(entry)
-                } else {
-                  this.results.push(entry)
-                }
-              }
+            if (parsedData.tasks && parsedData.tasks.length > 0) {
+              tmpNoResults = false
+              this.addResults(parsedData.tasks, 'task', questionsOnly)
             }
-            if (parsedData.third && parsedData.third.length > 0) {
-              for (let i = 0; i < parsedData.third.length; i++) {
-                parsedData.third[i].wisdom.t = this.formatTitle(parsedData.third[i].wisdom.t)
-                entry = {
-                  priority: 'low',
-                  result: parsedData.third[i].wisdom
-                }
-                if (questionsOnly) {
-                  this.questions.push(entry)
-                } else {
-                  this.results.push(entry)
-                }
-              }
+            if (parsedData.answers && parsedData.answers.length > 0) {
+              tmpNoResults = false
+              this.addResults(parsedData.answers, 'answer', questionsOnly)
             }
-            this.results.time = parsedData.time / 1000
+            if (parsedData.questions && parsedData.questions.length > 0) {
+              tmpNoResults = false
+              this.addResults(parsedData.questions, 'question', questionsOnly)
+            }
+            if (parsedData.replies && parsedData.replies.length > 0) {
+              tmpNoResults = false
+              this.addResults(parsedData.replies, 'reply', questionsOnly)
+            }
+            if (parsedData.boxes && parsedData.boxes.length > 0) {
+              tmpNoResults = false
+              this.addResults(parsedData.boxes, 'box', questionsOnly)
+            }
+            if (!questionsOnly) this.noResults = tmpNoResults
           })
           .then(() => resolve())
           .catch((err) => {
@@ -1183,6 +1224,10 @@ export default {
             if (!questionsOnly) this.noResults = true
           })
           .finally(() => {
+            if (this.results.length > 0) {
+              if (this.sort.byRelevance) this.results.sort(this.compareRelevance)
+              if (this.sort.byViews) this.results.sort(this.compareViews)
+            }
             if (substitute) this.querySubmission = original
             if (!questionsOnly) {
               const queryObj = {
@@ -1199,6 +1244,31 @@ export default {
             }
           })
       })
+    },
+    addResults: async function (results, type, questionsOnly) {
+      let entry
+      for (let i = 0; i < results.length; i++) {
+        results[i].t = this.formatTitle(results[i].t)
+        let dName = await dbGetDisplayName(results[i].usr)
+        if (dName == null) {
+          dName = results[i].usr
+        }
+        entry = {
+          priority: 'high',
+          type: type,
+          result: results[i],
+          name: dName
+        }
+        if (type !== 'process') {
+          if (questionsOnly) {
+            this.questions.push(entry)
+          } else {
+            this.results.push(entry)
+          }
+        } else {
+          this.processes.push(entry)
+        }
+      }
     },
     formatTitle: function (title) {
       if (!title || title.length < 1) return ''
@@ -1224,24 +1294,25 @@ export default {
         if (this.wisKeywords !== '') this.wisKeywords += ','
         keywordSuffix = 'question'
       }
-      const payload = {
-        title: this.wisTitle,
-        description: this.wisDescription,
-        knowledgeGUID: this.knowledge.guid,
-        keywords: this.wisKeywords + keywordSuffix,
-        copyContent: this.wisCopyContent,
-        categories: categories
-      }
       // Lesson (teach) or Question (ask)?
-      let endpoint = 'teach'
-      if (this.isWritingQuestion) endpoint = 'ask'
+      let type = 'lesson'
+      if (this.isWritingQuestion) type = 'question'
+      const payload = {
+        type: type,
+        t: this.wisTitle,
+        desc: this.wisDescription,
+        pid: this.knowledge.uid,
+        keys: this.wisKeywords + keywordSuffix,
+        copy: this.wisCopyContent,
+        cats: categories
+      }
       // Create entry on the backend
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/' + endpoint,
+          url: 'wisdom/private/create',
           body: bodyPayload
         })
           .then(() => {
@@ -1294,10 +1365,18 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/topwriters/' + this.knowledge.guid
+          url: 'wisdom/private/contributors/' + this.knowledge.uid
         })
-          .then((data) => {
+          .then(async (data) => {
             this.topWriters = data.result
+            let dName
+            for (let i = 0; i < this.topWriters.contributors.length; i++) {
+              dName = await dbGetDisplayName(this.topWriters.contributors[i].usr)
+              if (dName == null) {
+                dName = this.topWriters.contributors[i].usr
+              }
+              this.topWriters.contributors[i].name = dName
+            }
           })
           .catch((err) => {
             console.debug(err.message)
@@ -1386,7 +1465,7 @@ export default {
             .attr('transform', `translate(${x},${y}) rotate(${rotate})`)
             .text(text)
             .on('click', function () {
-              vueInstance.searchWisdom(text)
+              vueInstance.searchWisdom(text, false, 'keys')
             })
             .attr('class', 'cursor-pointer')
             .on('mouseover', function () {
@@ -1410,11 +1489,11 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/keywordlist/' + this.knowledge.guid
+          url: 'wisdom/private/meta/' + this.knowledge.uid + '?type=keys'
         })
           .then((data) => {
             let keywords = []
-            if (data.result.keywords) keywords = data.result.keywords
+            if (data.result.keys) keywords = data.result.keys
             const svg = this.wordCloud(keywords)
             const myNode = document.getElementById('d3wordcloud')
             while (myNode.lastElementChild) {
@@ -1433,7 +1512,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/categorylist/' + this.knowledge.guid
+          url: 'm7/categorylist/' + this.knowledge.uid
         })
           .then((data) => {
             if (!data.result.categories) return
@@ -1518,20 +1597,20 @@ export default {
     getProcesses: async function (substitute = null) {
       this.processes = []
       return new Promise((resolve) => {
-        let query = substitute ?? this.queryText
-        if (query && query !== '') {
-          query = '?query=' + query
-        } else {
-          query = ''
+        const entryType = this.extractEntryType()
+        const payload = {
+          query: this.querySubmission,
+          type: entryType
         }
         this.$Worker.execute({
           action: 'api',
-          method: 'get',
-          url: 'm9/processes/' + this.knowledge.guid + query
+          method: 'post',
+          url: 'process/private/query/' + this.knowledge.uid,
+          body: JSON.stringify(payload)
         })
           .then((data) => {
             // Retrieve all boxes and tasks from server response
-            this.processes = data.result
+            this.processes = data.result.processes
           })
           .then(() => resolve())
           .catch((err) => {
@@ -1552,15 +1631,15 @@ export default {
       }
       return new Promise((resolve) => {
         const payload = {
-          title: this.processTitle.trim(),
-          description: this.processDescription.trim(),
-          keywords: this.processKeywords.trim(),
-          knowledgeGUID: this.knowledge.guid
+          t: this.processTitle.trim(),
+          desc: this.processDescription.trim(),
+          keys: this.processKeywords.trim(),
+          pid: this.knowledge.uid
         }
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm9/create',
+          url: 'process/private/create',
           body: JSON.stringify(payload)
         }).then((data) => {
           this.isWritingProcess = false
@@ -1586,7 +1665,7 @@ export default {
       this.$Worker.execute({
         action: 'api',
         method: 'get',
-        url: 'm7/investigate/' + guid
+        url: 'wisdom/private/investigate/' + guid
       })
         .then((data) => {
           this.related = data.result
@@ -1680,7 +1759,7 @@ export default {
         this.handleUploadSnippetError()
         return
       }
-      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.guid
+      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.uid
       let prefix
       if (this.uploadFileType.includes('image')) {
         prefix = '!'
@@ -1714,6 +1793,60 @@ export default {
       setTimeout(() => {
         mermaid.init()
       }, 0)
+    },
+    sortResults: function (type) {
+      if (type === 'relevance') {
+        this.sort.byRelevance = true
+        this.sort.byViews = false
+        this.results.sort(this.compareRelevance)
+      } else if (type === 'views') {
+        this.sort.byRelevance = false
+        this.sort.byViews = true
+        this.results.sort(this.compareViews)
+      }
+    },
+    compareRelevance: function (a, b) {
+      return b.result.accuracy - a.result.accuracy
+    },
+    compareViews: function (a, b) {
+      return b.result.views - a.result.views
+    },
+    extractEntryType: function () {
+      let entryType = ''
+      // Are we looking for a specific wisdom type?
+      // Extract the type using regex, looking for the pattern: "type:<userInput>"
+      if (/type:\w+/g.test(this.querySubmission)) {
+        // If found, extract the type by splitting away the prefix "type:"
+        try {
+          const entryTypeTmp = this.querySubmission.match(/type:\w+/g)[0].split(':')[1]
+          entryType = entryTypeTmp
+          if (entryTypeTmp === 'ask' || entryTypeTmp === 'q') entryType = 'question'
+          if (entryTypeTmp === 'ans' || entryTypeTmp === 'a') entryType = 'answer'
+          if (entryTypeTmp === 'teach' || entryTypeTmp === 'l') entryType = 'lesson'
+          if (entryTypeTmp === 'todo' || entryTypeTmp === 't') entryType = 'task'
+          if (entryTypeTmp === 'reply' || entryTypeTmp === 'c') entryType = 'reply'
+          if (entryTypeTmp === 'box' || entryTypeTmp === 'b') entryType = 'box'
+          if (entryTypeTmp === 'process' || entryTypeTmp === 'p') entryType = 'process'
+        } catch (e) {
+          console.debug(e.message)
+        }
+      }
+      return entryType
+    },
+    extractEntryState: function () {
+      let state = ''
+      // Are we looking for a specific wisdom finished state?
+      if (/state:\w+/g.test(this.querySubmission)) {
+        try {
+          const stateTmp = this.querySubmission.match(/state:\w+/g)[0].split(':')[1]
+          state = stateTmp
+          if (stateTmp === 'done' || stateTmp === 'finished' || stateTmp === 'closed') state = 'true'
+          if (stateTmp === 'todo' || stateTmp === 'unfinished' || stateTmp === 'open') state = 'false'
+        } catch (e) {
+          console.debug(e.message)
+        }
+      }
+      return state
     }
   }
 }
@@ -1740,16 +1873,15 @@ export default {
 }
 
 .result {
-  @apply my-1 relative text-neutral-300 px-3 py-3 rounded medium_bg;
+  @apply mb-2 relative text-neutral-300 px-3 py-3 rounded medium_bg dshadow;
 }
 
 .result:hover {
-  @apply darkest_bg bg-opacity-50;
-  box-shadow: 0 0 0 1px rgb(82 82 91);
+  @apply darkest_bg bg-opacity-50 dshadow;
 }
 
 .tab-group {
-  @apply flex gap-x-2 w-full justify-between mb-2 medium_bg p-1 rounded-md;
+  @apply flex gap-x-2 w-full justify-between medium_bg;
 }
 
 .tab {

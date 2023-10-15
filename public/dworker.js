@@ -4,7 +4,10 @@ let _u = null
 let _t = null
 let _interval = null
 let _interval2 = null
-const _endpoint = 'https://wikiric.xyz/'
+const _endpoint = 'http://localhost:9999/' // 'https://wikiric.xyz/'
+const _wssEndpoint = 'ws://localhost:9999/' // 'wss://wikiric.xyz/'
+// const _endpoint = 'https://wikiric.xyz/'
+// const _wssEndpoint = 'wss://wikiric.xyz/'
 let ws = null
 let bc = null
 
@@ -13,14 +16,14 @@ const refreshToken = () => {
   const headers = new Headers()
   headers.set('Authorization', 'Basic ' + _u)
   fetch(
-    _endpoint + 'login',
+    _endpoint + 'auth/private/signin',
     {
       method: 'get',
       headers: headers
     }
   )
     .then((res) => res.json())
-    .then((data) => (response = JSON.parse(data.contentJson)))
+    .then((data) => (response = data))
     .then(() => {
       if (response.httpCode === 200) {
         _t = response.token
@@ -33,7 +36,7 @@ const refreshToken = () => {
 }
 
 const wConnect = () => {
-  ws = new WebSocket('wss://wikiric.xyz/connect')
+  ws = new WebSocket(_wssEndpoint + 'ws/connector')
   ws.onopen = async () => {
     bc = new BroadcastChannel('connector')
     ws.onmessage = async function (e) {
@@ -69,7 +72,7 @@ onmessage = function (e) {
   const msg = e.data
   if (!msg.action) return
   if (msg.action === 'signup') {
-    if (!msg.u || !msg.uRaw || !msg.username) return
+    if (!msg.username || !msg.password || !msg.displayName) return
     _u = msg.u
     let response = null
     const headers = new Headers()
@@ -77,27 +80,27 @@ onmessage = function (e) {
       'Content-Type', 'application/json'
     )
     fetch(
-      _endpoint + 'register',
+      _endpoint + 'users/public/signup',
       {
         method: 'post',
         headers: headers,
         body: JSON.stringify({
-          email: msg.uRaw.split(':')[0],
+          email: msg.email,
           username: msg.username,
-          password: msg.uRaw.split(':')[1]
+          displayName: msg.displayName,
+          password: msg.password
         })
       }
     )
-      .then((res) => res.json())
-      .then((data) => (response = data))
       .then(() => {
         e.ports[0].postMessage({
-          success: response.success,
-          result: response
+          success: true,
+          result: ''
         })
-        if (response.success) {
-          refreshToken()
-        }
+        refreshToken()
+      })
+      .catch((err) => {
+        console.log(err)
       })
   } else if (msg.action === 'login') {
     if (!msg.u) return
@@ -106,14 +109,14 @@ onmessage = function (e) {
     const headers = new Headers()
     headers.set('Authorization', 'Basic ' + _u)
     fetch(
-      _endpoint + 'login',
+      _endpoint + 'auth/private/signin',
       {
         method: 'get',
         headers: headers
       }
     )
       .then((res) => res.json())
-      .then((data) => (response = JSON.parse(data.contentJson)))
+      .then((data) => (response = data))
       .then(() => {
         if (response.httpCode === 200) {
           _t = response.token
@@ -153,6 +156,9 @@ onmessage = function (e) {
     if (msg.action !== 'api-http') {
       headers.set('Authorization', 'Bearer ' + _t)
     }
+    headers.set(
+      'Content-Type', 'application/json'
+    )
     let config
     if (msg.method === 'get') {
       config = {
@@ -167,10 +173,8 @@ onmessage = function (e) {
         body: msg.body
       }
     }
-    let prefix = 'api/'
-    if (msg.action === 'api-http' || msg.action === 'api-no-prefix') prefix = ''
     fetch(
-      _endpoint + prefix + msg.url,
+      _endpoint + msg.url,
       config
     )
       .then(res => {

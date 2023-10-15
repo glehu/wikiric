@@ -3,7 +3,7 @@
        class="medium_bg w-full h-full relative overflow-hidden"
        :class="{'rounded-tl': isoverlay, 'rounded-tr': !isoverlay}">
     <div class="text-neutral-300 w-full min-h-[50px] max-h-[50px] px-2 flex items-center medium_bg
-                divide-x-2 divide-neutral-600">
+                divide-x-2 divide-neutral-600 bshadow relative">
       <div class="sidebar_button bright_bg rounded-xl w-fit mr-2">
         <div v-on:click="clickedBack()"
              v-tooltip="{ content: 'Exit' }"
@@ -39,10 +39,10 @@
       <div class="h-[calc(100%-40px)] w-full p-2 flex justify-center bright_bg">
         <div class="h-full w-full overflow-y-auto pb-40 flex justify-center" ref="processScroller">
           <div class="grid grid-cols-1 gap-0 w-full max-w-screen-lg">
-            <template v-for="segment in processEvents" :key="segment.event.uID">
+            <template v-for="segment in processEvents" :key="segment.process.uid">
               <div class="flex text-sm segment">
                 <div class="h-full pr-8 relative">
-                  <template v-if="segment.event.mode === 'start'">
+                  <template v-if="segment.process.mode === 'start'">
                     <div class="absolute rounded-r-md darkest_bg flex items-center justify-center p-1">
                       <RocketLaunchIcon class="w-[16px] h-[16px] text-neutral-300"></RocketLaunchIcon>
                     </div>
@@ -73,7 +73,7 @@
                         >
                           <div class="px-1 py-1 w-full">
                             <MenuItem v-slot="{ active }">
-                              <button v-on:click="deleteEvent(segment.event)"
+                              <button v-on:click="deleteEvent(segment.process)"
                                       class="flex text-neutral-300 p-2 w-full rounded"
                                       :class="
                                       [active ? 'medium_bg' : '']
@@ -109,10 +109,10 @@
                   </div>
                   <div class="pathIndicator"></div>
                 </div>
-                <div class="medium_bg rounded w-full mr-2">
+                <div class="medium_bg rounded w-full mr-2 dshadow">
                   <div class="w-full">
                     <template v-if="segment.task">
-                      <template v-if="segment.task.finished">
+                      <template v-if="segment.task.done">
                         <div class="px-1 py-1 rounded-tl rounded-br bg-green-800 flex w-16 mr-2 items-center">
                           <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
                           <span class="text-xs font-bold text-neutral-300">Done</span>
@@ -125,25 +125,25 @@
                         </div>
                       </template>
                     </template>
-                    <template v-if="!segment.event.editingTitle">
-                      <template v-if="segment.event.t">
+                    <template v-if="!segment.process.editingTitle">
+                      <template v-if="segment.process.t">
                         <Markdown class="markedView w-full p-2"
-                                  v-on:click="editEventTitle(segment.event)"
-                                  :source="'# ' + segment.event.t"
+                                  v-on:click="editEventTitle(segment.process)"
+                                  :source="'# ' + segment.process.t"
                                   :plugins="plugins"></Markdown>
                       </template>
                       <template v-else>
                         <p class="text-neutral-400 w-full p-2"
-                           v-on:click="editEventTitle(segment.event)">
+                           v-on:click="editEventTitle(segment.process)">
                           (No Title)
                         </p>
                       </template>
                     </template>
                     <template v-else>
                       <div class="w-full">
-                    <textarea type="text" v-model="segment.event.t"
-                              :id="segment.event.guid + '_title_edit'"
-                              v-on:blur="updateEvent(segment.event)"
+                    <textarea type="text" v-model="segment.process.t"
+                              :id="segment.process.uid + '_title_edit'"
+                              v-on:blur="updateEvent(segment.process)"
                               rows="1"
                               class="text-lg p-2 mb-2 rounded dark_bg text-neutral-200 w-full"></textarea>
                         <button class="editSubmit">
@@ -152,16 +152,16 @@
                       </div>
                     </template>
                   </div>
-                  <template v-if="!segment.event.editingDescription">
-                    <template v-if="segment.event.desc">
+                  <template v-if="!segment.process.editingDescription">
+                    <template v-if="segment.process.desc">
                       <Markdown class="markedView w-full h-full p-2"
-                                :source="segment.event.desc"
-                                v-on:click="editEventDescription(segment.event)"
+                                :source="segment.process.desc"
+                                v-on:click="editEventDescription(segment.process)"
                                 :plugins="plugins"></Markdown>
                     </template>
                     <template v-else>
                       <p class="text-neutral-400 w-full h-full p-2"
-                         v-on:click="editEventDescription(segment.event)">
+                         v-on:click="editEventDescription(segment.process)">
                         (No Description)
                       </p>
                     </template>
@@ -178,12 +178,12 @@
                           Add File
                         </button>
                       </div>
-                      <textarea :id="segment.event.guid + '_description_edit'"
-                                v-model="segment.event.desc"
+                      <textarea :id="segment.process.uid + '_description_edit'"
+                                v-model="segment.process.desc"
                                 maxlength="3000"
                                 rows="10"
                                 class="p-2 mb-2 dark_bg text-neutral-200 w-full input"></textarea>
-                      <button class="editSubmit" v-on:click="updateEvent(segment.event)">
+                      <button class="editSubmit" v-on:click="updateEvent(segment.process)">
                         Submit
                       </button>
                     </div>
@@ -192,15 +192,15 @@
               </div>
               <div class="flex">
                 <div class="h-full relative">
-                  <template v-if="segment.alternatives && segment.alternatives.length <= 0">
+                  <template v-if="segment.children && segment.children.length <= 0">
                     <div class="pathIndicator"></div>
-                    <div v-on:click="writeProcess(segment.event, !segment.event.hasNext)"
+                    <div v-on:click="writeProcess(segment.process, !segment.process.hasNext)"
                          v-tooltip.right="{ content: 'Add' }"
                          class="adder_button ml-8" style="border-radius: 100%; background-color: transparent;">
                       <PlusCircleIcon class="h-6 w-6"></PlusCircleIcon>
                     </div>
-                    <template v-if="!segment.event.hasNext">
-                      <div v-on:click="writeProcess(segment.event)"
+                    <template v-if="!segment.process.hasNext">
+                      <div v-on:click="writeProcess(segment.process)"
                            v-tooltip.right="{ content: 'Add' }"
                            class="adder_button">
                         <PlusCircleIcon class="h-6 w-6"></PlusCircleIcon>
@@ -209,14 +209,14 @@
                   </template>
                   <div class="pathIndicator"></div>
                 </div>
-                <template v-if="segment.alternatives && segment.alternatives.length > 0 || drag">
+                <template v-if="segment.children && segment.children.length > 0 || drag">
                   <div class="w-full h-fit ml-8 my-2 grid grid-cols-1"
-                       :id="'box_events_guid_' + segment.event.guid"
-                       :ref="'box_events_guid_' + segment.event.guid">
+                       :id="'box_events_guid_' + segment.process.uid"
+                       :ref="'box_events_guid_' + segment.process.uid">
                     <draggable
-                      :list="segment.alternatives"
-                      :group="segment.event.guid"
-                      :id="segment.event.guid"
+                      :list="segment.children"
+                      :group="segment.process.uid"
+                      :id="segment.process.uid"
                       v-bind="dragOptions"
                       :disabled="this.isEditingProcess"
                       @start="drag=true"
@@ -235,7 +235,7 @@
                       }"
                       item-key="order">
                       <template #item="{element}">
-                        <div class="flex text-sm w-full segment relative" :key="element.event.guid">
+                        <div class="flex text-sm w-full segment relative" :key="element.uid">
                           <div class="h-full pr-8">
                             <div class="relative rounded-r-md darkest_bg flex items-center justify-center p-1">
                               <BoltIcon class="w-[16px] h-[16px] text-neutral-300"></BoltIcon>
@@ -261,7 +261,7 @@
                                   >
                                     <div class="px-1 py-1 w-full">
                                       <MenuItem v-slot="{ active }">
-                                        <button v-on:click="deleteEvent(element.event)"
+                                        <button v-on:click="deleteEvent(element)"
                                                 class="flex text-neutral-300 p-2 w-full rounded"
                                                 :class="
                                       [active ? 'medium_bg' : '']
@@ -297,10 +297,10 @@
                             </div>
                             <div class="pathIndicator"></div>
                           </div>
-                          <div class="medium_bg rounded w-full mr-2 mb-2 overflow-hidden">
+                          <div class="medium_bg rounded w-full mr-2 mb-2 overflow-hidden dshadow">
                             <div class="w-full">
                               <template v-if="element.task">
-                                <template v-if="element.task.finished">
+                                <template v-if="element.task.done">
                                   <div class="px-1 py-1 rounded-tl rounded-br bg-green-800 flex w-16 mr-2 items-center">
                                     <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
                                     <span class="text-xs font-bold text-neutral-300">Done</span>
@@ -313,24 +313,24 @@
                                   </div>
                                 </template>
                               </template>
-                              <template v-if="!element.event.editingTitle">
-                                <template v-if="element.event.t">
+                              <template v-if="!element.editingTitle">
+                                <template v-if="element.t">
                                   <Markdown class="markedView w-full p-2 break-words"
-                                            v-on:click="editEventTitle(element.event)"
-                                            :source="'## ' + element.event.t"
+                                            v-on:click="editEventTitle(element)"
+                                            :source="'## ' + element.t"
                                             :plugins="plugins"></Markdown>
                                 </template>
                                 <template v-else>
                                   <p class="text-neutral-400 w-full p-2"
-                                     v-on:click="editEventTitle(element.event)">
+                                     v-on:click="editEventTitle(element)">
                                     (No Title)
                                   </p>
                                 </template>
                               </template>
                               <template v-else>
-                            <textarea type="text" v-model="element.event.t"
-                                      :id="element.event.guid + '_title_edit'"
-                                      v-on:blur="updateEvent(element.event)"
+                            <textarea type="text" v-model="element.t"
+                                      :id="element.uid + '_title_edit'"
+                                      v-on:blur="updateEvent(element)"
                                       rows="1"
                                       class="text-lg p-2 mb-2 rounded dark_bg text-neutral-200 w-full"></textarea>
                                 <button
@@ -339,16 +339,16 @@
                                 </button>
                               </template>
                             </div>
-                            <template v-if="!element.event.editingDescription">
-                              <template v-if="element.event.desc">
+                            <template v-if="!element.editingDescription">
+                              <template v-if="element.desc">
                                 <Markdown class="markedView w-full p-2 break-words"
-                                          :source="element.event.desc"
-                                          v-on:click="editEventDescription(element.event)"
+                                          :source="element.desc"
+                                          v-on:click="editEventDescription(element)"
                                           :plugins="plugins"></Markdown>
                               </template>
                               <template v-else>
                                 <p class="text-neutral-400 w-full p-2"
-                                   v-on:click="editEventDescription(element.event)">
+                                   v-on:click="editEventDescription(element)">
                                   (No Description)
                                 </p>
                               </template>
@@ -365,12 +365,12 @@
                                     Add File
                                   </button>
                                 </div>
-                                <textarea :id="element.event.guid + '_description_edit'"
-                                          v-model="element.event.desc"
+                                <textarea :id="element.uid + '_description_edit'"
+                                          v-model="element.desc"
                                           maxlength="3000"
                                           rows="10"
                                           class="p-2 mb-2 dark_bg text-neutral-200 w-full input"></textarea>
-                                <button v-on:click="updateEvent(element.event)"
+                                <button v-on:click="updateEvent(element)"
                                         class="editSubmit">
                                   Submit
                                 </button>
@@ -381,7 +381,7 @@
                       </template>
                     </draggable>
                     <div class="h-full relative">
-                      <div v-on:click="writeProcess(segment.event)"
+                      <div v-on:click="writeProcess(segment.process)"
                            v-tooltip.right="{ content: 'Add' }"
                            class="adder_button">
                         <PlusCircleIcon class="h-6 w-6"></PlusCircleIcon>
@@ -393,33 +393,35 @@
             </template>
           </div>
         </div>
-        <div id="rightbar"
-             class="max-h-[calc(100%-30px)] w-[350px] hidden lg:flex lg:flex-col
+        <div :class="{'hidden': issmall}">
+          <div id="rightbar"
+               class="max-h-[calc(100%-30px)] w-[350px] hidden lg:flex lg:flex-col
                     overflow-hidden rounded-b-xl">
-          <ul ref="contentLinks"
-              class="rounded-l-xl text-neutral-300 pl-2 py-2 mt-2 medium_bg
+            <ul ref="contentLinks"
+                class="rounded-l-xl text-neutral-300 pl-2 py-2 mt-2 medium_bg
                      overflow-y-auto h-fit max-h-full w-full max-w-[350px]">
-            <div class="dark_bg p-1 pr-0 rounded-tl-md">
-              <span class="pl-2 text-xs font-bold text-neutral-300">Contents</span>
-            </div>
-            <div class="border-l-4 border-l-indigo-800 h-2 w-4"></div>
-            <li v-for="contentLink in contentLinks.values()" :key="contentLink"
-                :id="'link_' + contentLink.link"
-                class="flex items-center border-l-4 pl-1"
-                :class="{ 'border-l-indigo-800': contentLink.active, 'border-l-zinc-800': !contentLink.active }">
-              <div v-for="level in contentLink.level" :key="level"
-                   class="min-w-[1.5rem] h-full flex items-start justify-center">
-                <div v-if="level === '|'"
-                     class="h-1 w-1 rounded-full dark_bg"></div>
+              <div class="dark_bg p-1 pr-0 rounded-tl-md">
+                <span class="pl-2 text-xs font-bold text-neutral-300">Contents</span>
               </div>
-              <a :href="contentLink.link"
-                 class="text-neutral-300 text-sm py-0.5 px-1 rounded
+              <div class="border-l-4 border-l-indigo-800 h-2 w-4"></div>
+              <li v-for="contentLink in contentLinksArr" :key="contentLink"
+                  :id="'link_' + contentLink.link"
+                  class="flex items-center border-l-4 pl-1"
+                  :class="{ 'border-l-indigo-800': contentLink.active, 'border-l-zinc-800': !contentLink.active }">
+                <div v-for="level in contentLink.level" :key="level"
+                     class="min-w-[1.5rem] h-full flex items-start justify-center">
+                  <div v-if="level === '|'"
+                       class="h-1 w-1 rounded-full dark_bg"></div>
+                </div>
+                <a :href="contentLink.link"
+                   class="text-neutral-300 text-sm py-0.5 px-1 rounded
                       hover:bg-indigo-800 border-[2px] border-transparent hover:border-indigo-600">
-                {{ contentLink.title }}
-              </a>
-            </li>
-            <div class="border-l-4 border-l-zinc-800 h-1 w-1 rounded-b-full"></div>
-          </ul>
+                  {{ contentLink.t }}
+                </a>
+              </li>
+              <div class="border-l-4 border-l-zinc-800 h-1 w-1 rounded-b-full"></div>
+            </ul>
+          </div>
         </div>
       </div>
     </template>
@@ -591,7 +593,8 @@ export default {
   props: {
     isoverlay: Boolean,
     srcguid: String,
-    chatguid: String
+    chatguid: String,
+    issmall: Boolean
   },
   emits: ['close'],
   components: {
@@ -642,6 +645,7 @@ export default {
         guid: ''
       },
       contentLinks: new Map(),
+      contentLinksArr: [],
       currentHeaders: new Map(),
       plugins: [
         {
@@ -696,16 +700,19 @@ export default {
     },
     getKnowledge: async function (guid, from = 'clarifier') {
       if (!guid || !from) return
+      let url = 'knowledge/private/chat/' + guid
+      if (from === 'uid') {
+        url = 'knowledge/private/get/' + guid
+      }
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/get?src=' + guid + '&from=' + from
+          url: url
         }).then((data) => {
           this.knowledge = data.result
           if (this.knowledge.categories != null) {
             for (let i = 0; i < this.knowledge.categories.length; i++) {
-              this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
               this.knowledge.categories[i].count = 0
             }
           }
@@ -731,26 +738,29 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm9/path/' + this.knowledge.guid + '?entry=' + guid
+          url: 'process/private/path/' + guid
         })
           .then((data) => {
             if (srcguidOverride === '') {
               this.contentLinks = new Map()
               if (data.result.path) this.processEvents = data.result.path
               if (this.processEvents.length > 0) {
-                this.docExists = this.processEvents[0].event.wisdomUID !== -1
+                this.docExists = this.processEvents[0].process.ref !== -1
               }
               let elem
               for (let i = 0; i < this.processEvents.length; i++) {
-                this.processEvents[i].event.hasNext = ((i + 1) < this.processEvents.length)
+                this.processEvents[i].process.hasNext = ((i + 1) < this.processEvents.length)
                 elem = this.processEvents[i]
-                this.buildContentLinks(elem.event, false)
-                if (elem.alternatives && elem.alternatives.length > 0) {
-                  for (let j = 0; j < elem.alternatives.length; j++) {
-                    this.buildContentLinks(elem.alternatives[j].event, false)
+                this.buildContentLinks(elem.process, false)
+                if (elem.children && elem.children.length > 0) {
+                  for (let j = 0; j < elem.children.length; j++) {
+                    this.buildContentLinks(elem.children[j].process, false)
                   }
                 }
               }
+              this.contentLinksArr = Array.from(this.contentLinks, function (item) {
+                return item[1]
+              })
             }
             resolve(data.result)
           })
@@ -791,7 +801,7 @@ export default {
       }
     },
     writeProcess: function (sourceEvent, addExtra = false) {
-      const srcGUID = sourceEvent.guid
+      const srcGUID = sourceEvent.uid
       if (!srcGUID || srcGUID === '') return
       this.writingSource = sourceEvent
       this.createProcess(true)
@@ -809,25 +819,25 @@ export default {
         let payload
         if (!empty) {
           payload = {
-            title: this.processTitle.trim(),
-            description: this.processDescription.trim(),
-            keywords: this.processKeywords.trim(),
-            knowledgeGUID: this.knowledge.guid,
-            previousEventGUID: this.writingSource.guid
+            t: this.processTitle.trim(),
+            desc: this.processDescription.trim(),
+            keys: this.processKeywords.trim(),
+            pid: this.knowledge.uid,
+            prev: [this.writingSource.uid]
           }
         } else {
           payload = {
-            title: '',
-            description: '',
-            keywords: '',
-            knowledgeGUID: this.knowledge.guid,
-            previousEventGUID: this.writingSource.guid
+            t: '',
+            desc: '',
+            keys: '',
+            pid: this.knowledge.uid,
+            prev: [this.writingSource.uid]
           }
         }
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm9/create',
+          url: 'process/private/create',
           body: JSON.stringify(payload)
         }).then((data) => {
           console.log(data.result)
@@ -846,14 +856,14 @@ export default {
     editEventTitle: async function (event) {
       if (this.drag) return
       // Are we currently editing an event?
-      if (this.isEditingProcess === true && (this.editingProcess && this.editingProcess.uID !== event.uID)) {
+      if (this.isEditingProcess === true && (this.editingProcess && this.editingProcess.uid !== event.uid)) {
         await this.updateEvent(this.editingProcess)
       }
       event.editingTitle = true
       this.isEditingProcess = true
       this.dragOptions.disabled = true
       setTimeout(() => {
-        const elem = document.getElementById(event.guid + '_title_edit')
+        const elem = document.getElementById(event.uid + '_title_edit')
         if (elem) {
           elem.focus()
         }
@@ -862,7 +872,7 @@ export default {
     editEventDescription: async function (event) {
       if (this.drag) return
       // Are we currently editing an event?
-      if (this.isEditingProcess === true && (this.editingProcess && this.editingProcess.uID !== event.uID)) {
+      if (this.isEditingProcess === true && (this.editingProcess && this.editingProcess.uid !== event.uid)) {
         await this.updateEvent(this.editingProcess)
       }
       event.editingDescription = true
@@ -870,31 +880,34 @@ export default {
       this.editingProcess = event
       this.dragOptions.disabled = true
       setTimeout(() => {
-        const elem = document.getElementById(event.guid + '_description_edit')
+        const elem = document.getElementById(event.uid + '_description_edit')
         if (elem) {
           elem.focus()
         }
       }, 0)
     },
     updateEvent: function (pEvent) {
+      let payload
+      if (pEvent.editingTitle) {
+        payload = {
+          field: 'title',
+          new: pEvent.t.trim()
+        }
+      } else if (pEvent.editingDescription) {
+        payload = {
+          field: 'desc',
+          new: pEvent.desc.trim()
+        }
+      }
       pEvent.editingTitle = false
       pEvent.editingDescription = false
       this.isEditingProcess = false
       this.dragOptions.disabled = true
       return new Promise((resolve) => {
-        let eventWisdomGUID = ''
-        if (pEvent.wisdomGUID) eventWisdomGUID = pEvent.wisdomGUID
-        const payload = {
-          title: pEvent.t.trim(),
-          description: pEvent.desc.trim(),
-          keywords: pEvent.keywords.trim(),
-          knowledgeGUID: this.knowledge.guid,
-          wisdomGUID: eventWisdomGUID
-        }
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm9/create?mode=edit&guid=' + pEvent.guid,
+          url: 'process/private/edit/' + pEvent.uid,
           body: JSON.stringify(payload)
         })
           .then(() => (this.editingProcess = null))
@@ -910,7 +923,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm9/delete/' + event.guid
+          url: 'process/private/delete/' + event.uid
         })
           .then(() => resolve())
           .catch((err) => {
@@ -929,7 +942,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/' + endpoint + '/' + task.guid
+          url: 'wisdom/private/' + endpoint + '/' + task.uid
         })
           .then(() => resolve())
           .catch((err) => {
@@ -949,7 +962,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm9/interact/' + this.processEvents[0].event.guid,
+          url: 'm9/interact/' + this.processEvents[0].process.uid,
           body: JSON.stringify(payload)
         })
           .then((data) => {
@@ -972,11 +985,11 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm9/interact/' + this.processEvents[0].event.guid,
+          url: 'm9/interact/' + this.processEvents[0].process.uid,
           body: JSON.stringify(payload)
         })
           .then((data) => {
-            this.$router.push('/apps/knowledge/' + data.result + '?src=' + this.knowledge.guid)
+            this.$router.push('/apps/knowledge/' + data.result + '?src=' + this.knowledge.uid)
           })
           .then(() => this.renderMermaid())
           .then(() => resolve())
@@ -989,12 +1002,13 @@ export default {
       const mTitle = this.documentation.split('\n', 1)[0]
       const mBody = this.documentation.split(mTitle)[1]
       const payload = {
-        title: mTitle,
-        description: mBody,
-        knowledgeGUID: this.knowledge.guid,
-        keywords: 'documentations,docs,process,' + mTitle.replaceAll('#', '').trim(),
-        copyContent: '',
-        categories: []
+        t: mTitle,
+        desc: mBody,
+        pid: this.knowledge.uid,
+        keys: 'documentations,docs,process,' + mTitle.replaceAll('#', '').trim(),
+        copy: '',
+        cats: [],
+        type: 'lesson'
       }
       // Create entry on the backend
       const bodyPayload = JSON.stringify(payload)
@@ -1003,7 +1017,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/teach',
+          url: 'wisdom/private/create',
           body: bodyPayload
         })
           .then((data) => {
@@ -1011,7 +1025,7 @@ export default {
             wisdomGUID = data.result
           })
           .then(() => {
-            this.$router.push('/apps/knowledge/' + wisdomGUID + '?src=' + this.knowledge.guid)
+            this.$router.push('/apps/knowledge/' + wisdomGUID + '?src=' + this.knowledge.uid)
           })
           .then(() => resolve)
           .catch((err) => {
@@ -1022,7 +1036,7 @@ export default {
     },
     setWisdomGUIDForEvent: async function (guid) {
       if (!guid || guid === '') return
-      const pEvent = this.processEvents[0].event
+      const pEvent = this.processEvents[0].process
       pEvent.wisdomGUID = guid
       await this.updateEvent(pEvent)
     },
@@ -1030,56 +1044,59 @@ export default {
       const prefix = 'box_events_guid_'
       if (e.added) {
         // Moved to another box!
-        console.log(e.added.element.event.guid, 'MOVED to index', e.added.newIndex,
+        console.log(e.added.element.uid, 'MOVED to index', e.added.newIndex,
           'for new box', this.lastDragMove.to.parentElement.id.substring(prefix.length))
         // Set new rowIndex and boxGUID for this task!
-        this.moveTask(e.added.element.event.guid, e.added.newIndex,
-          this.lastDragMove.to.parentElement.id.substring(prefix.length))
+        this.moveTask(e.added.element.uid, e.added.newIndex,
+          this.lastDragMove.to.parentElement.id.substring(prefix.length), true)
       } else if (e.moved) {
         // Moved inside current box.
-        console.log(e.moved.element.event.guid, 'MOVED to index', e.moved.newIndex)
+        console.log(e.moved.element.uid, 'MOVED to index', e.moved.newIndex)
         // Set new rowIndex for this task!
-        this.moveTask(e.moved.element.event.guid, e.moved.newIndex,
-          this.lastDragMove.to.parentElement.id.substring(prefix.length))
+        this.moveTask(e.moved.element.uid, e.moved.newIndex,
+          this.lastDragMove.to.parentElement.id.substring(prefix.length), false)
       }
     },
-    moveTask: function (taskGUID, newRowIndex, boxGUID) {
+    moveTask: function (taskGUID, newRowIndex, boxGUID, newBox) {
       for (const i in this.processEvents) {
-        if (this.processEvents[i].event.guid === boxGUID) {
-          if (this.processEvents[i].alternatives && this.processEvents[i].alternatives.length > 1) {
+        if (this.processEvents[i].process.uid === boxGUID) {
+          if (this.processEvents[i].children && this.processEvents[i].children.length > 1) {
             if (newRowIndex > 0) {
               // rowIndex != 0 so compare the tasks before and after
-              const rowIndexTaskBefore = this.processEvents[i].alternatives[newRowIndex - 1].event.rowIndex
-              if (this.processEvents[i].alternatives.length - 1 > newRowIndex) {
-                const rowIndexTaskAfter = this.processEvents[i].alternatives[newRowIndex + 1].event.rowIndex
+              const rowIndexTaskBefore = this.processEvents[i].children[newRowIndex - 1].row
+              if (this.processEvents[i].children.length - 1 > newRowIndex) {
+                const rowIndexTaskAfter = this.processEvents[i].children[newRowIndex + 1].row
                 newRowIndex = Math.floor((rowIndexTaskBefore + rowIndexTaskAfter) / 2)
               } else {
                 newRowIndex = rowIndexTaskBefore + 20000
               }
             } else {
               // rowIndex = 0 so just look at the second task if it exists
-              newRowIndex = Math.floor(this.processEvents[i].alternatives[1].event.rowIndex / 2)
+              newRowIndex = Math.floor(this.processEvents[i].children[1].row / 2)
             }
           } else {
             // First task => Set it to 0
-            newRowIndex = 20000
-            if (!this.processEvents[i].event.hasNext) {
-              this.writeProcess(this.processEvents[i].event)
-            }
           }
         }
       }
+      if (newRowIndex <= 1) {
+        newRowIndex = 0.5
+      }
       console.log('New Row Index:', newRowIndex)
+      let field = 'row'
+      if (newBox) {
+        field = 'link'
+      }
       const payload = {
-        knowledgeGUID: this.knowledge.guid,
-        rowIndex: newRowIndex,
-        previousEventGUID: boxGUID
+        field: field,
+        row: newRowIndex,
+        fromId: boxGUID
       }
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm9/create?mode=row&guid=' + taskGUID,
+          url: 'process/private/edit/' + taskGUID + '?mode=sub',
           body: JSON.stringify(payload)
         })
           .then(() => (this.getProcessInformation()))
@@ -1162,7 +1179,7 @@ export default {
       console.debug(errorMessage)
       this.$notify(
         {
-          title: 'File Not Uploaded',
+          t: 'File Not Uploaded',
           text: 'An Error occurred while uploading the file.',
           type: 'error'
         })
@@ -1172,7 +1189,7 @@ export default {
         this.handleUploadSnippetError()
         return
       }
-      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.guid
+      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.uid
       let prefix
       if (this.uploadFileType.includes('image')) {
         prefix = '!'
@@ -1186,7 +1203,7 @@ export default {
         text = '\n\n' + text + '\n\n'
       }
       setTimeout(() => {
-        this.addToTextArea(this.editingProcess.guid + '_description_edit', text)
+        this.addToTextArea(this.editingProcess.uid + '_description_edit', text)
         this.renderMermaid()
       }, 0)
       this.cancelAddMedia()
@@ -1208,7 +1225,7 @@ export default {
         header = process.t.replace(/^#+/g, '')
         headerLink = this.convertToLink(header)
         this.contentLinks.set(headerLink, {
-          title: header.trim(),
+          t: header.trim(),
           link: headerLink,
           level: linkLevel,
           active: false
@@ -1230,7 +1247,7 @@ export default {
             counter.set(headerLink, 1)
           }
           this.contentLinks.set(headerLink, {
-            title: header.trim(),
+            t: header.trim(),
             link: headerLink,
             level: linkLevel,
             active: false

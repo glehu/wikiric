@@ -1,10 +1,10 @@
 <template>
   <div class="h-full w-full md:flex items-center justify-center overflow-x-hidden">
-    <form class="login grid grid-cols-1 md:flex pt-[55px]" @submit.prevent="login()">
+    <form class="login grid grid-cols-1 md:flex pt-[55px]" @submit.prevent="login">
       <section class="flex justify-center">
         <div class="container p-3 h-full">
           <div class="justify-center items-center h-full">
-            <div class="bright_card">
+            <div class="bright_card bshadow">
               <div class="p-4 text-center">
                 <div class="md:mt-0">
                   <h2 class="font-bold mb-2 text-uppercase text-4xl mb-4">
@@ -16,7 +16,7 @@
                       v-model="user.email"
                       type="email"
                       class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
-                      placeholder="Email"
+                      placeholder="Username"
                       autocomplete="username"
                     />
                   </div>
@@ -24,6 +24,7 @@
                     <input
                       required
                       v-model="user.password"
+                      v-on:keyup.enter="login"
                       type="password"
                       class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
                       placeholder="Password"
@@ -33,12 +34,12 @@
                   <!--<p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#">Forgot password?</a></p>-->
                   <button class="btn_bg_primary"
                           type="button"
-                          v-on:click="login()">
+                          v-on:click="login">
                     Login
                   </button>
                   <div class="flex items-center justify-center w-full mt-5 gap-x-2">
                     <p class="pointer-events-none text-neutral-300 text-sm">No Account?</p>
-                    <button v-on:click="gotoRegister()"
+                    <button v-on:click="gotoRegister"
                             type="button"
                             class="text-white muArrow rounded dark_bg hover:darkest_bg px-2 py-1 ml-2">
                       Sign Up
@@ -54,7 +55,7 @@
         <section class="flex justify-center">
           <div id="metamask_registration" class="container h-full p-3">
             <div class="justify-center items-center h-full">
-              <div class="bright_card">
+              <div class="bright_card bshadow">
                 <div class="p-4 text-center">
                   <div class="md:mt-0">
                     <p class="pointer-events-none">Sign in via</p>
@@ -83,7 +84,7 @@
         <section class="flex justify-center">
           <div id="phantom_registration" class="container h-full p-3">
             <div class="justify-center items-center h-full">
-              <div class="bright_card">
+              <div class="bright_card bshadow">
                 <div class="p-4 text-center">
                   <div class="md:mt-0">
                     <p class="pointer-events-none">Sign in via</p>
@@ -122,6 +123,7 @@ export default {
       user: {
         token: '',
         username: '',
+        displayName: '',
         email: '',
         password: '',
         accountType: ''
@@ -165,7 +167,7 @@ export default {
         console.log('User already logged in.')
       }
     },
-    async serverLogin (u, p, accountType = 'email') {
+    async serverLogin (u = null, p = null, accountType = 'email') {
       if (!u) u = this.user.email
       if (!p) p = this.user.password
       if (accountType) {
@@ -193,6 +195,7 @@ export default {
     },
     processLogin (response) {
       this.user.username = response.result.username
+      this.user.displayName = response.result.displayName
       this.$store.commit('logIn', this.user)
       this.$router.replace(this.$route.query.redirect.toString() || '/')
     },

@@ -73,9 +73,9 @@ const WRTC = {
       'Running on', adapter.browserDetails.browser, adapter.browserDetails.version)
     // Initialize Connector listener - this is the signaling server!
     this.connector.onmessage = async event => {
-      if (event.data.type == null) return
+      if (event.data.typ == null) return
       // Listen for WebRTC related data
-      if (event.data.type === 'fwd:wRTC') {
+      if (event.data.typ === 'wRTC') {
         const payload = JSON.parse(event.data.msg)
         if (payload.remoteId == null) return
         if (payload.description) {
@@ -343,10 +343,10 @@ const WRTC = {
         peerConnection.isAccepted = true
       }
       this.worker.execute({
-        action: 'fwd',
-        username: peerConnection.remoteName,
-        type: 'wRTC',
-        value: JSON.stringify(
+        act: 'fwd',
+        usr: peerConnection.remoteName,
+        typ: 'wRTC',
+        msg: JSON.stringify(
           {
             description: peerConnection.localDescription,
             remoteId: peerConnection.selfId,
@@ -373,10 +373,10 @@ const WRTC = {
       candidate = { candidate: '' }
     }
     this.worker.execute({
-      action: 'fwd',
-      username: peerConnection.remoteName,
-      type: 'wRTC',
-      value: JSON.stringify(
+      act: 'fwd',
+      usr: peerConnection.remoteName,
+      typ: 'wRTC',
+      msg: JSON.stringify(
         {
           candidate: candidate,
           remoteId: peerConnection.selfId,
@@ -464,10 +464,10 @@ const WRTC = {
         console.log(`%c${peerConnection.localDescription.type}`, this.logStyle, 'created')
       }
       this.worker.execute({
-        action: 'fwd',
-        username: peerConnection.remoteName,
-        type: 'wRTC',
-        value: JSON.stringify(
+        act: 'fwd',
+        usr: peerConnection.remoteName,
+        typ: 'wRTC',
+        msg: JSON.stringify(
           {
             description: peerConnection.localDescription,
             remoteId: peerConnection.selfId,

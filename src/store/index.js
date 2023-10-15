@@ -22,6 +22,7 @@ export default createStore({
     token: '',
     email: '',
     username: '',
+    displayName: '',
     password: '',
     fcmToken: '',
     // --- Web Shop ---
@@ -48,8 +49,9 @@ export default createStore({
   mutations: {
     logIn (state, user) {
       state.authenticated = true
-      state.email = user.email
+      state.email = user.username
       state.username = user.username
+      state.displayName = user.displayName
       state.accountType = user.accountType
     },
     logOut (state) {
@@ -61,11 +63,11 @@ export default createStore({
       state.accountType = ''
     },
     putInCart (state, itemObj) {
-      state.cart.push(itemObj)
+      state.cart.unshift(itemObj)
     },
     removeFromCart (state, itemObj) {
       state.cart = state.cart.filter(function (ele) {
-        return ele.posID.toString() !== itemObj.posID.toString()
+        return ele.uid.toString() !== itemObj.uid.toString()
       })
     },
     clearCart (state) {
@@ -136,7 +138,8 @@ export default createStore({
         id: session.id,
         title: session.title,
         img: session.img,
-        type: session.type
+        type: session.type,
+        banner: session.banner
       })
     },
     removeClarifierSession (state, session) {

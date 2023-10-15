@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-[55px] h-full w-full overflow-y-scroll text-neutral-200">
+  <div class="mt-[55px] h-full w-full overflow-y-auto text-neutral-200">
     <div class="p-4 max-w-screen-lg mx-auto">
       <div id="title" class="shadow-box" style="width: 100%; border: 2px solid white; border-radius: 1em">
         <div class="px-3 py-2 flex items-center justify-between">

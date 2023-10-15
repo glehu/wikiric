@@ -264,7 +264,6 @@ export default {
       knowledgeExists: true,
       chatroom: {},
       members: [],
-      userId: '',
       connector: null,
       isoverlay: false,
       isAddingMedia: false,
@@ -352,9 +351,6 @@ export default {
               for (let i = 0; i < this.chatroom.members.length; i++) {
                 // Main Members
                 this.members[i] = JSON.parse(this.chatroom.members[i])
-                if (this.members[i].usr === this.$store.state.username) {
-                  this.userId = this.members[i].id
-                }
               }
             }
           })
@@ -561,12 +557,12 @@ export default {
       }
       const remoteName = this.getUserFromId(remoteId)
       this.session.wRTC.initiatePeerConnection(
-        null, this.userId, remoteId, remoteName, true)
+        null, this.$store.state.username, remoteId, remoteName, true)
     },
     setUpWRTC: function () {
       // Initialize wRTC.js
       this.session.wRTC = WRTC
-      this.session.wRTC.initialize(this.$Worker, this.$store.state.username, this.userId, true, true)
+      this.session.wRTC.initialize(this.$Worker, this.$store.state.username, this.$store.state.username, true, true)
       // Create BroadcastChannel to listen to wRTC events!
       const eventChannel = new BroadcastChannel('wrtcevents')
       eventChannel.onmessage = event => {
@@ -689,7 +685,7 @@ export default {
               X2 - X1,
               Y2 - Y1)
           }
-          imageToDraw.src = valueList[5]
+          imageToDraw.usr = valueList[5]
         } else if (event.data.message.substring(0, 6) === '[c:DT]') {
           // Draw Text
           const valueList = event.data.message.substring(6).split('|')
@@ -924,7 +920,7 @@ export default {
 .p_card_menu_list_big_p {
   @apply absolute top-0 mb-2 w-80 divide-y divide-zinc-400 border-[1px] border-zinc-400
   shadow-zinc-900 shadow-2xl rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10
-  max-h-40 overflow-y-scroll;
+  max-h-40 overflow-y-auto;
 }
 
 .darkbutton {

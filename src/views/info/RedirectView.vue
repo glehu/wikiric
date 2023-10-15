@@ -11,7 +11,20 @@ export default {
   name: 'Redirect',
   mounted () {
     setTimeout(() => {
-      this.$router.replace(this.$route.query.redirect.toString() || '/')
+      let redirect = this.$route.query.redirect.toString()
+      if (this.$route.query.ref) {
+        const ref = this.$route.query.ref.toString()
+        if (ref && ref !== '') {
+          if (redirect.includes('?')) {
+            // Redirect has query params => Attach with ampersand
+            redirect = redirect + '&ref=' + ref
+          } else {
+            // Redirect has no query params => Attach with query operator / question mark
+            redirect = redirect + '?ref=' + ref
+          }
+        }
+      }
+      this.$router.replace(redirect || '/')
     }, 0)
   }
 }

@@ -137,7 +137,7 @@
         @apply bg-indigo-600 hover:bg-indigo-700
         border-2 border-indigo-400
         text-neutral-200 hover:text-neutral-200
-        m-1 py-2 px-4 rounded-md;
+        m-1 py-2 px-4 rounded-md cursor-pointer;
     }
 
     .btn_small_icon {
@@ -164,5 +164,54 @@
 
     .logo {
         filter: brightness(0) invert(1);
+    }
+
+    .bshadow {
+        box-shadow: 0 0 4px 2px rgb(40 40 43);
+    }
+
+    .dshadow {
+        box-shadow: 2px 2px 2px 0 rgb(40 40 43);
+    }
+
+    .metaTag {
+        @apply medium_bg rounded-md mb-2 px-2 py-1 dshadow w-fit;
+    }
+
+    .metaTag.active {
+        @apply border-b-2 border-b-indigo-400 dark_bg;
+    }
+
+    .darkbutton {
+        background-color: #192129;
+    }
+
+    .darkbutton:hover {
+        background-color: #303c46;
+    }
+
+    .file_input {
+        @apply py-1;
+    }
+
+    .img_index {
+        @apply w-6 h-6 rounded-full text-xs
+        bg-opacity-75 hover:bg-opacity-100
+        dark_bg hover:medium_bg
+        flex items-center justify-center p-1
+        border-2 border-neutral-500
+        cursor-pointer;
+    }
+
+    .img_index p {
+        @apply text-neutral-400
+    }
+
+    .img_index.active {
+        @apply bright_bg;
+    }
+
+    .img_index.active p {
+        @apply text-neutral-300 font-bold;
     }
 }

@@ -1,6 +1,10 @@
 <script>
+import { XMarkIcon } from '@heroicons/vue/24/outline'
 export default {
   name: 'CModal',
+  components: {
+    XMarkIcon
+  },
   methods: {
     close () {
       this.$emit('close')
@@ -29,7 +33,7 @@ export default {
             @click="close"
             aria-label="Close modal"
           >
-            <i class="bi bi-x-lg"></i>
+            <XMarkIcon class="h-6 w-6"></XMarkIcon>
           </button>
         </header>
 
@@ -92,7 +96,7 @@ export default {
   left: 0;
   width: 100%;
   height: 52px;
-  @apply font-bold text-lg border-b-4 border-b-zinc-800 items-center pl-4;
+  @apply font-bold text-lg border-b-4 border-b-zinc-800 items-center pl-4 text-neutral-300;
 }
 
 .modal-body {

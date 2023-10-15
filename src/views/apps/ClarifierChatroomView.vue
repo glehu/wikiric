@@ -7,32 +7,28 @@
            style="z-index: 100">
         <div style="height: calc(100% - 55px)"
              class="sidebar_bg">
-          <div style="height: 140px; overflow-x: clip; position: relative">
-            <div style="width: 100%; height: 35px; padding-top: 10px">
-              <span class="sb_link_text c_lightgray nopointer">Menu</span>
+          <div class="h-fit overflow-x-clip relative pb-4">
+            <div class="sb_link" v-on:click="toggleSidebar()">
+              <div class="c_lightgray orange-hover flex"
+                   v-tooltip.right="{
+                         content: 'Toggle Sidebar',
+                         disabled: sidebar.active,
+                       }">
+                <ChevronRightIcon v-if="!sidebar.active" class="sb_link_icon c_lightgray"/>
+                <ChevronLeftIcon v-else class="sb_link_icon c_lightgray"/>
+              </div>
             </div>
-            <button class="sb_toggler btn-no-outline" v-on:click="toggleSidebar()">
-              <i class="bi bi-caret-right c_lightgray"></i>
-            </button>
             <ul class="nav_list list-unstyled"
                 style="color: white; margin-top: 5px">
               <li>
-                <div class="sb_link" v-on:click="disconnect(); this.$router.push('/apps/clarifier')">
-                  <div class="c_lightgray orange-hover"
+                <div class="sb_link" v-on:click="disconnect(); $router.push('/apps/clarifier')">
+                  <div class="c_lightgray orange-hover flex"
                        v-tooltip.right="{
                          content: 'Exit',
                          disabled: sidebar.active,
                        }">
-                    <i class="sb_link_icon bi bi-x-square"></i>
-                    <span class="sb_link_text">Exit</span>
-                  </div>
-                </div>
-              </li>
-              <li style="opacity: 0.5">
-                <div class="sb_link nopointer">
-                  <div class="c_lightgray">
-                    <i class="sb_link_icon bi bi-tools"></i>
-                    <span class="sb_link_text">Settings</span>
+                    <ArrowLeftOnRectangleIcon class="sb_link_icon"/>
+                    <span class="sb_link_text" style="margin-left: 22px">Exit</span>
                   </div>
                 </div>
               </li>
@@ -40,15 +36,13 @@
           </div>
           <div style="width: 100%; position: relative; z-index: 3"
                class="sb_fold">
-            <hr class="c_lightgray"
-                style="width: 75%; margin: auto auto 10px;">
             <span class="sb_link_text c_lightgray nopointer">
             Activity&nbsp;-&nbsp;{{ $store.state.clarifierSessions.length }}
           </span>
           </div>
           <div id="channel_section" class="channel_section overflow-y-auto overflow-x-hidden"
-               style="height: calc(100% - 55px - 100px); z-index: 4;
-                      padding-bottom: 20px; margin-top: 10px">
+               style="height: calc(100% - 100px); z-index: 4;
+                      padding-bottom: 20px;">
             <div v-for="group in $store.state.clarifierSessions" :key="group"
                  class="channel_link"
                  style="position: relative; font-weight: bold">
@@ -62,7 +56,7 @@
                      style="height: 50px; display: flex; align-items: center;">
                   <div style="width: 50px; height: 100%; position: relative;
                             display: flex; align-items: center; justify-content: center;">
-                    <div v-if="group.id === chatroom.guid"
+                    <div v-if="group.id === chatroom.uid"
                          style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5"
                          class="brightest_bg rounded-r">
                     </div>
@@ -93,12 +87,23 @@
         </div>
       </div>
       <div id="sidebar2" ref="sidebar2"
-           style="margin-top: 55px"
+           style="margin-top: 55px; box-shadow: 1px 0 4px 1px rgb(40 40 43)"
            class="sidebar2 medium_bg lg:rounded-tl">
         <div class="h-full relative">
-          <div class="c_lightgray px-2 h-full overflow-x-hidden overflow-y-auto">
+          <div class="c_lightgray px-2 h-full
+                      overflow-x-hidden overflow-y-hidden">
+            <template v-if="chatroom.burl && chatroom.burl !== ''">
+              <div class="dark_bg rounded mt-2 flex
+                          border-2 border-neutral-800
+                          w-full max-h-[96px] overflow-hidden
+                          items-center justify-center">
+                <img v-bind:src="getImg(chatroom.burl,true)"
+                     :alt="getImgAlt(chatroom.t)"/>
+              </div>
+            </template>
             <div style="height: 50px; align-items: center; display: flex">
               <div id="home_subc" class="subchat dark_bg"
+                   style="width: 100%; margin-right: 0; padding-right: 0.5rem"
                    v-on:click="gotoSubchat(null, false)">
                 <i id="home_notify"
                    class="absolute -translate-x-4
@@ -110,27 +115,28 @@
                 <span class="relative left-[20px]">Home</span>
               </div>
             </div>
-            <template v-if="canShowSidebar">
+            <div v-if="canShowSidebar"
+                 class="overflow-y-auto h-[calc(100%-160px)]">
               <div style="width: 100%; height: 35px; padding-top: 5px">
                 <p class="px-2 font-bold c_lightgray nopointer">Apps</p>
               </div>
-              <template v-if="this.chatroom.rank > 1">
+              <template v-if="chatroom.rank > 1">
                 <div class="w-full text-neutral-300">
-                  <template v-if="this.chatroom.rank > 3">
+                  <template v-if="chatroom.rank > 3">
                     <div class="subchat w-full flex items-center"
                          v-on:click="gotoStudio()">
                       <RectangleGroupIcon class="h-5 w-5"></RectangleGroupIcon>
                       <span class="relative left-[20px]">Studio</span>
                     </div>
                   </template>
-                  <template v-if="this.chatroom.rank > 3">
+                  <template v-if="chatroom.rank > 3">
                     <div class="subchat w-full flex items-center"
                          v-on:click="gotoPlanner()">
                       <ViewColumnsIcon class="h-5 w-5"></ViewColumnsIcon>
                       <span class="relative left-[20px]">Planner</span>
                     </div>
                   </template>
-                  <template v-if="this.chatroom.rank > 2">
+                  <template v-if="chatroom.rank > 2">
                     <div class="subchat w-full flex items-center">
                       <div v-on:click="setOverlay(1)" class="w-full flex items-center">
                         <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
@@ -157,20 +163,19 @@
                 <button class="text-white btn-no-outline translate-x-0.5"
                         v-tooltip.top="{ content: 'New Subchat' }"
                         v-on:click="showNewSubchatWindow">
-                  <i class="bi bi-plus lead orange-hover c_lightgray"
-                     style="font-size: 150%"></i>
+                  <PlusSmallIcon class="orange-hover text-neutral-300 h-6 w-6"/>
                 </button>
               </div>
-              <template v-for="subchat in chatroom.subChatrooms" :key="subchat">
-                <div :id="subchat.guid + '_subc'"
+              <template v-for="subchat in chatroom.subc" :key="subchat">
+                <div :id="subchat.uid + '_subc'"
                      class="subchat"
                      style="display: flex"
-                     v-on:click="gotoSubchat(subchat.guid)">
-                  <i :id="subchat.guid + '_notify'"
+                     v-on:click="gotoSubchat(subchat.uid)">
+                  <i :id="subchat.uid + '_notify'"
                      class="absolute -translate-x-4
                           w-[6px] h-[28px] rounded-r-full
                           z-50 bg-orange-500 hidden">
-                    <span class="hidden">{{ hasUnread(subchat.guid) }}</span>
+                    <span class="hidden">{{ hasUnread(subchat.uid) }}</span>
                   </i>
                   <template v-if="subchat.type === 'screenshare'">
                     <WindowIcon class="h-5 w-5"></WindowIcon>
@@ -186,11 +191,11 @@
                 <template v-if="subchat._subMembers">
                   <div v-for="subMember in subchat._subMembers" :key="subMember"
                        class="flex items-center pl-3.5 ml-3.5 border-l-[4px] border-zinc-500">
-                    <div class="text-sm pt-1">{{ subMember.usr }}</div>
+                    <div class="text-sm pt-1">{{ subMember.name }}</div>
                   </div>
                 </template>
               </template>
-            </template>
+            </div>
             <template v-else>
               <div class="w-full p-4 text-neutral-300">
                 <button class="w-full flex items-center justify-center
@@ -212,17 +217,16 @@
           <div id="chat_section" ref="chat_section"
                class="chat_section">
             <div class="w-full h-full">
-              <div class="chat_header medium_bg">
+              <div class="chat_header medium_bg bshadow">
                 <div
                   style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%; align-items: center">
-                  <div style="margin-left: 10px"
-                       class="orange-hover text-neutral-200"
+                  <div class="orange-hover text-neutral-300 px-2 py-1 rounded-md dark_bg text-sm"
                        v-on:click="gotoSubchat(null, false)">
                     {{ chatroom.t }}
                   </div>
-                  <div v-if="isSubchat === true" class="nopointer">
-                    <span style="margin-left: 10px"><i class="bi bi-caret-right text-neutral-200"></i></span>
-                    <span style="margin-left: 10px" class="text-neutral-200">{{ currentSubchat.t }}</span>
+                  <div v-if="isSubchat === true" class="nopointer flex gap-x-2 items-center ml-2">
+                    <ChevronRightIcon class="text-neutral-300 w-[16px]"/>
+                    <span class="text-neutral-300 px-2 py-1 rounded-md dark_bg text-sm">{{ currentSubchat.t }}</span>
                   </div>
                   <div v-if="isStreamingVideo"
                        id="stream_nav"
@@ -242,24 +246,26 @@
                     </template>
                   </div>
                 </div>
-                <button class="btn-no-outline c_lightgray"
+                <button class="btn-no-outline text-neutral-400"
                         style="position: absolute; right: 90px"
                         title="Show Settings"
                         v-on:click="toggleSessionSettings()">
-                  <i class="sb_link_icon bi bi-wrench orange-hover" style="height: 25px; width: 25px"></i>
+                  <WrenchIcon class="sb_link_icon orange-hover"
+                              style="height: 25px; width: 25px"/>
                 </button>
-                <button class="btn-no-outline c_lightgray member_section_toggler"
+                <button class="btn-no-outline text-neutral-400 member_section_toggler"
                         style="position: absolute; right: 50px"
                         title="Show Subchats"
                         v-on:click="toggleSidebar2()">
-                  <i class="sb_link_icon bi bi-chat-square-dots orange-hover"
-                     style="height: 25px; width: 25px"></i>
+                  <ChatBubbleBottomCenterTextIcon class="sb_link_icon orange-hover"
+                                                  style="height: 25px; width: 25px"/>
                 </button>
-                <button class="btn-no-outline c_lightgray member_section_toggler"
+                <button class="btn-no-outline text-neutral-400 member_section_toggler"
                         style="position: absolute; right: 10px"
                         title="Toggle Members"
                         v-on:click="toggleMemberSidebar()">
-                  <i class="bi bi-people orange-hover" style="height: 25px; width: 25px"></i>
+                  <UsersIcon class="orange-hover"
+                             style="height: 25px; width: 25px"/>
                 </button>
               </div>
               <div v-if="canShowVideoElements"
@@ -362,9 +368,9 @@
                       Group Meeting
                     </button>
                     <br>
-                    <template v-for="user in this.members" :key="user">
-                      <template v-if="user.id !== userId">
-                        <button v-on:click="startCall(user.id)"
+                    <template v-for="user in mainMembers" :key="user">
+                      <template v-if="user.usr !== $store.state.username">
+                        <button v-on:click="startCall(user.usr)"
                                 class="gray-hover c_lightgray px-3 py-2"
                                 style="position: relative;
                                      margin-left: 20px; margin-top: 10px;
@@ -468,10 +474,9 @@
                 </div>
               </div>
               <div id="messages_container" ref="messages_container"
-                   class="messages_container">
+                   class="messages_container bshadow">
                 <div id="messages_section" ref="messages_section"
-                     class="messages_section"
-                     style="flex-direction: column-reverse">
+                     class="messages_section flex-col-reverse">
                   <div id="init_loading" style="display: none">
                     <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
                     <span class="ms-2 font-bold c_lightgray">Initializing...</span>
@@ -480,322 +485,366 @@
                     <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
                     <span class="ms-2 font-bold c_lightgray">Connecting...</span>
                   </div>
-                  <template v-for="msg in messages" :key="msg.guid">
-                    <div class="message" :id="msg.guid">
-                      <template v-if="msg.separator === true">
-                        <div class="headerline pointer-events-none">
+                  <template v-if="messages.length > 0">
+                    <template v-for="msg in messages" :key="msg.uid">
+                      <div class="message" :id="msg.uid" v-if="msg.usr">
+                        <template v-if="msg.separator === true">
+                          <div class="headerline pointer-events-none">
                           <span class="text-xs text-neutral-300">
                             {{ getHumanReadableDateText(msg.ts, false, true) }}
                           </span>
-                        </div>
-                      </template>
-                      <template v-if="msg.header === true">
-                        <div style="height: 30px"
-                             class="mt-2 relative flex items-center">
-                          <template v-if="msg.src.startsWith('_server')">
-                            <SignalIcon class="sender_avatar translate-y-[10px]"></SignalIcon>
-                          </template>
-                          <template v-else>
-                            <template v-if="msg.iurl && msg.iurl !== ''">
-                              <img :src="getImg(msg.iurl, true)" alt="?"
-                                   class="sender_avatar translate-y-[10px]">
-                              <template v-if="msg.iurla && msg.iurla !== ''">
-                                <img :src="getImg(msg.iurla, true)" alt="?"
-                                     class="sender_avatar translate-y-[10px] absolute hidden sender_avatar_animated">
-                              </template>
+                          </div>
+                        </template>
+                        <template v-if="msg.header === true">
+                          <div style="height: 30px"
+                               class="mt-2 relative flex items-center">
+                            <template v-if="msg.usr.startsWith('_server')">
+                              <SignalIcon class="sender_avatar translate-y-[10px]"></SignalIcon>
                             </template>
                             <template v-else>
-                              <UserCircleIcon class="sender_avatar translate-y-[10px]">
-                              </UserCircleIcon>
-                            </template>
-                          </template>
-                          <div class="orange-hover text-neutral-200 ml-[10px]"
-                               style="font-weight: bold"
-                               @click.stop="showUserProfileFromName(msg.src)">
-                            {{ msg.src }}
-                          </div>
-                          <div class="flex gap-x-2 text-neutral-400 text-xs ml-3">
-                            <div style="pointer-events: none">
-                              <template v-if="!msg.isDraft">
-                                {{ getHumanReadableDateText(msg.ts, true) }}
+                              <template v-if="msg.iurl && msg.iurl !== ''">
+                                <img :src="getImg(msg.iurl, true)" alt="?"
+                                     class="sender_avatar translate-y-[10px]">
+                                <template v-if="msg.iurla && msg.iurla !== ''">
+                                  <img :src="getImg(msg.iurla, true)" alt="?"
+                                       class="sender_avatar translate-y-[10px] absolute hidden sender_avatar_animated">
+                                </template>
                               </template>
                               <template v-else>
-                                <p class="font-bold">Sending...</p>
+                                <UserCircleIcon class="sender_avatar translate-y-[10px]">
+                                </UserCircleIcon>
+                              </template>
+                            </template>
+                            <div class="orange-hover text-neutral-200 ml-[10px]"
+                                 style="font-weight: bold"
+                                 @click.stop="showUserProfileFromName(msg.usr)">
+                              {{ msg.name }}
+                            </div>
+                            <div class="flex gap-x-2 text-neutral-400 text-xs ml-3">
+                              <div style="pointer-events: none">
+                                <template v-if="!msg.isDraft">
+                                  {{ getHumanReadableDateText(msg.ts, true) }}
+                                </template>
+                                <template v-else>
+                                  <p class="font-bold">Sending...</p>
+                                </template>
+                              </div>
+                              <template v-if="msg.isEncrypted === true">
+                                <i v-if="msg.decryptionFailed === false" class="bi bi-shield-lock ms-1 msgTag"
+                                   title="Decrypted Message"></i>
+                                <i v-else class="bi bi-exclamation-triangle-fill ms-1 msgTag"
+                                   title="Decryption Error Occurred"></i>
+                              </template>
+                              <template v-if="msg.tagActive === true">
+                                <i class="bi bi-at ms-1 c_orange" title="You got tagged!"></i>
+                              </template>
+                              <template v-if="msg.apiResponse === true">
+                                <i class="bi bi-gear ms-1 c_orange msgTag" title="API Response"></i>
+                                <div style="pointer-events: none" class="ms-1 msgTag">
+                                  {{ msg.mType }}
+                                </div>
+                              </template>
+                              <template v-if="msg.mType === 'Task'">
+                                <div class="ms-1 c_orange h-4 w-4 inline-flex items-center justify-center msgTag"
+                                     title="Planner Task">
+                                  <ViewColumnsIcon class="h-full w-full"/>
+                                </div>
                               </template>
                             </div>
-                            <template v-if="msg.isEncrypted === true">
-                              <i v-if="msg.decryptionFailed === false" class="bi bi-shield-lock ms-1 msgTag"
-                                 title="Decrypted Message"></i>
-                              <i v-else class="bi bi-exclamation-triangle-fill ms-1 msgTag"
-                                 title="Decryption Error Occurred"></i>
-                            </template>
-                            <template v-if="msg.tagActive === true">
-                              <i class="bi bi-at ms-1 c_orange" title="You got tagged!"></i>
-                            </template>
-                            <template v-if="msg.apiResponse === true">
-                              <i class="bi bi-gear ms-1 c_orange msgTag" title="API Response"></i>
-                              <div style="pointer-events: none" class="ms-1 msgTag">
-                                {{ msg.mType }}
-                              </div>
-                            </template>
-                            <template v-if="msg.mType === 'Task'">
-                              <div class="ms-1 c_orange h-4 w-4 inline-flex items-center justify-center msgTag"
-                                   title="Planner Task">
-                                <ViewColumnsIcon class="h-full w-full"/>
+                          </div>
+                        </template>
+                        <div class="message_body">
+                          <div style="min-width: 42px; max-width: 42px">
+                            <template v-if="msg.header === false">
+                              <div class="msg_time" style="pointer-events: none">
+                                {{ getSimpleTime(msg.ts) }}
                               </div>
                             </template>
                           </div>
-                        </div>
-                      </template>
-                      <div class="message_body">
-                        <div style="min-width: 42px; max-width: 42px">
-                          <template v-if="msg.header === false">
-                            <div class="msg_time" style="pointer-events: none">
-                              {{ getSimpleTime(msg.ts) }}
+                          <template v-if="msg.tagActive === true">
+                            <div style="box-shadow: 0 0 4px 0 #ff5d37"
+                                 class="b_orange z-[5] w-2 rounded-l-md">
                             </div>
                           </template>
-                        </div>
-                        <template v-if="msg.tagActive === true">
-                          <div style="position: absolute; height: 100%; width: 5px; left: 0;
-                                      border-radius: 5px; z-index: 5; box-shadow: 0 0 15px 0 #ff5d37"
-                               class="b_orange">
-                          </div>
-                        </template>
-                        <div v-if="msg.mType !== 'CryptError' && !msg.src.startsWith('_server')"
-                             class="msg_options gap-x-2">
-                          <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
-                            <button title="Reply" class="orange-hover"
-                                    v-on:click="replyToMessage(msg)">
-                              <i class="bi bi-reply-fill text-inherit"></i>
-                            </button>
-                            <template v-if="msg.editable === true">
-                              <template v-if="!msg.mIsFile">
-                                <button title="Edit" class="orange-hover"
-                                        v-on:click="editMessage(msg)">
-                                  <i class="bi bi-pencil-fill text-inherit"></i>
+                          <div v-if="!msg.usr.startsWith('_server')"
+                               class="msg_options gap-x-2">
+                            <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
+                              <button title="Reply" class="orange-hover"
+                                      v-if="msg.mType !== 'CryptError'"
+                                      v-on:click="replyToMessage(msg)">
+                                <i class="bi bi-reply-fill text-inherit"></i>
+                              </button>
+                              <template v-if="msg.editable === true">
+                                <template v-if="!msg.mIsFile && msg.mType !== 'CryptError'">
+                                  <button title="Edit" class="orange-hover"
+                                          v-on:click="editMessage(msg)">
+                                    <i class="bi bi-pencil-fill text-inherit"></i>
+                                  </button>
+                                </template>
+                                <button title="Remove" class="orange-hover"
+                                        v-on:click="editMessage(msg, true)">
+                                  <i class="bi bi-trash-fill text-inherit"></i>
                                 </button>
                               </template>
-                              <button title="Remove" class="orange-hover"
-                                      v-on:click="editMessage(msg, true)">
-                                <i class="bi bi-trash-fill text-inherit"></i>
-                              </button>
+                            </div>
+                            <template v-if="msg.mType !== 'CryptError'">
+                              <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
+                                <button title="Upvote" class="orange-hover"
+                                        v-on:click="reactToMessage(msg, '+')">
+                                  <i class="bi bi-hand-thumbs-up text-inherit"></i>
+                                </button>
+                                <button title="Downvote" class="orange-hover"
+                                        v-on:click="reactToMessage(msg, '-')">
+                                  <i class="bi bi-hand-thumbs-down text-inherit"></i>
+                                </button>
+                              </div>
+                              <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
+                                <button title="Awesome!" class="orange-hover"
+                                        v-on:click="reactToMessage(msg, '⭐')">
+                                  <i class="bi bi-star-fill text-inherit"></i>
+                                </button>
+                              </div>
+                              <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
+                                <button title="Create Wisdom" class="orange-hover"
+                                        v-on:click="createWisdomForMessage(msg)">
+                                  <i class="bi bi-book-half text-inherit"></i>
+                                </button>
+                              </div>
                             </template>
                           </div>
-                          <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
-                            <button title="Upvote" class="orange-hover"
-                                    v-on:click="reactToMessage(msg, '+')">
-                              <i class="bi bi-hand-thumbs-up text-inherit"></i>
-                            </button>
-                            <button title="Downvote" class="orange-hover"
-                                    v-on:click="reactToMessage(msg, '-')">
-                              <i class="bi bi-hand-thumbs-down text-inherit"></i>
-                            </button>
-                          </div>
-                          <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
-                            <button title="Awesome!" class="orange-hover"
-                                    v-on:click="reactToMessage(msg, '⭐')">
-                              <i class="bi bi-star-fill text-inherit"></i>
-                            </button>
-                          </div>
-                          <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
-                            <button title="Create Wisdom" class="orange-hover"
-                                    v-on:click="createWisdomForMessage(msg)">
-                              <i class="bi bi-book-half text-inherit"></i>
-                            </button>
-                          </div>
-                        </div>
-                        <template v-if="msg.mType === 'RegistrationNotification'">
-                          <div class="serverMessage">
-                            {{ msg.msg.trim() }}
-                          </div>
-                        </template>
-                        <template v-else-if="msg.mType === 'CryptError'">
-                          <div class="serverMessage">
-                            {{ msg.msg.trim() }}
-                          </div>
-                        </template>
-                        <template v-else-if="msg.mType === 'Leaderboard'">
-                          <div class="serverMessage" style="height: fit-content">
-                            <h4 style="font-weight: normal; border-radius: 15px; padding: 5px; margin-bottom: 10px"
-                                class="b_darkergray nopointer">
-                              <i class="bi bi-award"></i>
-                              Leaderboard
-                              <i class="bi bi-award"></i>
-                            </h4>
-                            <table class="table-auto leaderboard-table text-start"
-                                   style="width: 100%; height: 100%; padding: 5px">
-                              <tr style="pointer-events: none;
+                          <template v-if="msg.mType === 'RegistrationNotification'">
+                            <div class="serverMessage">
+                              {{ msg.msg.trim() }}
+                            </div>
+                          </template>
+                          <template v-else-if="msg.mType === 'CryptError'">
+                            <div class="serverMessage">
+                              {{ msg.msg.trim() }}
+                            </div>
+                          </template>
+                          <template v-else-if="msg.mType === 'Leaderboard'">
+                            <div class="serverMessage" style="height: fit-content">
+                              <h4 style="font-weight: normal; border-radius: 15px; padding: 5px; margin-bottom: 10px"
+                                  class="b_darkergray nopointer">
+                                <i class="bi bi-award"></i>
+                                Leaderboard
+                                <i class="bi bi-award"></i>
+                              </h4>
+                              <table class="table-auto leaderboard-table text-start"
+                                     style="width: 100%; height: 100%; padding: 5px">
+                                <tr style="pointer-events: none;
                                    height: 2ch;
                                    border-bottom: 1px solid #7e7d7d">
-                                <th>Username</th>
-                                <th>Messages</th>
-                                <th>Rating</th>
-                              </tr>
-                              <tr v-for="member in JSON.parse(msg.msg)" :key="member"
-                                  style="font-weight: normal">
-                                <td>{{ member.username }}</td>
-                                <td>{{ member.messages }}</td>
-                                <td>{{ member.totalRating }}</td>
-                              </tr>
-                            </table>
-                            <div style="font-size: 75%; margin: 20px 10px 10px 10px;
+                                  <th>Username</th>
+                                  <th>Messages</th>
+                                  <th>Rating</th>
+                                </tr>
+                                <tr v-for="member in JSON.parse(msg.msg)" :key="member"
+                                    style="font-weight: normal">
+                                  <td>{{ member.username }}</td>
+                                  <td>{{ member.messages }}</td>
+                                  <td>{{ member.totalRating }}</td>
+                                </tr>
+                              </table>
+                              <div style="font-size: 75%; margin: 20px 10px 10px 10px;
                                   font-style: italic; opacity: 0.5"
-                                 class="nopointer">
-                              - Thank you for participating -
+                                   class="nopointer">
+                                - Thank you for participating -
+                              </div>
                             </div>
-                          </div>
-                        </template>
-                        <template v-else-if="msg.mType === 'GIF'">
-                          <div class="clientMessage">
-                            <img :src="msg.msgURL"
-                                 :alt="msg.msg"
-                                 :style="{maxWidth: mediaMaxWidth}"
-                                 style="cursor: zoom-in"
-                                 v-on:click="showImage(msg.msgURL)">
-                            <br>
+                          </template>
+                          <template v-else-if="msg.mType === 'GIF'">
+                            <div class="clientMessage">
+                              <img :src="msg.msgURL"
+                                   :alt="msg.msg"
+                                   :style="{maxWidth: mediaMaxWidth}"
+                                   style="cursor: zoom-in"
+                                   v-on:click="showImage(msg.msgURL)">
+                              <br>
+                              <div>
+                                <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png"
+                                     alt="Powered By GIPHY"
+                                     style="width: 100px"/>
+                              </div>
+                            </div>
+                          </template>
+                          <template v-else-if="msg.mType === 'Image'">
                             <div>
-                              <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png"
-                                   alt="Powered By GIPHY"
-                                   style="width: 100px"/>
+                              <img :src="msg.msgURL"
+                                   :alt="msg.msg"
+                                   class="clientMessage"
+                                   :style="{maxWidth: mediaMaxWidth}"
+                                   style="cursor: zoom-in"
+                                   v-on:click="showImage(msg.msgURL)">
                             </div>
-                          </div>
-                        </template>
-                        <template v-else-if="msg.mType === 'Image'">
-                          <div>
-                            <img :src="msg.msgURL"
-                                 :alt="msg.msg"
-                                 class="clientMessage"
-                                 :style="{maxWidth: mediaMaxWidth}"
-                                 style="cursor: zoom-in"
-                                 v-on:click="showImage(msg.msgURL)">
-                          </div>
-                        </template>
-                        <template v-else-if="msg.mType === 'Audio'">
-                          <div class="clientMessage">
-                            <p class="pointer-events-none text-sm rounded-md mb-2
+                          </template>
+                          <template v-else-if="msg.mType === 'Audio'">
+                            <div class="clientMessage">
+                              <p class="pointer-events-none text-sm rounded-md mb-2
                                       text-neutral-200 font-bold">
-                              {{ msg.fileName }}
-                            </p>
-                            <audio controls preload="auto"
-                                   class="uploadFileSnippet">
-                              <source :src="msg.msgURL">
-                              Your browser does not support playing audio.
-                            </audio>
-                          </div>
-                        </template>
-                        <template v-else-if="msg.mType === 'Joke'">
-                          <p class="clientMessage">
-                            {{ msg.msg }}
-                          </p>
-                        </template>
-                        <template v-else-if="msg.mType === 'Task'">
-                          <taskcontainer :message="msg.msg"
-                                         class="clientMessage"/>
-                        </template>
-                        <template v-else-if="msg.mType === 'Reply'">
-                          <div>
-                            <div class="text-neutral-400 border-l-8 border-l-zinc-800">
-                              <div class="w-fit rounded-tr-md dark_bg py-1 pr-2">
-                                <p class="text-xs font-bold text-neutral-300 pointer-events-none">
-                                  {{ getHumanReadableDateText(msg.source.time, true) }}
-                                </p>
-                              </div>
-                              <div class="p-2">
-                                <Markdown :id="'rsr_' + msg.guid"
-                                          class="py-1 px-2 w-fit mb-1 clientMessage markedView"
-                                          :source="msg.source.msg"
-                                          :breaks="true"
-                                          :plugins="plugins"
-                                          :style="{maxWidth: mediaMaxWidth}"/>
-                              </div>
-                              <div class="w-fit rounded-tr-md dark_bg py-1 pr-2">
-                                <p class="text-xs text-neutral-300 font-bold pointer-events-none">
-                                  Reply to {{ msg.source.src }}:
-                                </p>
-                              </div>
+                                {{ msg.fileName }}
+                              </p>
+                              <audio controls preload="auto"
+                                     class="uploadFileSnippet">
+                                <source :src="msg.msgURL">
+                                Your browser does not support playing audio.
+                              </audio>
                             </div>
-                            <Markdown :id="'msg_' + msg.guid"
-                                      class="clientMessage markedView w-fit"
+                          </template>
+                          <template v-else-if="msg.mType === 'Joke'">
+                            <p class="clientMessage">
+                              {{ msg.msg }}
+                            </p>
+                          </template>
+                          <template v-else-if="msg.mType === 'Task'">
+                            <taskcontainer :message="msg.msg"
+                                           class="clientMessage"/>
+                          </template>
+                          <template v-else-if="msg.mType === 'Reply'">
+                            <div>
+                              <div class="text-neutral-400 border-l-8 border-l-zinc-800
+                                          rounded-tl-md">
+                                <div class="w-fit rounded-r-md dark_bg py-1 pr-2">
+                                  <p class="text-xs font-bold text-neutral-300 pointer-events-none">
+                                    {{ getHumanReadableDateText(msg.source.time, true) }}
+                                  </p>
+                                </div>
+                                <div class="p-2">
+                                  <Markdown :id="'rsr_' + msg.uid"
+                                            class="py-1 px-2 w-fit mb-1 clientMessage markedView"
+                                            :source="msg.source.msg"
+                                            :breaks="true"
+                                            :plugins="plugins"
+                                            :style="{maxWidth: mediaMaxWidth}"/>
+                                </div>
+                                <div class="w-fit rounded-r-md dark_bg py-1 pr-2">
+                                  <p class="text-xs text-neutral-300 font-bold pointer-events-none">
+                                    Reply to {{ msg.source.usr }}:
+                                  </p>
+                                </div>
+                              </div>
+                              <Markdown :id="'msg_' + msg.uid"
+                                        class="clientMessage markedView w-fit"
+                                        :source="msg.msg"
+                                        :breaks="true"
+                                        :plugins="plugins"/>
+                            </div>
+                          </template>
+                          <template v-else-if="msg.mType.includes('File')">
+                            <div class="clientMessage">
+                              <a :href="msg.msgURL"
+                                 download
+                                 v-tooltip.top="{content: 'Download File'}">
+                                <div class="my-1 cursor-pointer w-fit
+                                          flex items-center gap-x-2 btn_bg_primary">
+                                  <template v-if="msg.mType === 'TextFile'">
+                                    <DocumentTextIcon class="h-6 w-6"></DocumentTextIcon>
+                                  </template>
+                                  <template v-else>
+                                    <FolderArrowDownIcon class="h-6 w-6"></FolderArrowDownIcon>
+                                  </template>
+                                  <p class="pointer-events-none text-sm text-neutral-200 font-bold">
+                                    {{ msg.fileName }}
+                                  </p>
+                                </div>
+                              </a>
+                            </div>
+                          </template>
+                          <template v-else>
+                            <Markdown :id="'msg_' + msg.uid"
+                                      class="clientMessage markedView"
                                       :source="msg.msg"
                                       :breaks="true"
                                       :plugins="plugins"/>
+                          </template>
+                          <template v-if="msg.e">
+                            <div class="flex items-end pl-2 pb-1">
+                              <p class="text-xs text-neutral-400">
+                                (Edited)
+                              </p>
+                            </div>
+                          </template>
+                        </div>
+                        <div v-if="msg.reacts && msg.reacts.length > 0"
+                             style="display: flex; margin: 5px 0 10px 50px">
+                          <div v-for="reaction in msg.reacts" :key="reaction.t"
+                               style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
+                               class="darkest_bg c_lightgray gray-hover"
+                               :title="reaction.src.toString() + ' reacted to this message.'"
+                               v-on:click="reactToMessage(msg, reaction.t)"
+                               :id="'react_' + msg.uid + '_' + reaction.t">
+                            <i v-if="reaction.t === '+'"
+                               class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
+                            <i v-else-if="reaction.t === '-'"
+                               class="bi bi-hand-thumbs-down" style="margin-right: 2px"></i>
+                            <span v-else> {{ reaction.t }} </span>
+                            {{ reaction.src.length }}
                           </div>
-                        </template>
-                        <template v-else-if="msg.mType.includes('File')">
-                          <div class="clientMessage">
-                            <a :href="msg.msgURL"
-                               download
-                               v-tooltip.top="{content: 'Download File'}">
-                              <div class="my-1 cursor-pointer w-fit
-                                          flex items-center gap-x-2 btn_bg_primary">
-                                <template v-if="msg.mType === 'TextFile'">
-                                  <DocumentTextIcon class="h-6 w-6"></DocumentTextIcon>
-                                </template>
-                                <template v-else>
-                                  <FolderArrowDownIcon class="h-6 w-6"></FolderArrowDownIcon>
-                                </template>
-                                <p class="pointer-events-none text-sm text-neutral-200 font-bold">
-                                  {{ msg.fileName }}
-                                </p>
+                        </div>
+                        <div :id="'edit_' + msg.uid" class="hidden w-full justify-center">
+                          <div class="text-sm p-2 darkest_bg rounded mt-2 mb-1 text-center flex items-center">
+                            <div class="ml-2 mr-4 text-neutral-400 pointer-events-none">
+                              <template v-if="isEditingMessage">Edit</template>
+                              <template v-else-if="isReplyingToMessage">Reply</template>
+                            </div>
+                            <div class="flex py-1 px-2 medium_bg rounded">
+                              <div v-on:click="addMessage()" class="text-white cursor-pointer mr-1 font-bold">
+                                [Enter]
                               </div>
-                            </a>
+                              <div class="mr-1 text-neutral-300 pointer-events-none">to save,</div>
+                              <div v-on:click="resetEditing(); resetReplying()"
+                                   class="text-white cursor-pointer mr-1 font-bold">
+                                [Esc]
+                              </div>
+                              <span class="text-neutral-300 pointer-events-none">to cancel.</span>
+                            </div>
                           </div>
+                        </div>
+                      </div>
+                    </template>
+                  </template>
+                  <div ref="welcomeMessage"
+                       class="w-full h-full items-start justify-center p-4 mb-2
+                                transition-all delay-500 hidden">
+                    <div class="p-4 rounded dark_bg dshadow">
+                      <p class="text-3xl">
+                        Welcome to
+                        <template v-if="!isSubchat">
+                          <span class="font-bold">{{ chatroom.t }},</span>
                         </template>
                         <template v-else>
-                          <Markdown :id="'msg_' + msg.guid"
-                                    class="clientMessage markedView"
-                                    :source="msg.msg"
-                                    :breaks="true"
-                                    :plugins="plugins"/>
+                          <span class="font-bold">{{ currentSubchat.t }},</span>
+                        </template>
+                        {{ $store.state.displayName }}!
+                      </p>
+                      <p class="mt-8 mb-4">Feeling lost? Try this:</p>
+                      <div class="flex w-full justify-evenly gap-x-4">
+                        <div class="p-2 rounded medium_bg cursor-default">
+                          <p>Invite People</p>
+                        </div>
+                        <div class="p-2 rounded medium_bg cursor-pointer hover:darkest_bg"
+                             v-on:click="$refs.new_comment.focus()">
+                          <p>Write a Message</p>
+                        </div>
+                        <template v-if="!isSubchat">
+                          <div class="p-2 rounded medium_bg cursor-pointer hover:darkest_bg"
+                               v-on:click="toggleSessionSettings()">
+                            <p>Modify Chat Settings</p>
+                          </div>
                         </template>
                       </div>
-                      <div v-if="msg.reacts && msg.reacts.length > 0"
-                           style="display: flex; margin: 5px 0 10px 50px">
-                        <div v-for="reaction in msg.reacts" :key="reaction.src"
-                             style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                             class="darkest_bg c_lightgray gray-hover"
-                             :title="reaction.src.toString() + ' reacted to this message.'"
-                             v-on:click="reactToMessage(msg, reaction.t)"
-                             :id="'react_' + msg.guid + '_' + reaction.t">
-                          <i v-if="reaction.t === '+'"
-                             class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
-                          <i v-else-if="reaction.t === '-'"
-                             class="bi bi-hand-thumbs-down" style="margin-right: 2px"></i>
-                          <span v-else> {{ reaction.t }} </span>
-                          {{ reaction.src.length }}
-                        </div>
-                      </div>
-                      <div :id="'edit_' + msg.guid" class="hidden w-full justify-center">
-                        <div class="text-sm p-2 darkest_bg rounded mt-2 mb-1 text-center flex items-center">
-                          <div class="ml-2 mr-4 text-neutral-400 pointer-events-none">
-                            <template v-if="isEditingMessage">Edit</template>
-                            <template v-else-if="isReplyingToMessage">Reply</template>
-                          </div>
-                          <div class="flex py-1 px-2 medium_bg rounded">
-                            <div v-on:click="this.addMessage()" class="text-white cursor-pointer mr-1 font-bold">
-                              [Enter]
-                            </div>
-                            <div class="mr-1 text-neutral-300 pointer-events-none">to save,</div>
-                            <div v-on:click="this.resetEditing(); this.resetReplying()"
-                                 class="text-white cursor-pointer mr-1 font-bold">
-                              [Esc]
-                            </div>
-                            <span class="text-neutral-300 pointer-events-none">to cancel.</span>
-                          </div>
-                        </div>
-                      </div>
                     </div>
-                  </template>
+                  </div>
                 </div>
               </div>
               <div v-if="isTaggingUser"
                    class="user_tagger c_lightgray"
                    style="padding: 10px; position: absolute; z-index: 100">
                 <p class="pointer-events-none mb-2">Tag a member:</p>
-                <div v-for="(usr, index) in this.members" :key="usr"
+                <div v-for="(usr, index) in mainMembers" :key="usr"
                      :id="'usertagger_' + index"
                      class="gray-hover relative flex items-center mb-1"
-                     :class="{'active_gray': index === this.tagIndex}"
+                     :class="{'active_gray': index === tagIndex}"
                      v-on:click="tagUserProfile(usr)">
                   <template v-if="usr.taggable === true">
                     <div class="px-1 flex items-center">
@@ -811,11 +860,11 @@
                    class="imgflip_selector c_lightgray"
                    style="padding: 10px; position: absolute; z-index: 100">
                 <p class="pointer-events-none mb-2">Select an Imgflip meme template:</p>
-                <template v-for="(template, index) in this.imgflipSelection" :key="template">
+                <template v-for="(template, index) in imgflipSelection" :key="template">
                   <div v-if="template.selectable !== false"
                        :id="'templateselector_' + index"
                        class="gray-hover mb-3"
-                       :class="{'active_gray': index === this.tagIndex}"
+                       :class="{'active_gray': index === tagIndex}"
                        style="position: relative; display: flex; align-items: center"
                        v-on:click="selectImgflipTemplate(template)">
                     <img :src="template.url" alt="Loading" class="selectableGIF"
@@ -841,7 +890,7 @@
                   </button>
                   <div id="imgflip_toolbar_boxtools"
                        style="display: flex; opacity: 0; transition: 0.5s ease opacity">
-                    <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
+                    <template v-if="isFillingImgflipTemplate.mode === 'boxes'">
                       <div class="c_darkgray ms-2 font-bold"
                            style="font-size: 150%; pointer-events: none">
                         |
@@ -872,13 +921,13 @@
                 </div>
                 <br>
                 <img id="imgflip_meme"
-                     :src="this.imgflip_template.url" alt="Loading" class="selectableGIF"
+                     :src="imgflip_template.url" alt="Loading" class="selectableGIF"
                      style="width: auto; height: calc(90vh - 70px - 80px); border-radius: 10px;
                           transition: 0.3s ease all;">
-                <template v-if="this.isFillingImgflipTemplate.mode === 'boxes'">
+                <template v-if="isFillingImgflipTemplate.mode === 'boxes'">
                   <div id="meme_boxes_container"
                        style="width: auto; height: calc(90vh - 70px - 80px); position: absolute; top: 55px; left: 0">
-                    <div v-for="box in this.isFillingImgflipTemplate.boxes" :key="box.id"
+                    <div v-for="box in isFillingImgflipTemplate.boxes" :key="box.id"
                          :id="'imgflip_draggableText_' + box.id + '_div'"
                          class="imgflip_text"
                          style="top: 100px; left: 10px; font-size: 100%; height: 50px; width: 150px">
@@ -924,7 +973,7 @@
                           <div class="px-2">
                       <span class="text-neutral-300 cursor-pointer hover:text-white font-normal"
                             @click.stop="showUserProfileFromName(user.user)">
-                        {{ user.user }}
+                        {{ user.name }}
                       </span>
                           </div>
                         </template>
@@ -937,7 +986,7 @@
                           <div class="px-2">
                       <span class="text-neutral-400 cursor-pointer hover:text-white font-normal"
                             @click.stop="showUserProfileFromName(user.user)">
-                        {{ user.user }}
+                        {{ user.name }}
                       </span>
                           </div>
                         </template>
@@ -970,7 +1019,7 @@
           </div>
           <div class="user_profile overflow-x-hidden overflow-y-auto"
                v-show="isViewingUserProfile" @click.stop>
-            <div class="relative h-full">
+            <div class="relative h-full p-2">
               <i class="bi bi-x-lg lead orange-hover"
                  style="cursor: pointer; position:absolute; right: 0" title="Close"
                  v-on:click="hideAllWindows()"></i>
@@ -1004,9 +1053,15 @@
                   </template>
                 </div>
                 <div class="block ml-2">
-                  <h2 class="font-bold text-2xl">
+                  <p class="font-bold text-2xl">
+                    {{ viewedUserProfile.name }}
+                  </p>
+                  <p class="text-neutral-400">
                     {{ viewedUserProfile.usr }}
-                  </h2>
+                  </p>
+                  <p class="mb-2 text-neutral-400 text-sm">
+                    Member since {{ viewedUserProfile.tsFormat }}
+                  </p>
                   <div title="This member's messages are being End-to-End encrypted"
                        style="display: flex; align-items: center">
                     <i class="bi bi-shield-lock-fill" style="margin-right: 1ch"></i>
@@ -1042,12 +1097,12 @@
               </div>
               <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Roles</h5>
               <div style="display: flex; flex-wrap: wrap">
-                <div v-for="role in this.viewedUserProfile.roles" :key="role"
+                <div v-for="role in viewedUserProfile.roles" :key="role"
                      class="dark_bg"
                      style="border-radius: 5px; padding: 0 6px 4px 6px; margin-right: 1ch; margin-bottom: 1ch">
                   <i v-show="isEditingRoles" class="bi bi-x-circle-fill orange-hover"
                      style="margin-right: 4px"></i>
-                  <span class="text-neutral-400">{{ JSON.parse(role).name.replace(' ', '&nbsp;') }}</span>
+                  <span class="text-neutral-300">{{ role }}</span>
                 </div>
                 <span style="border-radius: 2rem; margin-right: 1em" class="orange-hover"
                       v-on:click="addUserRole" title="Add new Role">
@@ -1072,7 +1127,7 @@
               </div>
               <template v-if="chatroom.rank > 1">
                 <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Badges</h5>
-                <template v-if="this.viewedUserProfile.badges == null || this.viewedUserProfile.badges.length < 1">
+                <template v-if="viewedUserProfile.badges == null || viewedUserProfile.badges.length < 1">
                   <div style="border: 1px solid gray; border-radius: 10px; width: 100%; padding: 10%"
                        class="c_lightgray text-center items-center pointer-events-none">
                     <i class="bi bi-award-fill lead"></i>
@@ -1081,7 +1136,7 @@
                 </template>
                 <template v-else>
                   <div class="w-full grid grid-cols-2 gap-3 mb-4">
-                    <div v-for="badge in this.viewedUserProfile.badges" :key="badge.handle"
+                    <div v-for="badge in viewedUserProfile.badges" :key="badge.handle"
                          class="c_lightgray text-center rounded-xl border-2 border-zinc-600 py-1 px-2 hover:medium_bg">
                       <div class="pointer-events-none">
                         <div v-if="badge.handle.startsWith('msg')"
@@ -1112,7 +1167,7 @@
                  class="b_darkergray rounded-lg">
               <div v-for="gif in gifSelection" :key="gif"
                    style="padding-top: 10px; padding-left: 10px; display: inline-flex"
-                   v-on:click="this.sendSelectedGIF(gif.images.fixed_height.url)">
+                   v-on:click="sendSelectedGIF(gif.images.fixed_height.url)">
                 <img :src="gif.images.fixed_height.url" alt="Loading" class="selectableGIF"
                      style="width: 100%; max-height: 150px">
               </div>
@@ -1133,105 +1188,50 @@
           <div class="session_settings medium_bg shadow"
                style="overflow-x: hidden; overflow-y: auto"
                v-show="isViewingSessionSettings" @click.stop>
-            <div style="position: relative; width: 100%">
+            <div class="relative w-full p-2">
               <i class="bi bi-x-lg lead orange-hover"
                  style="cursor: pointer; position:absolute; right: 0" title="Close"
                  v-on:click="hideAllWindows()"></i>
-              <h2 class="font-bold nopointer text-xl mb-2">Group Settings</h2>
-              <div style="display: flex; width: 100%; margin-bottom: 10px">
-                <template v-if="chatroom.imgGUID && chatroom.imgGUID !== ''">
-                  <img class="w-[80px] h-[80px] z-10 rounded-lg"
-                       v-bind:src="getImg(chatroom.imgGUID,true)" :alt="getImgAlt(chatroom.t)"/>
+              <div class="flex w-full gap-x-3">
+                <template v-if="chatroom.iurl && chatroom.iurl !== ''">
+                  <img class="w-[96px] h-[96px] z-10 rounded-lg"
+                       v-bind:src="getImg(chatroom.iurl,true)" :alt="getImgAlt(chatroom.t)"/>
                 </template>
                 <template v-else>
-                  <div class="medium_bg flex items-center justify-center w-[80px] h-[80px] z-10 rounded-lg">
+                  <div class="w-[96px] h-[96px] medium_bg flex items-center
+                              justify-center z-10 rounded-lg">
                     {{ getImgAlt(chatroom.t) }}
                   </div>
                 </template>
-                <div class="drop_zone" style="margin-left: 10px" id="drop_zone" :ref="'drop_zone'"
-                     v-on:drop="handleFileSelectDrop()" v-on:dragover="handleDragOver()">
-                  Upload a picture!
+                <div>
+                  <h1 class="text-2xl font-bold">{{ chatroom.t }}</h1>
+                  <p class="text-neutral-400 text-sm">
+                    Created: {{ chatroom.ts }}
+                  </p>
                 </div>
               </div>
-              <input type="file" class="file_input" id="files" name="files[]"
-                     style="width: 100%"
-                     multiple v-on:change="handleFileSelect"/>
-              <div id="confirm_settings_loading" class="ml-3 mt-3" style="display: none">
-                <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
-                <span class="jetb ms-2">Uploading...</span>
-              </div>
-              <h4 class="text-neutral-300 font-bold text-lg nopointer mt-2">
-                Reward Program
-              </h4>
-              <p style="font-size: 75%" class="c_lightgray mb-3">
-                Communicate to unlock powerful upgrades for your group!
-              </p>
-              <div style="display: flex; align-items: center"
-                   class="c_lightgray mb-2">
-        <span class="b_purple font-bold nopointer"
-              style="border-radius: 5px; padding: 0 4px 4px 4px;
-                     margin-right: 5px">
-          Rank {{ chatroom.rank }}
-        </span>
-                <span class="b_purple font-bold nopointer"
-                      style="border-radius: 5px; padding: 0 4px 4px 4px;
-                     margin-right: 5px">
-          {{ chatroom.rankDescription }}
-        </span>
-                <button class="btn font-bold golden-hover golden-hover-glow"
-                        style="border-radius: 5px; padding: 0 6px 4px 4px"
-                        v-on:click="upgradeChatroom()">
-                  <i class="bi bi-lightning-charge-fill"></i>
-                  Upgrade to Rank {{ chatroom.rank + 1 }}
-                </button>
-              </div>
-              <div class="c_lightgray nopointer mb-2">
-                Benefits:
-              </div>
-              <div style="overflow-y: auto; font-size: 75%"
-                   class="c_lightgray">
-                <div class="flex gap-1 mb-1" style="width: 100%">
-                  <template v-if="chatroom.rank < 2">
-                    <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
-                         class="text-center">
-                      <i class="bi bi-lock"></i>
-                      <br><span>Badges</span>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div style="border: 2px solid rebeccapurple; border-radius: 10px; padding: 20px"
-                         class="text-center">
-                      <i class="bi bi-award-fill lead"></i>
-                      <br><span class="font-bold">Badges</span>
-                    </div>
-                  </template>
-                  <template v-if="chatroom.rank < 3">
-                    <div style="border: 2px solid gray; border-radius: 10px; padding: 20px"
-                         class="text-center">
-                      <i class="bi bi-lock"></i>
-                      <br><span>Knowledge</span>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div style="border: 2px solid rebeccapurple; border-radius: 10px; padding: 20px"
-                         class="text-center">
-                      <i class="bi bi-book-half lead"></i>
-                      <br><span class="font-bold">Knowledge</span>
-                    </div>
-                  </template>
-                  <div style="border: 2px dotted gray; border-radius: 10px; padding: 20px"
-                       class="text-center">
-                    <i class="bi bi-question"></i>
-                    <br><span>T.B.A.</span>
-                  </div>
+              <p class="headerline mt-4 mb-1">Appearance</p>
+              <div class="p-2 rounded dark_bg border-[1px] border-zinc-600">
+                <p class="font-bold">Change Image</p>
+                <input type="file" class="file_input w-full" id="files"
+                       accept="image/jpeg, image/png"
+                       v-on:change="handleFileSelect"/>
+                <p class="mt-2 font-bold">Change Banner</p>
+                <input type="file" class="file_input w-full" id="filesBanner"
+                       accept="image/jpeg, image/png"
+                       v-on:change="handleFileSelectBanner"/>
+                <div id="confirm_settings_loading" class="ml-3 mt-3" style="display: none">
+                  <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
+                  <span class="jetb ms-2">Uploading...</span>
                 </div>
               </div>
-              <div class="mt-2 p-2 rounded dark_bg">
+              <p class="headerline mt-4 mb-1">Administration</p>
+              <div class="p-2 rounded dark_bg border-[1px] border-red-700">
                 <h4 class="text-neutral-300 font-bold text-lg nopointer">
                   Restoration
                 </h4>
                 <button class="mt-2 rounded bg-red-700 hover:bg-red-900 font-bold text-black p-2"
-                        v-on:click="generateRSAKeyPair(getChatGUID(),true)">
+                        v-on:click="generateRSAKeyPair(getSession(),true)">
                   Replace Encryption Key
                 </button>
               </div>
@@ -1281,7 +1281,7 @@
                 <span class="jetb ms-2">Uploading...</span>
               </div>
               <template v-if="uploadFileBase64 !== ''">
-                <p class="text-neutral-300 font-bold">{{ this.uploadFileName }}</p>
+                <p class="text-neutral-300 font-bold">{{ uploadFileName }}</p>
                 <div class="mt-3 w-full">
                   <button class="darkbutton text-white p-2 w-full
                          flex items-center justify-center rounded-full"
@@ -1290,7 +1290,7 @@
                           title="Send"
                           v-on:click="addMessage">
                     <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Submit</span>
-                    <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ this.uploadFileType }}</span>
+                    <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ uploadFileType }}</span>
                   </button>
                 </div>
               </template>
@@ -1298,7 +1298,7 @@
           </div>
           <template v-if="isViewingFiles">
             <div class="session_settings h-full w-full">
-              <fileviewer :isoverlay="true" :chatguid="chatroom?.guid"
+              <fileviewer :isoverlay="true" :chatguid="chatroom?.uid"
                           @close="isViewingFiles = false"/>
             </div>
           </template>
@@ -1325,7 +1325,7 @@
           </button>
         </div>
         <div style="padding: 5px">
-          <div v-for="usr in this.mainMembers" :key="usr"
+          <div v-for="usr in mainMembers" :key="usr"
                class="user_badge px-2 py-1 relative flex items-center"
                v-on:click="showUserProfile(usr)">
             <template v-if="usr.iurl && usr.iurl !== ''">
@@ -1357,10 +1357,10 @@
             </div>
             <div class="font-bold ml-3">
               <template v-if="usr.active">
-                <span class="text-neutral-300">{{ usr.usr }}</span>
+                <span class="text-neutral-300">{{ usr.name }}</span>
               </template>
               <template v-else>
-                <span class="text-neutral-500">{{ usr.usr }}</span>
+                <span class="text-neutral-500">{{ usr.name }}</span>
               </template>
             </div>
           </div>
@@ -1384,7 +1384,7 @@
     </template>
     <template v-slot:body>
       <div style="display: flex; margin-bottom: 5px" class="items-center">
-        <img :src="getImg(this.viewedUserProfile.iurl, true)" alt="No Picture"
+        <img :src="getImg(viewedUserProfile.iurl, true)" alt="No Picture"
              class="b_darkergray"
              style="width: 100px; height: 100px; border-radius: 100%">
         <div class="block ml-2">
@@ -1404,7 +1404,9 @@
         Set a Profile Picture:
       </label>
       <br>
-      <input id="setProfilePicInput" type="file" multiple v-on:change="setProfilePicture">
+      <input id="setProfilePicInput" type="file"
+             accept="image/jpeg, image/png, image/gif"
+             v-on:change="setProfilePicture">
     </template>
     <template v-slot:footer>
     </template>
@@ -1456,8 +1458,7 @@
     @close="closeModal">
     <template v-slot:header>
       <span style="font-weight: bold">
-        <i class="bi bi-shield-lock-fill"
-           style="margin-right: 10px; font-size: 200%"></i>
+        <i class="bi bi-shield-lock-fill text-xl mr-4"></i>
         RSA-OAEP End-to-End Encryption
       </span>
     </template>
@@ -1503,7 +1504,7 @@
       </div>
     </template>
     <template v-slot:footer>
-      Happy Chatting!
+      <p class="pl-4">Happy Chatting!</p>
     </template>
   </modal>
   <modal
@@ -1535,7 +1536,7 @@
   <template v-if="isViewingProcess">
     <template v-if="processGUID != null && processGUID !== ''">
       <div class="session_settings h-full w-full">
-        <processviewer :isoverlay="true" :srcguid="processGUID" :chatguid="chatroom?.guid"
+        <processviewer :isoverlay="true" :srcguid="processGUID" :chatguid="chatroom?.uid" :issmall="true"
                        @close="processGUID = ''; isViewingProcess = false"/>
       </div>
     </template>
@@ -1581,12 +1582,17 @@ import {
   MoonIcon,
   PhoneIcon,
   PhoneXMarkIcon,
+  PlusSmallIcon,
   QrCodeIcon,
   UserCircleIcon,
   VideoCameraIcon
 } from '@heroicons/vue/24/solid'
 import {
+  ArrowLeftOnRectangleIcon,
   BookOpenIcon,
+  ChatBubbleBottomCenterTextIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   DocumentArrowUpIcon,
   DocumentTextIcon,
   FolderArrowDownIcon,
@@ -1596,10 +1602,13 @@ import {
   RectangleGroupIcon,
   SignalIcon,
   UserPlusIcon,
+  UsersIcon,
   ViewColumnsIcon,
   WindowIcon,
+  WrenchIcon,
   XMarkIcon
 } from '@heroicons/vue/24/outline'
+import { dbGetDisplayName, dbSetDisplayName } from '@/libs/wikistore'
 
 export default {
   props: {
@@ -1634,7 +1643,14 @@ export default {
     processviewer,
     fileviewer,
     FolderIcon,
-    RectangleGroupIcon
+    RectangleGroupIcon,
+    ArrowLeftOnRectangleIcon,
+    WrenchIcon,
+    ChatBubbleBottomCenterTextIcon,
+    UsersIcon,
+    ChevronRightIcon,
+    ChevronLeftIcon,
+    PlusSmallIcon
   },
   data () {
     return {
@@ -1645,6 +1661,11 @@ export default {
       currentSubchat: {},
       connection: null,
       peerType: 'idle',
+      connectParams: {
+        sessionID: '',
+        isSubchat: false,
+        novisual: false
+      },
       peerStreamOutgoing: null,
       peerStreamOutgoingConstraints: {
         video: false,
@@ -1667,7 +1688,6 @@ export default {
       extraSkipCount: 0,
       lazyLoadingStatus: 'idle',
       mainMembers: [],
-      members: [],
       remotePeerConnections: [],
       new_message: '',
       last_message: {},
@@ -1752,10 +1772,10 @@ export default {
         }
       } else if (event.data.type === 'fwd:subchat_join') {
         const payload = JSON.parse(event.data.msg)
-        this.notifyJoinedSubchat(payload.guid, payload.user)
+        this.notifyJoinedSubchat(payload.uid, payload.user)
       } else if (event.data.type === 'fwd:subchat_leave') {
         const payload = JSON.parse(event.data.msg)
-        this.notifyJoinedSubchat(payload.guid, payload.user, false, true)
+        this.notifyJoinedSubchat(payload.uid, payload.user, false, true)
       }
     }
   },
@@ -1851,7 +1871,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/get?src=' + sessionID + '&from=clarifier'
+          url: 'knowledge/private/chat/' + sessionID
         })
           .then((data) => {
             this.knowledgeExists = true
@@ -1870,11 +1890,11 @@ export default {
       })
     },
     setUpWRTC: function () {
-      if (this.wRTC.selfId && this.wRTC.selfId === this.userId) return
+      if (this.wRTC.selfId && this.wRTC.selfId === this.$store.state.username) return
       // Initialize wRTC.js
       this.wRTC = WRTC
       this.wRTC.initialize(
-        this.$Worker, this.$store.state.username, this.userId, true, false, true)
+        this.$Worker, this.$store.state.username, this.$store.state.username, true, false, true)
       // Create BroadcastChannel to listen to wRTC events!
       const eventChannel = new BroadcastChannel('wrtcevents')
       eventChannel.onmessage = event => {
@@ -1967,7 +1987,10 @@ export default {
       }
     },
     handleFirebaseEvent: function (event) {
-      if (event.data.notification.body.includes(this.$store.state.username + ' has sent a message.')) return
+      if (event.data && event.data.notification && event.data.notification.body &&
+        event.data.notification.body.includes(this.$store.state.username + ' has sent a message.')) {
+        return
+      }
       if (event.data.data.subchatGUID != null && event.data.data.subchatGUID.length > 0) {
         const destId = event.data.data.subchatGUID
         const originId = event.data.data.dlDest.substring(20)
@@ -2019,51 +2042,39 @@ export default {
       return new Promise((resolve) => {
         this.resetStats()
         this.isSubchat = isSubchat
+        // Is there a password set?
+        let queryString = ''
+        if (this.$route.query.pw && this.$route.query.pw !== '') {
+          queryString = '?pw=' + this.$route.query.pw
+        }
+        // Is there a reference set?
+        if (this.$route.query.ref && this.$route.query.ref !== '') {
+          if (queryString !== '') {
+            queryString = queryString + '&ref=' + this.$route.query.ref
+          } else {
+            queryString = '?ref=' + this.$route.query.ref
+          }
+        }
         // Connect to the chat
-        this.connection = new WebSocket('wss://wikiric.xyz/clarifier/' + sessionID)
+        this.connection = new WebSocket('ws://localhost:9999/ws/chat/' + sessionID + queryString)
+        // this.connection = new WebSocket('wss://wikiric.xyz/ws/chat/' + sessionID + queryString)
         // Websocket OPEN
         this.connection.onopen = async () => {
           this.websocketState = 'OPEN'
+          // Set connection parameters to be used after authenticating successfully
+          this.connectParams.sessionID = sessionID
+          this.connectParams.isSubchat = isSubchat
+          this.connectParams.novisual = novisual
+          // Send token for authentication
           let auth = await this.$Worker.execute({
             action: 'wss_auth'
           })
           this.connection.send(auth.t)
           auth = null
-          // Subscribe to notifications
-          this.subscribeFCM(sessionID, isSubchat)
-          // Generate Key Pair
-          const gTmp = this.getChatGUID()
-          await this.generateRSAKeyPair(gTmp)
-          setTimeout(() => {
-            // Get metadata and messages
-            this.getClarifierMetaData(sessionID, isSubchat, novisual)
-              .then(() => this.getClarifierMessages(false, sessionID))
-              .then(() => this.prepareInputField())
-              .then(() => // Websocket incoming frames
-                (
-                  this.connection.onmessage = (event) => {
-                    this.showMessage(event.data)
-                  }
-                ))
-              .then(() => {
-                this.scrollToBottom()
-                this.setUpWRTC()
-                this.wRTC.doPause()
-              })
-              .then(() => {
-                if (this.currentSubchat.type === 'webcam' || this.params) {
-                  this.wRTC.doUnpause()
-                  this.startCall(undefined, {
-                    video: undefined,
-                    audio: true
-                  })
-                  this.notifyJoinedSubchat(this.currentSubchat.guid, this.$store.state.username, true)
-                } else if (this.currentSubchat.type === 'screenshare') {
-                  this.wRTC.doUnpause()
-                }
-              })
-              .then(resolve)
-          }, 0)
+          // Listen for websocket messages from the server
+          this.connection.onmessage = (event) => {
+            this.showMessage(event.data)
+          }
         }
         // Websocket CLOSE
         this.connection.onclose = async () => {
@@ -2071,45 +2082,80 @@ export default {
         }
       })
     },
+    setUpChatSession: async function () {
+      // Generate Key Pair (only for main chat group!)
+      await this.generateRSAKeyPair(this.getSession())
+      setTimeout(() => {
+        // Get metadata and messages
+        this.getClarifierMetaData(this.connectParams.sessionID,
+          this.connectParams.isSubchat, this.connectParams.novisual)
+          .then(() => this.getClarifierMessages(false, this.connectParams.sessionID))
+          .then(() => this.prepareInputField())
+          .then(() => this.subscribeFCM(this.connectParams.sessionID, this.connectParams.isSubchat))
+          .then(() => {
+            this.scrollToBottom()
+            this.setUpWRTC()
+            this.wRTC.doPause()
+          })
+          .then(() => {
+            if (this.currentSubchat.type === 'webcam' || this.params) {
+              this.wRTC.doUnpause()
+              this.startCall(undefined, {
+                video: undefined,
+                audio: true
+              })
+              this.notifyJoinedSubchat(this.currentSubchat.uid, this.$store.state.username, true)
+            } else if (this.currentSubchat.type === 'screenshare') {
+              this.wRTC.doUnpause()
+            }
+          })
+      }, 0)
+    },
     subscribeFCM: function (uniChatroomGUID) {
       const content = JSON.stringify({
-        fcmToken: this.$store.state.fcmToken
+        type: 'edit',
+        field: 'fcm',
+        new: this.$store.state.fcmToken
       })
       this.$Worker.execute({
         action: 'api',
         method: 'post',
-        url: 'm5/subscribe/' + uniChatroomGUID,
+        url: 'chat/private/self/mod/' + uniChatroomGUID,
         body: content
       }).catch((err) => console.debug(err.message))
     },
     showMessage: async function (msg) {
+      if (msg.substring(0, 8) === '[s:wlcm]') {
+        this.setUpChatSession()
+        return
+      }
       // This function gets called upon receiving a message via the websocket connection
       const message = await this.processRawMessage(msg)
+      if (!message.usr) return
       if (message.mType == null) return
       // Check if message was sent from this device
       const indexTmp = this.messages.findIndex(
-        element => element.isDraft && element.src === this.$store.state.username && element.msg === message.msg
+        element => element.isDraft && element.usr === this.$store.state.username && element.msg === message.msg
       )
       if (indexTmp > -1) {
         message.header = this.messages[indexTmp].header
         message.separator = this.messages[indexTmp].separator
         message.iurl = this.messages[indexTmp].iurl
         message.iurla = this.messages[indexTmp].iurla
+        message.name = this.messages[indexTmp].name
         this.messages[indexTmp] = message
         return
       }
       // Continue
       if (message.mType === 'EditNotification') {
-        const response = JSON.parse(message.msg)
-        if (response.uniMessageGUID == null) return
-        const index = this.messages.findIndex(msg => msg.guid === response.uniMessageGUID)
-        if (response.newContent !== '') {
+        if (message.uid == null) return
+        const index = this.messages.findIndex(msg => msg.uid === message.uid)
+        if (message.msg !== '') {
           // Edit message
           try {
-            this.messages[index].msg = await this.decryptPayload(
-              JSON.parse(response.newContent.substring(12))
-            )
-            this.removeUserFromActivity(this.messages[index].src)
+            this.messages[index].msg = message.msg
+            this.messages[index].e = true
+            this.removeUserFromActivity(this.messages[index].usr)
             setTimeout(() => {
               mermaid.init()
             }, 0)
@@ -2125,40 +2171,39 @@ export default {
         return
       }
       if (message.mType === 'ReactNotification') {
-        const response = JSON.parse(message.msg)
-        if (response.uniMessageGUID == null) return
-        const index = this.messages.findIndex(msg => msg.guid === response.uniMessageGUID)
+        if (message.uid == null) return
+        const index = this.messages.findIndex(msg => msg.uid === message.uid)
         // Edit message
         try {
           // Check if message already contains a reaction of this type
           if (this.messages[index].reacts.length > 0) {
             for (let i = 0; i < this.messages[index].reacts.length; i++) {
-              if (this.messages[index].reacts[i].t === response.type) {
+              if (this.messages[index].reacts[i].t === message.msg) {
                 // We found the reaction... do we need to add or remove it?
-                if (response.isRemove === false) {
+                if (message.e === false) {
                   // Add reaction
-                  this.messages[index].reacts[i].src.push(response.from)
+                  this.messages[index].reacts[i].src.push(message.usr)
                   setTimeout(() => {
                     const elem = document.getElementById(
-                      'react_' + response.uniMessageGUID + '_' + response.type)
+                      'react_' + message.uid + '_' + message.msg)
                     elem.style.display = 'initial'
-                    document.getElementById('react_' + response.uniMessageGUID + '_' + response.type).title =
+                    document.getElementById('react_' + message.uid + '_' + message.msg).title =
                       this.messages[index].reacts[i].src.toString() + ' reacted to this message.'
                   }, 0)
                 } else {
                   // Remove reaction
                   this.messages[index].reacts[i].src = this.removeValuesFromArray(
                     this.messages[index].reacts[i].src,
-                    response.from
+                    message.usr
                   )
                   if (this.messages[index].reacts[i].src.length > 0) {
                     setTimeout(() => {
-                      document.getElementById('react_' + response.uniMessageGUID + '_' + response.type).title =
+                      document.getElementById('react_' + message.uid + '_' + message.msg).title =
                         this.messages[index].reacts[i].src.toString() + ' reacted to this message.'
                     }, 0)
                   } else {
                     const elem = document.getElementById(
-                      'react_' + response.uniMessageGUID + '_' + response.type)
+                      'react_' + message.uid + '_' + message.msg)
                     elem.style.display = 'none'
                   }
                 }
@@ -2166,17 +2211,17 @@ export default {
               }
             }
           }
-          if (response.isRemove === false) {
+          if (message.e === false) {
             this.messages[index].reacts.push({
-              src: [response.from],
-              t: response.type
+              src: [message.usr],
+              t: message.msg
             })
             setTimeout(() => {
               const elem = document.getElementById(
-                'react_' + response.uniMessageGUID + '_' + response.type)
+                'react_' + message.uid + '_' + message.msg)
               elem.style.display = 'initial'
-              document.getElementById('react_' + response.uniMessageGUID + '_' + response.type).title =
-                response.from + ' reacted to this message.'
+              document.getElementById('react_' + message.uid + '_' + message.msg).title =
+                message.usr + ' reacted to this message.'
             }, 0)
           }
         } catch (e) {
@@ -2188,7 +2233,7 @@ export default {
       if (distanceToBottom < 100) {
         this.scrollToBottom(false)
       }
-      this.removeUserFromActivity(message.src)
+      this.removeUserFromActivity(message.usr)
       this.extraSkipCount++
       const index = this.messages.indexOf(message.msg)
       if (index > -1) {
@@ -2220,8 +2265,8 @@ export default {
           editPayloadMessage = ''
         }
         const payload = JSON.stringify({
-          uniMessageGUID: this.messageEditing.guid,
-          newContent: editPayloadMessage
+          uid: this.messageEditing.uid,
+          text: editPayloadMessage
         })
         this.addMessagePar('[c:EDIT<JSON]' + payload)
         this.focusComment(true)
@@ -2306,12 +2351,12 @@ export default {
       const encryptedMessage = await this.encryptPayload(messageContent)
       // Pre-Display message
       this.messages.unshift(
-        await this.processRawMessage(JSON.stringify({
+        await this.processRawMessage({
           ts: DateTime.now().toISO(),
-          src: this.$store.state.username,
+          usr: this.$store.state.username,
           msg: '[c:MSG<ENCR]' + encryptedMessage,
           isDraft: true
-        }))
+        })
       )
       // Send message to server
       if (this.connection.readyState !== 1) return
@@ -2333,13 +2378,13 @@ export default {
         iv: this.arrayBufferToBase64(iv)
       }
       const keyArray = []
-      for (const user of this.members) {
-        if (user.pem != null && user.pem !== '') {
-          const pubKey = await this.importRSAPubKey(user.pem)
+      for (const user of this.mainMembers) {
+        if (user.pubkey != null && user.pubkey !== '') {
+          const pubKey = await this.importRSAPubKey(user.pubkey)
           const cipher2 = await this.encryptMessageRSA(JSON.stringify(aesPayload), pubKey)
           const encrypted2 = this.arrayBufferToBase64(cipher2)
           keyArray.unshift({
-            id: user.id,
+            id: user.usr,
             key: encrypted2
           })
         }
@@ -2356,7 +2401,7 @@ export default {
       let decryptedMessage
       for (let i = 0; i < encryptedMessageObj.keys.length; i++) {
         const keyPair = encryptedMessageObj.keys[i]
-        if (keyPair.id === this.userId) {
+        if (keyPair.id === this.$store.state.username) {
           // Step 1: Decrypt the RSA encrypted AES key
           const decipherRSA = this.base64ToArrayBuffer(keyPair.key)
           const decryptedRSA = await this.decryptMessageRSA(decipherRSA)
@@ -2402,30 +2447,31 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm5/getchatroom/' + sessionID
+          url: 'chat/private/get/' + sessionID
         })
           .then((data) => {
             let tmpElem
             // Remove active flag
             if (!novisual && this.chatroom.type !== 'direct') {
-              if (this.chatroom.guid != null) {
+              if (this.chatroom.uid != null) {
                 tmpElem = document.getElementById('home_subc')
                 if (tmpElem) tmpElem.classList.remove('active')
               }
-              if (this.currentSubchat.guid != null) {
-                tmpElem = document.getElementById(this.currentSubchat.guid + '_subc')
+              if (this.currentSubchat.uid != null) {
+                tmpElem = document.getElementById(this.currentSubchat.uid + '_subc')
                 if (tmpElem) tmpElem.classList.remove('active')
               }
             }
             // Set new chatroom or subchat + active flag
             if (!isSubchat) {
               this.chatroom = data.result
-              if (this.chatroom.subChatrooms != null) {
+              this.chatroom.ts = DateTime.fromISO(this.chatroom.ts).toLocaleString(DateTime.DATETIME_MED)
+              this.chatroom.rank = 99
+              if (this.chatroom.subc != null) {
                 // Parse JSON serialized subchats for performance
-                for (let i = 0; i < this.chatroom.subChatrooms.length; i++) {
-                  this.chatroom.subChatrooms[i] = JSON.parse(this.chatroom.subChatrooms[i])
-                  if (this.chatroom.subChatrooms[i].type === 'webcam') {
-                    this.getActiveMembers(this.chatroom.subChatrooms[i].guid, true)
+                for (let i = 0; i < this.chatroom.subc.length; i++) {
+                  if (this.chatroom.subc[i].type === 'webcam') {
+                    this.getActiveMembers(this.chatroom.subc[i].uid, true)
                   }
                 }
               }
@@ -2438,7 +2484,7 @@ export default {
             } else {
               this.currentSubchat = data.result
               if (!novisual && this.chatroom.type !== 'direct') {
-                tmpElem = document.getElementById(this.currentSubchat.guid + '_subc')
+                tmpElem = document.getElementById(this.currentSubchat.uid + '_subc')
                 if (tmpElem) tmpElem.classList.toggle('active', true)
               }
             }
@@ -2465,14 +2511,15 @@ export default {
       if (isSubchat === false) {
         this.currentSubchat.type = 'text'
         this.$store.commit('addClarifierSession', {
-          id: this.chatroom.guid,
+          id: this.chatroom.uid,
           title: this.chatroom.t,
-          img: this.getImg(this.chatroom.imgGUID),
-          type: this.chatroom.type
+          img: this.getImg(this.chatroom.iurl),
+          type: this.chatroom.type,
+          banner: this.getImg(this.chatroom.burl)
         })
         if (this.isSubchat === false) {
           this.$store.commit('addClarifierTimestampRead', {
-            id: this.chatroom.guid,
+            id: this.chatroom.uid,
             ts: new Date().getTime()
           })
           setTimeout(() => {
@@ -2483,56 +2530,27 @@ export default {
             }
           }, 1000)
           setTimeout(() => {
-            const notify = document.getElementById(this.chatroom.guid + '_notify')
+            const notify = document.getElementById(this.chatroom.uid + '_notify')
             if (notify != null) {
               notify.style.opacity = '0'
               notify.style.display = 'none'
             }
           }, 1000)
         }
-        this.members = []
-        // Parse JSON serialized users for performance
-        if (this.chatroom.members) {
-          for (let i = 0; i < this.chatroom.members.length; i++) {
-            // Main Members
-            this.mainMembers[i] = JSON.parse(this.chatroom.members[i])
-            this.mainMembers[i].taggable = true
-            // Current Members
-            this.members[i] = this.mainMembers[i]
-            this.members[i].taggable = true
-            if (this.members[i].usr === this.$store.state.username) {
-              this.userId = this.members[i].id
-            }
-          }
-        }
+        await this.getMainMembers()
       } else {
         this.$store.commit('addClarifierTimestampRead', {
-          id: this.currentSubchat.guid,
+          id: this.currentSubchat.uid,
           ts: new Date().getTime()
         })
         setTimeout(() => {
-          const notify = document.getElementById(this.currentSubchat.guid + '_notify')
+          const notify = document.getElementById(this.currentSubchat.uid + '_notify')
           if (notify != null) {
             notify.style.opacity = '0'
             notify.style.display = 'none'
           }
         }, 1000)
-        // Parse JSON serialized users for performance and determine current user's ID
-        this.members = []
-        this.remotePeerConnections = []
-        for (let i = 0; i < this.currentSubchat.members.length; i++) {
-          this.members[i] = JSON.parse(this.currentSubchat.members[i])
-          this.members[i].taggable = true
-          if (this.members[i].usr === this.$store.state.username) {
-            this.userId = this.members[i].id
-          } else {
-            this.remotePeerConnections.push({
-              remoteId: this.members[i].id,
-              iurl: this.members[i].iurl,
-              iurla: this.members[i].iurla
-            })
-          }
-        }
+        await this.getMainMembers()
       }
       const messagesSection = this.$refs.messages_section
       if (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam' || this.params) {
@@ -2559,6 +2577,30 @@ export default {
       }
       await this.getActiveMembers(sessionID)
     },
+    getMainMembers: async function () {
+      this.members = []
+      this.$Worker.execute({
+        action: 'api',
+        method: 'get',
+        url: 'chat/private/users/members/' + this.chatroom.uid
+      })
+        .then((data) => {
+          if (data.result.members && data.result.members.length > 0) {
+            // Parse JSON serialized users for performance
+            for (let i = 0; i < data.result.members.length; i++) {
+              // Main Members
+              this.mainMembers[i] = data.result.members[i]
+              this.mainMembers[i].taggable = true
+              if (this.mainMembers[i].usr === this.$store.state.username) {
+                this.mainMembers[i].online = true
+                this.mainMembers[i].active = true
+              }
+              // Set username
+              dbSetDisplayName(data.result.members[i].usr, data.result.members[i].name)
+            }
+          }
+        })
+    },
     getClarifierMessages: async function (lazyLoad = false, sessionID) {
       if (sessionID == null) {
         sessionID = this.getSession()
@@ -2569,13 +2611,13 @@ export default {
         pageIndex++
       }
       const parameters =
-        '?pageIndex=' + pageIndex +
-        '&pageSize=' + this.pageSize +
+        '?page=' + pageIndex +
+        '&results=' + this.pageSize +
         '&skip=' + this.extraSkipCount
       this.$Worker.execute({
         action: 'api',
         method: 'get',
-        url: 'm5/getmessages/' + sessionID + parameters
+        url: 'msg/private/chat/get/' + sessionID + parameters
       })
         .then((data) => {
           this.processMessagesResponse(data.result, lazyLoad)
@@ -2583,16 +2625,17 @@ export default {
         .catch((err) => console.debug(err.message))
     },
     processMessagesResponse: async function (data, lazyLoad = false) {
+      this.$refs.welcomeMessage.style.display = 'flex'
       if (data.messages == null) {
         if (lazyLoad) this.lazyLoadingStatus = 'idle'
         return
       }
+      let pageIndex = this.currentPage
       if (data.messages.length === 0) {
         // No more messages can be loaded
         if (lazyLoad) this.lazyLoadingStatus = 'done'
         return
       }
-      let pageIndex = this.currentPage
       if (lazyLoad) pageIndex++
       // Add messages to stack
       if (pageIndex === 0) {
@@ -2626,8 +2669,15 @@ export default {
       }, 0)
     },
     processRawMessage: async function (msg, draft = false) {
-      if (msg.substring(0, 6) === '[c:SC]') {
-        const tmp = msg.substring(6)
+      // Deserialize
+      let message
+      if (typeof msg === 'string') {
+        message = JSON.parse(msg)
+      } else {
+        message = msg
+      }
+      if (message.msg.substring(0, 6) === '[c:SC]') {
+        const tmp = message.msg.substring(6)
         if (tmp.substring(0, 10) === '[activity]') {
           this.receiveActivity(tmp.substring(10))
         } else if (tmp.substring(0, 8) === '[online]') {
@@ -2655,23 +2705,19 @@ export default {
           resolve('')
         })
       }
-      // Deserialize
-      const message = JSON.parse(msg)
       message.mType = 'Text'
       message.apiResponse = false
       // Process timestamp
       message.time = DateTime.fromISO(message.ts)
       // Process reserved keywords
-      if (message.msg.includes('[s:EditNotification]') === true && message.src === '_server') {
+      if (message.action === 'edit') {
         message.mType = 'EditNotification'
-        message.msg = message.msg.substring(20)
-      } else if (message.msg.includes('[s:ReactNotification]') === true && message.src === '_server') {
+      } else if (message.action === 'react') {
         message.mType = 'ReactNotification'
-        message.msg = message.msg.substring(21)
-      } else if (message.msg.includes('[s:RegistrationNotification]') === true && message.src === '_server') {
+      } else if (message.msg.includes('[s:RegistrationNotification]') === true && message.usr === '_server') {
         message.mType = 'RegistrationNotification'
         message.msg = message.msg.substring(28)
-      } else if (message.msg.includes('[s:Leaderboard]') === true && message.src === '_server') {
+      } else if (message.msg.includes('[s:Leaderboard]') === true && message.usr === '_server') {
         message.mType = 'Leaderboard'
         message.msg = message.msg.substring(15)
       } else if (message.msg.includes('[c:GIF]') === true) {
@@ -2717,8 +2763,10 @@ export default {
       }
       // Reactions
       if (message.reacts != null) {
-        for (let i = 0; i < message.reacts.length; i++) {
-          message.reacts[i] = JSON.parse(message.reacts[i])
+        for (let i = message.reacts.length - 1; i >= 0; i--) {
+          if (message.reacts[i].src.length === 0) {
+            message.reacts.splice(i, 1)
+          }
         }
       } else {
         message.reacts = []
@@ -2727,10 +2775,15 @@ export default {
       Don't add a header (avatar, name) if the last message came from the same source and similar time
        */
       message.header = true
-      if (message.src === '_server' || message.apiResponse !== true) {
-        if (this.last_message.src === message.src) {
+      if (message.usr === '_server' || message.apiResponse !== true) {
+        if (this.last_message.usr === message.usr) {
           // If the sources are identical, check if the time was similar
-          let timeDiff = message.time.toMillis() - this.last_message.time.toMillis()
+          let timeDiff
+          if (this.last_message.time) {
+            timeDiff = message.time.toMillis() - this.last_message.time.toMillis()
+          } else {
+            timeDiff = 999999
+          }
           timeDiff = (Math.abs((timeDiff) / 1000) / 60)
           // If the message is 3 minutes or older put the message header
           message.header = timeDiff >= 3
@@ -2739,8 +2792,9 @@ export default {
       if (message.header === true) {
         message.iurl = ''
         // Check for profile picture
-        const ix = this.mainMembers.findIndex(member => member.usr === message.src)
+        const ix = this.mainMembers.findIndex(member => member.usr === message.usr)
         if (ix !== -1) {
+          message.name = this.mainMembers[ix].name
           if (this.mainMembers[ix].iurl != null) {
             message.iurl = this.mainMembers[ix].iurl
             // Animated pictures!!!
@@ -2748,6 +2802,8 @@ export default {
               message.iurla = this.mainMembers[ix].iurla
             }
           }
+        } else {
+          message.name = await dbGetDisplayName(message.usr)
         }
       }
       // Do we need to add a separator since a new day began?
@@ -2766,7 +2822,7 @@ export default {
       /* Are we allowed to edit this message?
       Only allow the user to edit his own messages, not the ones of others
        */
-      message.editable = (message.src === this.$store.state.username)
+      message.editable = (message.usr === this.$store.state.username)
       // Is the message encrypted?
       const encryptionPrefix = '[c:MSG<ENCR]'
       if (message.msg.startsWith(encryptionPrefix)) {
@@ -2803,6 +2859,7 @@ export default {
       } else if (message.mType === 'Reply') {
         try {
           const tmp = JSON.parse(message.msg)
+          tmp.src.time = DateTime.fromISO(tmp.src.ts)
           message.msg = tmp.reply
           message.source = tmp.src
         } catch (e) {
@@ -2831,7 +2888,7 @@ export default {
             this.$router.push('/bsod?reason=' + 'Invalid Chatroom GUID @ getSession')
           }
         }
-        return session
+        return session.trim()
       } else {
         return window.location.href
       }
@@ -2841,7 +2898,7 @@ export default {
       if (session == null || session.length < 30) {
         session = 'none'
       }
-      return session
+      return session.trim()
     },
     invite: function () {
       this.showInviteCopied = true
@@ -3043,6 +3100,7 @@ export default {
     showUserProfile: function (user) {
       this.hideAllWindows()
       this.isViewingUserProfile = true
+      user.tsFormat = this.getHumanReadableDateText(user.ts)
       this.viewedUserProfile = user
       if (this.chatroom.rank > 1) {
         // Does the user have badges?
@@ -3157,10 +3215,10 @@ export default {
       }
       if (!state) {
         this.$refs.chat_section.classList.add('tl_br_force')
-        this.$refs.messages_container.classList.add('tl_br_none_force')
+        // this.$refs.messages_container.classList.add('tl_br_none_force')
       } else {
         this.$refs.chat_section.classList.remove('tl_br_force')
-        this.$refs.messages_container.classList.remove('tl_br_none_force')
+        // this.$refs.messages_container.classList.remove('tl_br_none_force')
       }
     },
     toggleMemberSidebar: function () {
@@ -3236,9 +3294,9 @@ export default {
         if (this.$refs.chat_section) {
           this.$refs.chat_section.classList.add('tl_br_force')
         }
-        if (this.$refs.messges_container) {
-          this.$refs.messages_container.classList.add('tl_br_none_force')
-        }
+        // if (this.$refs.messges_container) {
+        //   this.$refs.messages_container.classList.add('tl_br_none_force')
+        // }
         return
       }
       const sidebar = document.getElementById('sidebar2')
@@ -3248,9 +3306,9 @@ export default {
         if (this.$refs.chat_section) {
           this.$refs.chat_section.classList.remove('tl_br_force')
         }
-        if (this.$refs.messages_container) {
-          this.$refs.messages_container.classList.remove('tl_br_none_force')
-        }
+        // if (this.$refs.messages_container) {
+        //   this.$refs.messages_container.classList.remove('tl_br_none_force')
+        // }
       }
     },
     hideSidebar2: function () {
@@ -3261,9 +3319,9 @@ export default {
         if (this.$refs.chat_section) {
           this.$refs.chat_section.classList.add('tl_br_force')
         }
-        if (this.$refs.messges_container) {
-          this.$refs.messages_container.classList.add('tl_br_none_force')
-        }
+        // if (this.$refs.messges_container) {
+        //   this.$refs.messages_container.classList.add('tl_br_none_force')
+        // }
       }
     },
     showMemberSidebar: function () {
@@ -3305,7 +3363,7 @@ export default {
       if (event.key === 'Enter') {
         if (this.isTaggingUser === true) {
           event.preventDefault()
-          this.tagUserProfile(this.members[this.tagIndex])
+          this.tagUserProfile(this.mainMembers[this.tagIndex])
         } else if (this.isSelectingImgflipTemplate === true) {
           event.preventDefault()
           this.selectImgflipTemplate(this.imgflipSelection[this.tagIndex])
@@ -3323,11 +3381,11 @@ export default {
             event.preventDefault()
             if (this.tagIndex > 0) {
               for (let ii = this.tagIndex - 1; ii >= 0; ii--) {
-                if (this.members[ii].taggable === true) {
+                if (this.mainMembers[ii].taggable === true) {
                   this.tagIndex--
-                  if (this.members[this.tagIndex].taggable !== true) {
+                  if (this.mainMembers[this.tagIndex].taggable !== true) {
                     for (let i = this.tagIndex; i > 0; i--) {
-                      if (this.members[this.tagIndex].taggable !== true) {
+                      if (this.mainMembers[this.tagIndex].taggable !== true) {
                         this.tagIndex--
                       } else {
                         break
@@ -3384,13 +3442,13 @@ export default {
       } else if (event.key === 'ArrowDown') {
         if (this.isTaggingUser === true) {
           event.preventDefault()
-          if (this.tagIndex < this.members.length - 1) {
-            for (let ii = this.tagIndex + 1; ii <= this.members.length - 1; ii++) {
-              if (this.members[ii].taggable === true) {
+          if (this.tagIndex < this.mainMembers.length - 1) {
+            for (let ii = this.tagIndex + 1; ii <= this.mainMembers.length - 1; ii++) {
+              if (this.mainMembers[ii].taggable === true) {
                 this.tagIndex++
-                if (this.members[this.tagIndex].taggable !== true) {
-                  for (let i = this.tagIndex; i < this.members.length - 1; i++) {
-                    if (this.members[this.tagIndex].taggable !== true) {
+                if (this.mainMembers[this.tagIndex].taggable !== true) {
+                  for (let i = this.tagIndex; i < this.mainMembers.length - 1; i++) {
+                    if (this.mainMembers[this.tagIndex].taggable !== true) {
                       this.tagIndex++
                     } else {
                       break
@@ -3401,7 +3459,7 @@ export default {
               }
             }
           } else {
-            this.tagIndex = this.members.length - 1
+            this.tagIndex = this.mainMembers.length - 1
           }
           const tmpElem = document.getElementById('usertagger_' + this.tagIndex)
           if (tmpElem) {
@@ -3463,12 +3521,12 @@ export default {
               }
               string += this.new_message.substring(j, j + 1).toUpperCase()
             }
-            for (let k = 0; k < this.members.length; k++) {
-              this.members[k].taggable = string === '' ||
-                this.members[k].usr.toUpperCase().includes(string)
+            for (let k = 0; k < this.mainMembers.length; k++) {
+              this.mainMembers[k].taggable = string === '' ||
+                this.mainMembers[k].usr.toUpperCase().includes(string)
             }
-            for (let k = 0; k < this.members.length; k++) {
-              if (this.members[k].taggable === true) {
+            for (let k = 0; k < this.mainMembers.length; k++) {
+              if (this.mainMembers[k].taggable === true) {
                 this.tagIndex = k
                 break
               }
@@ -3514,9 +3572,9 @@ export default {
       if (this.isEditingMessage !== true) {
         return
       }
-      const msg = document.getElementById(this.messageEditing.guid)
+      const msg = document.getElementById(this.messageEditing.uid)
       if (msg != null) msg.style.backgroundColor = ''
-      const editElem = document.getElementById('edit_' + this.messageEditing.guid)
+      const editElem = document.getElementById('edit_' + this.messageEditing.uid)
       if (editElem != null) editElem.style.display = 'none'
       this.isEditingMessage = false
       this.messageEditing = {}
@@ -3530,9 +3588,9 @@ export default {
       if (this.isReplyingToMessage !== true) {
         return
       }
-      const msg = document.getElementById(this.messageReplyingTo.guid)
+      const msg = document.getElementById(this.messageReplyingTo.uid)
       if (msg != null) msg.style.backgroundColor = ''
-      const editElem = document.getElementById('edit_' + this.messageReplyingTo.guid)
+      const editElem = document.getElementById('edit_' + this.messageReplyingTo.uid)
       if (editElem != null) editElem.style.display = 'none'
       this.isReplyingToMessage = false
       this.messageReplyingTo = {}
@@ -3553,9 +3611,6 @@ export default {
       this.hideUserProfile()
       this.hideNewSubchatWindow()
     },
-    handleFileSelectDrop: function (evt) {
-      this.handleFileSelect(evt, true)
-    },
     handleFileSelect: function (evt, drop = false) {
       evt.stopPropagation()
       evt.preventDefault()
@@ -3569,23 +3624,35 @@ export default {
       }
       this.setSessionImage(files[0])
     },
+    handleFileSelectBanner: function (evt, drop = false) {
+      evt.stopPropagation()
+      evt.preventDefault()
+      // Start uploading animation
+      this.toggleElement('confirm_settings_loading', 'flex')
+      let files
+      if (drop) {
+        files = evt.dataTransfer.files
+      } else {
+        files = evt.target.files
+      }
+      this.setSessionImage(files[0], true)
+    },
     setProfilePicture: async function (evt) {
       evt.stopPropagation()
       evt.preventDefault()
-      const file = evt.target.files[0]
-      const base64 = await this.getBase64(file)
-      const url = 'm5/setmemberimage/' + this.getSession()
+      const base64 = await this.getBase64(evt.target.files[0])
+      const url = 'chat/private/self/mod/' + this.getSession()
       const updateFun = this.getClarifierMetaData
       const getMessagesFun = this.getClarifierMessages
-      const content = JSON.stringify({
-        imageBase64: base64,
-        username: this.$store.state.username
-      })
       this.$Worker.execute({
         action: 'api',
         method: 'post',
         url: url,
-        body: content
+        body: JSON.stringify({
+          type: 'edit',
+          field: 'iurl',
+          new: base64
+        })
       })
         .then(() => (updateFun()))
         .then(() => (getMessagesFun()))
@@ -3630,7 +3697,7 @@ export default {
         return ''
       } else {
         let ret = imgGUID
-        if (get) ret = this.$store.state.serverIP + '/m6/get/' + imgGUID
+        if (get) ret = this.$store.state.serverIP + '/' + imgGUID
         return ret
       }
     },
@@ -3651,19 +3718,22 @@ export default {
         reader.readAsDataURL(file)
       })
     },
-    setSessionImage: async function (image) {
-      const url = 'm5/setimage/' + this.getSession()
-      const base64String = await this.getBase64(image)
+    setSessionImage: async function (image, isBanner = false) {
+      const url = 'chat/private/mod/' + this.getSession()
+      const base64 = await this.getBase64(image)
       const updateFun = this.getClarifierMetaData
       const disableLoadingFun = this.toggleSettingsLoading
-      const content = JSON.stringify({
-        imageBase64: base64String
-      })
+      let fieldType = 'iurl'
+      if (isBanner) fieldType = 'burl'
       this.$Worker.execute({
         action: 'api',
         method: 'post',
         url: url,
-        body: content
+        body: JSON.stringify({
+          type: 'edit',
+          field: fieldType,
+          new: base64
+        })
       })
         .then(() => (updateFun()))
         .catch((err) => console.debug(err.message))
@@ -3709,22 +3779,23 @@ export default {
         this.new_subchat_name = ''
         return
       }
+      const mainSessionGUID = this.getSession()
       const content = JSON.stringify({
-        title: this.new_subchat_name.trim(),
-        type: subchatType
+        t: this.new_subchat_name.trim(),
+        type: subchatType.trim(),
+        pid: mainSessionGUID.trim()
       })
       this.hideNewSubchatWindow()
-      const mainSessionGUID = this.getSession()
-      let response
+      let guid
       this.$Worker.execute({
         action: 'api',
         method: 'post',
-        url: 'm5/createchatroom?parent=' + mainSessionGUID,
+        url: 'chat/private/create',
         body: content
       })
-        .then((data) => (response = data.result))
+        .then((data) => (guid = data.result))
         .then(() => this.getClarifierMetaData(mainSessionGUID, false, true))
-        .then(() => this.gotoSubchat(response.guid))
+        .then(() => this.gotoSubchat(guid))
         .catch((err) => console.debug(err.message))
     },
     gotoSubchat: async function (subchatGUID, subchatMode = true) {
@@ -3759,7 +3830,7 @@ export default {
       this.resetStats()
       this.websocketState = 'CLOSED'
       if (this.currentSubchat && this.currentSubchat.type === 'webcam') {
-        this.notifyJoinedSubchat(this.currentSubchat.guid, this.$store.state.username, true, true)
+        this.notifyJoinedSubchat(this.currentSubchat.uid, this.$store.state.username, true, true)
       }
       if (this.connection == null) return
       this.addMessagePar('[c:SC]' + '[offline]' + this.$store.state.username)
@@ -3775,10 +3846,10 @@ export default {
         notify = document.getElementById('home_notify')
       } else {
         this.$store.commit('addClarifierTimestampRead', {
-          id: this.currentSubchat.guid,
+          id: this.currentSubchat.uid,
           ts: new Date().getTime()
         })
-        notify = document.getElementById(this.currentSubchat.guid + '_notify')
+        notify = document.getElementById(this.currentSubchat.uid + '_notify')
       }
       if (notify != null) {
         notify.style.opacity = '0'
@@ -3795,19 +3866,21 @@ export default {
       this.userActivity = []
       this.userActivityIdle = []
       this.setOverlay(0)
+      if (this.$refs.welcomeMessage) {
+        this.$refs.welcomeMessage.style.display = 'none'
+      }
     },
     uploadSnippet: function () {
       this.toggleElement('confirm_snippet_loading', 'flex')
       const content = JSON.stringify({
-        type: this.uploadFileType,
-        payload: this.uploadFileBase64,
+        base64: this.uploadFileBase64,
         name: this.uploadFileName,
-        chatroomGUID: this.chatroom.guid
+        pid: this.chatroom.uid
       })
       this.$Worker.execute({
         action: 'api',
         method: 'post',
-        url: 'm6/create',
+        url: 'files/private/create',
         body: content
       })
         .then((data) => (this.processUploadSnippetResponse(data.result)))
@@ -3829,14 +3902,10 @@ export default {
       if (this.chatroom.type === 'direct' || chatGUID === 'none') {
         chatGUID = this.getSession()
       }
-      return chatGUID
+      return chatGUID.trim()
     },
     processUploadSnippetResponse: async function (response) {
-      if (response.httpCode !== 201) {
-        this.handleUploadSnippetError()
-        return
-      }
-      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.guid
+      const contentURL = this.$store.state.serverIP + '/files/public/get/' + response.trim()
       let prefix
       if (this.uploadFileType.includes('audio')) {
         prefix = '[c:AUD]'
@@ -3874,7 +3943,7 @@ export default {
     },
     reactToMessage: function (msg, t) {
       const payload = JSON.stringify({
-        uniMessageGUID: msg.guid,
+        uid: msg.uid,
         type: t
       })
       this.addMessagePar('[c:REACT<JSON]' + payload)
@@ -3892,7 +3961,7 @@ export default {
       const payload = {
         title: '',
         description: msg.msg.trim(),
-        knowledgeGUID: this.knowledge.guid,
+        knowledgeGUID: this.knowledge.uid,
         keywords: 'msg message',
         copyContent: '',
         categories: []
@@ -3921,8 +3990,8 @@ export default {
     editMessage: function (msg, remove = false) {
       if (remove === true) {
         const payload = JSON.stringify({
-          uniMessageGUID: msg.guid,
-          newContent: ''
+          uid: msg.uid,
+          text: ''
         })
         this.addMessagePar('[c:EDIT<JSON]' + payload)
       } else {
@@ -3934,8 +4003,8 @@ export default {
         this.focusComment(true)
         setTimeout(() => {
           this.auto_grow()
-          document.getElementById(msg.guid).style.backgroundColor = '#71717A'
-          const editElem = document.getElementById('edit_' + this.messageEditing.guid)
+          document.getElementById(msg.uid).style.backgroundColor = '#71717A'
+          const editElem = document.getElementById('edit_' + this.messageEditing.uid)
           if (editElem != null) editElem.style.display = 'flex'
         }, 0)
       }
@@ -3948,8 +4017,8 @@ export default {
       this.focusComment(true)
       setTimeout(() => {
         this.auto_grow()
-        document.getElementById(msg.guid).style.backgroundColor = '#71717A'
-        const editElem = document.getElementById('edit_' + this.messageReplyingTo.guid)
+        document.getElementById(msg.uid).style.backgroundColor = '#71717A'
+        const editElem = document.getElementById('edit_' + this.messageReplyingTo.uid)
         if (editElem != null) editElem.style.display = 'flex'
       }, 0)
     },
@@ -4034,11 +4103,19 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm5/pubkey/' + uniChatroomGUID,
+          url: 'chat/private/pubkey/' + uniChatroomGUID,
           body: content
         })
-          .then(() => (updateFun()))
-          .then(() => (getMessagesFun()))
+          .then(() => {
+            if (force) {
+              updateFun()
+            }
+          })
+          .then(() => {
+            if (force) {
+              getMessagesFun()
+            }
+          })
           .then(() => {
             if (force === true) {
               this.$notify(
@@ -4159,7 +4236,7 @@ export default {
       )
     },
     decryptMessageRSA: async function (content) {
-      const keyPair = await this.$store.getters.getClarifierKeyPair(this.getChatGUID())
+      const keyPair = await this.$store.getters.getClarifierKeyPair(this.getSession())
       const privKey = await this.importRSAPrivKey(keyPair.priv)
       const decrypted = await window.crypto.subtle.decrypt(
         {
@@ -4479,18 +4556,18 @@ export default {
       return i
     },
     getUserFromId: function (userId) {
-      if (this.members.length < 1) return null
-      for (let i = 0; i < this.members.length; i++) {
-        if (this.members[i].id === userId) {
-          return this.members[i].usr
+      if (this.mainMembers.length < 1) return null
+      for (let i = 0; i < this.mainMembers.length; i++) {
+        if (this.mainMembers[i].usr === userId) {
+          return this.mainMembers[i].usr
         }
       }
     },
     getIdFromUser: function (username) {
-      if (this.members.length < 1) return null
-      for (let i = 0; i < this.members.length; i++) {
-        if (this.members[i].usr === username) {
-          return this.members[i].id
+      if (this.mainMembers.length < 1) return null
+      for (let i = 0; i < this.mainMembers.length; i++) {
+        if (this.mainMembers[i].usr === username) {
+          return this.mainMembers[i].usr
         }
       }
     },
@@ -4501,20 +4578,20 @@ export default {
         calleeList.push(userId)
       } else {
         // If no userId is provided, add everybody active except the current user as a callee
-        const guid = this.currentSubchat.guid
+        const guid = this.currentSubchat.uid
         const actives = await this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm5/activemembers/' + guid
+          url: 'chat/private/users/active/' + guid
         })
-        for (let i = 0; i < actives.result.members.length; i++) {
-          activeMap.set(actives.result.members[i], true)
+        for (let i = 0; i < actives.result.active.length; i++) {
+          activeMap.set(actives.result.active[i], true)
         }
         let isActive = false
-        for (let i = 0; i < this.members.length; i++) {
-          isActive = activeMap.has(this.members[i].usr)
-          if (this.members[i].id !== this.userId && isActive) {
-            calleeList.push(this.members[i].id)
+        for (let i = 0; i < this.mainMembers.length; i++) {
+          isActive = activeMap.has(this.mainMembers[i].usr)
+          if (this.mainMembers[i].usr !== this.$store.state.username && isActive) {
+            calleeList.push(this.mainMembers[i].usr)
           }
         }
       }
@@ -4522,7 +4599,7 @@ export default {
       let remoteName
       for (let i = 0; i < calleeList.length; i++) {
         remoteName = this.getUserFromId(calleeList[i])
-        this.wRTC.initiatePeerConnection(this.peerStreamOutgoing, this.userId, calleeList[i], remoteName)
+        this.wRTC.initiatePeerConnection(this.peerStreamOutgoing, this.$store.state.username, calleeList[i], remoteName)
       }
     },
     makeElementDraggable: function (element) {
@@ -4678,13 +4755,13 @@ export default {
         .catch((err) => console.debug(err.message))
     },
     getBadges: function (username) {
-      this.$Worker.execute({
-        action: 'api',
-        method: 'get',
-        url: 'm2/badges/get/' + username
-      })
-        .then((data) => (this.setUserBadges(data.result)))
-        .catch((err) => console.debug(err.message))
+      // this.$Worker.execute({
+      //   action: 'api',
+      //   method: 'get',
+      //   url: 'm2/badges/get/' + username
+      // })
+      //   .then((data) => (this.setUserBadges(data.result)))
+      //   .catch((err) => console.debug(err.message))
     },
     setUserBadges: function (response) {
       this.viewedUserProfile.badges = []
@@ -4698,10 +4775,10 @@ export default {
     },
     markActiveSubchat: function () {
       if (!this.isSubchat) {
-        document.getElementById(this.chatroom.guid + '_subc')
+        document.getElementById(this.chatroom.uid + '_subc')
           .classList.toggle('active', true)
       } else {
-        document.getElementById(this.currentSubchat.guid + '_subc')
+        document.getElementById(this.currentSubchat.uid + '_subc')
           .classList.toggle('active', true)
       }
     },
@@ -4721,7 +4798,7 @@ export default {
         }
         const qrCodePayload = this.$store.state.serverIP +
           '/apps/clarifier/transfer' +
-          '?guid=' + this.chatroom.guid +
+          '?guid=' + this.chatroom.uid +
           '&who=' + this.$store.state.username
         const qrCode = new QRCode(elem, {
           text: qrCodePayload,
@@ -4733,7 +4810,7 @@ export default {
         }
       }, 0)
     },
-    shareActivity: function () {
+    shareActivity: async function () {
       let found = false
       if (this.userActivity.length > 0) {
         // Check if activity was previously shared already
@@ -4753,13 +4830,16 @@ export default {
       this.addMessagePar('[c:SC]' + '[activity]' + this.$store.state.username)
       if (!found) {
         this.removeUserFromIdle(this.$store.state.username)
+        const dName = await dbGetDisplayName(this.$store.state.username)
         this.userActivity.unshift({
+          name: dName,
           user: this.$store.state.username,
           date: new Date()
         })
       }
     },
-    receiveActivity: function (username) {
+    receiveActivity: async function (username) {
+      if (username === this.$store.state.username) return
       // Check and set online status
       this.setActiveMembers([username])
       let found = false
@@ -4775,13 +4855,15 @@ export default {
       }
       if (!found) {
         this.removeUserFromIdle(username)
+        const dName = await dbGetDisplayName(username)
         this.userActivity.unshift({
+          name: dName,
           user: username,
           date: new Date()
         })
       }
     },
-    receiveIdle: function (username) {
+    receiveIdle: async function (username) {
       let found = false
       if (this.userActivityIdle.length > 0) {
         // Check if activity was previously shared
@@ -4794,7 +4876,9 @@ export default {
         }
       }
       if (!found) {
+        const dName = await dbGetDisplayName(username)
         this.userActivityIdle.unshift({
+          name: dName,
           user: username,
           date: new Date()
         })
@@ -4847,7 +4931,7 @@ export default {
       this.$Worker.execute({
         action: 'api',
         method: 'get',
-        url: 'm5/activemembers/' + uniChatroomGUID
+        url: 'chat/private/users/active/' + uniChatroomGUID
       })
         .then((data) => {
           for (let i = 0; i < this.mainMembers.length; i++) {
@@ -4900,23 +4984,20 @@ export default {
       this.$Worker.execute({
         action: 'api',
         method: 'post',
-        url: 'm2/online',
+        url: 'users/private/status',
         body: JSON.stringify(payload)
       })
         .then((data) => {
           const dict = new Map()
           if (!data.result.users) return
           for (let i = 0; i < data.result.users.length; i++) {
-            dict[data.result.users[i].username] = {
-              online: data.result.users[i].online,
-              recent: data.result.users[i].recent,
-              lastActivity: data.result.users[i].lastActivity
+            dict[data.result.users[i].usr] = {
+              online: data.result.users[i].status === 'online'
             }
           }
           for (let i = 0; i < this.mainMembers.length; i++) {
             if (dict[this.mainMembers[i].usr]) {
               this.mainMembers[i].online = dict[this.mainMembers[i].usr].online
-              this.mainMembers[i].recent = dict[this.mainMembers[i].usr].recent
             }
           }
         })
@@ -4948,7 +5029,7 @@ export default {
         .then((data) => {
           if (data.result.chatrooms && data.result.chatrooms.length > 0) {
             foundDirect = true
-            newId = data.result.chatrooms[0].guid
+            newId = data.result.chatrooms[0].uid
             this.connectToGroup(newId, true)
           }
         })
@@ -4969,7 +5050,6 @@ export default {
         path: '/apps/clarifier/wss/' + chatroomId
       })
       this.mainMembers = []
-      this.members = []
       this.disconnect()
       this.connect(chatroomId, false, novisual)
     },
@@ -5077,7 +5157,7 @@ export default {
       this.$Worker.execute({
         action: 'call',
         usernameToCall: this.chatroom.t,
-        chatroomGUID: this.chatroom.guid
+        chatroomGUID: this.chatroom.uid
       })
       this.params = true
       this.startCall()
@@ -5092,20 +5172,20 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/get?src=' + this.chatroom.guid + '&from=clarifier'
+          url: 'knowledge/private/chat/' + this.chatroom.uid
         }).then((data) => {
           knowledge = data.result
           // Create process
           const payload = {
-            title: 'Quick Notes',
-            description: '',
-            keywords: 'quick,notes,chat',
-            knowledgeGUID: knowledge.guid
+            t: 'Quick Notes',
+            desc: '',
+            keys: 'quick,notes,chat',
+            pid: knowledge.uid
           }
           this.$Worker.execute({
             action: 'api',
             method: 'post',
-            url: 'm9/create',
+            url: 'process/private/create',
             body: JSON.stringify(payload)
           }).then((data) => {
             this.processGUID = data.result
@@ -5127,8 +5207,8 @@ export default {
       this.viewingImageURL = url
     },
     notifyJoinedSubchat (guid, user, forward = false, leave = false) {
-      this.chatroom.subChatrooms.forEach((value) => {
-        if (value.guid === guid) {
+      this.chatroom.subc.forEach((value) => {
+        if (value.uid === guid) {
           if (!value._subMembers || !Array.isArray(value._subMembers)) {
             value._subMembers = []
           } else {
@@ -5289,7 +5369,9 @@ export default {
   bottom: 80px;
   right: 12px;
   color: white;
-  @apply rounded-lg darkest_bg p-4 w-[400px] max-w-[calc(100dvw-24px)] max-h-[calc(100%-200px)];
+  @apply rounded-lg darkest_bg p-2 w-[400px]
+  max-w-[calc(100dvw-24px)] max-h-[calc(100%-200px)]
+  dshadow;
 }
 
 .user_role {
@@ -5355,13 +5437,13 @@ export default {
 
 .chat_section {
   @apply w-full h-full overflow-clip
-  medium_bg rounded-tl lg:rounded-tl-none lg:rounded-tr
+  dark_bg rounded-tl lg:rounded-tl-none lg:rounded-tr
   flex items-center justify-center
 }
 
 .messages_container {
   @apply h-[calc(100%-130px)] max-h-[calc(100%-130px)] overflow-hidden
-  bright_bg lg:rounded-tl
+  bright_bg
 }
 
 .messages_section {
@@ -5475,6 +5557,10 @@ export default {
   .darkergray-on-small.active {
     @apply border-r;
   }
+
+  .chat_header {
+    @apply z-10;
+  }
 }
 
 .sidebar.active .sidebar_tooltip {
@@ -5501,6 +5587,10 @@ export default {
   .sidebar.active .sidebar_bg {
     border-radius: 0 140px 0 0;
   }
+
+  .chat_header {
+    @apply z-[100];
+  }
 }
 
 .sb_toggler {
@@ -5525,8 +5615,7 @@ export default {
 }
 
 .sb_link_icon {
-  width: 50px;
-  padding-left: 5px;
+  width: 28px;
 }
 
 .sb_link_text {
@@ -5585,7 +5674,6 @@ export default {
   font-size: 125%;
   color: white;
   display: flex;
-  z-index: 10;
   position: relative;
   @apply w-full pl-2;
   align-items: center;
@@ -5595,9 +5683,9 @@ export default {
   display: flex;
   align-items: center;
   cursor: pointer;
-  width: 100%;
+  width: calc(100% - 0.5rem);
   height: 36px;
-  @apply px-2 rounded text-neutral-300 relative;
+  @apply pl-2 mr-2 rounded text-neutral-300 relative;
 }
 
 .subchat:hover {
@@ -5605,7 +5693,9 @@ export default {
 }
 
 .subchat.active {
-  @apply bg-zinc-500 bg-opacity-75 text-white;
+  @apply dark_bg bg-opacity-75
+  border-b-2 border-b-indigo-400
+  text-white;
 }
 
 .nopointer {

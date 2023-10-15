@@ -1,6 +1,6 @@
 <template>
-  <div class="h-full w-full overflow-x-hidden overflow-y-scroll mt-[55px]">
-    <div class="flex min-h-[525px] h-[calc(100dvh-55px)] items-center justify-center"
+  <div class="h-full w-full overflow-x-hidden overflow-y-auto mt-[55px]">
+    <div class="flex min-h-[650px] h-[calc(100dvh-55px)] items-center justify-center"
          :style="{ backgroundImage: 'url('+require('@/assets/'+'account/pexels-marek-piwnicki-10050567.jpg')+')',
                  backgroundPosition: 'center center', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
       <div
@@ -8,26 +8,29 @@
         <div class="w-full h-full relative">
           <div class="w-full h-full"><!-- Demo Wrapper -->
             <div style="transform: translate3d(0, 0, 0)"
-                 class="w-full h-full items-center justify-center flex px-4 py-4 rounded-r-md backdrop-blur-xl">
+                 class="w-full h-full xl:pt-[5vh] justify-center flex px-4 py-4 rounded-r-md">
               <div style="pointer-events: inherit"
-                   class="rounded-2xl w-full h-full p-4">
-                <p
-                  class="text-neutral-200 text-5xl font-bold md:text-7xl xl:text-8xl w-fit pointer-events-none">
-                  <span class="text-fuchsia-500">Web3</span> <span class="">Collaboration</span>
-                </p>
-                <p
-                  class="text-neutral-200 font-bold mb-4 py-2 text-2xl md:text-4xl w-fit pointer-events-none">
-                  Powered by wikiric and {{ userCount }} others.
-                </p>
-                <p class="text-neutral-300 font-bold text-xl w-full pointer-events-none">
+                   class="rounded-2xl w-full h-fit p-4 max-w-screen-lg">
+                <div class="flex items-center py-4">
+                  <img src='@/assets/wikiric/wikiric-logo-big.webp' alt="Logo"
+                       class="object-contain max-h-[152px] max-w-[152px] mr-8 hidden lg:block">
+                  <p
+                    class="text-neutral-200 text-5xl font-bold md:text-7xl w-fit pointer-events-none">
+                    <span class="text-fuchsia-500">Open Source</span><br><span class="">Collaboration</span>
+                  </p>
+                </div>
+                <p class="text-neutral-300 font-bold text-lg lg:text-xl w-fit pointer-events-none
+                          p-4 mt-8 backdrop-blur-lg rounded-md border-[2px] border-dashed border-fuchsia-500
+                          bg-black bg-opacity-50">
                   A secure and responsive environment
                   for communities, projects and ideas.
-                  <br>Bridging the gap between Web2 and Web3.
+                  <br>Powered by wikiric and <span class="italic">{{ userCount }}</span> others.
                 </p>
-                <div class="relative mt-12">
+                <div class="relative mt-[8vh] mb-8">
                   <div class="flex w-full justify-center md:justify-start">
                     <div
-                      class="relative grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-center w-full md:w-fit">
+                      class="relative grid grid-cols-1 md:grid-cols-2 gap-4 items-center
+                             justify-center w-full md:w-fit">
                       <button
                         class="muArrow font-bold rounded text-xl text-start text-black px-4 py-3 bg-fuchsia-500"
                         v-on:click="gotoClarifier()">
@@ -35,7 +38,8 @@
                         <br><span class="text-2xl md:text-3xl text-black">Communities</span>
                       </button>
                       <button
-                        class="muArrow font-bold rounded text-xl text-start text-neutral-300 px-4 py-3 border-2 border-neutral-300"
+                        class="muArrow font-bold rounded text-xl text-start text-neutral-30
+                               px-4 py-3 border-2 border-neutral-300"
                         v-on:click="gotoKnowledgeFinder()">
                         Browse the
                         <br><span class="text-2xl md:text-3xl">Knowledge</span>
@@ -45,7 +49,7 @@
                 </div>
                 <template class="hidden md:block">
                   <div
-                    class="absolute bottom-0 left-0 p-4 ml-4">
+                    class="absolute bottom-0 left-0 p-4 ml-4 mt-4">
                     <div class="text-center cursor-pointer hover:darkest_bg p-4 rounded-full text-neutral-300"
                          v-on:click="scrollTo('firstSection')">
                       <p class="font-bold">Explore</p>
@@ -55,10 +59,8 @@
                 </template>
                 <template class="hidden md:block">
                   <div
-                    class="absolute bottom-0 right-0 p-4 mr-8 mb-8 border-b-[4px] border-r-[4px]
-                           border-dotted border-b-fuchsia-500 border-r-fuchsia-500 flex items-baseline pointer-events-">
-                    <img src='@/assets/wikiric/wikiric-logo-big.webp' alt="Logo"
-                         style="max-width: 76px; max-height: 76px; object-fit: contain">
+                    class="absolute bottom-0 right-0 p-4 mr-8 mb-8 border-b-[2px] border-r-[2px]
+                           border-dashed border-b-fuchsia-500 border-r-fuchsia-500 flex items-baseline pointer-events-">
                     <span class="font-bold text-5xl text-white ml-1">wikiric</span>
                   </div>
                 </template>
@@ -192,7 +194,7 @@
 export default {
   data () {
     return {
-      userCount: '19'
+      userCount: '8'
     }
   },
   created () {
@@ -206,14 +208,14 @@ export default {
       this.$router.push('/apps/clarifier')
     },
     gotoKnowledgeFinder () {
-      this.$router.push('/apps/knowledge?kguid=903f7d06-ed1b-467c-b8e3-751d07b83584')
+      this.$router.push('/apps/knowledge?kguid=018aafca-3a1e-77a3-9c33-9afb8c533273')
     },
     getUsercount: async function () {
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api-http',
           method: 'get',
-          url: 'm2/count'
+          url: 'users/public/count'
         })
           .then((data) => {
             if (data.success) this.userCount = data.result

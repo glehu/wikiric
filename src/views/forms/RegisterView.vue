@@ -6,16 +6,15 @@
         <section class="flex justify-center">
           <div id="registration" class="container h-full p-3">
             <div class="justify-center items-center h-full">
-              <div class="bright_card">
+              <div class="bright_card bshadow">
                 <div class="p-5 text-center">
                   <div class="md:mt-0">
                     <h1 class="font-bold mb-4 text-4xl"
                         style="pointer-events: none">
                       REGISTER
                     </h1>
-                    <div class="mb-4">
+                    <div class="mb-2">
                       <input
-                        required
                         v-model="user.email"
                         type="email"
                         class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
@@ -26,6 +25,16 @@
                     <div class="mb-4">
                       <input
                         required
+                        v-model="user.username"
+                        type="text"
+                        class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
+                        placeholder="Username"
+                        autocomplete="user"
+                      />
+                    </div>
+                    <div class="mb-2">
+                      <input
+                        required
                         v-model="user.password"
                         type="password"
                         class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
@@ -33,7 +42,7 @@
                         autocomplete="new-password"
                       />
                     </div>
-                    <div class="mb-4">
+                    <div class="mb-2">
                       <input
                         required
                         v-model="user.passwordRpt"
@@ -47,10 +56,10 @@
                       <p class="pointer-events-none text-neutral-300 py-1">How should we call you?</p>
                       <input
                         required
-                        v-model="user.username"
+                        v-model="user.displayName"
                         type="text"
                         class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
-                        placeholder="Username"
+                        placeholder="Display Name"
                       />
                     </div>
                     <button class="btn_bg_primary"
@@ -68,7 +77,7 @@
         <section class="flex justify-center">
           <div id="metamask_registration" class="container h-full p-3">
             <div class="justify-center items-center h-full">
-              <div class="bright_card">
+              <div class="bright_card bshadow">
                 <div class="p-5 text-center">
                   <div class="md:mt-0">
                     <p class="pointer-events-none">Register via</p>
@@ -119,7 +128,7 @@
         <section class="flex justify-center">
           <div id="phantom_registration" class="container h-full p-3">
             <div class="justify-center items-center h-full">
-              <div class="bright_card">
+              <div class="bright_card bshadow">
                 <div class="p-5 text-center">
                   <div class="md:mt-0">
                     <p class="pointer-events-none">Register via</p>
@@ -185,6 +194,7 @@ export default {
       user: {
         email: '',
         username: '',
+        displayName: '',
         password: '',
         passwordRpt: ''
       },
@@ -222,11 +232,14 @@ export default {
       } else if (type === 'phantom') {
         this.handlePhantomSignup()
       } else {
+        // Regular Register
         this.$Worker.execute({
           action: 'signup',
-          u: Base64.encode(this.user.email + ':' + this.user.password),
-          uRaw: this.user.email + ':' + this.user.password,
-          username: this.user.username
+          u: Base64.encode(this.user.username + ':' + this.user.password),
+          uRaw: this.user.username + ':' + this.user.password,
+          username: this.user.username,
+          displayName: this.user.displayName,
+          password: this.user.password
         })
           .then((data) => {
             this.response = data

@@ -133,12 +133,12 @@
           </div>
           <div id="taskstart" class="flex mb-2 items-center pt-3">
             <TagIcon class="text-neutral-300 h-5 w-5 mr-2"></TagIcon>
-            <template v-if="wisdom.categories && wisdom.categories.length > 0">
-              <template v-for="cat in wisdom.categories" :key="cat">
-                <div v-if="JSON.parse(cat).category != null"
+            <template v-if="wisdom.cats && wisdom.cats.length > 0">
+              <template v-for="cat in wisdom.cats" :key="cat">
+                <div v-if="cat != null"
                      class="text-neutral-400 border-[1px] border-zinc-600 flex items-center
                             py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm darkest_bg">
-                  {{ JSON.parse(cat).category }}
+                  {{ cat }}
                 </div>
               </template>
             </template>
@@ -168,7 +168,7 @@
                 </template>
               </div>
               <template v-if="wisdom.type === 'task'">
-                <template v-if="wisdom.finished">
+                <template v-if="wisdom.done">
                   <div class="px-2 py-1 rounded bg-green-800 flex w-fit pointer-events-none">
                     <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
                     <span class="text-xs font-bold text-neutral-300">Done</span>
@@ -181,21 +181,28 @@
                   </div>
                 </template>
               </template>
+              <div v-if="wisdom.views && wisdom.views > 0"
+                   class="flex items-center p-1 text-neutral-300
+                          hover:text-white">
+                <EyeIcon class="w-5 h-5 mr-1"></EyeIcon>
+                <span class="font-bold text-sm">{{ wisdom.views }}</span>
+              </div>
               <template v-if="wisdom.reacts && wisdom.reacts.length > 0">
                 <div class="flex">
                   <div v-for="reaction in wisdom.reacts" :key="reaction.src"
-                       class="flex items-center p-1 mr-1 text-neutral-300 cursor-pointer hover:text-white"
-                       :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
-                       v-on:click="reactToMessage(wisdom, JSON.parse(reaction).t)"
-                       :id="'react_' + wisdom.guid + '_' + JSON.parse(reaction).t">
-                    <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
-                                     class="w-6 h-6 mr-1"></HandThumbUpIcon>
-                    <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
-                                       class="w-6 h-6 mr-1"></HandThumbDownIcon>
-                    <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
-                              class="w-6 h-6 mr-1"></StarIcon>
-                    <span v-else> {{ JSON.parse(reaction).t }} </span>
-                    {{ JSON.parse(reaction).src.length }}
+                       class="flex items-center p-1 mr-1 text-neutral-300
+                              cursor-pointer hover:text-white"
+                       :title="reaction.src.toString() + ' reacted to this.'"
+                       v-on:click="reactToMessage(wisdom, reaction.t)"
+                       :id="'react_' + wisdom.uid + '_' + reaction.t">
+                    <HandThumbUpIcon v-if="reaction.t === '+'"
+                                     class="w-5 h-5 mr-1"></HandThumbUpIcon>
+                    <HandThumbDownIcon v-else-if="reaction.t === '-'"
+                                       class="w-5 h-5 mr-1"></HandThumbDownIcon>
+                    <StarIcon v-else-if="reaction.t === '⭐'"
+                              class="w-5 h-5 mr-1"></StarIcon>
+                    <span v-else> {{ reaction.t }} </span>
+                    <span class="font-bold text-sm">{{ reaction.src.length }}</span>
                   </div>
                 </div>
               </template>
@@ -204,12 +211,12 @@
                   (Unrated)
                 </div>
               </template>
-              <template v-if="related.comments && related.comments.length > 0">
+              <template v-if="related.replies && related.replies.length > 0">
                 <div class="flex items-center p-1 text-neutral-300 cursor-pointer hover:text-white"
                      v-on:click="gotoComments()"
                      title="Go to Comments">
                   <ChatBubbleLeftEllipsisIcon class="h-6 w-6 mr-1"></ChatBubbleLeftEllipsisIcon>
-                  {{ related.comments.length }}
+                  {{ related.replies.length }}
                 </div>
               </template>
               <template v-else>
@@ -220,12 +227,12 @@
             </div>
           </div>
           <div class="xl:hidden dark_bg p-2 mb-2 w-fit rounded-md">
-            <p class="m-0 text-neutral-200">{{ wisdom.author }}</p>
+            <p class="m-0 text-neutral-200">{{ wisdom.name }}</p>
             <p class="m-0 text-sm text-neutral-300">
-              {{ getHumanReadableDateText(wisdom.cdate, true, true) }}
+              {{ getHumanReadableDateText(wisdom.ts, true, true) }}
             </p>
           </div>
-          <template v-if="wisdom.type === 'question' && wisdom.finished !== true">
+          <template v-if="wisdom.type === 'question' && wisdom.done !== true">
             <div class="w-full">
               <p class="mt-2 mb-4 p-2 border-l-8 border-l-orange-600 bg-orange-900
                         text-neutral-200 text-sm rounded w-fit">
@@ -234,7 +241,7 @@
               </p>
             </div>
           </template>
-          <div v-if="wisdom.type === 'question' && wisdom.finished === true"
+          <div v-if="wisdom.type === 'question' && wisdom.done === true"
                v-on:click="gotoComments()"
                class="flex w-full items-center cursor-pointer my-2">
             <p
@@ -244,26 +251,27 @@
             </p>
             <div class="text-neutral-400 ml-2 text-xs">(Click to scroll to the answer)</div>
           </div>
-          <template v-if="related.srcWisdom">
-            <div class="text-neutral-400 border-l-8 border-l-zinc-800">
-              <div class="w-fit rounded-tr-md dark_bg py-1 pr-2">
+          <template v-if="related.ref">
+            <div class="text-neutral-400 border-l-8 border-l-zinc-800
+                        overflow-hidden rounded-tl-md">
+              <div class="w-fit rounded-r-md dark_bg py-1 pr-2">
                 <p class="text-xs font-bold text-neutral-300 pointer-events-none">
                   Source Entry:
                 </p>
               </div>
               <div class="my-2 ml-2 p-2 medium_bg rounded">
-                <template v-if="related.srcWisdom.t && related.srcWisdom.t.length > 0">
+                <template v-if="related.ref.t && related.ref.t.length > 0">
                   <Markdown class="markedView"
-                            :source="'# ' + related.srcWisdom.t"
+                            :source="'# ' + related.ref.t"
                             :plugins="plugins"></Markdown>
                 </template>
                 <template v-else>
-                  <Markdown v-if="related.srcWisdom.desc && related.srcWisdom.desc.length > 0"
+                  <Markdown v-if="related.ref.desc && related.ref.desc.length > 0"
                             class="markedView"
-                            :source="related.srcWisdom.desc.substring(0, 100)"
+                            :source="related.ref.desc.substring(0, 100)"
                             :plugins="plugins"></Markdown>
                 </template>
-                <Disclosure v-slot="{ open }" v-if="related.srcWisdom.desc && related.srcWisdom.desc.length > 0">
+                <Disclosure v-slot="{ open }" v-if="related.ref.desc && related.ref.desc.length > 0">
                   <DisclosureButton
                     class="my-2 flex w-full justify-between rounded-lg px-2 py-1 dark_bg hover:darkest_bg
                          focus:outline-none focus-visible:ring focus-visible:ring-neutral-500
@@ -293,7 +301,7 @@
                     <DisclosurePanel>
                       <div class="p-2">
                         <Markdown class="markedView"
-                                  :source="related.srcWisdom.desc"
+                                  :source="related.ref.desc"
                                   :plugins="plugins"></Markdown>
                       </div>
                     </DisclosurePanel>
@@ -302,12 +310,13 @@
               </div>
               <div class="w-fit rounded-tr-md dark_bg py-1 pr-2">
                 <p class="text-xs text-neutral-300 font-bold pointer-events-none">
-                  {{ capitalizeFirstLetter(wisdom.type) }} to {{ related.srcWisdom.author }}:
+                  {{ capitalizeFirstLetter(wisdom.type) }} to {{ related.ref.name }}'s {{ capitalizeFirstLetter(related.ref.type) }}:
                 </p>
               </div>
             </div>
           </template>
-          <div id="wisdom_content" ref="wisdom_content" class="medium_bg p-2 rounded-tr rounded-b">
+          <div id="wisdom_content" ref="wisdom_content"
+               class="medium_bg p-2 rounded-tr rounded-b dshadow">
             <div class="flex">
               <template v-if="wisdom.t">
                 <Markdown class="markedView"
@@ -366,10 +375,10 @@
                   <DisclosurePanel>
                     <div class="w-full grid gap-y-3 gap-x-2 grid-cols-2 xl:grid-cols-3 dark_bg rounded p-2">
                       <div v-for="task in related.tasks" :key="task.uID"
-                           v-on:click="fetchData(task.guid)"
+                           v-on:click="fetchData(task.uid)"
                            class="medium_bg p-2 text-neutral-400 w-full rounded cursor-pointer hover:brightness-125 relative">
                         <div class="flex w-full mb-1 text-xs text-neutral-400">
-                          <p>{{ task.author }}</p>
+                          <p>{{ task.name }}</p>
                         </div>
                         <div class="text-neutral-300 py-1 pointer-events-none">
                           <p class="font-bold break-words overflow-hidden">{{ task.t }}</p>
@@ -380,7 +389,7 @@
                             <p class="text-sm break-words overflow-hidden">{{ task.desc }}</p>
                           </div>
                         </div>
-                        <template v-if="task.finished">
+                        <template v-if="task.done">
                           <div class="px-1 py-1 rounded bg-green-800 flex w-24 mr-2 items-center">
                             <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
                             <span class="text-xs font-bold text-neutral-300">Done</span>
@@ -425,7 +434,7 @@
                   <DisclosurePanel>
                     <div class="w-full grid gap-y-3 gap-x-2 grid-cols-2 xl:grid-cols-3 dark_bg rounded p-2">
                       <div v-for="task in relatedSearch" :key="task.uID"
-                           v-on:click="fetchData(task.result.guid)"
+                           v-on:click="fetchData(task.result.uid)"
                            class="medium_bg p-2 text-neutral-400 w-full rounded cursor-pointer hover:brightness-125 relative">
                         <template v-if="task.priority !== 'high'">
                           <div
@@ -436,8 +445,8 @@
                             <SparklesIcon class="w-4 h-4 mr-2 text-amber-600"></SparklesIcon>
                           </template>
                           <div>
-                            <p>{{ task.result.author }}</p>
-                            <p class="text-neutral-400">{{ getHumanReadableDateText(task.result.cdate) }}</p>
+                            <p>{{ task.name }}</p>
+                            <p class="text-neutral-400">{{ getHumanReadableDateText(task.result.ts) }}</p>
                           </div>
                         </div>
                         <div class="text-neutral-300 py-1 pointer-events-none">
@@ -480,17 +489,17 @@
                     <div v-if="comment.reacts" class="px-2 pt-2 flex">
                       <div v-for="reaction in comment.reacts" :key="reaction.src"
                            class="flex items-center p-1 mr-1 text-neutral-400 cursor-pointer hover:text-white"
-                           :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
-                           v-on:click="reactToMessage(comment, JSON.parse(reaction).t)"
-                           :id="'react_' + comment.guid + '_' + JSON.parse(reaction).t">
-                        <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
-                                         class="w-6 h-6 mr-1"></HandThumbUpIcon>
-                        <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
-                                           class="w-6 h-6 mr-1"></HandThumbDownIcon>
-                        <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
-                                  class="w-6 h-6 mr-1"></StarIcon>
-                        <span v-else> {{ JSON.parse(reaction).t }} </span>
-                        {{ JSON.parse(reaction).src.length }}
+                           :title="reaction.src.toString() + ' reacted to this.'"
+                           v-on:click="reactToMessage(comment, reaction.t)"
+                           :id="'react_' + comment.uid + '_' + reaction.t">
+                        <HandThumbUpIcon v-if="reaction.t === '+'"
+                                         class="w-5 h-5 mr-1"></HandThumbUpIcon>
+                        <HandThumbDownIcon v-else-if="reaction.t === '-'"
+                                           class="w-5 h-5 mr-1"></HandThumbDownIcon>
+                        <StarIcon v-else-if="reaction.t === '⭐'"
+                                  class="w-5 h-5 mr-1"></StarIcon>
+                        <span v-else> {{ reaction.t }} </span>
+                        {{ reaction.src.length }}
                       </div>
                     </div>
                     <Markdown :source="comment.desc"
@@ -520,8 +529,8 @@
                       <div
                         class="text-neutral-400 dark_bg rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-between flex items-center">
                         <p class="text-neutral-400 text-xs mr-2">
-                          {{ getHumanReadableDateText(comment.cdate, true) }}</p>
-                        <p class="">{{ comment.author }}</p>
+                          {{ getHumanReadableDateText(comment.ts, true) }}</p>
+                        <p class="">{{ comment.name }}</p>
                       </div>
                     </div>
                   </div>
@@ -546,7 +555,7 @@
                    class="text-neutral-300">
               Write a comment
             </label>
-            <template v-if="!related.comments || related.comments.length < 1">
+            <template v-if="!related.replies || related.replies.length < 1">
               <div class="flex w-full items-center justify-center py-4">
                 <div class="w-full text-neutral-400 pointer-events-none">
                   <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
@@ -556,28 +565,28 @@
             </template>
             <template v-else>
               <div id="comments_anchor" class="flex items-center mt-8 mb-2 pointer-events-none">
-                <ChatBubbleLeftEllipsisIcon class="w-6 h-6 mr-2 text-neutral-300"></ChatBubbleLeftEllipsisIcon>
+                <ChatBubbleLeftEllipsisIcon class="w-5 h-5 mr-2 text-neutral-300"></ChatBubbleLeftEllipsisIcon>
                 <p class="text-neutral-300">
-                  {{ related.comments.length }} {{ commentsText }}:
+                  {{ related.replies.length }} {{ commentsText }}:
                 </p>
               </div>
-              <template v-for="comment in related.comments" :key="comment.uID">
+              <template v-for="comment in related.replies" :key="comment.uID">
                 <div class="mb-2 w-full medium_bg rounded-r-xl rounded-l-lg border-b-2
                             border-r-2 border-b-zinc-500 border-r-zinc-500 comment">
                   <div v-if="comment.reacts" class="px-2 pt-2 flex">
                     <div v-for="reaction in comment.reacts" :key="reaction.src"
                          class="flex items-center p-1 mr-1 text-neutral-400 cursor-pointer hover:text-white"
-                         :title="JSON.parse(reaction).src.toString() + ' reacted to this.'"
-                         v-on:click="reactToMessage(comment, JSON.parse(reaction).t)"
-                         :id="'react_' + comment.guid + '_' + JSON.parse(reaction).t">
-                      <HandThumbUpIcon v-if="JSON.parse(reaction).t === '+'"
-                                       class="w-6 h-6 mr-1"></HandThumbUpIcon>
-                      <HandThumbDownIcon v-else-if="JSON.parse(reaction).t === '-'"
-                                         class="w-6 h-6 mr-1"></HandThumbDownIcon>
-                      <StarIcon v-else-if="JSON.parse(reaction).t === '⭐'"
-                                class="w-6 h-6 mr-1"></StarIcon>
-                      <span v-else> {{ JSON.parse(reaction).t }} </span>
-                      {{ JSON.parse(reaction).src.length }}
+                         :title="reaction.src.toString() + ' reacted to this.'"
+                         v-on:click="reactToMessage(comment, reaction.t)"
+                         :id="'react_' + comment.uid + '_' + reaction.t">
+                      <HandThumbUpIcon v-if="reaction.t === '+'"
+                                       class="w-5 h-5 mr-1"></HandThumbUpIcon>
+                      <HandThumbDownIcon v-else-if="reaction.t === '-'"
+                                         class="w-5 h-5 mr-1"></HandThumbDownIcon>
+                      <StarIcon v-else-if="reaction.t === '⭐'"
+                                class="w-5 h-5 mr-1"></StarIcon>
+                      <span v-else> {{ reaction.t }} </span>
+                      {{ reaction.src.length }}
                     </div>
                   </div>
                   <Markdown :source="comment.desc"
@@ -607,19 +616,19 @@
                     <div
                       class="text-neutral-400 dark_bg rounded-br-xl rounded-tl-xl py-1 px-2 min-w-[20%] justify-between flex items-center">
                       <p class="text-neutral-400 text-xs mr-2">
-                        {{ getHumanReadableDateText(comment.cdate, true) }}</p>
-                      <p class="text-sm">{{ comment.author }}</p>
+                        {{ getHumanReadableDateText(comment.ts, true) }}</p>
+                      <p class="text-sm">{{ comment.name }}</p>
                     </div>
                   </div>
                 </div>
                 <template
-                  v-if="wisdom.type === 'question' && wisdom.finished !== true && wisdom.author === $store.state.username">
+                  v-if="wisdom.type === 'question' && wisdom.done !== true && wisdom.usr === $store.state.username">
                   <div class="mb-4 mt-1 w-full flex">
                     <button v-on:click="finishQuestion(wisdom, comment)"
                             class="text-neutral-100 border-2 border-emerald-500 bg-emerald-800 hover:bg-emerald-900
                                    rounded-lg px-1 py-0.5 font-bold ml-auto transition-colors
                                    flex items-center justify-center">
-                      <CheckIcon class="w-6 h-6 mr-1"></CheckIcon>
+                      <CheckIcon class="w-5 h-5 mr-1"></CheckIcon>
                       <span>Mark as Answer</span>
                     </button>
                   </div>
@@ -635,11 +644,11 @@
         <div class="rounded-l-xl text-neutral-300 p-2 mt-2 medium_bg">
           <div class="border-none mb-2 pointer-events-none">
             <div class="text-neutral-300 text-xs pr-2 font-bold">Author</div>
-            <div class="text-sm mb-2">{{ wisdom.author }}</div>
+            <div class="text-sm mb-2">{{ wisdom.name }}</div>
             <div class="text-neutral-300 text-xs pr-2 font-bold">Source</div>
             <div class="text-sm mb-2">{{ knowledge.t }}</div>
             <div class="text-neutral-300 text-xs pr-2 font-bold">Date</div>
-            <div class="text-sm">{{ getHumanReadableDateText(wisdom.cdate, true, true) }}</div>
+            <div class="text-sm">{{ getHumanReadableDateText(wisdom.ts, true, true) }}</div>
           </div>
           <template v-if="!$store.getters.hasSeenWisdomTutorial()">
             <div id="wisdomTutorial"
@@ -669,7 +678,7 @@
             <span class="pl-2 text-xs font-bold text-neutral-300">Contents</span>
           </div>
           <div class="border-l-4 border-l-indigo-800 h-2 w-4"></div>
-          <li v-for="contentLink in contentLinks.values()" :key="contentLink"
+          <li v-for="contentLink in contentLinksArr" :key="contentLink"
               :id="'link_' + contentLink.link"
               class="flex items-center border-l-4 pl-1"
               :class="{ 'border-l-indigo-800': contentLink.active, 'border-l-zinc-800': !contentLink.active }">
@@ -681,7 +690,7 @@
             <a :href="contentLink.link"
                class="text-neutral-300 text-sm py-0.5 px-1 rounded
                       hover:bg-indigo-800 border-[2px] border-transparent hover:border-indigo-600">
-              {{ contentLink.title }}
+              {{ contentLink.t }}
             </a>
           </li>
           <div class="border-l-4 border-l-zinc-800 h-1 w-1 rounded-b-full"></div>
@@ -932,7 +941,8 @@ import {
   ShareIcon,
   StarIcon,
   TagIcon,
-  XMarkIcon
+  XMarkIcon,
+  EyeIcon
 } from '@heroicons/vue/24/outline'
 import {
   Disclosure,
@@ -951,6 +961,7 @@ import {
   SparklesIcon,
   Squares2X2Icon
 } from '@heroicons/vue/24/solid'
+import { dbGetDisplayName } from '@/libs/wikistore'
 
 export default {
   name: 'KnowledgeView',
@@ -988,7 +999,8 @@ export default {
     ChevronUpIcon,
     SparklesIcon,
     ShareIcon,
-    Cog6ToothIcon
+    Cog6ToothIcon,
+    EyeIcon
   },
   data () {
     return {
@@ -1010,6 +1022,7 @@ export default {
         type: ''
       },
       contentLinks: new Map(),
+      contentLinksArr: [],
       currentHeaders: new Map(),
       related: {
         answers: [],
@@ -1039,8 +1052,8 @@ export default {
   },
   computed: {
     commentsText: function () {
-      if (this.related.comments != null) {
-        if (this.related.comments.length > 1) {
+      if (this.related.replies != null) {
+        if (this.related.replies.length > 1) {
           return 'Comments'
         } else {
           return 'Comment'
@@ -1060,7 +1073,7 @@ export default {
       await this.getWisdom()
       await this.getRelated()
       if (this.wisdom.type === 'task') {
-        await this.getRelated(this.wisdom.srcWisdomUID + '?type=uid', true)
+        await this.getRelated(this.wisdom.ref, true)
       }
       // Whose knowledge are we trying to see?
       let knowledgeGUID
@@ -1116,13 +1129,29 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/learn/' + guid
+          url: 'wisdom/private/get/' + guid
         })
-          .then((data) => {
+          .then(async (data) => {
             this.wisdom = data.result
             // Cut away all hashtags and whitespace at the front
             this.wisdom.t = this.formatTitle(this.wisdom.t)
-            this.wisGUID = this.wisdom.guid
+            this.wisGUID = this.wisdom.uid
+            // Reactions
+            if (this.wisdom.reacts != null) {
+              for (let i = this.wisdom.reacts.length - 1; i >= 0; i--) {
+                if (this.wisdom.reacts[i].src.length === 0) {
+                  this.wisdom.reacts.splice(i, 1)
+                }
+              }
+            } else {
+              this.wisdom.reacts = []
+            }
+            // Display name
+            let dName = await dbGetDisplayName(this.wisdom.usr)
+            if (dName == null) {
+              dName = this.wisdom.usr
+            }
+            this.wisdom.name = dName
           })
           .then(() => {
             this.buildContentLinks()
@@ -1149,31 +1178,53 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/investigate/' + guid
+          url: 'wisdom/private/investigate/' + guid
         })
-          .then((data) => {
+          .then(async (data) => {
             if (!onlyTasks) {
               this.related = data.result
-              if (this.related.comments) {
-                for (let i = 0; i < this.related.comments.length; i++) {
-                  this.related.comments[i].cdate = DateTime.fromISO(this.related.comments[i].cdate)
+              let dName
+              if (this.related.replies) {
+                for (let i = 0; i < this.related.replies.length; i++) {
+                  this.related.replies[i].ts = DateTime.fromISO(this.related.replies[i].ts)
+                  dName = await dbGetDisplayName(this.related.replies[i].usr)
+                  if (dName == null) {
+                    dName = this.related.replies[i].usr
+                  }
+                  this.related.replies[i].name = dName
                 }
               }
               if (this.related.answers) {
                 for (let i = 0; i < this.related.answers.length; i++) {
-                  this.related.answers[i].cdate = DateTime.fromISO(this.related.answers[i].cdate)
+                  this.related.answers[i].ts = DateTime.fromISO(this.related.answers[i].ts)
+                  dName = await dbGetDisplayName(this.related.answers[i].usr)
+                  if (dName == null) {
+                    dName = this.related.answers[i].usr
+                  }
+                  this.related.answers[i].name = dName
                 }
               }
-              if (this.related.srcWisdom) {
-                this.related.srcWisdom.cdate = DateTime.fromISO(this.related.srcWisdom.cdate)
+              if (this.related.ref) {
+                this.related.ref.ts = DateTime.fromISO(this.related.ref.ts)
+                dName = await dbGetDisplayName(this.related.ref.usr)
+                if (dName == null) {
+                  dName = this.related.ref.usr
+                }
+                this.related.ref.name = dName
               }
             } else {
               if (data.result.tasks) {
                 this.related.tasks = []
+                let dName
                 for (let i = 0; i < data.result.tasks.length; i++) {
-                  if (data.result.tasks[i].guid !== this.wisdom.guid) {
+                  if (data.result.tasks[i].uid !== this.wisdom.uid) {
                     data.result.tasks[i].t = this.formatTitle(data.result.tasks[i].t)
-                    data.result.tasks[i].cdate = DateTime.fromISO(data.result.tasks[i].cdate)
+                    data.result.tasks[i].ts = DateTime.fromISO(data.result.tasks[i].ts)
+                    dName = await dbGetDisplayName(data.result.tasks[i].usr)
+                    if (dName == null) {
+                      dName = data.result.tasks[i].usr
+                    }
+                    data.result.tasks[i].name = dName
                     this.related.tasks.push(data.result.tasks[i])
                   }
                 }
@@ -1191,18 +1242,16 @@ export default {
     },
     reactToMessage: async function (wisdom, t) {
       const payload = JSON.stringify({
-        src: [],
-        t: t
+        reaction: t
       })
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/react/' + wisdom.guid,
+          url: 'wisdom/private/react/' + wisdom.uid,
           body: payload
         })
           .then(() => {
-            this.getWisdom()
             this.getRelated()
             this.$notify(
               {
@@ -1239,24 +1288,19 @@ export default {
     editLesson: async function () {
       const categories = []
       for (let i = 0; i < this.wisCategories.length; i++) {
-        categories.push(JSON.stringify(this.wisCategories[i]))
+        categories.push(this.wisCategories[i])
       }
-      const payload = {
-        title: this.wisTitle,
-        description: this.wisDescription,
-        knowledgeGUID: this.knowledge.guid,
-        keywords: this.wisKeywords,
-        copyContent: this.wisCopyContent,
-        categories: categories
-      }
-      const bodyPayload = JSON.stringify(payload)
-      const extension = '?guid=' + this.wisGUID + '&mode=edit'
+      this.wisdom.t = this.wisTitle
+      this.wisdom.desc = this.wisDescription
+      this.wisdom.keys = this.wisKeywords
+      this.wisdom.copy = this.wisCopyContent
+      this.wisdom.cats = categories
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/teach' + extension,
-          body: bodyPayload
+          url: 'wisdom/private/edit/' + this.wisGUID,
+          body: JSON.stringify(this.wisdom)
         })
           .then(() => {
             this.resetValues()
@@ -1277,7 +1321,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/delete/' + this.wisGUID
+          url: 'wisdom/private/delete/' + this.wisGUID
         })
           .then(() => {
             this.resetValues()
@@ -1314,14 +1358,14 @@ export default {
       // Defaults
       this.wisTitle = wisdom.t
       this.wisDescription = wisdom.desc
-      this.wisKeywords = wisdom.keywords
-      if (wisdom.categories != null && wisdom.categories.length > 0) {
-        for (let i = 0; i < wisdom.categories.length; i++) {
-          this.wisCategories.push(JSON.parse(wisdom.categories[i]))
+      this.wisKeywords = wisdom.keys
+      if (wisdom.cats != null && wisdom.cats.length > 0) {
+        for (let i = 0; i < wisdom.cats.length; i++) {
+          this.wisCategories.push(wisdom.cats[i])
         }
       }
       this.wisCopyContent = wisdom.copyContent
-      this.wisGUID = wisdom.guid
+      this.wisGUID = wisdom.uid
       this.renderMermaid()
       setTimeout(() => {
         this.$refs.wisDescription.style.height = (this.$refs.wisDescription.scrollHeight) + 'px'
@@ -1333,15 +1377,10 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/get?src=' + sessionID + '&from=clarifier'
+          url: 'knowledge/private/chat/' + sessionID
         })
           .then((data) => {
             this.knowledge = data.result
-            if (this.knowledge.categories != null) {
-              for (let i = 0; i < this.knowledge.categories.length; i++) {
-                this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
-              }
-            }
             resolve()
           })
           .catch((err) => {
@@ -1383,17 +1422,19 @@ export default {
     postComment: async function (comment, title = '') {
       if (comment.trim() === '') return
       const payload = {
-        title: title,
-        description: comment.trim(),
-        wisdomGUID: this.wisGUID,
-        keywords: ''
+        t: title,
+        desc: comment.trim(),
+        ref: this.wisGUID,
+        keys: '',
+        type: 'reply',
+        pid: this.knowledge.uid
       }
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/reply',
+          url: 'wisdom/private/reply',
           body: bodyPayload
         })
           .then(() => {
@@ -1412,7 +1453,7 @@ export default {
           })
           .then(() => {
             if (this.wisdom.type === 'task') {
-              this.getRelated(this.wisdom.srcWisdomUID + '?type=uid', true)
+              this.getRelated(this.wisdom.ref, true)
             }
           })
           .then(() => resolve())
@@ -1468,20 +1509,20 @@ export default {
       queryString = queryString.replaceAll('?', '')
       const payload = {
         query: substitute ?? queryString.trim(),
-        entryType: entryType
+        type: entryType
       }
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/search/' + this.knowledge.guid,
+          url: 'wisdom/private/query/' + this.knowledge.uid,
           body: JSON.stringify(payload)
         })
           .then((data) => {
             const parsedData = data.result
             if (parsedData.first != null) {
               for (let i = 0; i < parsedData.first.length; i++) {
-                if (parsedData.first[i].wisdom.guid !== this.wisdom.guid) {
+                if (parsedData.first[i].wisdom.uid !== this.wisdom.uid) {
                   parsedData.first[i].wisdom.t = this.formatTitle(parsedData.first[i].wisdom.t)
                   this.relatedSearch.push({
                     priority: 'high',
@@ -1492,7 +1533,7 @@ export default {
             }
             if (parsedData.second != null) {
               for (let i = 0; i < parsedData.second.length; i++) {
-                if (parsedData.second[i].wisdom.guid !== this.wisdom.guid) {
+                if (parsedData.second[i].wisdom.uid !== this.wisdom.uid) {
                   parsedData.second[i].wisdom.t = this.formatTitle(parsedData.second[i].wisdom.t)
                   this.relatedSearch.push({
                     priority: 'medium',
@@ -1504,7 +1545,7 @@ export default {
             /*
             if (parsedData.third != null) {
               for (let i = 0; i < parsedData.third.length; i++) {
-                if (parsedData.third[i].wisdom.guid !== this.wisdom.guid) {
+                if (parsedData.third[i].wisdom.uid !== this.wisdom.uid) {
                   parsedData.third[i].wisdom.t = this.formatTitle(parsedData.third[i].wisdom.t)
                   this.relatedSearch.push({
                     priority: 'low',
@@ -1591,7 +1632,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/finish/' + wisdom.guid + '?answer=' + comment.guid
+          url: 'wisdom/private/accept/' + comment.uid
         })
           .then(() => {
             this.getWisdom()
@@ -1613,7 +1654,7 @@ export default {
     },
     shareWisdom: function (wisdom) {
       if (wisdom == null) return
-      navigator.clipboard.writeText('https://wikiric.netlify.app/apps/knowledge/' + wisdom.guid)
+      navigator.clipboard.writeText('https://wikiric.netlify.app/apps/knowledge/' + wisdom.uid)
       this.$notify(
         {
           title: 'Link Copied!',
@@ -1697,7 +1738,7 @@ export default {
         this.handleUploadSnippetError()
         return
       }
-      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.guid
+      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.uid
       let prefix
       if (this.uploadFileType.includes('image')) {
         prefix = '!'
@@ -1755,12 +1796,15 @@ export default {
           counter.set(headerLink, 1)
         }
         this.contentLinks.set(headerLink, {
-          title: header.trim(),
+          t: header.trim(),
           link: headerLink,
           level: linkLevel,
           active: false
         })
       }
+      this.contentLinksArr = Array.from(this.contentLinks, function (item) {
+        return item[1]
+      })
     },
     convertToLink: function (header) {
       if (!header || header === '') {

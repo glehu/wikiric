@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-[55px] h-full w-full overflow-y-scroll
+  <div class="mt-[55px] h-full w-full overflow-y-auto
               pb-8">
     <div class="container pb-3">
       <h1 style=" color: black; background-color: white; padding: 10px">
