@@ -42,6 +42,7 @@
                 <p class="font-bold text-xl">
                   Inventory
                 </p>
+                <p>Listed: {{ items }} Items</p>
                 <p class="text-sm text-neutral-400">
                   Manage items/services you want to sell
                 </p>
@@ -53,6 +54,7 @@
                 <p class="font-bold text-xl">
                   Commissions
                 </p>
+                <p>Orders: {{ orders }}</p>
                 <p class="text-sm text-neutral-400">
                   View commissions from your customers
                 </p>
@@ -192,6 +194,8 @@ export default {
       ownStore: null,
       queryText: '',
       isCreatingStore: false,
+      orders: 0,
+      items: 0,
       newStore: {
         t: '',
         desc: '',
@@ -226,6 +230,8 @@ export default {
         })
           .then((data) => {
             this.ownStore = data.result
+            this.getItems()
+            this.getOrders()
           })
           .then(() => resolve())
           .catch((err) => {
@@ -262,6 +268,42 @@ export default {
           .then(() => resolve())
           .catch((err) => {
             this.ownStore = null
+            console.debug(err.message)
+          })
+      })
+    },
+    getOrders: function () {
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'orders/private/commissions'
+        })
+          .then((data) => {
+            this.orders = data.result.orders.length
+          })
+          .then(() => resolve())
+          .catch((err) => {
+            console.debug(err.message)
+          })
+      })
+    },
+    getItems: function () {
+      const payload = {
+        query: '.*'
+      }
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api-http',
+          method: 'post',
+          url: 'items/public/query/' + this.ownStore.uid,
+          body: JSON.stringify(payload)
+        })
+          .then((data) => {
+            this.items = data.result.items.length
+          })
+          .then(() => resolve())
+          .catch((err) => {
             console.debug(err.message)
           })
       })

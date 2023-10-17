@@ -416,6 +416,14 @@
                                 border-2 border-zinc-700 text-sm
                                 placeholder-neutral-400"
                          v-model="variations.t">
+                  <div class="n_dark_input flex items-center w-fit rounded mt-1">
+                    <input type="checkbox" name="mod_attr_optional"
+                           class="text-2xl"
+                           v-model="variations.opt">
+                    <p class="ml-2 text-neutral-400 pointer-events-none">
+                      Optional
+                    </p>
+                  </div>
                 </td>
                 <td>
                   <p class="text-sm font-bold px-2 py-1 dark_bg
@@ -527,13 +535,14 @@
       <input type="file" class="file_input" id="studio_add_media" ref="studio_add_media" name="files[]"
              accept="image/png, image/jpeg"
              style="width: 100%"
-             multiple v-on:change="handleUploadFileSelect"/>
-      <input type="text"
-             class="search-field py-1 px-2 dark_bg
-                    border-2 border-zinc-700 text-sm
-                    placeholder-neutral-400"
-             v-model="uploadFileMeta">
+             v-on:change="handleUploadFileSelect"/>
       <template v-if="uploadFileBase64 !== ''">
+        <input type="text"
+               class="search-field py-1 px-2 dark_bg
+                      border-2 border-zinc-700 text-sm
+                      placeholder-neutral-400 my-2"
+               placeholder="Image caption..."
+               v-model="uploadFileMeta">
         <p class="text-neutral-300 font-bold">{{ uploadFileName }}</p>
         <div class="mt-3 w-full">
           <template v-if="uploadFileType.includes('image')">
@@ -967,6 +976,10 @@ export default {
 
 .store_item:hover .store_item_edit_overlay {
   opacity: 1;
+}
+
+.n_dark_input {
+  @apply px-2 py-1 dark_bg text-neutral-300 placeholder-neutral-400;
 }
 
 </style>

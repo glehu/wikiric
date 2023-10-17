@@ -651,10 +651,11 @@ export default {
     showItem: function (item) {
     },
     addToCart: function (item) {
-      this.$store.commit('putInCart', item)
+      const copy = structuredClone(item)
+      this.$store.commit('putInCart', copy)
       this.$notify(
         {
-          title: item.amt + 'x ' + item.t + ' added to the cart!',
+          title: copy.amt + 'x ' + copy.t + ' added to the cart!',
           text: '',
           type: 'info'
         })

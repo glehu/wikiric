@@ -140,6 +140,7 @@
             to this bank account to get your item(s) shipped to you:</p>
           <div class="mb-4 px-4 py-2 rounded dark_bg">
             <template v-if="store != null && store.bank && store.bank.bank">
+              <div id="payment_qrcode" class="mb-2"></div>
               <p>Name: {{ store.bank.name }}</p>
               <p>Bank Name: {{ store.bank.bank }}</p>
               <p>IBAN: {{ store.bank.iban }}</p>
@@ -175,7 +176,7 @@
             <div class="flex flex-col gap-y-2">
               <div class="px-4 py-2 mx-1 rounded dark_bg w-fit">
                 <p class="font-bold">Order Summary</p>
-                <table class="table-auto mt-4 min-w-[200px]">
+                <table class="table-auto mt-4 min-w-[250px]">
                   <tr>
                     <td><p>Net:</p></td>
                     <td><p class="text-end">
@@ -189,10 +190,16 @@
                     </p></td>
                   </tr>
                   <tr>
-                    <td><p>Total:</p></td>
-                    <td><p class="text-end">
-                      {{ ftotalGross }} €
-                    </p></td>
+                    <td>
+                      <p class="font-bold text-xl">
+                        Total:
+                      </p>
+                    </td>
+                    <td>
+                      <p class="text-end font-bold text-xl">
+                        {{ ftotalGross }} €
+                      </p>
+                    </td>
                   </tr>
                 </table>
               </div>
@@ -235,6 +242,7 @@
 
 <script>
 import { ShoppingCartIcon } from '@heroicons/vue/24/solid'
+import * as QRCode from 'easyqrcodejs'
 
 export default {
   name: 'Store Checkout',
@@ -351,6 +359,41 @@ export default {
                 text: '',
                 type: 'info'
               })
+          })
+          .then(() => {
+            if (this.store && this.store.bank && this.store.bank.iban) {
+              // Build EPC-QR-Code for easy payment
+              setTimeout(() => {
+                const elem = document.getElementById('payment_qrcode')
+                while (elem.firstChild) {
+                  elem.firstChild.remove()
+                }
+                const payload =
+                  'BCD\r\n' + // 1
+                  '002\r\n' + // 2
+                  '1\r\n' + // 3
+                  'SCT\r\n' + // 4
+                  this.store.bank.swift + '\r\n' + // 5
+                  this.store.bank.name + '\r\n' + // 6
+                  this.store.bank.iban + '\r\n' + // 7
+                  'EUR' + this.totalGross.toFixed(2) + '\r\n' + // 8
+                  '\r\n' + // 9
+                  '\r\n' + // 10
+                  'Webshop Order\r\n' + // 11
+                  'Powered by wikiric' // 12
+                const qr = new QRCode(elem, {
+                  text: payload,
+                  quietZone: 10,
+                  quietZoneColor: 'rgba(255,255,255,1)',
+                  correctLevel: QRCode.CorrectLevel.M
+                })
+                if (qr) {
+                  console.debug(qr)
+                }
+              }, 1000)
+            }
+          })
+          .then(() => {
             resolve()
           })
           .catch((err) => {

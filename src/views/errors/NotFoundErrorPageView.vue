@@ -20,8 +20,8 @@
     <hr style="color: white">
     <div id="links" class="text-center mt-2">
       <p class="font-bold underline">
-        <i class="bi bi-house mx-2"/><a :href="'/'">Homepage</a>
-        <i class="bi bi-chat-dots mx-2 ms-3"/><a :href="'/apps/clarifier'">Clarifier</a>
+        <i class="bi bi-house mx-2"/><a :href="'/'">Home</a>
+        <i class="bi bi-chat-dots mx-2 ms-3"/><a :href="'/apps/clarifier'">Chat</a>
       </p>
     </div>
   </div>

@@ -156,6 +156,12 @@ const routes = [
     component: () => import('../views/core/StoreInventoryView.vue'),
     meta: { requiresAuth: true }
   },
+  {
+    path: '/stores/own/commissions',
+    name: 'WStore Commissions',
+    component: () => import('../views/core/StoreCommissionsView.vue'),
+    meta: { requiresAuth: true }
+  },
   // ERROR HANDLING ROUTES --- MUST BE AT THE BOTTOM ---
   {
     path: '/bsod',
