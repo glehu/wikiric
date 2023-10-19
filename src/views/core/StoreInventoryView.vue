@@ -321,14 +321,21 @@
             <div v-for="(img, index) in modItem.iurls" :key="img"
                  class="flex flex-col">
               <div class="min-w-[8rem] min-h-[8rem]
-                          md:min-w-[12rem] md:min-h-[12rem]
                           max-w-[8rem] max-h-[8rem]
-                          md:max-w-[12rem] md:max-h-[12rem]
+                          md:max-w-[10rem] md:max-h-[10rem]
                           flex items-start justify-center">
                 <img :src="getImg(img.url, true)" alt="?"
                      v-on:click="showItemImages(modItem, index)">
               </div>
               <p class="text-sm">{{ img.t }}</p>
+            </div>
+          </template>
+          <template v-if="isSubmittingImage">
+            <div class="px-4 py-2 flex items-center pointer-events-none">
+              <div class="rounded-full h-4 w-4 bg-zinc-600 animate-ping border-2 border-indigo-500"></div>
+              <p class="ml-6 text-neutral-200 font-bold animate-pulse">
+                Uploading Image ...
+              </p>
             </div>
           </template>
           <div class="rounded p-4 border-2 border-dashed flex
@@ -648,6 +655,7 @@ export default {
       isShowingItem: false,
       isAddingMedia: false,
       isViewingImage: false,
+      isSubmittingImage: false,
       viewingImageURLs: [],
       viewingImageIndex: 0,
       uploadFileName: '',
@@ -902,6 +910,7 @@ export default {
       this.cancelAddMedia()
     },
     submitAddImage: function () {
+      this.isSubmittingImage = true
       const payload = {
         type: 'edit',
         field: 'iurl',
@@ -916,6 +925,7 @@ export default {
           body: JSON.stringify(payload)
         })
           .then(() => {
+            this.isSubmittingImage = false
             this.addItemImage()
             this.getItems()
           })

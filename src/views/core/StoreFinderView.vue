@@ -63,27 +63,29 @@
           </div>
         </template>
         <template v-else>
-          <div class="rounded medium_bg w-fit mx-2 mb-8 pb-2
+          <template v-if="storeQueryDone">
+            <div class="rounded medium_bg w-fit mx-2 mb-8 pb-2
                       overflow-hidden dshadow">
-            <div class="flex items-center dark_bg px-3 py-1 cursor-default">
-              <StarIcon class="w-5 h-5 text-orange-500 mr-2"/>
-              <p class="text-neutral-300">
-                Become a seller on wikiric!
+              <div class="flex items-center dark_bg px-3 py-1 cursor-default">
+                <StarIcon class="w-5 h-5 text-orange-500 mr-2"/>
+                <p class="text-neutral-300">
+                  Become a seller on wikiric!
+                </p>
+              </div>
+              <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
+                Create your own store and become a seller yourself!
+                <br>
+                Add items to sell, manage your commissions
+                and connect with your customers... all on wikiric.
               </p>
-            </div>
-            <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
-              Create your own store and become a seller yourself!
-              <br>
-              Add items to sell, manage your commissions
-              and connect with your customers... all on wikiric.
-            </p>
-            <div class="rounded w-fit mx-3 cursor-pointer
+              <div class="rounded w-fit mx-3 cursor-pointer
                         dark_bg hover:darkest_bg
                         px-2 py-1 border-[1px] border-neutral-600"
-                 v-on:click="isCreatingStore = true">
-              <p class="text-sm">Create your Store</p>
+                   v-on:click="isCreatingStore = true">
+                <p class="text-sm">Create your Store</p>
+              </div>
             </div>
-          </div>
+          </template>
         </template>
         <div class="px-2 py-1 medium_bg dshadow mb-2
                     overflow-hidden rounded cursor-default">
@@ -192,6 +194,7 @@ export default {
   data () {
     return {
       ownStore: null,
+      storeQueryDone: false,
       queryText: '',
       isCreatingStore: false,
       orders: 0,
@@ -236,6 +239,7 @@ export default {
           .then(() => resolve())
           .catch((err) => {
             this.ownStore = null
+            this.storeQueryDone = true
             console.debug(err.message)
           })
       })
