@@ -8,6 +8,22 @@
       <div class="px-4 py-3 flex flex-col gap-y-2">
         <div class="px-2 py-1 medium_bg dshadow mb-2
                     overflow-hidden rounded cursor-default">
+          <p class="font-bold">Find a store</p>
+        </div>
+        <div class="w-full flex justify-center">
+          <div class="w-[80%] mx-2">
+            <div class="rounded-lg flex items-center relative">
+              <MagnifyingGlassIcon class="w-6 h-6 mx-2 text-neutral-300 absolute translate-x-1"/>
+              <input id="search-field" type="text"
+                     class="search-field py-6 pl-10 pr-4 dark_bg h-8 border-2 border-zinc-700"
+                     placeholder="Search..."
+                     v-on:keyup.enter="searchStores()"
+                     v-model="queryText">
+            </div>
+          </div>
+        </div>
+        <div class="px-2 py-1 medium_bg dshadow mb-2
+                    overflow-hidden rounded cursor-default">
           <p class="font-bold">Your Store</p>
         </div>
         <template v-if="!isLoggedIn">
@@ -29,6 +45,9 @@
                 </p>
               </div>
             </div>
+            <p class="px-3 py-1 text-xs text-neutral-400">
+              Store ID: {{ ownStore.uid }}
+            </p>
             <div class="px-3 py-1 m-3 cursor-default">
               <p class="italic text-sm">
                 Dashboard is coming soon!
@@ -87,22 +106,6 @@
             </div>
           </template>
         </template>
-        <div class="px-2 py-1 medium_bg dshadow mb-2
-                    overflow-hidden rounded cursor-default">
-          <p class="font-bold">Find a store</p>
-        </div>
-        <div class="w-full flex justify-center">
-          <div class="w-[80%] mx-2">
-            <div class="rounded-lg flex items-center relative">
-              <MagnifyingGlassIcon class="w-6 h-6 mx-2 text-neutral-300 absolute translate-x-1"/>
-              <input id="search-field" type="text"
-                     class="search-field py-6 pl-10 pr-4 dark_bg h-8 border-2 border-zinc-700"
-                     placeholder="Search..."
-                     v-on:keyup.enter="searchStores()"
-                     v-model="queryText">
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>

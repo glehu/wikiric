@@ -515,10 +515,20 @@
         <p class="ml-1 text-neutral-200">
           = {{ modItemNet }} € net
         </p>
-        <div class="btn_bg_primary w-fit mt-4"
-             v-on:click="modifyItem()">
-          <p>Submit</p>
-        </div>
+        <template v-if="isSubmittingItem === false">
+          <div class="btn_bg_primary w-fit mt-4"
+               v-on:click="modifyItem()">
+            <p>Submit</p>
+          </div>
+        </template>
+        <template v-else>
+          <div class="px-4 py-2 flex items-center pointer-events-none">
+            <div class="rounded-full h-4 w-4 bg-zinc-600 animate-ping border-2 border-indigo-500"></div>
+            <p class="ml-6 text-neutral-200 font-bold animate-pulse">
+              Submitting Item ...
+            </p>
+          </div>
+        </template>
       </div>
     </template>
     <template v-slot:footer>
@@ -656,6 +666,7 @@ export default {
       isAddingMedia: false,
       isViewingImage: false,
       isSubmittingImage: false,
+      isSubmittingItem: false,
       viewingImageURLs: [],
       viewingImageIndex: 0,
       uploadFileName: '',
@@ -666,6 +677,7 @@ export default {
       showingItem: null,
       tmp: [],
       modItemBackup: {},
+      modItemSubmission: {},
       modItem: {
         t: '',
         desc: '',
@@ -752,11 +764,13 @@ export default {
       })
     },
     modifyItem: function () {
-      this.modItem.net = this.modItem.net / (this.modItem.vatp + 1)
-      const payload = JSON.stringify(this.modItem)
+      this.isSubmittingItem = true
+      this.modItemSubmission = structuredClone(this.modItem)
+      this.modItemSubmission.net = this.modItemSubmission.net / (this.modItemSubmission.vatp + 1)
+      const payload = JSON.stringify(this.modItemSubmission)
       let endpoint = 'items/private/create/' + this.ownStore.uid
-      if (this.modItem.uid && this.modItem.uid !== '') {
-        endpoint = 'items/private/edit/' + this.modItem.uid
+      if (this.modItemSubmission.uid && this.modItemSubmission.uid !== '') {
+        endpoint = 'items/private/edit/' + this.modItemSubmission.uid
       }
       return new Promise((resolve) => {
         this.$Worker.execute({
@@ -772,7 +786,16 @@ export default {
           })
           .then(() => resolve())
           .catch((err) => {
+            this.$notify(
+              {
+                title: 'Error Submitting Item',
+                text: err.message,
+                type: 'error'
+              })
             console.debug(err.message)
+          })
+          .finally(() => {
+            this.isSubmittingItem = false
           })
       })
     },
@@ -925,13 +948,15 @@ export default {
           body: JSON.stringify(payload)
         })
           .then(() => {
-            this.isSubmittingImage = false
             this.addItemImage()
             this.getItems()
           })
           .then(() => resolve())
           .catch((err) => {
             console.debug(err.message)
+          })
+          .finally(() => {
+            this.isSubmittingImage = false
           })
       })
     },

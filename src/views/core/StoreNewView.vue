@@ -50,19 +50,23 @@
                           font-bold text-neutral-200">
                       Pricing
                     </p>
-                    <div class="px-2 flex gap-x-2 relative">
+                    <div class="px-2 flex gap-x-2 relative items-center">
                       <div class="search-field dark_bg w-fit
                               border-2 border-zinc-700 text-sm">
+                        <p class="ml-2 mt-1 text-xs">MIN</p>
                         <span class="absolute py-2 pl-3">€</span>
                         <input type="number" id="minCost"
+                               v-model="queryMinCost"
                                placeholder="Min"
                                class="placeholder-neutral-400
                                   dark_bg py-2 pl-7 pr-4">
                       </div>
                       <div class="search-field dark_bg w-fit
                               border-2 border-zinc-700 text-sm">
+                        <p class="ml-2 mt-1 text-xs">MAX</p>
                         <span class="absolute py-2 pl-3">€</span>
                         <input type="number" id="maxCost"
+                               v-model="queryMaxCost"
                                placeholder="Max"
                                class="placeholder-neutral-400
                                   dark_bg py-2 pl-7 pr-4">
@@ -410,6 +414,21 @@
                  class="p-2 m-1 rounded bright_bg dshadow">
               <p class="font-bold">{{ cartItem.t }}</p>
               <p class="text-sm">{{ cartItem.desc }}</p>
+              <div v-if="cartItem.tvars && cartItem.tvars.length > 0"
+                   class="mt-4">
+                <p class="italic text-sm my-2">
+                  Variations:
+                </p>
+                <template v-for="variation in cartItem.tvars" :key="variation">
+                  <div v-if="variation.vars && variation.vars[0] && variation.vars[0].sval"
+                       class="flex gap-x-1">
+                    <p>* {{ variation.t }}:</p>
+                    <p class="font-bold">
+                      {{ variation.vars[0].sval }}
+                    </p>
+                  </div>
+                </template>
+              </div>
               <div class="flex gap-x-2 mt-2">
                 <input type="number" min="0" v-model="cartItem.amt"
                        class="border-[1px] w-[5rem]
@@ -540,6 +559,8 @@ export default {
       viewingImageURLs: [],
       viewingImageIndex: 0,
       queryText: '',
+      queryMinCost: 0.0,
+      queryMaxCost: 0.0,
       sort: {
         byRelevance: true,
         byViews: false,
@@ -584,7 +605,12 @@ export default {
       })
       this.noResults = false
       const payload = {
-        query: substitute ?? this.queryText
+        query: substitute ?? this.queryText,
+        minCost: this.queryMinCost,
+        maxCost: this.queryMaxCost
+      }
+      if (payload.query === '') {
+        payload.query = '.*'
       }
       return new Promise((resolve) => {
         this.$Worker.execute({

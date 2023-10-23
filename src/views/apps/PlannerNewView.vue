@@ -1444,6 +1444,7 @@ export default {
           suffix = '?state=any'
           checkbox.checked = true
         } else {
+          suffix = '?state=todo'
           checkbox.checked = false
         }
         this.$Worker.execute({

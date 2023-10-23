@@ -59,7 +59,7 @@
                       </div>
                     </div>
                     <div class="flex gap-x-2 gap-y-2 my-2 flex-wrap">
-                      <table class="ftable"
+                      <table class="ftable h-fit"
                              style="margin-bottom: 0 !important">
                         <tr>
                           <td>Billing:</td>
@@ -122,10 +122,14 @@
                                     {{ item.t }}
                                   </p>
                                   <div v-if="item.vars && item.vars.length > 0"
-                                       class="mt-2">
+                                       class="mt-4">
+                                    <p class="italic text-sm my-2">
+                                      Variations:
+                                    </p>
                                     <template v-for="variation in item.vars" :key="variation">
-                                      <div class="flex gap-x-1">
-                                        <p>{{ variation.t }}:</p>
+                                      <div v-if="variation.vars && variation.vars[0] && variation.vars[0].sval"
+                                           class="flex gap-x-1">
+                                        <p>* {{ variation.t }}:</p>
                                         <p class="font-bold">
                                           {{ variation.vars[0].sval }}
                                         </p>
@@ -141,14 +145,33 @@
                         </table>
                       </template>
                     </div>
-                    <div>
-                      <p class="font-bold mt-1 mb-2">Delivery</p>
-                      <p>{{ order.delivery.companyName }}</p>
-                      <p>{{ order.delivery.first }} {{ order.delivery.last }}</p>
-                      <p>{{ order.delivery.country }}</p>
-                      <p>{{ order.delivery.stateName }}</p>
-                      <p>{{ order.delivery.postcode }} {{ order.delivery.city }}</p>
-                      <p>{{ order.delivery.street }}</p>
+                    <div class="mt-4 flex flex-wrap gap-x-4 gap-y-4">
+                      <div class="w-fit">
+                        <p class="font-bold px-3 py-1 rounded dark_bg text-neutral-300">
+                          Delivery
+                        </p>
+                        <div class="p-2">
+                          <p>{{ order.delivery.companyName }}</p>
+                          <p>{{ order.delivery.first }} {{ order.delivery.last }}</p>
+                          <p>{{ order.delivery.country }}</p>
+                          <p>{{ order.delivery.stateName }}</p>
+                          <p>{{ order.delivery.postcode }} {{ order.delivery.city }}</p>
+                          <p>{{ order.delivery.street }}</p>
+                        </div>
+                      </div>
+                      <div class="w-fit">
+                        <p class="font-bold px-3 py-1 rounded dark_bg text-neutral-300">
+                          Billing
+                        </p>
+                        <div class="p-2">
+                          <p>{{ order.billing.companyName }}</p>
+                          <p>{{ order.billing.first }} {{ order.billing.last }}</p>
+                          <p>{{ order.billing.country }}</p>
+                          <p>{{ order.billing.stateName }}</p>
+                          <p>{{ order.billing.postcode }} {{ order.billing.city }}</p>
+                          <p>{{ order.billing.street }}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </template>

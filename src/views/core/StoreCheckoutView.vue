@@ -207,6 +207,21 @@
                    class="p-2 m-1 rounded bright_bg dshadow">
                 <p class="font-bold">{{ cartItem.t }}</p>
                 <p class="text-sm">{{ cartItem.desc }}</p>
+                <div v-if="cartItem.tvars && cartItem.tvars.length > 0"
+                     class="mt-4">
+                  <p class="italic text-sm my-2">
+                    Variations:
+                  </p>
+                  <template v-for="variation in cartItem.tvars" :key="variation">
+                    <div v-if="variation.vars && variation.vars[0] && variation.vars[0].sval"
+                         class="flex gap-x-1">
+                      <p>* {{ variation.t }}:</p>
+                      <p class="font-bold">
+                        {{ variation.vars[0].sval }}
+                      </p>
+                    </div>
+                  </template>
+                </div>
                 <div class="flex gap-x-2 mt-2">
                   <input type="number" min="0" v-model="cartItem.amt"
                          class="border-[1px] w-[5rem]
@@ -307,6 +322,7 @@ export default {
       this.totalGross = 0.0
       let cartItem
       if (this.$store.state.cart && this.$store.state.cart.length > 0) {
+        console.log(this.$store.state.cart)
         // Calculate values
         for (let i = 0; i < this.$store.state.cart.length; i++) {
           cartItem = this.$store.state.cart[i]
