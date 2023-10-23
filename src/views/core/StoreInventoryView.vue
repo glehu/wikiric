@@ -82,7 +82,7 @@
                                       md:max-w-[12rem] md:max-h-[12rem]
                                       lg:max-w-[14rem] lg:max-h-[14rem]
                                       xl:max-w-[16rem] xl:max-h-[16rem]
-                                      flex items-start justify-center">
+                                      flex items-start justify-center overflow-hidden">
                               <img :src="getImg(item.iurls[item.iix].url, true)" alt="?"
                                    v-on:click="showItemImages(item, item.iix)">
                             </div>
