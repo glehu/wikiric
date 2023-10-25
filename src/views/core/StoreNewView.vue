@@ -9,8 +9,14 @@
                       overflow-hidden bshadow">
             <div class="px-3 py-3 darkest_bg flex justify-center">
               <div class="max-w-screen-xl w-full flex items-center">
-                <BuildingStorefrontIcon
-                  class="h-14 w-14 text-neutral-300 mr-4"/>
+                <template v-if="store.iurl == null || store.iurl === ''">
+                  <BuildingStorefrontIcon
+                    class="h-14 w-14 text-neutral-300 mr-4"/>
+                </template>
+                <template v-else>
+                  <img :src="getImg(store.iurl, true)" alt="?"
+                       class="object-contain w-[100px] h-[100px] mr-4">
+                </template>
                 <div>
                   <p class="font-bold text-3xl">
                     {{ store.t }}
@@ -27,7 +33,7 @@
               <div id="shop-sidebar"
                    class="mb-4 lg:sticky lg:top-4 h-fit">
                 <div class="rounded-lg flex items-center relative mb-4
-                            max-w-[350px] w-full">
+                            max-w-[752px] lg:max-w-[350px] w-full">
                   <MagnifyingGlassIcon class="w-6 h-6 mx-2 text-neutral-300 absolute translate-x-1"/>
                   <input id="search-field" type="text"
                          class="search-field py-6 pl-10 pr-4 w-full
@@ -36,9 +42,10 @@
                          v-on:keyup.enter="getItems()"
                          v-model="queryText">
                 </div>
-                <div class="bright_bg max-w-[350px] pb-2
-                          border-t-2 border-l-2 border-neutral-700
-                          rounded overflow-hidden dshadow">
+                <div class="bright_bg
+                            max-w-[750px] lg:max-w-[350px] pb-2
+                            border-t-2 border-l-2 border-neutral-700
+                            rounded overflow-hidden dshadow">
                   <div class="w-full medium_bg px-2 py-1
                             font-bold text-neutral-300
                             flex items-center bshadow">
@@ -118,40 +125,26 @@
                   </div>
                   <template v-for="item in items" :key="item">
                     <div class="medium_bg p-2 rounded dshadow store_item relative
-                                max-w-[750px]">
-                      <div class="flex gap-x-2">
+                              max-w-[750px]">
+                      <div class="md:flex gap-x-2">
                         <template v-if="item.iurls == null || item.iurls.length < 1">
-                          <div class="min-w-[8rem] min-h-[8rem]
-                                    md:min-w-[10rem] md:min-h-[10rem]
-                                    lg:min-w-[12rem] lg:min-h-[12rem]
-                                    xl:min-w-[14rem] xl:min-h-[14rem]
-                                    max-w-[8rem] max-h-[8rem]
-                                    md:max-w-[10rem] md:max-h-[10rem]
-                                    lg:max-w-[12rem] lg:max-h-[12rem]
-                                    xl:max-w-[14rem] xl:max-h-[14rem]
-                                    dark_bg
-                                    rounded flex items-center justify-center">
-                            <p class="text-xs font-bold text-neutral-400">( No Image )</p>
+                          <div class="pb-14 md:pb-0 flex justify-center">
+                            <p class="text-xs font-bold text-neutral-400
+                                      md:imagecontainer">
+                              ( No Image )
+                            </p>
                           </div>
                         </template>
                         <template v-else>
                           <div class="flex flex-col rounded dark_bg relative">
-                            <div class="pb-6">
-                              <div class="min-w-[8rem] min-h-[8rem]
-                                      md:min-w-[12rem] md:min-h-[12rem]
-                                      lg:min-w-[14rem] lg:min-h-[14rem]
-                                      xl:min-w-[16rem] xl:min-h-[16rem]
-                                      max-w-[8rem] max-h-[8rem]
-                                      md:max-w-[12rem] md:max-h-[12rem]
-                                      lg:max-w-[14rem] lg:max-h-[14rem]
-                                      xl:max-w-[16rem] xl:max-h-[16rem]
-                                      flex items-start justify-center overflow-hidden">
+                            <div class="pb-14 flex justify-center">
+                              <div class="imagecontainer">
                                 <img :src="getImg(item.iurls[item.iix].url, true)" alt="?"
                                      v-on:click="showItemImages(item, item.iix)">
                               </div>
                             </div>
                             <div class="absolute bottom-0 w-full overflow-hidden">
-                              <div class="flex flex-row justify-center gap-x-1 pb-1">
+                              <div class="flex flex-row justify-center gap-x-1">
                                 <template v-for="(img, index) in item.iurls" :key="img">
                                   <div class="img_index"
                                        :class="{active: index === item.iix}"
@@ -175,7 +168,7 @@
                           <div class="cursor-pointer hover:bright_bg
                                     rounded px-2 py-1 w-full"
                                v-on:click="showItem(item)">
-                            <p class="font-bold text-xl mb-2">
+                            <p class="font-bold text-xl mb-2 mt-2">
                               {{ item.t }}
                             </p>
                             <p class="text-sm">{{ item.desc }}</p>
@@ -192,7 +185,7 @@
                                     <td><p class="px-1">
                                       {{ attribute.sval }}
                                     </p></td>
-                                    <td><p class="text-neutral-400 text-xs px-1 hidden md:block">
+                                    <td><p class="text-neutral-400 text-xs px-1">
                                       {{ attribute.desc }}
                                     </p></td>
                                   </tr>
@@ -201,18 +194,20 @@
                             </div>
                           </template>
                           <template v-if="item.tvars && item.tvars.length > 0">
-                            <div class="m-2 flex-wrap gap-x-4 gap-y-2 flex w-full">
+                            <div class="m-2 md:flex gap-x-4">
                               <div v-for="(variation, index) in item.vars" :key="variation">
                                 <Listbox v-model="item.tvars[index].vars[0]">
                                   <div class="relative mt-1">
                                     <ListboxButton
                                       class="dark_bg w-full relative cursor-default rounded-lg py-2 pl-3
-                                             min-w-[8rem]
-                                             pr-10 text-left shadow-md focus:outline-none
-                                             focus-visible:border-indigo-500 focus-visible:ring-2
-                                             focus-visible:ring-white focus-visible:ring-opacity-75
-                                             focus-visible:ring-offset-2
-                                             focus-visible:ring-offset-orange-300 sm:text-sm"
+                                           min-w-[8rem] bg-opacity-50
+                                           pr-10 text-left shadow-md focus:outline-none
+                                           border-b-[1px] border-b-neutral-500
+                                           focus-visible:ring-2
+                                           focus-visible:ring-white
+                                           focus-visible:ring-opacity-75
+                                           focus-visible:ring-offset-2
+                                           focus-visible:ring-offset-orange-300 sm:text-sm"
                                     >
                                       <template
                                         v-if="item.tvars[index].vars != null && item.tvars[index].vars[0].sval ">
@@ -294,45 +289,6 @@
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div
-                        class="mr-auto absolute top-0 right-0 h-full">
-                        <Menu as="div" class="relative inline-block text-left h-full hidden">
-                          <MenuButton
-                            title="Options"
-                            class="store_item_edit_overlay hover:bright_bg rounded text-neutral-300
-                               m-1 p-1 backdrop-blur-3xl flex items-center cursor-pointer">
-                            <SquaresPlusIcon class="h-5 w-5"></SquaresPlusIcon>
-                          </MenuButton>
-                          <transition
-                            enter-active-class="transition duration-100 ease-out"
-                            enter-from-class="transform scale-95 opacity-0"
-                            enter-to-class="transform scale-100 opacity-100"
-                            leave-active-class="transition duration-75 ease-in"
-                            leave-from-class="transform scale-100 opacity-100"
-                            leave-to-class="transform scale-95 opacity-0"
-                          >
-                            <MenuItems
-                              class="p_card_menu_list_medium_p bg-zinc-100"
-                            >
-                              <div class="px-1 py-1">
-                                <MenuItem v-slot="{ active }">
-                                  <button v-on:click="deletePeriodicAction(action)"
-                                          :class="[active
-                                      ? 'p_card_menu_active'
-                                      : 'text-neutral-900','group p_card_menu_item']">
-                                    <PencilSquareIcon
-                                      :active="active"
-                                      class="mr-2 h-5 w-5"
-                                      aria-hidden="true"
-                                    />
-                                    Edit
-                                  </button>
-                                </MenuItem>
-                              </div>
-                            </MenuItems>
-                          </transition>
-                        </Menu>
                       </div>
                     </div>
                   </template>
@@ -448,6 +404,13 @@
                   </div>
                 </div>
               </div>
+              <div class="cursor-pointer px-1 rounded mb-2 mt-2
+                          dark_bg hover:darkest_bg w-fit"
+                   v-on:click="$store.commit('removeFromCart', cartItem)">
+                <p class="font-bold text-sm text-neutral-300">
+                  Remove from Cart
+                </p>
+              </div>
             </div>
           </div>
         </template>
@@ -506,20 +469,15 @@ import {
   ChevronRightIcon,
   EyeIcon,
   FunnelIcon,
-  PencilSquareIcon,
   ShoppingCartIcon,
   TagIcon
 } from '@heroicons/vue/24/solid'
-import { MagnifyingGlassIcon, SquaresPlusIcon } from '@heroicons/vue/24/outline'
+import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
 import {
   Listbox,
   ListboxButton,
   ListboxOption,
-  ListboxOptions,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems
+  ListboxOptions
 } from '@headlessui/vue'
 import modal from '@/components/Modal.vue'
 
@@ -531,13 +489,7 @@ export default {
     ListboxButton,
     ListboxOptions,
     ListboxOption,
-    Menu,
-    MenuItem,
-    MenuItems,
-    MenuButton,
     ArrowsUpDownIcon,
-    PencilSquareIcon,
-    SquaresPlusIcon,
     CheckIcon,
     ShoppingCartIcon,
     MagnifyingGlassIcon,

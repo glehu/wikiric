@@ -4,10 +4,10 @@ let _u = null
 let _t = null
 let _interval = null
 let _interval2 = null
-// const _endpoint = 'http://localhost:9999/' // 'https://wikiric.xyz/'
-// const _wssEndpoint = 'ws://localhost:9999/' // 'wss://wikiric.xyz/'
-const _endpoint = 'https://wikiric.xyz/'
-const _wssEndpoint = 'wss://wikiric.xyz/'
+const _endpoint = 'http://localhost:9999/' // 'https://wikiric.xyz/'
+const _wssEndpoint = 'ws://localhost:9999/' // 'wss://wikiric.xyz/'
+// const _endpoint = 'https://wikiric.xyz/'
+// const _wssEndpoint = 'wss://wikiric.xyz/'
 let ws = null
 let bc = null
 

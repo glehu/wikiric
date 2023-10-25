@@ -1128,7 +1128,7 @@
               <template v-if="chatroom.rank > 1">
                 <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Badges</h5>
                 <template v-if="viewedUserProfile.badges == null || viewedUserProfile.badges.length < 1">
-                  <div style="border: 1px solid gray; border-radius: 10px; width: 100%; padding: 10%"
+                  <div style="border: 1px solid rgb(128,128,128); border-radius: 10px; width: 100%; padding: 10%"
                        class="c_lightgray text-center items-center pointer-events-none">
                     <i class="bi bi-award-fill lead"></i>
                     <br>Keep communicating to earn badges!
@@ -2056,8 +2056,8 @@ export default {
           }
         }
         // Connect to the chat
-        // this.connection = new WebSocket('ws://localhost:9999/ws/chat/' + sessionID + queryString)
-        this.connection = new WebSocket('wss://wikiric.xyz/ws/chat/' + sessionID + queryString)
+        this.connection = new WebSocket('ws://localhost:9999/ws/chat/' + sessionID + queryString)
+        // this.connection = new WebSocket('wss://wikiric.xyz/ws/chat/' + sessionID + queryString)
         // Websocket OPEN
         this.connection.onopen = async () => {
           this.websocketState = 'OPEN'

@@ -56,33 +56,19 @@
                 <template v-for="item in items" :key="item">
                   <div class="medium_bg p-2 rounded dshadow store_item relative
                               max-w-[750px]">
-                    <div class="flex gap-x-2">
+                    <div class="md:flex gap-x-2">
                       <template v-if="item.iurls == null || item.iurls.length < 1">
-                        <div class="min-w-[8rem] min-h-[8rem]
-                                    md:min-w-[12rem] md:min-h-[12rem]
-                                    lg:min-w-[14rem] lg:min-h-[14rem]
-                                    xl:min-w-[16rem] xl:min-h-[16rem]
-                                    max-w-[8rem] max-h-[8rem]
-                                    md:max-w-[12rem] md:max-h-[12rem]
-                                    lg:max-w-[14rem] lg:max-h-[14rem]
-                                    xl:max-w-[16rem] xl:max-h-[16rem]
-                                    dark_bg
-                                    rounded flex items-center justify-center">
-                          <p class="text-xs font-bold text-neutral-400">( No Image )</p>
+                        <div class="pb-14 md:pb-0 flex justify-center">
+                          <p class="text-xs font-bold text-neutral-400
+                                      md:imagecontainer">
+                            ( No Image )
+                          </p>
                         </div>
                       </template>
                       <template v-else>
                         <div class="flex flex-col rounded dark_bg relative">
-                          <div class="pb-6">
-                            <div class="min-w-[8rem] min-h-[8rem]
-                                      md:min-w-[12rem] md:min-h-[12rem]
-                                      lg:min-w-[14rem] lg:min-h-[14rem]
-                                      xl:min-w-[16rem] xl:min-h-[16rem]
-                                      max-w-[8rem] max-h-[8rem]
-                                      md:max-w-[12rem] md:max-h-[12rem]
-                                      lg:max-w-[14rem] lg:max-h-[14rem]
-                                      xl:max-w-[16rem] xl:max-h-[16rem]
-                                      flex items-start justify-center overflow-hidden">
+                          <div class="pb-14 flex justify-center">
+                            <div class="imagecontainer">
                               <img :src="getImg(item.iurls[item.iix].url, true)" alt="?"
                                    v-on:click="showItemImages(item, item.iix)">
                             </div>
@@ -112,7 +98,7 @@
                         <div class="cursor-pointer hover:bright_bg
                                     rounded px-2 py-1 w-full"
                              v-on:click="showItem(item)">
-                          <p class="font-bold text-xl mb-2">
+                          <p class="font-bold text-xl mb-2 mt-2">
                             {{ item.t }}
                           </p>
                           <p class="text-sm">{{ item.desc }}</p>
@@ -138,16 +124,18 @@
                           </div>
                         </template>
                         <template v-if="item.tvars && item.tvars.length > 0">
-                          <div class="m-2 flex gap-x-4">
+                          <div class="m-2 md:flex gap-x-4">
                             <div v-for="(variation, index) in item.vars" :key="variation">
                               <Listbox v-model="item.tvars[index].vars[0]">
                                 <div class="relative mt-1">
                                   <ListboxButton
-                                    class="dark_bg w-full relative cursor-default rounded-lg py-2 pl-3
+                                      class="dark_bg w-full relative cursor-default rounded-lg py-2 pl-3
                                            min-w-[8rem] bg-opacity-50
                                            pr-10 text-left shadow-md focus:outline-none
-                                           focus-visible:border-indigo-500 focus-visible:ring-2
-                                           focus-visible:ring-white focus-visible:ring-opacity-75
+                                           border-b-[1px] border-b-neutral-500
+                                           focus-visible:ring-2
+                                           focus-visible:ring-white
+                                           focus-visible:ring-opacity-75
                                            focus-visible:ring-offset-2
                                            focus-visible:ring-offset-orange-300 sm:text-sm"
                                   >
@@ -162,36 +150,36 @@
                                       </span>
                                     </template>
                                     <div
-                                      class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                       <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
                                     </div>
                                   </ListboxButton>
                                   <transition
-                                    leave-active-class="transition duration-100 ease-in"
-                                    leave-from-class="opacity-100"
-                                    leave-to-class="opacity-0">
+                                      leave-active-class="transition duration-100 ease-in"
+                                      leave-from-class="opacity-100"
+                                      leave-to-class="opacity-0">
                                     <ListboxOptions
-                                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md
+                                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md
                                                dark_bg py-1 text-base shadow-lg ring-1 ring-black
                                                ring-opacity-5 focus:outline-none sm:text-sm z-50"
                                     >
                                       <ListboxOption
-                                        v-slot="{ active, selected }"
-                                        v-for="cat in variation.vars"
-                                        :key="cat"
-                                        :value="cat"
-                                        as="template"
+                                          v-slot="{ active, selected }"
+                                          v-for="cat in variation.vars"
+                                          :key="cat"
+                                          :value="cat"
+                                          as="template"
                                       >
                                         <li
-                                          :class="[ active ? 'bg-gray-700' : '',
+                                            :class="[ active ? 'bg-gray-700' : '',
                                   'relative cursor-pointer select-none py-2 pl-10 pr-4 text-neutral-200' ]">
                                           <div
-                                            :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
+                                              :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
                                             {{ cat.sval }}
                                           </div>
                                           <div
-                                            v-if="selected"
-                                            class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                                              v-if="selected"
+                                              class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
                                             <CheckIcon class="h-5 w-5" aria-hidden="true"/>
                                           </div>
                                         </li>

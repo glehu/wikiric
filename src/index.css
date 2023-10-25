@@ -214,4 +214,12 @@
     .img_index.active p {
         @apply text-neutral-300 font-bold;
     }
+
+    .imagecontainer {
+        @apply min-w-[16rem] min-h-[16rem]
+        md:min-w-[18rem] md:min-h-[18rem]
+        max-w-[16rem] max-h-[16rem]
+        md:max-w-[18rem] md:max-h-[18rem]
+        flex items-start justify-center overflow-hidden;
+    }
 }

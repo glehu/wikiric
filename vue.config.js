@@ -3,7 +3,7 @@ module.exports = {
     themeColor: '#18181B',
     manifestOptions: {
       gcm_sender_id: '103953800507',
-      start_url: 'https://wikiric.xyz/apps/clarifier',
+      start_url: 'https://wikiric.xyz/',
       icons: [
         {
           src: 'img/icons/android-chrome-36x36.png',

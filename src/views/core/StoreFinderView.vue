@@ -33,9 +33,11 @@
           </div>
         </template>
         <template v-else-if="ownStore != null">
-          <div class="rounded medium_bg w-fit mx-2 mb-8
+          <div class="rounded medium_bg w-fit mx-2 mb-8 pb-4
                       overflow-hidden dshadow">
             <div class="px-3 py-1 dark_bg">
+              <img :src="getImg(ownStore.iurl, true)" alt="?"
+                   class="object-contain w-[100px] h-[100px] my-2">
               <div class="flex items-baseline gap-x-2">
                 <p class="font-bold text-lg">
                   {{ ownStore.t }}
@@ -53,10 +55,10 @@
                 Dashboard is coming soon!
               </p>
             </div>
-            <div class="m-2 px-3 py-1 grid grid-cols-2 gap-2">
+            <div class="p-3 grid grid-cols-2 gap-2">
               <div class="rounded cursor-pointer
-                        dark_bg hover:darkest_bg
-                        px-2 py-1 border-[1px] border-neutral-600"
+                          dark_bg hover:darkest_bg
+                          px-2 py-1 border-[1px] border-neutral-600"
                    v-on:click="$router.push('/stores/own/items')">
                 <p class="font-bold text-xl">
                   Inventory
@@ -76,6 +78,26 @@
                 <p>Orders: {{ orders }}</p>
                 <p class="text-sm text-neutral-400">
                   View commissions from your customers
+                </p>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 gap-y-2 w-[128px]">
+              <div class="px-3 py-1 dark_bg hover:darkest_bg
+                          rounded-r cursor-pointer
+                          border-t-[1px] border-b-[1px] border-r-[1px]
+                          border-neutral-600"
+                   v-on:click="openShop()">
+                <p class="px-2 py-1 text-sm font-bold text-neutral-300">
+                  Open Store
+                </p>
+              </div>
+              <div class="px-3 py-1 dark_bg hover:darkest_bg
+                          rounded-r cursor-pointer
+                          border-t-[1px] border-b-[1px] border-r-[1px]
+                          border-neutral-600"
+                   v-on:click="isAddingMedia = true">
+                <p class="px-2 py-1 text-sm font-bold text-neutral-300">
+                  Add Image
                 </p>
               </div>
             </div>
@@ -180,6 +202,50 @@
     <template v-slot:footer>
     </template>
   </modal>
+  <modal
+    v-show="isAddingMedia"
+    @close="cancelAddMedia">
+    <template v-slot:header>
+      Add File
+    </template>
+    <template v-slot:body>
+      <template v-if="uploadFileType !== ''">
+        <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px"
+             class="markedView max-w-[400px]">
+          <img v-if="uploadFileType.includes('image')"
+               class="uploadFileSnippet"
+               v-bind:src="uploadFileBase64" :alt="'&nbsp;'"/>
+        </div>
+      </template>
+      <input type="file" class="file_input" id="studio_add_media" ref="studio_add_media" name="files[]"
+             accept="image/png, image/jpeg"
+             style="width: 100%"
+             v-on:change="handleUploadFileSelect"/>
+      <template v-if="uploadFileBase64 !== ''">
+        <p class="text-neutral-300 font-bold">{{ uploadFileName }}</p>
+        <div class="mt-3 w-full">
+          <template v-if="uploadFileType.includes('image')">
+            <button class="darkbutton text-white p-2 w-full flex items-center justify-center rounded-full"
+                    style="height: 2.5em;
+                           border-color: transparent; margin: auto"
+                    title="Send"
+                    v-on:click="setImageMode">
+              <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Add Image</span>
+              <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ uploadFileType }}</span>
+            </button>
+          </template>
+          <template v-else>
+            <div class="text-white p-2 w-full flex items-center justify-center rounded-full
+                        bg-red-800">
+              <p>File does not contain an image!</p>
+            </div>
+          </template>
+        </div>
+      </template>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
 </template>
 
 <script>
@@ -200,6 +266,11 @@ export default {
       storeQueryDone: false,
       queryText: '',
       isCreatingStore: false,
+      isAddingMedia: false,
+      uploadFileName: '',
+      uploadFileType: '',
+      uploadFileBase64: '',
+      imageToDraw: null,
       orders: 0,
       items: 0,
       newStore: {
@@ -314,6 +385,87 @@ export default {
             console.debug(err.message)
           })
       })
+    },
+    openShop: function () {
+      this.$router.push('/store/' + this.ownStore.uid)
+    },
+    handleUploadFileSelect: async function (evt, drop = false) {
+      if (!evt) return
+      evt.stopPropagation()
+      evt.preventDefault()
+      let files
+      if (drop) {
+        files = evt.dataTransfer.files
+      } else {
+        files = evt.target.files
+      }
+      this.uploadFileBase64 = await this.getBase64(files[0])
+      this.uploadFileType = files[0].type
+      this.uploadFileName = files[0].name
+    },
+    getBase64: function (file) {
+      return new Promise(function (resolve, reject) {
+        const reader = new FileReader()
+        reader.onload = function () {
+          resolve(reader.result)
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+    },
+    cancelAddMedia: function () {
+      this.isAddingMedia = false
+      this.uploadFileType = ''
+      this.uploadFileName = ''
+      this.uploadFileBase64 = ''
+      this.imageToDraw = null
+    },
+    setImageMode: function () {
+      const imageToDraw = new Image()
+      const vueInst = this
+      const updateFunc = this.submitAddImage
+      imageToDraw.onload = function () {
+        vueInst.imageToDraw = this
+        vueInst.isAddingMedia = false
+        updateFunc()
+      }
+      imageToDraw.src = this.uploadFileBase64
+    },
+    submitAddImage: function () {
+      this.isSubmittingImage = true
+      const payload = {
+        type: 'edit',
+        field: 'iurl',
+        new: this.uploadFileBase64
+      }
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'stores/private/mod/' + this.ownStore.uid,
+          body: JSON.stringify(payload)
+        })
+          .then(() => {
+            this.getOwnStore()
+          })
+          .then(() => resolve())
+          .catch((err) => {
+            console.debug(err.message)
+          })
+          .finally(() => {
+            this.isSubmittingImage = false
+          })
+      })
+    },
+    getImg: function (imgGUID, get = false) {
+      if (imgGUID == null || imgGUID === '') {
+        return ''
+      } else {
+        let ret = imgGUID
+        if (ret.substring(0, 5) !== 'files') return ret
+        if (get) ret = this.$store.state.serverIP + '/' + imgGUID
+        return ret
+      }
     }
   }
 }

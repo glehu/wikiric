@@ -1,6 +1,112 @@
 <template>
   <div id="checkoutAddresses"
-       class="h-full w-full flex justify-evenly pt-[55px]">
+       class="h-full w-full md:flex overflow-y-scroll justify-evenly pt-[55px]">
+    <div class="md:hidden p-2 flex items-center justify-center">
+      <p>Scroll down to fill out the shipping/billing address.</p>
+    </div>
+    <div id="checkoutItems"
+         class="brightest_bg overflow-hidden w-full h-fit md:h-full bshadow">
+      <div class="w-full h-full relative">
+        <div class="px-4 py-2 flex medium_bg">
+          <ShoppingCartIcon class="h-8 w-8 mr-4
+                                   text-neutral-200"/>
+          <p class="font-bold text-xl lg:text-2xl">
+            Shopping Cart
+          </p>
+        </div>
+        <div class="pt-2 px-2 h-full overflow-y-auto pb-20">
+          <template v-if="$store.state.cart && $store.state.cart.length > 0">
+            <div class="cursor-pointer px-1 rounded mb-2 mt-1
+                      dark_bg hover:darkest_bg w-fit"
+                 v-on:click="$store.commit('clearCart')">
+              <p class="font-bold text-sm text-neutral-300">Clear</p>
+            </div>
+            <div class="flex flex-col gap-y-2">
+              <div class="px-4 py-2 mx-1 rounded dark_bg w-fit">
+                <p class="font-bold">Order Summary</p>
+                <table class="table-auto mt-4 min-w-[250px]">
+                  <tr>
+                    <td><p>Net:</p></td>
+                    <td><p class="text-end">
+                      {{ ftotalNet }} €
+                    </p></td>
+                  </tr>
+                  <tr>
+                    <td><p>VAT:</p></td>
+                    <td><p class="text-end">
+                      {{ ftotalVAT }} €
+                    </p></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <p class="font-bold text-xl">
+                        Total:
+                      </p>
+                    </td>
+                    <td>
+                      <p class="text-end font-bold text-xl">
+                        {{ ftotalGross }} €
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div v-for="cartItem in $store.state.cart" :key="cartItem.uid"
+                   class="p-2 m-1 rounded bright_bg dshadow">
+                <p class="font-bold">{{ cartItem.t }}</p>
+                <p class="text-sm">{{ cartItem.desc }}</p>
+                <div v-if="cartItem.tvars && cartItem.tvars.length > 0"
+                     class="mt-4">
+                  <p class="italic text-sm my-2">
+                    Variations:
+                  </p>
+                  <template v-for="variation in cartItem.tvars" :key="variation">
+                    <div v-if="variation.vars && variation.vars[0] && variation.vars[0].sval"
+                         class="flex gap-x-1">
+                      <p>* {{ variation.t }}:</p>
+                      <p class="font-bold">
+                        {{ variation.vars[0].sval }}
+                      </p>
+                    </div>
+                  </template>
+                </div>
+                <div class="flex gap-x-2 mt-2">
+                  <input type="number" min="0" v-model="cartItem.amt"
+                         class="border-[1px] w-[5rem]
+                            border-neutral-500 px-3 py-1 rounded
+                            dark_bg text-xl text-neutral-200">
+                  <div>
+                    <p class="text-xl font-bold">
+                      {{ ((cartItem.net * (cartItem.vatp + 1)) * cartItem.amt).toFixed(2) }} €
+                    </p>
+                    <div class="flex items-center text-xs gap-x-2">
+                      <p class="text-neutral-400">
+                        {{ cartItem.net.toFixed(2) }} €
+                      </p>
+                      <p class="text-neutral-400">
+                        {{ cartItem.vatp.toFixed(2) * 100 }} % VAT
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="cursor-pointer px-1 rounded mb-2 mt-2
+                          dark_bg hover:darkest_bg w-fit"
+                     v-on:click="$store.commit('removeFromCart', cartItem); calculate()">
+                  <p class="font-bold text-sm text-neutral-300">
+                    Remove from Cart
+                  </p>
+                </div>
+              </div>
+            </div>
+          </template>
+          <template v-else>
+            <div class="h-full flex items-center justify-center pt-4">
+              <p>Nothing here, yet!</p>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
     <div class="bright_bg h-full w-full">
       <div v-if="showPayment !== true" class="h-full w-full">
         <p class="font-bold text-xl lg:text-2xl darkest_bg
@@ -140,7 +246,10 @@
             to this bank account to get your item(s) shipped to you:</p>
           <div class="mb-4 px-4 py-2 rounded dark_bg">
             <template v-if="store != null && store.bank && store.bank.bank">
-              <div id="payment_qrcode" class="mb-2"></div>
+              <p class="text-sm">
+                (If a QR code appears, you can simply scan it with any banking app)
+              </p>
+              <div id="payment_qrcode" class="mb-4"></div>
               <p>Name: {{ store.bank.name }}</p>
               <p>Bank Name: {{ store.bank.bank }}</p>
               <p>IBAN: {{ store.bank.iban }}</p>
@@ -153,102 +262,6 @@
           <div class="px-4 py-2 rounded dark_bg">
             <p class="text-neutral-400 text-sm">Order ID: {{ orderIdResponse }}</p>
           </div>
-        </div>
-      </div>
-    </div>
-    <div id="checkoutItems"
-         class="brightest_bg overflow-hidden w-full h-full bshadow">
-      <div class="w-full h-full relative">
-        <div class="px-4 py-2 flex medium_bg">
-          <ShoppingCartIcon class="h-8 w-8 mr-4
-                                   text-neutral-200"/>
-          <p class="font-bold text-xl lg:text-2xl">
-            Shopping Cart
-          </p>
-        </div>
-        <div class="pt-2 px-2 h-full overflow-y-auto pb-20">
-          <template v-if="$store.state.cart && $store.state.cart.length > 0">
-            <div class="cursor-pointer px-1 rounded mb-2 mt-1
-                      dark_bg hover:darkest_bg w-fit"
-                 v-on:click="$store.commit('clearCart')">
-              <p class="font-bold text-sm text-neutral-300">Clear</p>
-            </div>
-            <div class="flex flex-col gap-y-2">
-              <div class="px-4 py-2 mx-1 rounded dark_bg w-fit">
-                <p class="font-bold">Order Summary</p>
-                <table class="table-auto mt-4 min-w-[250px]">
-                  <tr>
-                    <td><p>Net:</p></td>
-                    <td><p class="text-end">
-                      {{ ftotalNet }} €
-                    </p></td>
-                  </tr>
-                  <tr>
-                    <td><p>VAT:</p></td>
-                    <td><p class="text-end">
-                      {{ ftotalVAT }} €
-                    </p></td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <p class="font-bold text-xl">
-                        Total:
-                      </p>
-                    </td>
-                    <td>
-                      <p class="text-end font-bold text-xl">
-                        {{ ftotalGross }} €
-                      </p>
-                    </td>
-                  </tr>
-                </table>
-              </div>
-              <div v-for="cartItem in $store.state.cart" :key="cartItem.uid"
-                   class="p-2 m-1 rounded bright_bg dshadow">
-                <p class="font-bold">{{ cartItem.t }}</p>
-                <p class="text-sm">{{ cartItem.desc }}</p>
-                <div v-if="cartItem.tvars && cartItem.tvars.length > 0"
-                     class="mt-4">
-                  <p class="italic text-sm my-2">
-                    Variations:
-                  </p>
-                  <template v-for="variation in cartItem.tvars" :key="variation">
-                    <div v-if="variation.vars && variation.vars[0] && variation.vars[0].sval"
-                         class="flex gap-x-1">
-                      <p>* {{ variation.t }}:</p>
-                      <p class="font-bold">
-                        {{ variation.vars[0].sval }}
-                      </p>
-                    </div>
-                  </template>
-                </div>
-                <div class="flex gap-x-2 mt-2">
-                  <input type="number" min="0" v-model="cartItem.amt"
-                         class="border-[1px] w-[5rem]
-                            border-neutral-500 px-3 py-1 rounded
-                            dark_bg text-xl text-neutral-200">
-                  <div>
-                    <p class="text-xl font-bold">
-                      {{ ((cartItem.net * (cartItem.vatp + 1)) * cartItem.amt).toFixed(2) }} €
-                    </p>
-                    <div class="flex items-center text-xs gap-x-2">
-                      <p class="text-neutral-400">
-                        {{ cartItem.net.toFixed(2) }} €
-                      </p>
-                      <p class="text-neutral-400">
-                        {{ cartItem.vatp.toFixed(2) * 100 }} % VAT
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </template>
-          <template v-else>
-            <div class="h-full flex items-center justify-center">
-              <p>Nothing here, yet!</p>
-            </div>
-          </template>
         </div>
       </div>
     </div>
@@ -317,24 +330,7 @@ export default {
   methods: {
     initFunction: async function () {
       this.order.pid = this.$route.params.id
-      this.totalNet = 0.0
-      this.totalVAT = 0.0
-      this.totalGross = 0.0
-      let cartItem
-      if (this.$store.state.cart && this.$store.state.cart.length > 0) {
-        console.log(this.$store.state.cart)
-        // Calculate values
-        for (let i = 0; i < this.$store.state.cart.length; i++) {
-          cartItem = this.$store.state.cart[i]
-          this.totalNet += (cartItem.net * cartItem.amt)
-          this.totalVAT += ((cartItem.net * cartItem.amt) * cartItem.vatp)
-          this.totalGross += ((cartItem.net * (cartItem.vatp + 1)) * cartItem.amt)
-        }
-        // Convert to locale numbers (commas, dots etc.)
-        this.ftotalNet = this.formatCurrency(this.totalNet)
-        this.ftotalVAT = this.formatCurrency(this.totalVAT)
-        this.ftotalGross = this.formatCurrency(this.totalGross)
-      }
+      this.calculate()
       this.getStore(this.order.pid)
     },
     formatCurrency: function (number) {
@@ -433,6 +429,26 @@ export default {
             console.debug(err.message)
           })
       })
+    },
+    calculate: function () {
+      this.totalNet = 0.0
+      this.totalVAT = 0.0
+      this.totalGross = 0.0
+      let cartItem
+      if (this.$store.state.cart && this.$store.state.cart.length > 0) {
+        console.log(this.$store.state.cart)
+        // Calculate values
+        for (let i = 0; i < this.$store.state.cart.length; i++) {
+          cartItem = this.$store.state.cart[i]
+          this.totalNet += (cartItem.net * cartItem.amt)
+          this.totalVAT += ((cartItem.net * cartItem.amt) * cartItem.vatp)
+          this.totalGross += ((cartItem.net * (cartItem.vatp + 1)) * cartItem.amt)
+        }
+        // Convert to locale numbers (commas, dots etc.)
+        this.ftotalNet = this.formatCurrency(this.totalNet)
+        this.ftotalVAT = this.formatCurrency(this.totalVAT)
+        this.ftotalGross = this.formatCurrency(this.totalGross)
+      }
     }
   }
 }

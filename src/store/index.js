@@ -67,7 +67,7 @@ export default createStore({
     },
     removeFromCart (state, itemObj) {
       state.cart = state.cart.filter(function (ele) {
-        return ele.uid.toString() !== itemObj.uid.toString()
+        return ele !== itemObj
       })
     },
     clearCart (state) {

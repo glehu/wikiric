@@ -165,8 +165,8 @@ export default {
       })
     },
     checkServerIP: function () {
-      // this.$store.commit('setServerIP', 'http://localhost:9999')
-      this.$store.commit('setServerIP', 'https://wikiric.xyz')
+      this.$store.commit('setServerIP', 'http://localhost:9999')
+      // this.$store.commit('setServerIP', 'https://wikiric.xyz')
     },
     logout: async function () {
       if (!this.isLoggedIn) return
