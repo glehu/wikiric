@@ -242,16 +242,17 @@
         </p>
         <div class="px-4 py-2">
           <p class="mb-4 font-bold">Your order has been submitted successfully!</p>
-          <p class="mb-4">Please transfer the total of {{ ftotalGross }} €
+          <p class="mb-4">Please transfer the total of
+            <span class="font-bold">{{ ftotalGross }} €</span>
             to this bank account to get your item(s) shipped to you:</p>
           <div class="mb-4 px-4 py-2 rounded dark_bg">
             <template v-if="store != null && store.bank && store.bank.bank">
-              <p class="text-sm">
-                (If a QR code appears, you can simply scan it with any banking app)
+              <p class="text-sm mb-4">
+                If a QR code appears, simply scan it with any banking app.
               </p>
               <div id="payment_qrcode" class="mb-4"></div>
               <p>Name: {{ store.bank.name }}</p>
-              <p>Bank Name: {{ store.bank.bank }}</p>
+              <p>Bank: {{ store.bank.bank }}</p>
               <p>IBAN: {{ store.bank.iban }}</p>
               <p>SWIFT (BIC): {{ store.bank.swift }}</p>
             </template>

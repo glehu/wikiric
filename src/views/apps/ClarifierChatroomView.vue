@@ -5310,23 +5310,6 @@ export default {
   @apply block;
 }
 
-.tooltip-mock-destination.show {
-  opacity: 1;
-  transition: 0.5s;
-  transform: translateY(0);
-}
-
-.tooltip-mock-destination {
-  margin-left: 1ch;
-  display: inline-block;
-  font-size: 16px;
-  font-weight: bold;
-  width: auto;
-  opacity: 0;
-  transform: translateY(10px);
-  @apply text-neutral-200;
-}
-
 .btn-no-outline {
   background-color: transparent;
   border: none;

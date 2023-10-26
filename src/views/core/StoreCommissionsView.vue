@@ -12,8 +12,8 @@
             <div class="rounded medium_bg w-fit mx-2 mb-4
                         overflow-hidden dshadow">
               <div class="px-3 py-1 dark_bg">
-                <div class="flex items-baseline gap-x-2">
-                  <p class="font-bold text-lg">
+                <div class="">
+                  <p class="font-bold text-xl">
                     {{ ownStore.t }}
                   </p>
                   <p class="text-sm text-neutral-400">
@@ -40,6 +40,21 @@
                 <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
                   View and process commissions.
                 </p>
+                <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
+                  By creating a report (below) a list of all items
+                  that need to be shipped can be generated.
+                </p>
+                <div class="grid grid-cols-1 gap-y-2 w-[175px] my-4">
+                  <div class="px-3 py-1 dark_bg hover:darkest_bg
+                              rounded-r cursor-pointer
+                              border-b-[2px] border-r-[2px]
+                              border-indigo-500"
+                       v-on:click="generateReport()">
+                    <p class="px-2 py-1 text-sm font-bold text-neutral-300">
+                      Generate Report
+                    </p>
+                  </div>
+                </div>
               </template>
             </div>
             <template v-if="orders && orders.length > 0">
@@ -182,21 +197,99 @@
       </div>
     </div>
   </div>
+  <modal
+    v-show="isViewingReport"
+    @close="isViewingReport = false">
+    <template v-slot:header>
+      View Report
+    </template>
+    <template v-slot:body>
+      <template v-if="report && report.items && report.items.length > 0">
+        <div class="mb-2 p-2 w-full rounded darkest_bg">
+          <div class="hover:medium_bg w-fit px-2 py-1 cursor-pointer"
+               v-on:click="copyReport()">
+            <p>
+              Copy as Text
+              <span class="tooltip-mock-destination"
+                    :class="{'show':showReportCopied,'hidden':!showReportCopied}">
+                Copied!
+              </span>
+            </p>
+          </div>
+        </div>
+        <table class="ftable"
+               style="margin-bottom: 0 !important">
+          <tr>
+            <th>#</th>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Net</th>
+            <th>Gross</th>
+          </tr>
+          <template v-for="(item, index) in report.items"
+                    :key="item">
+            <tr>
+              <td><span class="text-neutral-400">
+                                {{ index + 1 }}
+                              </span></td>
+              <td><p class="text-center text-lg">
+                {{ item.amt }}
+              </p></td>
+              <td>
+                <div>
+                  <p class="font-bold">
+                    {{ item.t }}
+                  </p>
+                  <div v-if="item.vars && item.vars.length > 0"
+                       class="mt-4">
+                    <p class="italic text-sm my-2">
+                      Variations:
+                    </p>
+                    <template v-for="variation in item.vars" :key="variation">
+                      <template v-for="subVariation in variation.vars" :key="subVariation">
+                        <div v-if="subVariation && subVariation.sval"
+                             class="flex gap-x-1">
+                          <p>* {{ variation.t }}:</p>
+                          <p class="font-bold">
+                            {{ subVariation.sval }} ({{ subVariation.nval }} x)
+                          </p>
+                        </div>
+                      </template>
+                    </template>
+                  </div>
+                </div>
+              </td>
+              <td>{{ formatCurrency(item.net) }} €</td>
+              <td>{{ formatCurrency(item.net * (1 + item.vatp)) }} €</td>
+            </tr>
+          </template>
+        </table>
+      </template>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
 </template>
 
 <script>
 import { DateTime } from 'luxon'
 import { DocumentTextIcon } from '@heroicons/vue/24/solid'
+import modal from '@/components/Modal.vue'
+import { toRaw } from 'vue'
 
 export default {
   name: 'StoreInventoryView',
   components: {
+    modal,
     DocumentTextIcon
   },
   data () {
     return {
       ownStore: null,
-      orders: []
+      orders: [],
+      isViewingReport: false,
+      showReportCopied: false,
+      report: null
     }
   },
   mounted () {
@@ -297,6 +390,55 @@ export default {
       } else {
         return 'Items'
       }
+    },
+    generateReport: function () {
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'orders/private/possum'
+        })
+          .then((data) => {
+            console.log(data.result)
+            this.report = data.result
+            this.isViewingReport = true
+          })
+          .finally(() => {
+            resolve()
+          })
+      })
+    },
+    copyReport: function () {
+      if (this.report == null) return
+      let text = 'Order Report ' + DateTime.now().toLocaleString() + '\n\n'
+      text += '---\n\n'
+      let pos
+      let vari
+      let sub
+      for (const posTmp in this.report.items) {
+        pos = toRaw(this.report.items[posTmp])
+        console.log(pos)
+        text += pos.amt.toFixed(0) + ' x ' + pos.t + '\n'
+        for (const varTmp in pos.vars) {
+          vari = toRaw(pos.vars[varTmp])
+          if (vari.t === '') continue
+          text += '\t* ' + vari.t + ':\n'
+          for (const subTmp in vari.vars) {
+            sub = toRaw(pos.vars[varTmp].vars[subTmp])
+            text += '\t\t- ' + sub.nval.toFixed(0) + ' x ' + sub.sval + '\n'
+          }
+          text += '\n'
+        }
+        text += '\n'
+      }
+      text = text.trim()
+      text += '\n\n---\n'
+      this.showReportCopied = true
+      navigator.clipboard.writeText(text)
+      setTimeout(() => {
+        this.showReportCopied = false
+        text = ''
+      }, 1000)
     }
   },
   computed: {}

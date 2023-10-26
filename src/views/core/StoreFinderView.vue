@@ -1,7 +1,7 @@
 <template>
   <div class="flex w-full h-full pt-[55px] justify-center">
     <div class="max-w-screen-xl w-full bright_bg rounded-t
-                overflow-hidden">
+                overflow-x-hidden overflow-y-scroll">
       <div class="px-4 py-3 medium_bg bshadow mb-2 cursor-default">
         <p class="text-3xl font-bold text-neutral-300">wikiric Stores</p>
       </div>
@@ -38,8 +38,8 @@
             <div class="px-3 py-1 dark_bg">
               <img :src="getImg(ownStore.iurl, true)" alt="?"
                    class="object-contain w-[100px] h-[100px] my-2">
-              <div class="flex items-baseline gap-x-2">
-                <p class="font-bold text-lg">
+              <div class="mb-2">
+                <p class="font-bold text-xl">
                   {{ ownStore.t }}
                 </p>
                 <p class="text-sm text-neutral-400">
@@ -47,7 +47,7 @@
                 </p>
               </div>
             </div>
-            <p class="px-3 py-1 text-xs text-neutral-400">
+            <p class="mt-2 px-3 py-1 text-xs text-neutral-400">
               Store ID: {{ ownStore.uid }}
             </p>
             <div class="px-3 py-1 m-3 cursor-default">
@@ -58,30 +58,30 @@
             <div class="p-3 grid grid-cols-2 gap-2">
               <div class="rounded cursor-pointer
                           dark_bg hover:darkest_bg
-                          px-2 py-1 border-[1px] border-neutral-600"
+                          p-2 border-[1px] border-neutral-600"
                    v-on:click="$router.push('/stores/own/items')">
                 <p class="font-bold text-xl">
                   Inventory
                 </p>
                 <p>Listed: {{ items }} Items</p>
-                <p class="text-sm text-neutral-400">
+                <p class="mt-2 text-xs text-neutral-400">
                   Manage items/services you want to sell
                 </p>
               </div>
               <div class="rounded cursor-pointer
-                        dark_bg hover:darkest_bg
-                        px-2 py-1 border-[1px] border-neutral-600"
+                          dark_bg hover:darkest_bg
+                          p-2 border-[1px] border-neutral-600"
                    v-on:click="$router.push('/stores/own/commissions')">
                 <p class="font-bold text-xl">
                   Commissions
                 </p>
-                <p>Orders: {{ orders }}</p>
-                <p class="text-sm text-neutral-400">
+                <p>Open: {{ orders }} Orders</p>
+                <p class="mt-2 text-xs text-neutral-400">
                   View commissions from your customers
                 </p>
               </div>
             </div>
-            <div class="grid grid-cols-1 gap-y-2 w-[128px]">
+            <div class="grid grid-cols-1 gap-y-2 w-[128px] mt-2">
               <div class="px-3 py-1 dark_bg hover:darkest_bg
                           rounded-r cursor-pointer
                           border-t-[1px] border-b-[1px] border-r-[1px]
@@ -97,7 +97,7 @@
                           border-neutral-600"
                    v-on:click="isAddingMedia = true">
                 <p class="px-2 py-1 text-sm font-bold text-neutral-300">
-                  Add Image
+                  Set Image
                 </p>
               </div>
             </div>
