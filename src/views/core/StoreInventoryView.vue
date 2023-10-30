@@ -4,7 +4,9 @@
                 rounded-t overflow-x-hidden
                 overflow-y-auto">
       <div class="px-4 py-3 medium_bg bshadow z-10">
-        <p class="text-3xl font-bold text-neutral-300">Inventory</p>
+        <p class="text-3xl font-bold text-neutral-300">
+          {{ $t("eco.inventory") }}
+        </p>
       </div>
       <div class="pt-2 z-0 relative">
         <template v-if="ownStore != null">
@@ -27,28 +29,28 @@
               <template v-if="items.length < 1">
                 <div class="flex items-center dark_bg px-3 py-1 cursor-default">
                   <p class="text-neutral-300">
-                    No items available!
+                    {{ $t("inventory.none") }}
                   </p>
                 </div>
                 <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
-                  Add an item to get started!
+                  {{ $t("inventory.noneHint") }}
                 </p>
               </template>
               <template v-else>
                 <div class="flex items-center dark_bg px-3 py-1 cursor-default">
                   <p class="text-neutral-300">
-                    {{ items.length }} items listed!
+                    {{ items.length }} {{ $t("inventory.listed") }}
                   </p>
                 </div>
                 <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
-                  Add or modify items.
+                  {{ $t("inventory.desc") }}
                 </p>
               </template>
               <div class="rounded w-fit m-3 cursor-pointer
                         dark_bg hover:darkest_bg
                         px-4 py-2 border-[1px] border-neutral-600"
                    v-on:click="isModifyingItem = true">
-                <p class="font-bold">Add an Item</p>
+                <p class="font-bold">{{ $t("stores.addItem") }}</p>
               </div>
             </div>
             <template v-if="items.length > 0">
@@ -61,7 +63,7 @@
                         <div class="pb-14 md:pb-0 flex justify-center">
                           <p class="text-xs font-bold text-neutral-400
                                       md:imagecontainer">
-                            ( No Image )
+                            {{ $t("img.no-img") }}
                           </p>
                         </div>
                       </template>
@@ -124,12 +126,12 @@
                           </div>
                         </template>
                         <template v-if="item.tvars && item.tvars.length > 0">
-                          <div class="m-2 md:flex gap-x-4">
+                          <div class="m-2 md:flex md:flex-wrap gap-x-4 gap-y-2">
                             <div v-for="(variation, index) in item.vars" :key="variation">
                               <Listbox v-model="item.tvars[index].vars[0]">
                                 <div class="relative mt-1">
                                   <ListboxButton
-                                      class="dark_bg w-full relative cursor-default rounded-lg py-2 pl-3
+                                    class="dark_bg w-full relative cursor-default rounded-lg py-2 pl-3
                                            min-w-[8rem] bg-opacity-50
                                            pr-10 text-left shadow-md focus:outline-none
                                            border-b-[1px] border-b-neutral-500
@@ -146,40 +148,40 @@
                                     </template>
                                     <template v-else>
                                       <span class="block truncate font-bold text-neutral-300">
-                                        Select {{ variation.t }}...
+                                        {{ $t("gen.select") }} {{ variation.t }}...
                                       </span>
                                     </template>
                                     <div
-                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                      class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                       <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
                                     </div>
                                   </ListboxButton>
                                   <transition
-                                      leave-active-class="transition duration-100 ease-in"
-                                      leave-from-class="opacity-100"
-                                      leave-to-class="opacity-0">
+                                    leave-active-class="transition duration-100 ease-in"
+                                    leave-from-class="opacity-100"
+                                    leave-to-class="opacity-0">
                                     <ListboxOptions
-                                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md
+                                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md
                                                dark_bg py-1 text-base shadow-lg ring-1 ring-black
                                                ring-opacity-5 focus:outline-none sm:text-sm z-50"
                                     >
                                       <ListboxOption
-                                          v-slot="{ active, selected }"
-                                          v-for="cat in variation.vars"
-                                          :key="cat"
-                                          :value="cat"
-                                          as="template"
+                                        v-slot="{ active, selected }"
+                                        v-for="cat in variation.vars"
+                                        :key="cat"
+                                        :value="cat"
+                                        as="template"
                                       >
                                         <li
-                                            :class="[ active ? 'bg-gray-700' : '',
+                                          :class="[ active ? 'bg-gray-700' : '',
                                   'relative cursor-pointer select-none py-2 pl-10 pr-4 text-neutral-200' ]">
                                           <div
-                                              :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
+                                            :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
                                             {{ cat.sval }}
                                           </div>
                                           <div
-                                              v-if="selected"
-                                              class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                                            v-if="selected"
+                                            class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
                                             <CheckIcon class="h-5 w-5" aria-hidden="true"/>
                                           </div>
                                         </li>
@@ -211,7 +213,7 @@
                                   {{ item.net.toFixed(2) }} €
                                 </p>
                                 <p class="text-neutral-400">
-                                  {{ item.vatp.toFixed(2) * 100 }} % VAT
+                                  {{ item.vatp.toFixed(2) * 100 }} % {{ $t("eco.vat") }}
                                 </p>
                               </div>
                             </div>
@@ -250,7 +252,7 @@
                                     class="mr-2 h-5 w-5"
                                     aria-hidden="true"
                                   />
-                                  Edit
+                                  {{ $t("gen.edit") }}
                                 </button>
                               </MenuItem>
                               <MenuItem v-slot="{ active }">
@@ -263,7 +265,7 @@
                                     class="mr-2 h-5 w-5"
                                     aria-hidden="true"
                                   />
-                                  Delete
+                                  {{ $t("gen.delete") }}
                                 </button>
                               </MenuItem>
                             </div>
@@ -283,11 +285,11 @@
   <modal @close="isModifyingItem = false"
          v-show="isModifyingItem">
     <template v-slot:header>
-      <span class="text-xl font-bold">Modify Item</span>
+      <span class="text-xl font-bold">{{ $t("inventory.modifyItem") }}</span>
     </template>
     <template v-slot:body>
       <div class="p-2 w-full h-full overflow-hidden min-w-[clamp(300px,500px,92dvw)]">
-        <p class="text-sm mb-1 font-bold">Product Description</p>
+        <p class="text-sm mb-1 font-bold">{{ $t("inventory.productDesc") }}</p>
         <div class="rounded-lg flex items-center relative mb-1">
           <input id="modName" ref="modName" type="text"
                  class="search-field py-5 px-4 dark_bg h-8
@@ -297,12 +299,14 @@
                  v-model="modItem.t">
         </div>
         <textarea type="text" id="modDesc" ref="modDesc"
-                  v-model="modItem.desc" rows="4"
+                  v-model="modItem.desc"
                   placeholder="Description..."
-                  class="search-field py-2 px-4 dark_bg
+                  rows="8"
+                  class="w-full py-2 px-4 dark_bg
                          border-2 border-zinc-700 text-sm
-                         placeholder-neutral-400"></textarea>
-        <p class="text-sm mb-1 font-bold">Images</p>
+                         placeholder-neutral-400 resize-y"
+                  style="border-radius: 10px"></textarea>
+        <p class="text-sm mb-1 font-bold">{{ $t("img.images") }}</p>
         <div class="w-full min-h-[60px] p-2 rounded medium_bg flex
                     overflow-x-scroll gap-x-4 mb-2">
           <template v-if="modItem.iurls && modItem.iurls.length > 0">
@@ -322,7 +326,7 @@
             <div class="px-4 py-2 flex items-center pointer-events-none">
               <div class="rounded-full h-4 w-4 bg-zinc-600 animate-ping border-2 border-indigo-500"></div>
               <p class="ml-6 text-neutral-200 font-bold animate-pulse">
-                Uploading Image ...
+                {{ $t("eta.uploadingImg") }}
               </p>
             </div>
           </template>
@@ -330,10 +334,14 @@
                       items-center justify-center cursor-pointer
                       hover:dark_bg"
                v-on:click="isAddingMedia = true">
-            <p class="font-bold text-sm">Add Image</p>
+            <p class="font-bold text-sm">
+              {{ $t("stores.setImage") }}
+            </p>
           </div>
         </div>
-        <p class="text-sm mb-1 font-bold">Attributes</p>
+        <p class="text-sm mb-1 font-bold">
+          {{ $t("gen.attributes") }}
+        </p>
         <div class="rounded medium_bg p-1 mb-2">
           <table class="">
             <tr class="text-sm">
@@ -387,11 +395,11 @@
                       hover:darkest_bg cursor-pointer
                       rounded w-fit"
                v-on:click="addAttribute()">
-              Add
+              {{ $t("gen.add") }}
             </p>
           </div>
         </div>
-        <p class="text-sm mb-1 font-bold">Variations</p>
+        <p class="text-sm mb-1 font-bold">{{ $t("gen.variations") }}</p>
         <div class="rounded medium_bg p-1 mb-2 w-full">
           <table class="table-auto w-full">
             <tr class="text-sm w-full">
@@ -446,8 +454,8 @@
                           </td>
                           <td>
                             <p class="text-sm font-bold px-2 py-1 dark_bg
-                            hover:darkest_bg cursor-pointer
-                            rounded w-fit"
+                                      hover:darkest_bg cursor-pointer
+                                      rounded w-fit"
                                v-on:click="removeVarVariation(index, indexVarVar)">
                               X
                             </p>
@@ -457,10 +465,10 @@
                     </table>
                     <div class="flex justify-end">
                       <p class="text-sm font-bold px-2 py-1 dark_bg
-                      hover:darkest_bg cursor-pointer
-                      rounded w-fit"
+                                hover:darkest_bg cursor-pointer
+                                rounded w-fit"
                          v-on:click="addVarVariation(index)">
-                        Add
+                        {{ $t("gen.add") }}
                       </p>
                     </div>
                   </div>
@@ -473,20 +481,22 @@
                       hover:darkest_bg cursor-pointer
                       rounded w-fit"
                v-on:click="addVariation()">
-              Add
+              {{ $t("gen.add") }}
             </p>
           </div>
         </div>
-        <p class="text-sm mb-1 font-bold">Pricing</p>
+        <p class="text-sm mb-1 font-bold">
+          {{ $t("eco.pricing") }}
+        </p>
         <div class="flex gap-x-2 items-center mb-1">
           <input type="number" name="mod_net" id="mod_net"
                  class="search-field py-2 px-4 dark_bg
-                      border-2 border-zinc-700 text-sm
-                      placeholder-neutral-400"
+                        border-2 border-zinc-700 text-sm
+                        placeholder-neutral-400"
                  v-model="modItem.net"
                  style="width: 8rem"
                  min="0">
-          <p class="w-1/2">€ gross</p>
+          <p class="w-1/2">€ {{ $t("eco.gross") }}</p>
         </div>
         <div class="flex gap-x-2 items-center">
           <input type="number" name="mod_net" id="mod_net"
@@ -497,23 +507,23 @@
                  style="width: 8rem"
                  min="0" step="0.01">
           <p class="w-1/2 text-sm">
-            VAT = {{ modItem.vatp * 100 }} %
+            {{ $t("eco.vat") }} = {{ modItem.vatp * 100 }} %
           </p>
         </div>
         <p class="ml-1 text-neutral-200">
-          = {{ modItemNet }} € net
+          = {{ modItemNet }} € {{ $t("eco.net") }}
         </p>
         <template v-if="isSubmittingItem === false">
           <div class="btn_bg_primary w-fit mt-4"
                v-on:click="modifyItem()">
-            <p>Submit</p>
+            <p>{{ $t("gen.submit") }}</p>
           </div>
         </template>
         <template v-else>
           <div class="px-4 py-2 flex items-center pointer-events-none">
             <div class="rounded-full h-4 w-4 bg-zinc-600 animate-ping border-2 border-indigo-500"></div>
             <p class="ml-6 text-neutral-200 font-bold animate-pulse">
-              Submitting Item ...
+              {{ $t("eta.submittingItem") }}
             </p>
           </div>
         </template>
@@ -556,14 +566,16 @@
                            border-color: transparent; margin: auto"
                     title="Send"
                     v-on:click="setImageMode">
-              <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Add Image</span>
+              <span class="font-bold flex"><i class="bi bi-send mr-2"></i>
+                {{ $t("stores.setImage") }}
+              </span>
               <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ uploadFileType }}</span>
             </button>
           </template>
           <template v-else>
             <div class="text-white p-2 w-full flex items-center justify-center rounded-full
                         bg-red-800">
-              <p>File does not contain an image!</p>
+              <p>{{ $t("img.fileErr") }}</p>
             </div>
           </template>
         </div>
@@ -576,7 +588,7 @@
     v-show="isViewingImage"
     @close="isViewingImage = false">
     <template v-slot:header>
-      <p>Images</p>
+      <p>{{ $t("img.images") }}</p>
     </template>
     <template v-slot:body>
       <div v-if="viewingImageURLs.length > 0"

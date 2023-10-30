@@ -8,7 +8,7 @@
       <div class="px-4 py-3 flex flex-col gap-y-2">
         <div class="px-2 py-1 medium_bg dshadow mb-2
                     overflow-hidden rounded cursor-default">
-          <p class="font-bold">Find a store</p>
+          <p class="font-bold">{{ $t("stores.find-a") }}</p>
         </div>
         <div class="w-full flex justify-center">
           <div class="w-[80%] mx-2">
@@ -24,12 +24,12 @@
         </div>
         <div class="px-2 py-1 medium_bg dshadow mb-2
                     overflow-hidden rounded cursor-default">
-          <p class="font-bold">Your Store</p>
+          <p class="font-bold">{{ $t("stores.your-s") }}</p>
         </div>
         <template v-if="!isLoggedIn">
           <div class="rounded dark_bg w-fit mx-2 mb-4
                       overflow-hidden dshadow cursor-default">
-            <p class="px-3 py-1 font-bold">Sign in to check your store!</p>
+            <p class="px-3 py-1 font-bold">{{ $t("stores.sign-in") }}</p>
           </div>
         </template>
         <template v-else-if="ownStore != null">
@@ -61,11 +61,11 @@
                           p-2 border-[1px] border-neutral-600"
                    v-on:click="$router.push('/stores/own/items')">
                 <p class="font-bold text-xl">
-                  Inventory
+                  {{ $t("eco.inventory") }}
                 </p>
-                <p>Listed: {{ items }} Items</p>
+                <p>{{ items }} {{ $t("eco.items") }}</p>
                 <p class="mt-2 text-xs text-neutral-400">
-                  Manage items/services you want to sell
+                  {{ $t("stores.invDesc") }}
                 </p>
               </div>
               <div class="rounded cursor-pointer
@@ -73,11 +73,11 @@
                           p-2 border-[1px] border-neutral-600"
                    v-on:click="$router.push('/stores/own/commissions')">
                 <p class="font-bold text-xl">
-                  Commissions
+                  {{ $t("eco.commissions") }}
                 </p>
-                <p>Open: {{ orders }} Orders</p>
+                <p>{{ orders }} {{ $t("eco.commissions") }}</p>
                 <p class="mt-2 text-xs text-neutral-400">
-                  View commissions from your customers
+                  {{ $t("stores.commDesc") }}
                 </p>
               </div>
             </div>
@@ -88,7 +88,7 @@
                           border-neutral-600"
                    v-on:click="openShop()">
                 <p class="px-2 py-1 text-sm font-bold text-neutral-300">
-                  Open Store
+                  {{ $t("stores.viewStore") }}
                 </p>
               </div>
               <div class="px-3 py-1 dark_bg hover:darkest_bg
@@ -97,7 +97,7 @@
                           border-neutral-600"
                    v-on:click="isAddingMedia = true">
                 <p class="px-2 py-1 text-sm font-bold text-neutral-300">
-                  Set Image
+                  {{ $t("stores.setImage") }}
                 </p>
               </div>
             </div>
@@ -110,20 +110,19 @@
               <div class="flex items-center dark_bg px-3 py-1 cursor-default">
                 <StarIcon class="w-5 h-5 text-orange-500 mr-2"/>
                 <p class="text-neutral-300">
-                  Become a seller on wikiric!
+                  {{ $t("stores.opt-in-t") }}
                 </p>
               </div>
               <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
-                Create your own store and become a seller yourself!
+                {{ $t("stores.opt-in-d1") }}
                 <br>
-                Add items to sell, manage your commissions
-                and connect with your customers... all on wikiric.
+                {{ $t("stores.opt-in-d2") }}
               </p>
               <div class="rounded w-fit mx-3 cursor-pointer
                         dark_bg hover:darkest_bg
                         px-2 py-1 border-[1px] border-neutral-600"
                    v-on:click="isCreatingStore = true">
-                <p class="text-sm">Create your Store</p>
+                <p class="text-sm">{{ $t("stores.opt-in") }}</p>
               </div>
             </div>
           </template>

@@ -5,37 +5,36 @@
     <div class="container mt-5 w-full"
          style="justify-items: center; display: grid; text-align: center">
       <h1 class="font-bold text-neutral-200 text-5xl mb-8">
-        Hey, no running in the hallways!
+        {{ $t("cookie.title") }}
       </h1>
       <h2 class="text-neutral-300 text-2xl">
-        You must accept the usage of cookies to visit this website.
+        {{ $t("cookie.msg") }}
       </h2>
       <button class="text-neutral-400 my-4"
               v-on:click="toggleExplanation('cookieExplanation')">
-        What's that?
+        {{ $t("cookie.btnDesc") }}
       </button>
       <div id="cookieExplanation" style="display: none">
         <hr style="color: white">
         <p class="text-neutral-400 my-3">
-          Cookies (data stored locally on your device) are required for this website.
-          <br>Without those, the website cannot operate as intended, and worse, the cookie monster will be saddened.
+          {{ $t("cookie.desc") }}
         </p>
         <hr style="color: white">
       </div>
       <button class="my-4 font-bold text-3xl text-emerald-400
                      border-2 border-emerald-400 p-2 rounded-md"
               v-on:click="confirm">
-        Accept Cookies
+        {{ $t("cookie.btnAccept") }}
       </button>
       <!-- #### REVOKE #### -->
       <template v-if="generalCookieAllowance">
         <button class="my-4 font-bold text-xl text-red-400
                        border-2 border-red-400 p-2 rounded-md"
                 v-on:click="revokeCookieAllowances">
-          Reject Cookies
+          {{ $t("cookie.btnReject") }}
         </button>
         <div class="text-neutral-400">
-          By rejecting all cookies you are also revoking your rights to the usage of this website.
+          {{ $t("cookie.reject") }}
         </div>
       </template>
     </div>

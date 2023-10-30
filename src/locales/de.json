@@ -1,0 +1,134 @@
+{
+  "languages": {
+    "en": "Englisch",
+    "de": "Deutsch"
+  },
+  "home": {
+    "title": "Eine sichere und dynamische Umgebung für Gemeinschaften, Projekte und Ideen."
+  },
+  "cookie": {
+    "title": "Hey, in den Hallen wird nicht gerannt!",
+    "msg": "Du musst die Cookies akzeptieren um diese Webseite betreten zu können.",
+    "desc": "Cookies (lokal gespeicherte Daten) werden benötigt, damit diese Webseite funktioniert. Manche Funktionen würden ohne diese nicht funktionieren und das Keksmonster wäre traurig!",
+    "reject": "Wenn die Cookie-Rechte entzogen werden, so erlischt auch das Recht, diese Webseite benutzen zu können.",
+    "btnDesc": "Was ist das?",
+    "btnAccept": "Cookies Akzeptieren",
+    "btnReject": "Cookies Ablehnen"
+  },
+  "gen": {
+    "amount": "Menge",
+    "desc": "Beschreibung",
+    "with": "mit",
+    "select": "Wähle",
+    "copyAsText": "Text Kopieren",
+    "variations": "Variationen",
+    "edit": "Bearbeiten",
+    "delete": "Entfernen",
+    "attributes": "Attribute",
+    "add": "Hinzufügen",
+    "submit" : "Bestätigen",
+    "filters": "Filter",
+    "sortBy": "Sortieren nach",
+    "relevance": "Relevanz",
+    "views": "Aufrufe",
+    "cost": "Preis",
+    "resultsIn": "Ergebnisse in",
+    "noResults": "Keine Ergebnisse :(",
+    "emptyState": "Nichts hier im Moment!",
+    "clear": "Leeren",
+    "cancel": "Stornieren",
+    "finish": "Abschließen",
+    "really": "Wirklich"
+  },
+  "conf": {
+    "copied": "Kopiert!"
+  },
+  "eta": {
+    "loading": "Lade ...",
+    "uploadingImg": "Lade Bild hoch ...",
+    "submittingItem": "Lade Artikel hoch ..."
+  },
+  "img": {
+    "no-img": "( Kein Bild )",
+    "images": "Bilder",
+    "fileErr": "Datei enthält kein Bild!"
+  },
+  "eco": {
+    "inventory": "Inventar",
+    "commissions": "Bestellungen",
+    "items": "Artikel",
+    "vat": "MwSt.",
+    "billing": "Rechnung",
+    "billingAddress": "Rechnungsadresse",
+    "delivery": "Lieferung",
+    "deliveryAddress": "Lieferadresse",
+    "commission": "Bestellung",
+    "net": "Netto",
+    "gross": "Brutto",
+    "withVat": "mit Steuern",
+    "withoutVat": "ohne Steuern",
+    "pricing": "Kosten",
+    "total": "Gesamt",
+    "payment": "Bezahlung"
+  },
+  "stores": {
+    "find-a": "Finde einen Laden",
+    "your-s": "Dein Laden",
+    "sign-in": "Melde dich an um deinen Laden zu sehen!",
+    "opt-in-t": "Verkaufe auf wikiric!",
+    "opt-in-d1": "Erstelle deinen eigenen Laden und werde zum Verkäufer!",
+    "opt-in-d2": "Füge Artikel/Dienstleistungen hinzu und verwalte deine Bestellungen... alles auf wikiric.",
+    "opt-in": "Erstelle deinen Laden",
+    "invDesc": "Verwalte zu verkaufende Artikel und Dienstleistungen",
+    "commDesc": "Siehe Bestellungen deiner Kunden an",
+    "viewStore": "Zeige Laden",
+    "setImage": "Setze Bild",
+    "addItem": "Hinzufügen",
+    "showCart": "Warenkorb",
+    "shoppingCart": "Warenkorb",
+    "continueShopping": "Weiter einkaufen",
+    "proceedCheckout": "Weiter zur Bezahlung",
+    "removeFromCart": "Entfernen"
+  },
+  "inventory": {
+    "desc": "Bearbeite oder füge Artikel hinzu",
+    "none": "Keine Artikel vorhanden!",
+    "noneHint": "Füge einen Artikel oder Dienstleistung hinzu um zu starten!",
+    "listed": "Artikel gelistet!",
+    "modifyItem": "Bearbeite Artikel/Dienstleistung",
+    "productDesc": "Produktbeschreibung"
+  },
+  "commissions": {
+    "desc": "Betrachte und bearbeite eingehende Bestellungen",
+    "none": "Keine Bestellungen vorhanden!",
+    "listed": "Bestellungen gelistet!",
+    "btnReport": "Zeige Zusammenfassung",
+    "btnReportDesc": "Bekomme eine Liste von zu bestellenden Artikeln indem du eine Zusammenfassung erstellst"
+  },
+  "checkout": {
+    "scrollDown": "Runterscrollen um Rechnungs-/Lieferadresse auszufüllen.",
+    "noBank": "(Keine Bankdaten vorhanden. Bitte Verkäufer benachrichtigen!)",
+    "orderSummary": "Zusammenfassung",
+    "confirmation": "Deine Bestellung wurde erfolgreich abgesendet!",
+    "qrHint": "Wenn ein QR-Code erscheint, so kann dieser ganz einfach mit einer Banking-App gescannt werden.",
+    "demand1": "Bitte überweise",
+    "demand2": "auf das Bankkonto um deine Artikel zu erhalten",
+    "submitOrder": "Bestellen",
+    "sameAsBilling": "Gleiche Adresse wie Rechnungsadresse"
+  },
+  "orderState": {
+    "open": "Offen",
+    "cancelled": "Storniert"
+  },
+  "address": {
+    "email": "Email-Adresse",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "company": "Firmenname",
+    "country": "Land / Region",
+    "stateArea": "Bundesland / Provinz",
+    "street": "Straße",
+    "city": "Stadt",
+    "postcode": "Postleitzahl"
+  }
+}

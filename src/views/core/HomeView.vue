@@ -22,8 +22,7 @@
                 <p class="text-neutral-300 font-bold text-lg lg:text-xl w-fit pointer-events-none
                           p-4 mt-8 backdrop-blur-lg rounded-md border-[2px] border-dashed border-fuchsia-500
                           bg-black bg-opacity-50">
-                  A secure and responsive environment
-                  for communities, projects and ideas.
+                  {{ $t("home.title") }}
                   <br>Powered by wikiric and <span class="italic">{{ userCount }}</span> others.
                 </p>
                 <div class="relative mt-[8vh] mb-8">

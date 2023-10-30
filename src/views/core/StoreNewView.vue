@@ -8,16 +8,16 @@
           <div class="w-full mb-4
                       overflow-hidden bshadow">
             <div class="px-3 py-3 darkest_bg flex justify-center">
-              <div class="max-w-screen-xl w-full flex items-center">
+              <div class="max-w-screen-xl w-full md:flex md:items-center">
                 <template v-if="store.iurl == null || store.iurl === ''">
                   <BuildingStorefrontIcon
                     class="h-14 w-14 text-neutral-300 mr-4"/>
                 </template>
                 <template v-else>
                   <img :src="getImg(store.iurl, true)" alt="?"
-                       class="object-contain w-[100px] h-[100px] mr-4">
+                       class="object-contain w-[176px] h-[176px]">
                 </template>
-                <div>
+                <div class="ml-4">
                   <p class="font-bold text-3xl">
                     {{ store.t }}
                   </p>
@@ -50,12 +50,14 @@
                             font-bold text-neutral-300
                             flex items-center bshadow">
                     <FunnelIcon class="h-5 w-5 mr-2"/>
-                    <p class="text-neutral-300">Filters</p>
+                    <p class="text-neutral-300">
+                      {{ $t("gen.filters") }}
+                    </p>
                   </div>
                   <div>
                     <p class="w-full px-2 mt-2 pb-1 text-sm
                           font-bold text-neutral-200">
-                      Pricing
+                      {{ $t("eco.pricing") }}
                     </p>
                     <div class="px-2 flex gap-x-2 relative items-center">
                       <div class="search-field dark_bg w-fit
@@ -81,7 +83,7 @@
                     </div>
                     <p class="w-full px-2 mt-2 pb-1 text-sm
                           font-bold text-neutral-200">
-                      Sort by
+                      {{ $t("gen.sortBy") }}
                     </p>
                     <div class="px-2 flex gap-x-2 relative">
                       <div class="metaTag cursor-pointer" :class="{active: sort.byRelevance}"
@@ -89,7 +91,7 @@
                         <div class="flex items-center text-neutral-300">
                           <FunnelIcon class="h-4 w-4 mr-1"/>
                           <p class="text-xs font-bold">
-                            Relevance
+                            {{ $t("gen.relevance") }}
                           </p>
                         </div>
                       </div>
@@ -98,7 +100,7 @@
                         <div class="flex items-center text-neutral-300">
                           <EyeIcon class="h-4 w-4 mr-1"/>
                           <p class="text-xs font-bold">
-                            Views
+                            {{ $t("gen.views") }}
                           </p>
                         </div>
                       </div>
@@ -107,7 +109,7 @@
                         <div class="flex items-center text-neutral-300">
                           <TagIcon class="h-4 w-4 mr-1"/>
                           <p class="text-xs font-bold">
-                            Cost
+                            {{ $t("gen.cost") }}
                           </p>
                         </div>
                       </div>
@@ -120,7 +122,7 @@
                      class="flex flex-col gap-y-4 pb-16 w-full">
                   <div class="metaTag pointer-events-none">
                     <p class="text-xs text-neutral-300 font-bold">
-                      {{ items.length }} results in {{ respTime }} s
+                      {{ items.length }} {{ $t("gen.resultsIn") }} {{ respTime }} s
                     </p>
                   </div>
                   <template v-for="item in items" :key="item">
@@ -130,8 +132,10 @@
                         <template v-if="item.iurls == null || item.iurls.length < 1">
                           <div class="pb-14 md:pb-0 flex justify-center">
                             <p class="text-xs font-bold text-neutral-400
-                                      md:imagecontainer">
-                              ( No Image )
+                                      md:imagecontainer"
+                               style="min-height: 50px !important;
+                                      max-height: 50px !important;">
+                              {{ $t("img.no-img") }}
                             </p>
                           </div>
                         </template>
@@ -194,7 +198,7 @@
                             </div>
                           </template>
                           <template v-if="item.tvars && item.tvars.length > 0">
-                            <div class="m-2 md:flex gap-x-4">
+                            <div class="m-2 md:flex md:flex-wrap gap-x-4 gap-y-2">
                               <div v-for="(variation, index) in item.vars" :key="variation">
                                 <Listbox v-model="item.tvars[index].vars[0]">
                                   <div class="relative mt-1">
@@ -217,7 +221,7 @@
                                       </template>
                                       <template v-else>
                                       <span class="block truncate font-bold text-neutral-300">
-                                        Select {{ variation.t }}...
+                                        {{ $t("gen.select") }} {{ variation.t }}...
                                       </span>
                                       </template>
                                       <div
@@ -282,7 +286,7 @@
                                     {{ item.net.toFixed(2) }} €
                                   </p>
                                   <p class="text-neutral-400">
-                                    {{ item.vatp.toFixed(2) * 100 }} % VAT
+                                    {{ item.vatp.toFixed(2) * 100 }} % {{ $t("eco.vat") }}
                                   </p>
                                 </div>
                               </div>
@@ -298,7 +302,7 @@
                 <div class="w-full flex
                             items-center justify-center">
                   <p class="font-bold p-8">
-                    Loading...
+                    {{ $t("eta.loading") }}
                   </p>
                 </div>
               </template>
@@ -306,7 +310,7 @@
                 <div class="w-full flex
                             items-center justify-center">
                   <p class="font-bold p-8">
-                    No Results :(
+                    {{ $t("gen.noResults") }}
                   </p>
                 </div>
               </template>
@@ -315,7 +319,7 @@
                   <div v-on:click="showCart"
                        class="cartButton">
                     <ShoppingCartIcon class="h-6 w-6 text-neutral-300 mr-2"/>
-                    <p class="text-neutral-300 font-bold">Show&nbsp;Cart</p>
+                    <p class="text-neutral-300 font-bold">{{ $t("stores.showCart") }}</p>
                     <p class="translate-y-4 translate-x-2
                               text-white bg-orange-900 bg-opacity-50
                               px-1.5 py-0.5 rounded-full font-bold text-xs
@@ -336,18 +340,18 @@
        class="cartSidebar brightest_bg lg:rounded-tl">
     <div class="h-full relative">
       <div class="w-full medium_bg px-3 py-2
-                  font-bold text-neutral-300
+                  text-neutral-300
                   flex items-center bshadow
                   absolute top-0 justify-between">
-        <p class="text-neutral-300 hidden md:block">
-          Shopping Cart
+        <p class="text-neutral-300 hidden md:block font-bold">
+          {{ $t("stores.shoppingCart") }}
         </p>
         <div class="px-2 py-1 rounded hover:dark_bg
                     text-neutral-300 items-center
                     cursor-pointer flex gap-x-2"
              v-on:click="hideCart()">
-          <p class="text-sm block md:hidden">
-            Continue Shopping
+          <p class="text-sm">
+            {{ $t("stores.continueShopping") }}
           </p>
           <ChevronRightIcon class="h-6 w-6"/>
         </div>
@@ -358,12 +362,14 @@
                       dark_bg hover:darkest_bg w-fit"
                v-on:click="$store.commit('clearCart')">
             <p class="font-bold text-sm text-neutral-300">
-              Clear
+              {{ $t("gen.clear") }}
             </p>
           </div>
           <div class="btn_bg_primary mb-2"
                v-on:click="cartCheckout()">
-            <p class="text-center font-bold">Proceed to Checkout</p>
+            <p class="text-center font-bold">
+              {{ $t("stores.proceedCheckout") }}
+            </p>
           </div>
           <div class="flex flex-col gap-y-2">
             <div v-for="cartItem in $store.state.cart" :key="cartItem.uid"
@@ -373,7 +379,7 @@
               <div v-if="cartItem.tvars && cartItem.tvars.length > 0"
                    class="mt-4">
                 <p class="italic text-sm my-2">
-                  Variations:
+                  {{ $t("gen.variations") }}:
                 </p>
                 <template v-for="variation in cartItem.tvars" :key="variation">
                   <div v-if="variation.vars && variation.vars[0] && variation.vars[0].sval"
@@ -399,7 +405,7 @@
                       {{ cartItem.net.toFixed(2) }} €
                     </p>
                     <p class="text-neutral-400">
-                      {{ cartItem.vatp.toFixed(2) * 100 }} % VAT
+                      {{ cartItem.vatp.toFixed(2) * 100 }} % {{ $t("eco.vat") }}
                     </p>
                   </div>
                 </div>
@@ -408,7 +414,7 @@
                           dark_bg hover:darkest_bg w-fit"
                    v-on:click="$store.commit('removeFromCart', cartItem)">
                 <p class="font-bold text-sm text-neutral-300">
-                  Remove from Cart
+                  {{ $t("stores.removeFromCart") }}
                 </p>
               </div>
             </div>
@@ -416,7 +422,7 @@
         </template>
         <template v-else>
           <div class="h-full flex items-center justify-center">
-            <p>Nothing here, yet!</p>
+            <p>{{ $t("gen.emptyState") }}</p>
           </div>
         </template>
       </div>
@@ -426,7 +432,7 @@
     v-show="isViewingImage"
     @close="isViewingImage = false">
     <template v-slot:header>
-      <p>Images</p>
+      <p>{{ $t("img.images") }}</p>
     </template>
     <template v-slot:body>
       <div v-if="viewingImageURLs.length > 0"
@@ -629,6 +635,7 @@ export default {
     showItem: function (item) {
     },
     addToCart: function (item) {
+      const tmp = this.$store.state.cart.length
       const copy = structuredClone(item)
       this.$store.commit('putInCart', copy)
       this.$notify(
@@ -637,7 +644,9 @@ export default {
           text: '',
           type: 'info'
         })
-      this.showCart()
+      if (tmp === 0) {
+        this.showCart()
+      }
     },
     showCart: function () {
       this.$refs.cartSidebar.classList.remove('active')

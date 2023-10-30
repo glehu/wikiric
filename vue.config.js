@@ -1,6 +1,14 @@
 module.exports = {
   pwa: {
     themeColor: '#18181B',
+    pluginOptions: {
+      i18n: {
+        locale: 'en',
+        fallbackLocale: 'en',
+        localeDir: 'locales',
+        enableInSFC: false
+      }
+    },
     manifestOptions: {
       gcm_sender_id: '103953800507',
       start_url: 'https://wikiric.xyz/',

@@ -4,7 +4,9 @@
                 rounded-t overflow-x-hidden
                 overflow-y-auto">
       <div class="px-4 py-3 medium_bg bshadow z-10">
-        <p class="text-3xl font-bold text-neutral-300">Commissions</p>
+        <p class="text-3xl font-bold text-neutral-300">
+          {{ $t("eco.commissions") }}
+        </p>
       </div>
       <div class="pt-2 z-0 relative">
         <template v-if="ownStore != null">
@@ -27,22 +29,21 @@
               <template v-if="orders && orders.length < 1">
                 <div class="flex items-center dark_bg px-3 py-1 cursor-default">
                   <p class="text-neutral-300">
-                    No commissions available!
+                    {{ $t("commissions.none") }}
                   </p>
                 </div>
               </template>
               <template v-else>
                 <div class="flex items-center dark_bg px-3 py-1 cursor-default">
                   <p class="text-neutral-300">
-                    {{ orders.length }} commissions listed!
+                    {{ orders.length }} {{ $t("commissions.listed") }}
                   </p>
                 </div>
                 <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
-                  View and process commissions.
+                  {{ $t("commissions.desc") }}
                 </p>
                 <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
-                  By creating a report (below) a list of all items
-                  that need to be shipped can be generated.
+                  {{ $t("commissions.btnReportDesc") }}
                 </p>
                 <div class="grid grid-cols-1 gap-y-2 w-[175px] my-4">
                   <div class="px-3 py-1 dark_bg hover:darkest_bg
@@ -51,7 +52,7 @@
                               border-indigo-500"
                        v-on:click="generateReport()">
                     <p class="px-2 py-1 text-sm font-bold text-neutral-300">
-                      Generate Report
+                      {{ $t("commissions.btnReport") }}
                     </p>
                   </div>
                 </div>
@@ -63,9 +64,9 @@
                   <div class="px-3 py-2 rounded medium_bg overflow-hidden">
                     <div class="flex items-center gap-x-2">
                       <DocumentTextIcon
-                        class="w-10 h-10 text-neutral-300"/>
+                        class="w-12 h-12 text-neutral-300"/>
                       <div>
-                        <p class="font-bold text-lg mb-1">
+                        <p class="font-bold text-xl mb-1">
                           {{ getHumanReadableDateText(order.ts) }}
                         </p>
                         <p class="text-neutral-400 text-xs">
@@ -73,30 +74,30 @@
                         </p>
                       </div>
                     </div>
-                    <div class="flex gap-x-2 gap-y-2 my-2 flex-wrap">
+                    <div class="flex gap-2 my-2 flex-wrap">
                       <table class="ftable h-fit"
                              style="margin-bottom: 0 !important">
                         <tr>
-                          <td>Billing:</td>
+                          <td>{{ $t("eco.billing") }}:</td>
                           <td>
                             <p class="px-2 py-1 rounded dark_bg">
-                              {{ order.bstate }}
+                              {{ $t("orderState." + order.bstate) }}
                             </p>
                           </td>
                         </tr>
                         <tr>
-                          <td>Delivery:</td>
+                          <td>{{ $t("eco.delivery") }}:</td>
                           <td>
                             <p class="px-2 py-1 rounded dark_bg">
-                              {{ order.dstate }}
+                              {{ $t("orderState." + order.dstate) }}
                             </p>
                           </td>
                         </tr>
                         <tr>
-                          <td>Commission:</td>
+                          <td>{{ $t("eco.commission") }}:</td>
                           <td>
                             <p class="px-2 py-1 rounded dark_bg">
-                              {{ order.state }}
+                              {{ $t("orderState." + order.state) }}
                             </p>
                           </td>
                         </tr>
@@ -109,85 +110,131 @@
                           + {{ order.net }} €
                         </p>
                         <p class="text-neutral-400 text-sm">
-                          {{ order.gross }} € with taxes
+                          {{ order.gross }} € {{ $t("eco.withVat") }}
                         </p>
                       </div>
-                      <template v-if="order.items && order.items.length > 0">
-                        <table class="ftable"
-                               style="margin-bottom: 0 !important">
+                      <div class="py-2 flex flex-wrap gap-x-4 gap-y-4">
+                        <div class="w-fit">
+                          <p class="font-bold px-3 py-1 rounded dark_bg text-neutral-300">
+                            {{ $t("eco.delivery") }}
+                          </p>
+                          <div class="p-2">
+                            <p>{{ order.delivery.companyName }}</p>
+                            <p>{{ order.delivery.first }} {{ order.delivery.last }}</p>
+                            <p>{{ order.delivery.country }}</p>
+                            <p>{{ order.delivery.stateName }}</p>
+                            <p>{{ order.delivery.postcode }} {{ order.delivery.city }}</p>
+                            <p>{{ order.delivery.street }}</p>
+                          </div>
+                        </div>
+                        <div class="w-fit">
+                          <p class="font-bold px-3 py-1 rounded dark_bg text-neutral-300">
+                            {{ $t("eco.billing") }}
+                          </p>
+                          <div class="p-2">
+                            <p>{{ order.billing.companyName }}</p>
+                            <p>{{ order.billing.first }} {{ order.billing.last }}</p>
+                            <p>{{ order.billing.country }}</p>
+                            <p>{{ order.billing.stateName }}</p>
+                            <p>{{ order.billing.postcode }} {{ order.billing.city }}</p>
+                            <p>{{ order.billing.street }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-end my-4">
+                      <div class="p-2 bright_bg flex gap-2
+                                  rounded-md h-fit dshadow
+                                  text-sm font-bold">
+                        <div class="order_btn"
+                             v-on:click="markPayment()">
+                          <p>
+                            {{ $t("eco.payment") }}
+                          </p>
+                        </div>
+                        <div class="order_btn"
+                             v-on:click="markDelivery()">
+                          <p>
+                            {{ $t("eco.delivery") }}
+                          </p>
+                        </div>
+                        <div class="order_btn"
+                             v-on:click="attemptStateChange(
+                               order.uid, 'commission')">
+                          <p>
+                            {{ $t("gen.finish") }}
+                          </p>
+                        </div>
+                        <div class="order_btn_danger"
+                             v-on:click="attemptCancel(order.uid)">
+                          <p>
+                            {{ $t("gen.cancel") }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <template v-if="order.items && order.items.length > 0">
+                      <table class="ftable w-full"
+                             style="margin-bottom: 0 !important">
+                        <tr>
+                          <th>#</th>
+                          <th class="text-sm">
+                            {{ $t("gen.amount") }}
+                          </th>
+                          <th class="text-sm">
+                            {{ $t("gen.desc") }}
+                          </th>
+                          <th class="text-sm">
+                            {{ $t("eco.total") }}
+                          </th>
+                        </tr>
+                        <template v-for="(item, index) in order.items"
+                                  :key="item">
                           <tr>
-                            <th>#</th>
-                            <th>Amount</th>
-                            <th>Description</th>
-                            <th>Net</th>
-                            <th>Gross</th>
-                          </tr>
-                          <template v-for="(item, index) in order.items"
-                                    :key="item">
-                            <tr>
-                              <td><span class="text-neutral-400">
+                            <td>
+                              <p class="text-neutral-400">
                                 {{ index + 1 }}
-                              </span></td>
-                              <td><p class="text-center text-lg">
+                              </p>
+                            </td>
+                            <td>
+                              <p class="text-center text-lg">
                                 {{ item.amt }}
-                              </p></td>
-                              <td>
-                                <div>
-                                  <p class="font-bold">
-                                    {{ item.t }}
-                                  </p>
-                                  <div v-if="item.vars && item.vars.length > 0"
-                                       class="mt-4">
-                                    <p class="italic text-sm my-2">
-                                      Variations:
-                                    </p>
-                                    <template v-for="variation in item.vars" :key="variation">
-                                      <div v-if="variation.vars && variation.vars[0] && variation.vars[0].sval"
-                                           class="flex gap-x-1">
-                                        <p>* {{ variation.t }}:</p>
-                                        <p class="font-bold">
-                                          {{ variation.vars[0].sval }}
-                                        </p>
-                                      </div>
-                                    </template>
-                                  </div>
+                              </p>
+                            </td>
+                            <td>
+                              <div class="p-2">
+                                <p class="font-bold">
+                                  {{ item.t }}
+                                </p>
+                                <div v-if="item.vars && item.vars.length > 0"
+                                     class="mt-2">
+                                  <template v-for="variation in item.vars" :key="variation">
+                                    <div v-if="variation.vars && variation.vars[0] && variation.vars[0].sval"
+                                         class="mt-2">
+                                      <p>{{ variation.t }}</p>
+                                      <p class="font-bold text-sm ml-2">
+                                        * {{ variation.vars[0].sval }}
+                                      </p>
+                                    </div>
+                                  </template>
                                 </div>
-                              </td>
-                              <td>{{ formatCurrency(item.net) }} €</td>
-                              <td>{{ formatCurrency(item.net * (1 + item.vatp)) }} €</td>
-                            </tr>
-                          </template>
-                        </table>
-                      </template>
-                    </div>
-                    <div class="mt-4 flex flex-wrap gap-x-4 gap-y-4">
-                      <div class="w-fit">
-                        <p class="font-bold px-3 py-1 rounded dark_bg text-neutral-300">
-                          Delivery
-                        </p>
-                        <div class="p-2">
-                          <p>{{ order.delivery.companyName }}</p>
-                          <p>{{ order.delivery.first }} {{ order.delivery.last }}</p>
-                          <p>{{ order.delivery.country }}</p>
-                          <p>{{ order.delivery.stateName }}</p>
-                          <p>{{ order.delivery.postcode }} {{ order.delivery.city }}</p>
-                          <p>{{ order.delivery.street }}</p>
-                        </div>
-                      </div>
-                      <div class="w-fit">
-                        <p class="font-bold px-3 py-1 rounded dark_bg text-neutral-300">
-                          Billing
-                        </p>
-                        <div class="p-2">
-                          <p>{{ order.billing.companyName }}</p>
-                          <p>{{ order.billing.first }} {{ order.billing.last }}</p>
-                          <p>{{ order.billing.country }}</p>
-                          <p>{{ order.billing.stateName }}</p>
-                          <p>{{ order.billing.postcode }} {{ order.billing.city }}</p>
-                          <p>{{ order.billing.street }}</p>
-                        </div>
-                      </div>
-                    </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div class="flex-col">
+                                <p class="p-2 medium_bg rounded mt-1 text-end">
+                                  {{ formatCurrency(item.net) }} €
+                                </p>
+                                <p class="p-2 text-end">
+                                  {{ formatCurrency(item.net * (1 + item.vatp)) }} €
+                                  <br>{{ $t("eco.withVat") }}
+                                </p>
+                              </div>
+                            </td>
+                          </tr>
+                        </template>
+                      </table>
+                    </template>
                   </div>
                 </template>
               </div>
@@ -206,25 +253,25 @@
     <template v-slot:body>
       <template v-if="report && report.items && report.items.length > 0">
         <div class="mb-2 p-2 w-full rounded darkest_bg">
-          <div class="hover:medium_bg w-fit px-2 py-1 cursor-pointer"
+          <div class="hover:medium_bg w-fit px-2 py-1
+                      rounded cursor-pointer"
                v-on:click="copyReport()">
             <p>
-              Copy as Text
+              {{ $t("gen.copyAsText") }}
               <span class="tooltip-mock-destination"
                     :class="{'show':showReportCopied,'hidden':!showReportCopied}">
-                Copied!
+                {{ $t("conf.copied") }}
               </span>
             </p>
           </div>
         </div>
-        <table class="ftable"
+        <table class="ftable w-[90vw] max-w-[750px]"
                style="margin-bottom: 0 !important">
           <tr>
             <th>#</th>
-            <th>Amount</th>
-            <th>Description</th>
-            <th>Net</th>
-            <th>Gross</th>
+            <th>{{ $t("gen.amount") }}</th>
+            <th>{{ $t("gen.desc") }}</th>
+            <th>{{ $t("eco.total") }}</th>
           </tr>
           <template v-for="(item, index) in report.items"
                     :key="item">
@@ -242,29 +289,84 @@
                   </p>
                   <div v-if="item.vars && item.vars.length > 0"
                        class="mt-4">
-                    <p class="italic text-sm my-2">
-                      Variations:
-                    </p>
-                    <template v-for="variation in item.vars" :key="variation">
-                      <template v-for="subVariation in variation.vars" :key="subVariation">
-                        <div v-if="subVariation && subVariation.sval"
-                             class="flex gap-x-1">
-                          <p>* {{ variation.t }}:</p>
-                          <p class="font-bold">
-                            {{ subVariation.sval }} ({{ subVariation.nval }} x)
-                          </p>
-                        </div>
+                    <div>
+                      <template v-for="variation in item.vars" :key="variation">
+                        <p class="mt-2">
+                          ({{ variation.nval }} x) {{ variation.t }}
+                        </p>
+                        <template v-for="subVariation in variation.vars" :key="subVariation">
+                          <div v-if="subVariation && subVariation.sval"
+                               class="text-sm">
+                            <p class="font-bold ml-2">
+                              * {{ subVariation.sval }}
+                            </p>
+                          </div>
+                        </template>
                       </template>
-                    </template>
+                    </div>
                   </div>
                 </div>
               </td>
-              <td>{{ formatCurrency(item.net) }} €</td>
-              <td>{{ formatCurrency(item.net * (1 + item.vatp)) }} €</td>
+              <td>
+                <div class="flex-col">
+                  <p class="p-2 medium_bg rounded mt-1 text-end">
+                    {{ formatCurrency(item.net) }} €
+                  </p>
+                  <p class="p-2 text-end">
+                    {{ formatCurrency(item.net * (1 + item.vatp)) }} €
+                    <br>{{ $t("eco.withVat") }}
+                  </p>
+                </div>
+              </td>
             </tr>
           </template>
         </table>
       </template>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
+  <modal
+    v-show="isAttemptingCancel"
+    @close="isAttemptingCancel = false">
+    <template v-slot:header>
+      {{ $t("gen.cancel") }}
+    </template>
+    <template v-slot:body>
+      <div class="p-8">
+        <p class="font-bold text-lg">
+          {{ $t("gen.really") }} {{ $t("gen.cancel") }}?
+        </p>
+        <div class="order_btn_danger my-4"
+             v-on:click="markCancel()">
+          <p class="text-center font-bold">
+            {{ $t("gen.cancel") }}
+          </p>
+        </div>
+      </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
+  <modal
+    v-show="isAttemptingStateChange"
+    @close="isAttemptingStateChange = false">
+    <template v-slot:header>
+      <p>
+        {{ $t("eco." + stateChange) }}
+      </p>
+    </template>
+    <template v-slot:body>
+      <div class="p-8">
+        <template v-if="stateChange === 'commission'">
+          <div class="order_btn my-4"
+               v-on:click="markFinish()">
+            <p class="text-center font-bold">
+              {{ $t("gen.finish") }}
+            </p>
+          </div>
+        </template>
+      </div>
     </template>
     <template v-slot:footer>
     </template>
@@ -287,9 +389,13 @@ export default {
     return {
       ownStore: null,
       orders: [],
+      isAttemptingStateChange: false,
+      isAttemptingCancel: false,
       isViewingReport: false,
+      stateChange: '',
       showReportCopied: false,
-      report: null
+      report: null,
+      currentOrderId: ''
     }
   },
   mounted () {
@@ -310,11 +416,11 @@ export default {
           .then((data) => {
             this.ownStore = data.result
           })
-          .then(() => resolve())
           .catch((err) => {
             this.ownStore = null
             console.debug(err.message)
           })
+          .finally(() => resolve())
       })
     },
     getOrders: function () {
@@ -334,10 +440,10 @@ export default {
             this.orders = data.result.orders
             console.log(this.orders)
           })
-          .then(() => resolve())
           .catch((err) => {
             console.debug(err.message)
           })
+          .finally(() => resolve())
       })
     },
     getHumanReadableDateText: function (date, withTime = true) {
@@ -396,7 +502,7 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'orders/private/possum'
+          url: 'orders/private/possum?summary=combinations'
         })
           .then((data) => {
             console.log(data.result)
@@ -417,15 +523,13 @@ export default {
       let sub
       for (const posTmp in this.report.items) {
         pos = toRaw(this.report.items[posTmp])
-        console.log(pos)
         text += pos.amt.toFixed(0) + ' x ' + pos.t + '\n'
         for (const varTmp in pos.vars) {
           vari = toRaw(pos.vars[varTmp])
-          if (vari.t === '') continue
-          text += '\t* ' + vari.t + ':\n'
+          text += '\t* (' + vari.nval.toFixed(0) + ' x)\n'
           for (const subTmp in vari.vars) {
             sub = toRaw(pos.vars[varTmp].vars[subTmp])
-            text += '\t\t- ' + sub.nval.toFixed(0) + ' x ' + sub.sval + '\n'
+            text += '\t\t- ' + sub.sval + '\n'
           }
           text += '\n'
         }
@@ -439,6 +543,58 @@ export default {
         this.showReportCopied = false
         text = ''
       }, 1000)
+    },
+    attemptStateChange: function (orderId, stateType) {
+      this.currentOrderId = orderId
+      this.stateChange = stateType
+      this.isAttemptingStateChange = true
+      this.isAttemptingCancel = false
+    },
+    markPayment: function () {
+    },
+    markDelivery: function () {
+    },
+    markFinish: function () {
+      if (this.currentOrderId === '') return
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'orders/private/cancel/' + this.currentOrderId
+        })
+          .then(() => {
+            this.isAttemptingStateChange = false
+            this.currentOrderId = ''
+            this.getOrders()
+          })
+          .catch((err) => {
+            console.debug(err.message)
+          })
+          .finally(() => resolve())
+      })
+    },
+    attemptCancel: function (orderId) {
+      this.currentOrderId = orderId
+      this.isAttemptingCancel = true
+    },
+    markCancel: function () {
+      if (this.currentOrderId === '') return
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'orders/private/cancel/' + this.currentOrderId
+        })
+          .then(() => {
+            this.isAttemptingCancel = false
+            this.currentOrderId = ''
+            this.getOrders()
+          })
+          .catch((err) => {
+            console.debug(err.message)
+          })
+          .finally(() => resolve())
+      })
     }
   },
   computed: {}
@@ -473,6 +629,18 @@ export default {
 .ftable th,
 .ftable td {
   @apply px-2 py-1 border-[1px] border-neutral-500;
+}
+
+.order_btn {
+  @apply p-2 medium_bg hover:darkest_bg rounded
+  border-[1px] border-neutral-500
+  cursor-pointer;
+}
+
+.order_btn_danger {
+  @apply p-2 bg-red-900 hover:darkest_bg rounded
+  border-[1px] border-red-600
+  cursor-pointer;
 }
 
 </style>

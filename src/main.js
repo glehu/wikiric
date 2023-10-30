@@ -18,6 +18,7 @@ import {
   Menu
 } from 'floating-vue'
 import 'floating-vue/dist/style.css'
+import i18n from './i18n'
 
 const app = createApp(App)
 
@@ -31,9 +32,11 @@ app.component('VDropdown', Dropdown)
 app.component('VTooltip', Tooltip)
 app.component('VMenu', Menu)
 
-app.use(store)
+app
+  .use(store)
   .use(router)
   .use(chunk)
   .use(Notifications)
   .use(Markdown)
+  .use(i18n())
   .mount('#app')
