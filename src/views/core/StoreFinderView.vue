@@ -1,8 +1,8 @@
 <template>
-  <div class="flex w-full h-full pt-[55px] justify-center">
-    <div class="max-w-screen-xl w-full bright_bg rounded-t
+  <div class="flex w-full h-full pt-[55px] justify-center bright_bg">
+    <div class="max-w-screen-xl w-full bright_bg
                 overflow-x-hidden overflow-y-scroll">
-      <div class="px-4 py-3 medium_bg bshadow mb-2 cursor-default">
+      <div class="px-4 py-3 darkest_bg bshadow mb-2 cursor-default">
         <p class="text-3xl font-bold text-neutral-300">wikiric Stores</p>
       </div>
       <div class="px-4 py-3 flex flex-col gap-y-2">
@@ -35,11 +35,14 @@
         <template v-else-if="ownStore != null">
           <div class="rounded medium_bg w-fit mx-2 mb-8 pb-4
                       overflow-hidden dshadow">
-            <div class="px-3 py-1 dark_bg">
-              <img :src="getImg(ownStore.iurl, true)" alt="?"
-                   class="object-contain w-[100px] h-[100px] my-2">
-              <div class="mb-2">
-                <p class="font-bold text-xl">
+            <div class="px-3 py-1 darkest_bg
+                        sm:flex sm:items-center sm:gap-x-4">
+              <template v-if="ownStore.iurl && ownStore.iurl !== ''">
+                <img :src="getImg(ownStore.iurl, true)" alt="?"
+                     class="object-contain w-[100px] h-[100px] my-2">
+              </template>
+              <div class="my-2">
+                <p class="font-bold text-xl sm:text-2xl">
                   {{ ownStore.t }}
                 </p>
                 <p class="text-sm text-neutral-400">
@@ -50,15 +53,18 @@
             <p class="mt-2 px-3 py-1 text-xs text-neutral-400">
               Store ID: {{ ownStore.uid }}
             </p>
-            <div class="px-3 py-1 m-3 cursor-default">
-              <p class="italic text-sm">
-                Dashboard is coming soon!
-              </p>
+            <div class="p-3 grid grid-cols-2 gap-2">
+              <div class="px-3 py-2 rounded dark_bg w-fit flex items-center gap-x-2">
+                <p class="text-neutral-300 font-bold text-lg">
+                  {{ ownStore.views }}
+                </p>
+                <EyeIcon class="w-6 h-6 text-neutral-300"/>
+              </div>
             </div>
             <div class="p-3 grid grid-cols-2 gap-2">
-              <div class="rounded cursor-pointer
+              <div class="rounded cursor-pointer dshadow
                           dark_bg hover:darkest_bg
-                          p-2 border-[1px] border-neutral-600"
+                          px-4 py-2 border-[1px] border-neutral-600"
                    v-on:click="$router.push('/stores/own/items')">
                 <p class="font-bold text-xl">
                   {{ $t("eco.inventory") }}
@@ -68,9 +74,9 @@
                   {{ $t("stores.invDesc") }}
                 </p>
               </div>
-              <div class="rounded cursor-pointer
+              <div class="rounded cursor-pointer dshadow
                           dark_bg hover:darkest_bg
-                          p-2 border-[1px] border-neutral-600"
+                          px-4 py-2 border-[1px] border-neutral-600"
                    v-on:click="$router.push('/stores/own/commissions')">
                 <p class="font-bold text-xl">
                   {{ $t("eco.commissions") }}
@@ -81,9 +87,9 @@
                 </p>
               </div>
             </div>
-            <div class="grid grid-cols-1 gap-y-2 w-[128px] mt-2">
+            <div class="grid grid-cols-1 gap-y-2 w-fit mt-4">
               <div class="px-3 py-1 dark_bg hover:darkest_bg
-                          rounded-r cursor-pointer
+                          rounded-r cursor-pointer dshadow
                           border-t-[1px] border-b-[1px] border-r-[1px]
                           border-neutral-600"
                    v-on:click="openShop()">
@@ -92,12 +98,39 @@
                 </p>
               </div>
               <div class="px-3 py-1 dark_bg hover:darkest_bg
-                          rounded-r cursor-pointer
+                          rounded-r cursor-pointer dshadow
+                          border-t-[1px] border-b-[1px] border-r-[1px]
+                          border-neutral-600"
+                   v-on:click="copyShopLink()">
+                <p class="px-2 py-1 text-sm font-bold text-neutral-300">
+                  {{ $t("gen.copyLink") }}
+                </p>
+              </div>
+              <div class="px-3 py-1 dark_bg hover:darkest_bg
+                          rounded-r cursor-pointer dshadow
                           border-t-[1px] border-b-[1px] border-r-[1px]
                           border-neutral-600"
                    v-on:click="isAddingMedia = true">
                 <p class="px-2 py-1 text-sm font-bold text-neutral-300">
                   {{ $t("stores.setImage") }}
+                </p>
+              </div>
+              <div class="px-3 py-1 dark_bg hover:darkest_bg
+                          rounded-r cursor-pointer dshadow
+                          border-t-[1px] border-b-[1px] border-r-[1px]
+                          border-neutral-600"
+                   v-on:click="editStoreBank()">
+                <p class="px-2 py-1 text-sm font-bold text-neutral-300">
+                  {{ $t("eco.bank") }}
+                </p>
+              </div>
+              <div class="px-3 py-1 dark_bg hover:darkest_bg
+                          rounded-r cursor-pointer dshadow
+                          border-t-[1px] border-b-[1px] border-r-[1px]
+                          border-neutral-600"
+                   v-on:click="editStoreAppearance()">
+                <p class="px-2 py-1 text-sm font-bold text-neutral-300">
+                  {{ $t("gen.appearance") }}
                 </p>
               </div>
             </div>
@@ -201,6 +234,57 @@
     <template v-slot:footer>
     </template>
   </modal>
+  <modal @close="isEditingStoreBank = false"
+         v-show="isEditingStoreBank">
+    <template v-slot:header>
+      <span class="text-xl font-bold">Edit Bank Information</span>
+    </template>
+    <template v-slot:body>
+      <div class="p-2 w-full h-full overflow-hidden min-w-[clamp(300px,500px,92dvw)]">
+        <p class="mb-2 text-lg">
+          How will people pay you?
+        </p>
+        <div class="rounded-lg flex items-center relative mb-4">
+          <input id="new_store_title" type="text"
+                 class="search-field py-5 px-4 dark_bg h-8
+                        border-2 border-zinc-700
+                        placeholder-neutral-400"
+                 placeholder="Your Name..."
+                 v-model="newStore.bank.name">
+        </div>
+        <div class="rounded-lg flex items-center relative mb-4">
+          <input id="new_store_title" type="text"
+                 class="search-field py-5 px-4 dark_bg h-8
+                        border-2 border-zinc-700
+                        placeholder-neutral-400"
+                 placeholder="Bank Name..."
+                 v-model="newStore.bank.bank">
+        </div>
+        <div class="rounded-lg flex items-center relative mb-4">
+          <input id="new_store_title" type="text"
+                 class="search-field py-5 px-4 dark_bg h-8
+                        border-2 border-zinc-700
+                        placeholder-neutral-400"
+                 placeholder="IBAN..."
+                 v-model="newStore.bank.iban">
+        </div>
+        <div class="rounded-lg flex items-center relative mb-4">
+          <input id="new_store_title" type="text"
+                 class="search-field py-5 px-4 dark_bg h-8
+                        border-2 border-zinc-700
+                        placeholder-neutral-400"
+                 placeholder="SWIFT (BIC)..."
+                 v-model="newStore.bank.swift">
+        </div>
+        <div class="btn_bg_primary w-fit mt-2"
+             v-on:click="updateStoreBank()">
+          <p>{{ $t('gen.submit') }}</p>
+        </div>
+      </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
   <modal
     v-show="isAddingMedia"
     @close="cancelAddMedia">
@@ -245,10 +329,37 @@
     <template v-slot:footer>
     </template>
   </modal>
+  <modal @close="isEditingStoreAppearance = false"
+         v-show="isEditingStoreAppearance">
+    <template v-slot:header>
+      <p class="text-xl font-bold">
+        {{ $t('gen.appearance') }}
+      </p>
+    </template>
+    <template v-slot:body>
+      <div v-if="ownStore"
+           class="px-24 py-8 flex
+                  items-center justify-center">
+        <div class="px-2 py-1 rounded
+                    dark_bg hover:darkest_bg
+                    cursor-pointer"
+             v-on:click="updateStoreAppearance()">
+          <template v-if="ownStore.shiny">
+            <p>Un-Shiny</p>
+          </template>
+          <template v-else>
+            <p>Shiny</p>
+          </template>
+        </div>
+      </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
 </template>
 
 <script>
-import { StarIcon } from '@heroicons/vue/24/solid'
+import { StarIcon, EyeIcon } from '@heroicons/vue/24/solid'
 import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
 import modal from '@/components/Modal.vue'
 
@@ -257,7 +368,8 @@ export default {
   components: {
     modal,
     MagnifyingGlassIcon,
-    StarIcon
+    StarIcon,
+    EyeIcon
   },
   data () {
     return {
@@ -265,6 +377,8 @@ export default {
       storeQueryDone: false,
       queryText: '',
       isCreatingStore: false,
+      isEditingStoreBank: false,
+      isEditingStoreAppearance: false,
       isAddingMedia: false,
       uploadFileName: '',
       uploadFileType: '',
@@ -318,6 +432,26 @@ export default {
       })
     },
     searchStores: function () {
+      return new Promise((resolve) => {
+        const payload = JSON.stringify({
+          query: this.queryText
+        })
+        this.$Worker.execute({
+          action: 'api-http',
+          method: 'post',
+          url: 'stores/public/discover',
+          body: payload
+        })
+          .then((data) => {
+            if (data.result) {
+              console.log(data.result)
+            }
+          })
+          .catch((err) => {
+            console.debug(err.message)
+          })
+          .finally(() => resolve())
+      })
     },
     createStore: function () {
       if (this.newStore.t === '') {
@@ -346,6 +480,64 @@ export default {
           .catch((err) => {
             this.ownStore = null
             console.debug(err.message)
+          })
+      })
+    },
+    editStoreBank: function () {
+      this.newStore.bank = structuredClone(this.ownStore.bank)
+      this.isEditingStoreBank = true
+    },
+    updateStoreBank: function () {
+      return new Promise((resolve) => {
+        const newBank = JSON.stringify(this.newStore.bank)
+        const payload = {
+          type: 'edit',
+          field: 'bank',
+          new: newBank
+        }
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'stores/private/mod/' + this.ownStore.uid,
+          body: JSON.stringify(payload)
+        })
+          .then(() => {
+            this.isEditingStoreBank = false
+            this.getOwnStore()
+          })
+          .finally(() => {
+            resolve()
+          })
+      })
+    },
+    editStoreAppearance: function () {
+      this.isEditingStoreAppearance = true
+    },
+    updateStoreAppearance: function () {
+      return new Promise((resolve) => {
+        let value
+        if (this.ownStore.shiny) {
+          value = 'false'
+        } else {
+          value = 'true'
+        }
+        const payload = {
+          type: 'edit',
+          field: 'shiny',
+          new: value
+        }
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'stores/private/mod/' + this.ownStore.uid,
+          body: JSON.stringify(payload)
+        })
+          .then(() => {
+            this.isEditingStoreAppearance = false
+            this.getOwnStore()
+          })
+          .finally(() => {
+            resolve()
           })
       })
     },
@@ -386,7 +578,7 @@ export default {
       })
     },
     openShop: function () {
-      this.$router.push('/store/' + this.ownStore.uid)
+      this.$router.push('/store/' + this.ownStore.usr + '?ref=usr')
     },
     handleUploadFileSelect: async function (evt, drop = false) {
       if (!evt) return
@@ -465,6 +657,16 @@ export default {
         if (get) ret = this.$store.state.serverIP + '/' + imgGUID
         return ret
       }
+    },
+    copyShopLink: function () {
+      const contentURL = this.$store.state.serverIP + '/store/' + this.ownStore.usr + '?ref=usr'
+      navigator.clipboard.writeText(contentURL)
+      this.$notify(
+        {
+          title: 'Link Copied',
+          text: '',
+          type: 'info'
+        })
     }
   }
 }

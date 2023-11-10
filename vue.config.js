@@ -11,7 +11,7 @@ module.exports = {
     },
     manifestOptions: {
       gcm_sender_id: '103953800507',
-      start_url: 'https://wikiric.xyz/',
+      start_url: 'https://wikiric.xyz',
       icons: [
         {
           src: 'img/icons/android-chrome-36x36.png',

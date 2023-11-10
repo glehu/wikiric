@@ -38,7 +38,18 @@
     "clear": "Clear",
     "cancel": "Cancel",
     "finish": "Finish",
-    "really": "Really"
+    "really": "Really",
+    "optional": "Optional",
+    "error": "Error!",
+    "logout": "Log Out",
+    "login": "Log In",
+    "chatGroups": "Chat Groups",
+    "stores": "Stores",
+    "knowledge": "Knowledge",
+    "report": "Report",
+    "copyLink": "Copy Link",
+    "confirm": "Confirm",
+    "appearance": "Appearance"
   },
   "conf": {
     "copied": "Copied!"
@@ -69,7 +80,8 @@
     "withoutVat": "without taxes",
     "pricing": "Pricing",
     "total": "Total",
-    "payment": "Payment"
+    "payment": "Payment",
+    "bank": "Bank Details"
   },
   "stores": {
     "find-a": "Find a store",
@@ -88,7 +100,8 @@
     "shoppingCart": "Shopping Cart",
     "continueShopping": "Continue Shopping",
     "proceedCheckout": "Proceed to Checkout",
-    "removeFromCart": "Remove from Cart"
+    "removeFromCart": "Remove from Cart",
+    "err-choose-var": "Please make a choice for all mandatory variations!"
   },
   "inventory": {
     "desc": "Add or modify items",
@@ -118,7 +131,9 @@
   },
   "orderState": {
     "open": "Open",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "delivery": "In Transit",
+    "paid": "Paid"
   },
   "address": {
     "email": "Email Address",
@@ -129,6 +144,7 @@
     "stateArea": "State / Province",
     "street": "Street",
     "city": "City",
-    "postcode": "ZIP Code"
+    "postcode": "ZIP Code",
+    "phone": "Phone Number"
   }
 }

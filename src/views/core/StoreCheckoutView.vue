@@ -134,10 +134,13 @@
                 {{ $t("eco.deliveryAddress") }}
               </p>
               <input type="text"
-                     class="search-field-enhanced
-                        mb-4"
+                     class="search-field-enhanced mb-2"
                      :placeholder="$t('address.email')"
                      v-model="order.delivery.email">
+              <input type="text"
+                     class="search-field-enhanced mb-4"
+                     :placeholder="$t('address.phone')"
+                     v-model="order.delivery.phone">
               <div class="flex justify-evenly w-full gap-x-2">
                 <input type="text"
                        class="search-field-enhanced"
@@ -190,9 +193,13 @@
                 {{ $t("eco.billingAddress") }}
               </p>
               <input type="text"
-                     class="search-field-enhanced mb-4"
+                     class="search-field-enhanced mb-2"
                      :placeholder="$t('address.email')"
                      v-model="order.billing.email">
+              <input type="text"
+                     class="search-field-enhanced mb-4"
+                     :placeholder="$t('address.phone')"
+                     v-model="order.billing.phone">
               <div class="flex justify-evenly w-full gap-x-2">
                 <input type="text"
                        class="search-field-enhanced"
@@ -312,7 +319,8 @@ export default {
           number: '',
           floor: '',
           city: '',
-          postcode: ''
+          postcode: '',
+          phone: ''
         },
         billing: {
           email: '',
@@ -325,7 +333,8 @@ export default {
           number: '',
           floor: '',
           city: '',
-          postcode: ''
+          postcode: '',
+          phone: ''
         },
         pid: '',
         items: []
@@ -394,6 +403,7 @@ export default {
                 while (elem.firstChild) {
                   elem.firstChild.remove()
                 }
+                const orderIDClean = this.orderIdResponse.replaceAll('-', '')
                 const payload =
                   'BCD\r\n' + // 1
                   '002\r\n' + // 2
@@ -405,7 +415,7 @@ export default {
                   'EUR' + this.totalGross.toFixed(2) + '\r\n' + // 8
                   '\r\n' + // 9
                   '\r\n' + // 10
-                  'Webshop Order\r\n' + // 11
+                  orderIDClean + '\r\n' + // 11
                   'Powered by wikiric' // 12
                 const qr = new QRCode(elem, {
                   text: payload,

@@ -684,8 +684,11 @@ export default {
         get: (searchParams, prop) => searchParams.get(prop)
       })
       let srcGUID = this.chatguid
+      if (srcGUID == null || srcGUID === '') {
+        srcGUID = params.cguid
+      }
       let from = 'clarifier'
-      if (this.chatguid == null) {
+      if (srcGUID == null) {
         srcGUID = params.kguid
         if (!srcGUID) return
         from = 'guid'
@@ -800,12 +803,14 @@ export default {
         this.$emit('close')
       }
     },
-    writeProcess: function (sourceEvent, addExtra = false) {
+    writeProcess: async function (sourceEvent, addExtra = false) {
       const srcGUID = sourceEvent.uid
       if (!srcGUID || srcGUID === '') return
       this.writingSource = sourceEvent
-      this.createProcess(true)
-      if (addExtra) this.createProcess(true)
+      await this.createProcess(true)
+      if (addExtra) {
+        await this.createProcess(true)
+      }
     },
     createProcess: async function (empty = false) {
       if (!empty) {
@@ -1162,14 +1167,13 @@ export default {
     },
     uploadSnippet: function () {
       const content = JSON.stringify({
-        type: this.uploadFileType,
-        payload: this.uploadFileBase64,
+        base64: this.uploadFileBase64,
         name: this.uploadFileName
       })
       this.$Worker.execute({
         action: 'api',
         method: 'post',
-        url: 'm6/create',
+        url: 'files/private/create',
         body: content
       })
         .then((data) => (this.processUploadSnippetResponse(data.result)))
@@ -1185,11 +1189,7 @@ export default {
         })
     },
     processUploadSnippetResponse: async function (response) {
-      if (response.httpCode !== 201) {
-        this.handleUploadSnippetError()
-        return
-      }
-      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.uid
+      const contentURL = this.$store.state.serverIP + '/files/public/get/' + response
       let prefix
       if (this.uploadFileType.includes('image')) {
         prefix = '!'

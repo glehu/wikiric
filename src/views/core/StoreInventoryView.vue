@@ -1,9 +1,9 @@
 <template>
-  <div class="flex w-full h-full pt-[55px] justify-center">
+  <div class="flex w-full h-full pt-[55px] justify-center bright_bg">
     <div class="max-w-screen-xl w-full bright_bg
                 rounded-t overflow-x-hidden
                 overflow-y-auto">
-      <div class="px-4 py-3 medium_bg bshadow z-10">
+      <div class="px-4 py-3 darkest_bg bshadow z-10">
         <p class="text-3xl font-bold text-neutral-300">
           {{ $t("eco.inventory") }}
         </p>
@@ -25,7 +25,7 @@
               </div>
             </div>
             <div class="rounded medium_bg w-fit mx-2 mb-4
-                      overflow-hidden dshadow">
+                        overflow-hidden dshadow">
               <template v-if="items.length < 1">
                 <div class="flex items-center dark_bg px-3 py-1 cursor-default">
                   <p class="text-neutral-300">
@@ -54,17 +54,18 @@
               </div>
             </div>
             <template v-if="items.length > 0">
-              <div class="m-2 flex flex-col gap-y-4">
+              <div class="m-2 grid grid-cols-1 lg:grid-cols-2 gap-2">
                 <template v-for="item in items" :key="item">
-                  <div class="medium_bg p-2 rounded dshadow store_item relative
-                              max-w-[750px]">
-                    <div class="md:flex gap-x-2">
+                  <div class="medium_bg p-2 rounded dshadow store_item relative w-full">
+                    <div class="">
                       <template v-if="item.iurls == null || item.iurls.length < 1">
-                        <div class="pb-14 md:pb-0 flex justify-center">
-                          <p class="text-xs font-bold text-neutral-400
-                                      md:imagecontainer">
-                            {{ $t("img.no-img") }}
-                          </p>
+                        <div class="flex flex-col rounded dark_bg relative">
+                          <div class="pb-14 flex justify-center">
+                            <p class="text-xs font-bold text-neutral-400
+                                          imagecontainer">
+                              {{ $t("img.no-img") }}
+                            </p>
+                          </div>
                         </div>
                       </template>
                       <template v-else>
@@ -302,24 +303,27 @@
                   v-model="modItem.desc"
                   placeholder="Description..."
                   rows="8"
-                  class="w-full py-2 px-4 dark_bg
+                  class="w-full py-2 px-4 dark_bg text-neutral-100
                          border-2 border-zinc-700 text-sm
-                         placeholder-neutral-400 resize-y"
-                  style="border-radius: 10px"></textarea>
+                         placeholder-neutral-400 resize-y"></textarea>
         <p class="text-sm mb-1 font-bold">{{ $t("img.images") }}</p>
         <div class="w-full min-h-[60px] p-2 rounded medium_bg flex
                     overflow-x-scroll gap-x-4 mb-2">
           <template v-if="modItem.iurls && modItem.iurls.length > 0">
             <div v-for="(img, index) in modItem.iurls" :key="img"
                  class="flex flex-col">
-              <div class="min-w-[8rem] min-h-[8rem]
-                          max-w-[8rem] max-h-[8rem]
-                          md:max-w-[10rem] md:max-h-[10rem]
-                          flex items-start justify-center">
+              <div class="imagecontainer">
                 <img :src="getImg(img.url, true)" alt="?"
                      v-on:click="showItemImages(modItem, index)">
               </div>
-              <p class="text-sm">{{ img.t }}</p>
+              <div class="flex flex-col gap-y-2">
+                <p class="text-sm px-1 py-0.5 rounded w-fit
+                          dark_bg hover:darkest_bg cursor-pointer"
+                   v-on:click="removeImg(index)">
+                  {{ $t('gen.delete') }}
+                </p>
+                <p class="text-sm">{{ img.t }}</p>
+              </div>
             </div>
           </template>
           <template v-if="isSubmittingImage">
@@ -914,8 +918,10 @@ export default {
       const vueInst = this
       let updateFunc
       if (this.modItem.uid && this.modItem.uid !== '') {
+        // Item exists server side already
         updateFunc = this.submitAddImage
       } else {
+        // Item only exists locally at the moment
         updateFunc = this.addItemImage
       }
       imageToDraw.onload = function () {
@@ -960,6 +966,32 @@ export default {
           })
       })
     },
+    removeImg: function (index) {
+      const payload = {
+        type: 'del',
+        field: 'iurl',
+        new: index.toString()
+      }
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'items/private/mod/' + this.modItem.uid,
+          body: JSON.stringify(payload)
+        })
+          .then(() => {
+            this.getItems()
+            this.modItem.iurls.splice(index, 1)
+          })
+          .catch((err) => {
+            console.debug(err.message)
+          })
+          .finally(() => {
+            this.isSubmittingImage = false
+            resolve()
+          })
+      })
+    },
     showItemImages: function (item, index) {
       if (item == null || item.iurls == null || item.iurls.length < 1) return
       this.viewingImageURLs = item.iurls
@@ -983,6 +1015,12 @@ export default {
     editItem: function (item) {
       this.modItem = structuredClone(item)
       this.modItem.net = this.modItem.net * (1 + this.modItem.vatp)
+      if (this.modItem.attr.length < 1) {
+        this.addAttribute()
+      }
+      if (this.modItem.vars.length < 1) {
+        this.addVariation()
+      }
       this.isModifyingItem = true
     }
   },

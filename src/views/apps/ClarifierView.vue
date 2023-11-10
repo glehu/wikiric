@@ -84,7 +84,7 @@
                   <div class="m-2 flex flex-col gap-y-2">
                     <template v-if="$store.state.clarifierSessions && $store.state.clarifierSessions.length > 0">
                       <template v-for="group in $store.state.clarifierSessions" :key="group">
-                        <template v-if="group.type !== 'direct'">
+                        <template v-if="group.type !== 'dm' && group.type !== 'home'">
                           <div class="flex items-center h-16">
                             <div class="text-neutral-300 h-full hover:text-white
                                         medium_bg rounded dshadow overflow-hidden

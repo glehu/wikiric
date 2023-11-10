@@ -1,27 +1,28 @@
 <template>
-  <div class="flex w-full h-full pt-[55px] justify-center bright_bg">
+  <div class="flex w-full h-full pt-[55px] justify-center brightest_bg">
     <template v-if="store != null">
       <div ref="storeView"
-           class="w-full overflow-x-hidden
-                  overflow-y-auto">
+           class="w-full overflow-x-hidden overflow-y-scroll">
         <div class="w-full">
           <div class="w-full mb-4
                       overflow-hidden bshadow">
-            <div class="px-3 py-3 darkest_bg flex justify-center">
-              <div class="max-w-screen-xl w-full md:flex md:items-center">
+            <div class="p-4 darkest_bg flex justify-center">
+              <div class="max-w-screen-2xl w-full
+                          flex flex-col md:flex-row md:items-center
+                          gap-4">
                 <template v-if="store.iurl == null || store.iurl === ''">
                   <BuildingStorefrontIcon
-                    class="h-14 w-14 text-neutral-300 mr-4"/>
+                    class="h-14 w-14 text-neutral-300"/>
                 </template>
                 <template v-else>
                   <img :src="getImg(store.iurl, true)" alt="?"
-                       class="object-contain w-[176px] h-[176px]">
+                       class="object-contain w-[176px] max-h-[176px]">
                 </template>
-                <div class="ml-4">
-                  <p class="font-bold text-3xl">
+                <div class="ml-2">
+                  <p class="font-bold text-3xl md:text-4xl lg:text-5xl mb-2">
                     {{ store.t }}
                   </p>
-                  <p class="text-sm text-neutral-400">
+                  <p class="text-neutral-400">
                     {{ store.desc }}
                   </p>
                 </div>
@@ -29,11 +30,11 @@
             </div>
           </div>
           <div class="flex justify-center px-4">
-            <div class="max-w-screen-xl w-full lg:flex lg:gap-x-4">
+            <div class="max-w-screen-2xl w-full xl:flex xl:gap-x-4">
               <div id="shop-sidebar"
-                   class="mb-4 lg:sticky lg:top-4 h-fit">
+                   class="mb-4 xl:sticky xl:top-4 h-fit">
                 <div class="rounded-lg flex items-center relative mb-4
-                            max-w-[752px] lg:max-w-[350px] w-full">
+                            max-w-[552px] xl:max-w-[350px] w-full">
                   <MagnifyingGlassIcon class="w-6 h-6 mx-2 text-neutral-300 absolute translate-x-1"/>
                   <input id="search-field" type="text"
                          class="search-field py-6 pl-10 pr-4 w-full
@@ -42,30 +43,29 @@
                          v-on:keyup.enter="getItems()"
                          v-model="queryText">
                 </div>
-                <div class="bright_bg
-                            max-w-[750px] lg:max-w-[350px] pb-2
-                            border-t-2 border-l-2 border-neutral-700
-                            rounded overflow-hidden dshadow">
-                  <div class="w-full medium_bg px-2 py-1
-                            font-bold text-neutral-300
+                <div class="max-w-[550px] xl:max-w-[350px] pb-2
+                            rounded overflow-hidden border-2 border-neutral-600">
+                  <div class="w-full bright_bg bg-opacity-75 px-2 py-1
+                            font-bold text-neutral-100
                             flex items-center bshadow">
                     <FunnelIcon class="h-5 w-5 mr-2"/>
-                    <p class="text-neutral-300">
+                    <p class="text-neutral-100">
                       {{ $t("gen.filters") }}
                     </p>
                   </div>
-                  <div>
+                  <div class="p-2">
                     <p class="w-full px-2 mt-2 pb-1 text-sm
-                          font-bold text-neutral-200">
+                          font-bold text-neutral-100">
                       {{ $t("eco.pricing") }}
                     </p>
                     <div class="px-2 flex gap-x-2 relative items-center">
                       <div class="search-field dark_bg w-fit
-                              border-2 border-zinc-700 text-sm">
+                                  border-2 border-zinc-700 text-sm">
                         <p class="ml-2 mt-1 text-xs">MIN</p>
                         <span class="absolute py-2 pl-3">€</span>
                         <input type="number" id="minCost"
                                v-model="queryMinCost"
+                               v-on:keyup.enter="getItems()"
                                placeholder="Min"
                                class="placeholder-neutral-400
                                   dark_bg py-2 pl-7 pr-4">
@@ -76,13 +76,14 @@
                         <span class="absolute py-2 pl-3">€</span>
                         <input type="number" id="maxCost"
                                v-model="queryMaxCost"
+                               v-on:keyup.enter="getItems()"
                                placeholder="Max"
                                class="placeholder-neutral-400
                                   dark_bg py-2 pl-7 pr-4">
                       </div>
                     </div>
                     <p class="w-full px-2 mt-2 pb-1 text-sm
-                          font-bold text-neutral-200">
+                          font-bold text-neutral-100">
                       {{ $t("gen.sortBy") }}
                     </p>
                     <div class="px-2 flex gap-x-2 relative">
@@ -114,96 +115,169 @@
                         </div>
                       </div>
                     </div>
+                    <template v-if="filters && filters.vars && filters.vars.length > 0">
+                      <p class="w-full px-2 mt-2 pb-1 text-sm
+                              font-bold text-neutral-100">
+                        {{ $t("gen.variations") }}
+                      </p>
+                      <div class="pl-1 pr-3 flex items-start flex-col gap-y-2 w-full
+                                  max-h-[calc(50vh)] overflow-y-scroll pb-4">
+                        <template v-for="variation in filters.vars" :key="variation.t">
+                          <template v-if="variation.vars">
+                            <Disclosure v-slot="{ open }" as="div"
+                                        :default-open="true"
+                                        class="flex flex-wrap items-center bg-opacity-50
+                                               gap-2 rounded-xl w-full bright_bg dshadow">
+                              <DisclosureButton
+                                class="btn_disclosure rounded-lg w-full m-1">
+                                <p class="text-sm font-bold rounded-lg">{{ variation.t }}</p>
+                                <ChevronUpIcon
+                                  :class="open ? 'rotate-180 transform' : ''"
+                                  class="h-5 w-5 text-neutral-400"
+                                />
+                              </DisclosureButton>
+                              <transition
+                                enter-active-class="transition duration-100 ease-out"
+                                enter-from-class="transform scale-95 opacity-0"
+                                enter-to-class="transform scale-100 opacity-100"
+                                leave-active-class="transition duration-75 ease-out"
+                                leave-from-class="transform scale-100 opacity-100"
+                                leave-to-class="transform scale-95 opacity-0"
+                              >
+                                <DisclosurePanel>
+                                  <div class="flex flex-wrap gap-2 items-center p-2">
+                                    <div v-for="subVariation in variation.vars" :key="subVariation.sval"
+                                         class="metaTag cursor-pointer" style="margin: 0 !important"
+                                         v-on:click="toggleVariationQuery(variation.t, subVariation.sval)">
+                                      <p class="text-xs font-bold">
+                                        {{ subVariation.sval }}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </DisclosurePanel>
+                              </transition>
+                            </Disclosure>
+                          </template>
+                        </template>
+                      </div>
+                    </template>
                   </div>
                 </div>
               </div>
-              <template v-if="items.length > 0">
-                <div id="shop-items"
-                     class="flex flex-col gap-y-4 pb-16 w-full">
-                  <div class="metaTag pointer-events-none">
-                    <p class="text-xs text-neutral-300 font-bold">
-                      {{ items.length }} {{ $t("gen.resultsIn") }} {{ respTime }} s
-                    </p>
+              <div class="w-full">
+                <template v-if="variationQuery.length > 0">
+                  <div class="flex flex-wrap gap-2 w-fit mb-4">
+                    <div v-for="variation in variationQuery" :key="variation.t"
+                         class="p-1 medium_bg dshadow flex flex-wrap">
+                      <p class="text-sm font-bold px-2 py-1 dark_bg w-fit rounded mr-2">
+                        {{ variation.t }}:
+                      </p>
+                      <div class="flex flex-wrap items-center gap-2 divide-x divide-neutral-500">
+                        <div v-for="subVariation in variation.svals" :key="subVariation"
+                             class="px-2 py-1 hover:darkest_bg cursor-pointer flex gap-x-3 items-center"
+                             v-on:click="removeVariationQuery(variation.t, subVariation)">
+                          <XMarkIcon class="h-4 w-4 text-neutral-300 ml-2"/>
+                          <p class="text-sm font-bold">{{ subVariation }}</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <template v-for="item in items" :key="item">
-                    <div class="medium_bg p-2 rounded dshadow store_item relative
-                              max-w-[750px]">
-                      <div class="md:flex gap-x-2">
-                        <template v-if="item.iurls == null || item.iurls.length < 1">
-                          <div class="pb-14 md:pb-0 flex justify-center">
-                            <p class="text-xs font-bold text-neutral-400
-                                      md:imagecontainer"
-                               style="min-height: 50px !important;
-                                      max-height: 50px !important;">
-                              {{ $t("img.no-img") }}
-                            </p>
-                          </div>
-                        </template>
-                        <template v-else>
-                          <div class="flex flex-col rounded dark_bg relative">
-                            <div class="pb-14 flex justify-center">
-                              <div class="imagecontainer">
-                                <img :src="getImg(item.iurls[item.iix].url, true)" alt="?"
-                                     v-on:click="showItemImages(item, item.iix)">
+                </template>
+                <template v-if="items.length > 0">
+                  <div class="w-full">
+                    <div class="metaTag pointer-events-none mb-4">
+                      <p class="text-xs text-neutral-300 font-bold">
+                        {{ items.length }} {{ $t("gen.resultsIn") }} {{ respTime.toFixed(4) }} s
+                      </p>
+                    </div>
+                    <div id="shop-items"
+                         class="grid grid-cols-1
+                              md:grid-cols-2
+                              2xl:grid-cols-3
+                              gap-2 pb-16 w-full">
+                      <template v-for="item in items" :key="item">
+                        <div class="bright_bg dshadow store_item relative w-full rounded-md">
+                          <img v-if="store.shiny"
+                               :src="getImg(item.iurls[item.iix].url, true)" alt="?"
+                               class="absolute w-full h-full opacity-20">
+                          <div class="backdrop-blur-3xl
+                                      p-2 h-full rounded-md">
+                            <template v-if="item.iurls == null || item.iurls.length < 1">
+                              <div class="flex flex-col rounded relative">
+                                <div class="pb-14 flex justify-center">
+                                  <p class="text-xs font-bold text-neutral-400
+                                          imagecontainer">
+                                    {{ $t("img.no-img") }}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                            <div class="absolute bottom-0 w-full overflow-hidden">
-                              <div class="flex flex-row justify-center gap-x-1">
-                                <template v-for="(img, index) in item.iurls" :key="img">
-                                  <div class="img_index"
-                                       :class="{active: index === item.iix}"
-                                       v-on:click="item.iix = index">
-                                    <p>{{ index + 1 }}</p>
+                            </template>
+                            <template v-else>
+                              <div class="flex flex-col rounded relative">
+                                <div class="pb-14 flex justify-center
+                                            bshadow">
+                                  <div class="imagecontainer">
+                                    <img :src="getImg(item.iurls[item.iix].url, true)" alt="?"
+                                         v-on:click="showItemImages(item, item.iix)">
                                   </div>
-                                </template>
+                                </div>
+                                <div class="absolute bottom-0 w-full overflow-hidden">
+                                  <div class="flex flex-row justify-center gap-x-1">
+                                    <template v-for="(img, index) in item.iurls" :key="img">
+                                      <div class="img_index"
+                                           :class="{active: index === item.iix}"
+                                           v-on:click="item.iix = index">
+                                        <p>{{ index + 1 }}</p>
+                                      </div>
+                                    </template>
+                                  </div>
+                                  <div class="flex gap-x-1 px-2 py-1 items-baseline">
+                                    <p class="text-sm font-bold text-neutral-300">
+                                      [{{ item.iix + 1 }}/{{ item.iurls.length }}]
+                                    </p>
+                                    <p class="text-sm text-neutral-200">
+                                      {{ item.iurls[item.iix].t }}
+                                    </p>
+                                  </div>
+                                </div>
                               </div>
-                              <div class="flex gap-x-1 px-2 py-1">
-                                <p class="text-sm text-neutral-400">
-                                  [{{ item.iix + 1 }}/{{ item.iurls.length }}]
+                            </template>
+                            <div class="text-sm text-neutral-300 w-full pt-2">
+                              <div class="cursor-pointer
+                                          rounded px-2 py-1 w-full"
+                                   v-on:click="showItem(item)">
+                                <p class="font-bold text-xl lg:text-2xl mb-2 mt-2">
+                                  {{ item.t }}
                                 </p>
-                                <p class="text-sm text-neutral-400">
-                                  {{ item.iurls[item.iix].t }}
-                                </p>
+                                <p class="text-sm font-bold">{{ item.desc }}</p>
                               </div>
-                            </div>
-                          </div>
-                        </template>
-                        <div class="text-sm text-neutral-300 w-full">
-                          <div class="cursor-pointer hover:bright_bg
-                                    rounded px-2 py-1 w-full"
-                               v-on:click="showItem(item)">
-                            <p class="font-bold text-xl mb-2 mt-2">
-                              {{ item.t }}
-                            </p>
-                            <p class="text-sm">{{ item.desc }}</p>
-                          </div>
-                          <template v-if="item.attr.length > 0">
-                            <div class="border-[1px] border-neutral-500
-                                      p-2 rounded m-2 w-fit">
-                              <table style="margin-bottom: 0">
-                                <template v-for="attribute in item.attr" :key="attribute">
-                                  <tr>
-                                    <td><p class="px-1">
-                                      {{ attribute.t }}:
-                                    </p></td>
-                                    <td><p class="px-1">
-                                      {{ attribute.sval }}
-                                    </p></td>
-                                    <td><p class="text-neutral-400 text-xs px-1">
-                                      {{ attribute.desc }}
-                                    </p></td>
-                                  </tr>
-                                </template>
-                              </table>
-                            </div>
-                          </template>
-                          <template v-if="item.tvars && item.tvars.length > 0">
-                            <div class="m-2 md:flex md:flex-wrap gap-x-4 gap-y-2">
-                              <div v-for="(variation, index) in item.vars" :key="variation">
-                                <Listbox v-model="item.tvars[index].vars[0]">
-                                  <div class="relative mt-1">
-                                    <ListboxButton
-                                      class="dark_bg w-full relative cursor-default rounded-lg py-2 pl-3
+                              <template v-if="item.attr.length > 0">
+                                <div class="border-2 border-neutral-500
+                                          p-2 rounded m-2 w-fit">
+                                  <table style="margin-bottom: 0">
+                                    <template v-for="attribute in item.attr" :key="attribute">
+                                      <tr>
+                                        <td><p class="px-1 font-bold">
+                                          {{ attribute.t }}:
+                                        </p></td>
+                                        <td><p class="px-1 font-bold">
+                                          {{ attribute.sval }}
+                                        </p></td>
+                                        <td><p class="text-neutral-300 px-1">
+                                          {{ attribute.desc }}
+                                        </p></td>
+                                      </tr>
+                                    </template>
+                                  </table>
+                                </div>
+                              </template>
+                              <template v-if="item.tvars && item.tvars.length > 0">
+                                <div class="m-2 md:flex md:flex-wrap gap-x-4 gap-y-2">
+                                  <div v-for="(variation, index) in item.vars" :key="variation">
+                                    <Listbox v-model="item.tvars[index].vars[0]">
+                                      <div class="relative mt-1">
+                                        <ListboxButton
+                                          class="dark_bg w-full relative cursor-default rounded-lg py-2 pl-3
                                            min-w-[8rem] bg-opacity-50
                                            pr-10 text-left shadow-md focus:outline-none
                                            border-b-[1px] border-b-neutral-500
@@ -212,108 +286,117 @@
                                            focus-visible:ring-opacity-75
                                            focus-visible:ring-offset-2
                                            focus-visible:ring-offset-orange-300 sm:text-sm"
-                                    >
-                                      <template
-                                        v-if="item.tvars[index].vars != null && item.tvars[index].vars[0].sval ">
-                                        <div class="block truncate font-bold text-neutral-300">
-                                          {{ variation.t }}: {{ item.tvars[index].vars[0].sval }}
-                                        </div>
-                                      </template>
-                                      <template v-else>
-                                      <span class="block truncate font-bold text-neutral-300">
-                                        {{ $t("gen.select") }} {{ variation.t }}...
-                                      </span>
-                                      </template>
-                                      <div
-                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                        <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
-                                      </div>
-                                    </ListboxButton>
-                                    <transition
-                                      leave-active-class="transition duration-100 ease-in"
-                                      leave-from-class="opacity-100"
-                                      leave-to-class="opacity-0">
-                                      <ListboxOptions
-                                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md
+                                        >
+                                          <template
+                                            v-if="item.tvars[index].vars != null && item.tvars[index].vars[0].sval ">
+                                            <div class="block truncate font-bold text-neutral-300">
+                                              {{ variation.t }}: {{ item.tvars[index].vars[0].sval }}
+                                            </div>
+                                          </template>
+                                          <template v-else>
+                                            <template v-if="item.tvars[index].opt">
+                                            <span class="block truncate font-bold text-neutral-300">
+                                              ({{ $t("gen.optional") }}) {{ variation.t }}...
+                                            </span>
+                                            </template>
+                                            <template v-else>
+                                            <span class="block truncate font-bold text-neutral-300">
+                                              {{ $t("gen.select") }} {{ variation.t }}...
+                                            </span>
+                                            </template>
+                                          </template>
+                                          <div
+                                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                            <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
+                                          </div>
+                                        </ListboxButton>
+                                        <transition
+                                          leave-active-class="transition duration-100 ease-in"
+                                          leave-from-class="opacity-100"
+                                          leave-to-class="opacity-0">
+                                          <ListboxOptions
+                                            class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md
                                                dark_bg py-1 text-base shadow-lg ring-1 ring-black
                                                ring-opacity-5 focus:outline-none sm:text-sm z-50"
-                                      >
-                                        <ListboxOption
-                                          v-slot="{ active, selected }"
-                                          v-for="cat in variation.vars"
-                                          :key="cat"
-                                          :value="cat"
-                                          as="template"
-                                        >
-                                          <li
-                                            :class="[ active ? 'bg-gray-700' : '',
+                                          >
+                                            <ListboxOption
+                                              v-slot="{ active, selected }"
+                                              v-for="cat in variation.vars"
+                                              :key="cat"
+                                              :value="cat"
+                                              as="template"
+                                            >
+                                              <li
+                                                :class="[ active ? 'bg-gray-700' : '',
                                   'relative cursor-pointer select-none py-2 pl-10 pr-4 text-neutral-200' ]">
-                                            <div
-                                              :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
-                                              {{ cat.sval }}
-                                            </div>
-                                            <div
-                                              v-if="selected"
-                                              class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                                              <CheckIcon class="h-5 w-5" aria-hidden="true"/>
-                                            </div>
-                                          </li>
-                                        </ListboxOption>
-                                      </ListboxOptions>
-                                    </transition>
+                                                <div
+                                                  :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
+                                                  {{ cat.sval }}
+                                                </div>
+                                                <div
+                                                  v-if="selected"
+                                                  class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                                                  <CheckIcon class="h-5 w-5" aria-hidden="true"/>
+                                                </div>
+                                              </li>
+                                            </ListboxOption>
+                                          </ListboxOptions>
+                                        </transition>
+                                      </div>
+                                    </Listbox>
                                   </div>
-                                </Listbox>
-                              </div>
-                            </div>
-                          </template>
-                          <div class="flex items-center gap-x-2 m-2 mt-4 h-14">
-                            <input type="number" min="0" v-model="item.amt"
-                                   class="border-[1px] w-[5rem] h-full
-                                        border-neutral-500 px-3 py-1 rounded
-                                        dark_bg text-xl">
-                            <div class="cursor-pointer border-[1px] h-full
+                                </div>
+                              </template>
+                              <div class="flex items-center gap-x-2 m-2 mt-4 h-14">
+                                <input type="number" min="0" v-model="item.amt"
+                                       class="border-[1px] w-[5rem] h-full
+                                            border-neutral-500 px-1 py-1 rounded
+                                            dark_bg text-xl text-center">
+                                <div class="cursor-pointer border-[1px] h-full
                                       border-neutral-500 px-3 py-1 rounded
                                       dark_bg hover:darkest_bg w-fit
-                                      flex items-center justify-between gap-x-4"
-                                 v-on:click="addToCart(item)">
-                              <ShoppingCartIcon class="h-8 w-8"/>
-                              <div>
-                                <p class="text-xl font-bold">
-                                  {{ ((item.net * (item.vatp + 1)) * item.amt).toFixed(2) }} €
-                                </p>
-                                <div class="flex items-center text-xs gap-x-2">
-                                  <p class="text-neutral-400">
-                                    {{ item.net.toFixed(2) }} €
-                                  </p>
-                                  <p class="text-neutral-400">
-                                    {{ item.vatp.toFixed(2) * 100 }} % {{ $t("eco.vat") }}
-                                  </p>
+                                      flex items-center justify-between gap-x-2"
+                                     v-on:click="addToCart(item)">
+                                  <ShoppingCartIcon class="h-8 w-8"/>
+                                  <div>
+                                    <p class="text-xl font-bold">
+                                      {{ ((item.net * (item.vatp + 1)) * item.amt).toFixed(2) }} €
+                                    </p>
+                                    <div class="flex items-center text-xs gap-x-2">
+                                      <p class="text-neutral-400">
+                                        {{ item.net.toFixed(2) }} €
+                                      </p>
+                                      <p class="text-neutral-400">
+                                        {{ item.vatp.toFixed(2) * 100 }} % {{ $t("eco.vat") }}
+                                      </p>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </template>
                     </div>
-                  </template>
-                </div>
-              </template>
-              <template v-else-if="isLoading">
-                <div class="w-full flex
+                  </div>
+                </template>
+                <template v-else-if="isLoading">
+                  <div class="w-full flex
                             items-center justify-center">
-                  <p class="font-bold p-8">
-                    {{ $t("eta.loading") }}
-                  </p>
-                </div>
-              </template>
-              <template v-else>
-                <div class="w-full flex
+                    <p class="font-bold p-8">
+                      {{ $t("eta.loading") }}
+                    </p>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="w-full flex
                             items-center justify-center">
-                  <p class="font-bold p-8">
-                    {{ $t("gen.noResults") }}
-                  </p>
-                </div>
-              </template>
+                    <p class="font-bold p-8">
+                      {{ $t("gen.noResults") }}
+                    </p>
+                  </div>
+                </template>
+              </div>
               <template v-if="$store.state.cart && $store.state.cart.length > 0">
                 <div>
                   <div v-on:click="showCart"
@@ -337,7 +420,7 @@
   </div>
   <div id="cartSidebar" ref="cartSidebar"
        style="margin-top: 55px; box-shadow: 1px 0 4px 1px rgb(40 40 43)"
-       class="cartSidebar brightest_bg lg:rounded-tl">
+       class="cartSidebar brightest_bg xl:rounded-tl">
     <div class="h-full relative">
       <div class="w-full medium_bg px-3 py-2
                   text-neutral-300
@@ -472,14 +555,19 @@ import {
   ArrowsUpDownIcon,
   BuildingStorefrontIcon,
   CheckIcon,
-  ChevronRightIcon,
+  ChevronRightIcon, ChevronUpIcon,
   EyeIcon,
   FunnelIcon,
   ShoppingCartIcon,
   TagIcon
 } from '@heroicons/vue/24/solid'
-import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
 import {
+  MagnifyingGlassIcon,
+  XMarkIcon
+} from '@heroicons/vue/24/outline'
+import {
+  Disclosure,
+  DisclosureButton, DisclosurePanel,
   Listbox,
   ListboxButton,
   ListboxOption,
@@ -490,6 +578,10 @@ import modal from '@/components/Modal.vue'
 export default {
   name: 'ShopNewView',
   components: {
+    DisclosurePanel,
+    Disclosure,
+    DisclosureButton,
+    ChevronUpIcon,
     modal,
     Listbox,
     ListboxButton,
@@ -503,11 +595,13 @@ export default {
     FunnelIcon,
     BuildingStorefrontIcon,
     TagIcon,
-    ChevronRightIcon
+    ChevronRightIcon,
+    XMarkIcon
   },
   data () {
     return {
       storeID: '',
+      storeSource: '',
       store: null,
       items: [],
       respTime: 0,
@@ -524,7 +618,9 @@ export default {
         byViews: false,
         byCost: false
       },
-      isViewingCart: false
+      isViewingCart: false,
+      filters: null,
+      variationQuery: []
     }
   },
   mounted () {
@@ -534,18 +630,27 @@ export default {
   methods: {
     initFunction: async function () {
       this.storeID = this.$route.params.id
+      if (this.$route.query.ref && this.$route.query.ref === 'usr') {
+        this.storeSource = 'usr'
+      }
       await this.getStore()
       this.getItems('.*')
+      this.getFilters()
     },
     getStore: function () {
       return new Promise((resolve) => {
+        let endpoint = 'stores/public/get/'
+        if (this.storeSource === 'usr') {
+          endpoint = 'stores/public/usr/'
+        }
         this.$Worker.execute({
           action: 'api-http',
           method: 'get',
-          url: 'stores/public/get/' + this.storeID
+          url: endpoint + this.storeID
         })
           .then((data) => {
             this.store = data.result
+            this.storeID = this.store.uid
           })
           .then(() => resolve())
           .catch((err) => {
@@ -555,13 +660,22 @@ export default {
       })
     },
     getItems: function (substitute = null) {
-      this.items = []
+      // Preparations
       this.isLoading = true
-      this.$refs.storeView.scrollTo({
-        top: 0,
-        behavior: 'auto'
-      })
       this.noResults = false
+      // Check
+      if (this.queryMinCost == null || this.queryMinCost === '') {
+        this.queryMinCost = 0
+      }
+      if (this.queryMaxCost == null || this.queryMaxCost === '') {
+        this.queryMaxCost = 0
+      }
+      // Scroll up
+      // this.$refs.storeView.scrollTo({
+      //   top: 0,
+      //   behavior: 'auto'
+      // })
+      // Query items
       const payload = {
         query: substitute ?? this.queryText,
         minCost: this.queryMinCost,
@@ -569,6 +683,9 @@ export default {
       }
       if (payload.query === '') {
         payload.query = '.*'
+      }
+      if (this.variationQuery.length > 0) {
+        payload.vars = this.variationQuery
       }
       return new Promise((resolve) => {
         this.$Worker.execute({
@@ -593,15 +710,45 @@ export default {
               this.respTime = data.result.respTime
               this.sortResults(null)
             } else {
+              this.items = []
               this.noResults = true
             }
           })
-          .then(() => resolve())
           .catch((err) => {
+            this.items = []
             console.debug(err.message)
           })
           .finally(() => {
             this.isLoading = false
+            resolve()
+          })
+      })
+    },
+    getFilters: function () {
+      // Preparations
+      this.filters = []
+      // Query filters
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api-http',
+          method: 'get',
+          url: 'items/public/filters/' + this.store.uid
+        })
+          .then((data) => {
+            this.filters = data.result
+            // Conveniently set min and max cost filters
+            if (this.filters.min) {
+              this.queryMinCost = parseFloat((this.filters.min - 1).toFixed(0))
+            }
+            if (this.filters.max) {
+              this.queryMaxCost = parseFloat((this.filters.max + 1).toFixed(0))
+            }
+          })
+          .catch((err) => {
+            console.debug(err.message)
+          })
+          .finally(() => {
+            resolve()
           })
       })
     },
@@ -637,6 +784,18 @@ export default {
     addToCart: function (item) {
       const tmp = this.$store.state.cart.length
       const copy = structuredClone(item)
+      // Check if all mandatory variations are being provided
+      const valid = this.checkItem(copy)
+      if (!valid) {
+        this.$notify(
+          {
+            title: this.$t('gen.error'),
+            text: this.$t('stores.err-choose-var'),
+            type: 'error'
+          })
+        return
+      }
+      // Put item in cart
       this.$store.commit('putInCart', copy)
       this.$notify(
         {
@@ -691,6 +850,81 @@ export default {
           this.viewingImageIndex += 1
         }
       }
+    },
+    toggleVariationQuery: function (variation, value, query = true) {
+      const removed = this.removeVariationQuery(variation, value, query)
+      if (!removed) {
+        this.addVariationQuery(variation, value, query)
+      }
+    },
+    addVariationQuery: function (variation, value, query = true) {
+      if (this.variationQuery.length < 1) {
+        this.variationQuery.push({
+          t: variation,
+          svals: [value]
+        })
+        if (query) this.getItems()
+        return
+      }
+      for (let i = 0; i < this.variationQuery.length; i++) {
+        if (this.variationQuery[i].t === variation) {
+          for (let j = 0; j < this.variationQuery[i].svals.length; j++) {
+            if (this.variationQuery[i].svals[j] === value) {
+              return
+            }
+          }
+          this.variationQuery[i].svals.push(value)
+          if (query) this.getItems()
+          return
+        }
+      }
+      this.variationQuery.push({
+        t: variation,
+        svals: [value]
+      })
+      if (query) this.getItems()
+    },
+    removeVariationQuery: function (variation, value, query = true) {
+      if (this.variationQuery.length < 1) {
+        return false
+      }
+      for (let i = 0; i < this.variationQuery.length; i++) {
+        if (this.variationQuery[i].t === variation) {
+          for (let j = 0; j < this.variationQuery[i].svals.length; j++) {
+            if (this.variationQuery[i].svals[j] === value) {
+              this.variationQuery[i].svals.splice(j, 1)
+              if (this.variationQuery[i].svals.length < 1) {
+                this.variationQuery.splice(i, 1)
+              }
+              if (query) this.getItems()
+              return true
+            }
+          }
+        }
+      }
+      return false
+    },
+    checkItem: function (item) {
+      if (item.vars.length < 1) return true
+      // Iterate over all variations
+      for (let i = 0; i < item.vars.length; i++) {
+        // Find mandatory variations
+        if (item.vars[i].opt !== true) {
+          // Not optional -> Check if provided
+          for (let j = 0; j < item.tvars.length; j++) {
+            if (item.tvars[j].t === item.vars[i].t) {
+              // Main variation found -> Check for sub variation
+              if (item.tvars[j].vars && item.tvars[j].vars[0] &&
+                item.tvars[j].vars[0].sval != null && item.tvars[j].vars[0].sval !== '') {
+                console.log(item.tvars[j].vars[0].sval)
+                return true
+              }
+            }
+          }
+          return false
+        }
+      }
+      return false
     }
   }
 }
@@ -733,15 +967,13 @@ export default {
 }
 
 .cartButton {
-  @apply rounded-b lg:rounded px-2 py-1
+  @apply rounded-b px-2 py-1
   medium_bg hover:dark_bg
   cursor-pointer flex
-  border-l-[2px] border-b-[2px]
-  border-r-[2px]
-  lg:border-none lg:dshadow
-  border-neutral-800
-  fixed top-[55px] right-[10px]
-  lg:sticky lg:top-4;
+  border-l-[4px]
+  border-l-orange-600
+  fixed top-[55px] right-[20px]
+  dshadow;
 }
 
 </style>

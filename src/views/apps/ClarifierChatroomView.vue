@@ -236,7 +236,7 @@
                     </h2>
                   </div>
                   <div v-else>
-                    <template v-if="chatroom.type === 'direct'">
+                    <template v-if="chatroom.type === 'dm'">
                       <button class="w-full flex lg:hidden items-center justify-center
                                      border border-zinc-600 rounded ml-6
                                      p-1 dark_bg hover:darkest_bg"
@@ -955,7 +955,9 @@
               </div>
               <div id="input_container" ref="input_container"
                    class="bright_bg input_section" v-if="overlayType === 0">
-                <div class="absolute w-full h-fit flex-col-reverse flex">
+                <div class="absolute w-full h-fit
+                            max-h-[calc(100vh-150px)]
+                            flex-col-reverse flex">
                   <button class="c_lightgray text-center scroll_to_bottom orange-hover"
                           id="scroll_to_bottom"
                           v-on:click="scrollToBottom">
@@ -1793,7 +1795,7 @@ export default {
         if (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam') {
           return true
         }
-      } else if (this.chatroom.type === 'direct') {
+      } else if (this.chatroom.type === 'dm') {
         if (this.isStreamingVideo) {
           return true
         }
@@ -2452,7 +2454,7 @@ export default {
           .then((data) => {
             let tmpElem
             // Remove active flag
-            if (!novisual && this.chatroom.type !== 'direct') {
+            if (!novisual && this.chatroom.type !== 'dm') {
               if (this.chatroom.uid != null) {
                 tmpElem = document.getElementById('home_subc')
                 if (tmpElem) tmpElem.classList.remove('active')
@@ -2475,7 +2477,7 @@ export default {
                   }
                 }
               }
-              if (!novisual && (this.chatroom.type === undefined || this.chatroom.type !== 'direct')) {
+              if (!novisual && (this.chatroom.type === undefined || this.chatroom.type !== 'dm')) {
                 tmpElem = document.getElementById('home_subc')
                 if (tmpElem) {
                   tmpElem.classList.toggle('active', true)
@@ -2483,7 +2485,7 @@ export default {
               }
             } else {
               this.currentSubchat = data.result
-              if (!novisual && this.chatroom.type !== 'direct') {
+              if (!novisual && this.chatroom.type !== 'dm') {
                 tmpElem = document.getElementById(this.currentSubchat.uid + '_subc')
                 if (tmpElem) tmpElem.classList.toggle('active', true)
               }
@@ -2499,15 +2501,15 @@ export default {
     },
     processMetaDataResponse: async function (isSubchat = false) {
       const chatElem = this.$refs.clarifier_chatroom
-      if (this.chatroom.type === 'direct') {
+      if (this.chatroom.type === 'dm') {
         // chatElem.classList.add('clarifier_chatroom_big')
-        this.chatroom.t = this.chatroom.directMessageUsername
+        this.chatroom.t = this.chatroom.t
           .replaceAll('|' + this.$store.state.username + '|', '||')
           .replaceAll('|', ' ').replaceAll('  ', ' ').trim()
       } else {
         if (chatElem) chatElem.classList.remove('clarifier_chatroom_big')
       }
-      this.canShowSidebar = this.chatroom.type !== 'direct'
+      this.canShowSidebar = this.chatroom.type !== 'dm'
       if (isSubchat === false) {
         this.currentSubchat.type = 'text'
         this.$store.commit('addClarifierSession', {
@@ -3899,7 +3901,7 @@ export default {
     },
     getChatGUID: function () {
       let chatGUID = this.getSessionSub()
-      if (this.chatroom.type === 'direct' || chatGUID === 'none') {
+      if (this.chatroom.type === 'dm' || chatGUID === 'none') {
         chatGUID = this.getSession()
       }
       return chatGUID.trim()
@@ -4330,7 +4332,7 @@ export default {
         query: queryObj
       })
       this.params = false
-      if (this.chatroom.type === 'direct') {
+      if (this.chatroom.type === 'dm') {
         const messagesSection = this.$refs.messages_section
         messagesSection.style.width = '100%'
       }

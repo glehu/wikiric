@@ -38,7 +38,18 @@
     "clear": "Leeren",
     "cancel": "Stornieren",
     "finish": "Abschließen",
-    "really": "Wirklich"
+    "really": "Wirklich",
+    "optional": "Optional",
+    "error": "Fehler!",
+    "logout": "Ausloggen",
+    "login": "Einloggen",
+    "chatGroups": "Chatgruppen",
+    "stores": "Läden",
+    "knowledge": "Wissen",
+    "report": "Zusammenfassung",
+    "copyLink": "Kopiere Link",
+    "confirm": "Bestätigen",
+    "appearance": "Aussehen"
   },
   "conf": {
     "copied": "Kopiert!"
@@ -69,7 +80,8 @@
     "withoutVat": "ohne Steuern",
     "pricing": "Kosten",
     "total": "Gesamt",
-    "payment": "Bezahlung"
+    "payment": "Bezahlung",
+    "bank": "Bankdaten"
   },
   "stores": {
     "find-a": "Finde einen Laden",
@@ -88,7 +100,8 @@
     "shoppingCart": "Warenkorb",
     "continueShopping": "Weiter einkaufen",
     "proceedCheckout": "Weiter zur Bezahlung",
-    "removeFromCart": "Entfernen"
+    "removeFromCart": "Entfernen",
+    "err-choose-var": "Bitte triff eine Auswahl für alle Pflichtvariationen!"
   },
   "inventory": {
     "desc": "Bearbeite oder füge Artikel hinzu",
@@ -118,7 +131,9 @@
   },
   "orderState": {
     "open": "Offen",
-    "cancelled": "Storniert"
+    "cancelled": "Storniert",
+    "delivery": "Im Transit",
+    "paid": "Bezahlt"
   },
   "address": {
     "email": "Email-Adresse",
@@ -129,6 +144,7 @@
     "stateArea": "Bundesland / Provinz",
     "street": "Straße",
     "city": "Stadt",
-    "postcode": "Postleitzahl"
+    "postcode": "Postleitzahl",
+    "phone": "Telefonnummer"
   }
 }

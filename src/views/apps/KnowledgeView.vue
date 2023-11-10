@@ -653,13 +653,15 @@
           <template v-if="!$store.getters.hasSeenWisdomTutorial()">
             <div id="wisdomTutorial"
                  class="rounded-xl relative my-4 text-neutral-300">
-              <div class="bg-neutral-700 rounded-t-xl p-2">
+              <div class="darkest_bg rounded-t-xl p-2">
                 <XMarkIcon v-on:click="dismissTutorial()"
-                           class="h-6 w-6 absolute top-2 right-2 hover:text-white cursor-pointer hover:bright_bg rounded-xl">
+                           class="h-6 w-6 absolute top-2 right-2
+                                  hover:text-white cursor-pointer
+                                  hover:bright_bg rounded-xl">
                 </XMarkIcon>
                 <div class="font-bold ml-1">Hey!</div>
               </div>
-              <div class="bg-neutral-800 rounded-b-xl p-3 text-sm text-justify">
+              <div class="dark_bg rounded-b-xl p-3 text-sm text-justify">
                 Welcome to the the new Wisdom Viewer, now with less distraction!
                 <br><br>
                 Find out about how things work, rate articles and enjoy the power of
@@ -1711,14 +1713,13 @@ export default {
     },
     uploadSnippet: function () {
       const content = JSON.stringify({
-        type: this.uploadFileType,
-        payload: this.uploadFileBase64,
+        base64: this.uploadFileBase64,
         name: this.uploadFileName
       })
       this.$Worker.execute({
         action: 'api',
         method: 'post',
-        url: 'm6/create',
+        url: 'files/private/create',
         body: content
       })
         .then((data) => (this.processUploadSnippetResponse(data.result)))
@@ -1734,11 +1735,7 @@ export default {
         })
     },
     processUploadSnippetResponse: async function (response) {
-      if (response.httpCode !== 201) {
-        this.handleUploadSnippetError()
-        return
-      }
-      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.uid
+      const contentURL = this.$store.state.serverIP + '/files/public/get/' + response
       let prefix
       if (this.uploadFileType.includes('image')) {
         prefix = '!'

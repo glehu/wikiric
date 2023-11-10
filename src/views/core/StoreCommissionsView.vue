@@ -1,9 +1,9 @@
 <template>
-  <div class="flex w-full h-full pt-[55px] justify-center">
+  <div class="flex w-full h-full pt-[55px] justify-center bright_bg">
     <div class="max-w-screen-xl w-full bright_bg
-                rounded-t overflow-x-hidden
+                overflow-x-hidden
                 overflow-y-auto">
-      <div class="px-4 py-3 medium_bg bshadow z-10">
+      <div class="px-4 py-3 darkest_bg bshadow z-10">
         <p class="text-3xl font-bold text-neutral-300">
           {{ $t("eco.commissions") }}
         </p>
@@ -119,10 +119,12 @@
                             {{ $t("eco.delivery") }}
                           </p>
                           <div class="p-2">
-                            <p>{{ order.delivery.companyName }}</p>
+                            <p>{{ order.delivery.email }}</p>
+                            <p>{{ order.delivery.phone }}</p>
+                            <p>{{ order.delivery.company }}</p>
                             <p>{{ order.delivery.first }} {{ order.delivery.last }}</p>
                             <p>{{ order.delivery.country }}</p>
-                            <p>{{ order.delivery.stateName }}</p>
+                            <p>{{ order.delivery.stateArea }}</p>
                             <p>{{ order.delivery.postcode }} {{ order.delivery.city }}</p>
                             <p>{{ order.delivery.street }}</p>
                           </div>
@@ -132,10 +134,12 @@
                             {{ $t("eco.billing") }}
                           </p>
                           <div class="p-2">
-                            <p>{{ order.billing.companyName }}</p>
+                            <p>{{ order.billing.email }}</p>
+                            <p>{{ order.billing.phone }}</p>
+                            <p>{{ order.billing.company }}</p>
                             <p>{{ order.billing.first }} {{ order.billing.last }}</p>
                             <p>{{ order.billing.country }}</p>
-                            <p>{{ order.billing.stateName }}</p>
+                            <p>{{ order.billing.stateArea }}</p>
                             <p>{{ order.billing.postcode }} {{ order.billing.city }}</p>
                             <p>{{ order.billing.street }}</p>
                           </div>
@@ -147,13 +151,15 @@
                                   rounded-md h-fit dshadow
                                   text-sm font-bold">
                         <div class="order_btn"
-                             v-on:click="markPayment()">
+                             v-on:click="attemptStateChange(
+                               order.uid, 'payment')">
                           <p>
                             {{ $t("eco.payment") }}
                           </p>
                         </div>
                         <div class="order_btn"
-                             v-on:click="markDelivery()">
+                             v-on:click="attemptStateChange(
+                               order.uid, 'delivery')">
                           <p>
                             {{ $t("eco.delivery") }}
                           </p>
@@ -248,7 +254,7 @@
     v-show="isViewingReport"
     @close="isViewingReport = false">
     <template v-slot:header>
-      View Report
+      {{ $t('gen.report') }}
     </template>
     <template v-slot:body>
       <template v-if="report && report.items && report.items.length > 0">
@@ -359,10 +365,35 @@
     <template v-slot:body>
       <div class="p-8">
         <template v-if="stateChange === 'commission'">
+          <p class="font-bold text-lg">
+            {{ $t("gen.confirm") }}:
+          </p>
           <div class="order_btn my-4"
                v-on:click="markFinish()">
             <p class="text-center font-bold">
               {{ $t("gen.finish") }}
+            </p>
+          </div>
+        </template>
+        <template v-else-if="stateChange === 'delivery'">
+          <p class="font-bold text-lg">
+            {{ $t("gen.confirm") }}:
+          </p>
+          <div class="order_btn my-4"
+               v-on:click="markDelivery()">
+            <p class="text-center font-bold">
+              {{ $t("eco.delivery") }}
+            </p>
+          </div>
+        </template>
+        <template v-else-if="stateChange === 'payment'">
+          <p class="font-bold text-lg">
+            {{ $t("gen.confirm") }}:
+          </p>
+          <div class="order_btn my-4"
+               v-on:click="markPayment()">
+            <p class="text-center font-bold">
+              {{ $t("eco.payment") }}
             </p>
           </div>
         </template>
@@ -551,8 +582,50 @@ export default {
       this.isAttemptingCancel = false
     },
     markPayment: function () {
+      if (this.currentOrderId === '') return
+      return new Promise((resolve) => {
+        const payload = {
+          new: 'paid'
+        }
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'orders/private/process/billing/' + this.currentOrderId,
+          body: JSON.stringify(payload)
+        })
+          .then(() => {
+            this.isAttemptingStateChange = false
+            this.currentOrderId = ''
+            this.getOrders()
+          })
+          .catch((err) => {
+            console.debug(err.message)
+          })
+          .finally(() => resolve())
+      })
     },
     markDelivery: function () {
+      if (this.currentOrderId === '') return
+      return new Promise((resolve) => {
+        const payload = {
+          new: 'delivery'
+        }
+        this.$Worker.execute({
+          action: 'api',
+          method: 'post',
+          url: 'orders/private/process/delivery/' + this.currentOrderId,
+          body: JSON.stringify(payload)
+        })
+          .then(() => {
+            this.isAttemptingStateChange = false
+            this.currentOrderId = ''
+            this.getOrders()
+          })
+          .catch((err) => {
+            console.debug(err.message)
+          })
+          .finally(() => resolve())
+      })
     },
     markFinish: function () {
       if (this.currentOrderId === '') return

@@ -787,6 +787,11 @@ export default {
         padded = ('' + input).padStart(n, '0')
       }
       return padded
+    },
+    logout () {
+      this.$store.commit('logOut')
+      this.$store.commit('clearCart')
+      this.$router.push('/login?redirect=/account')
     }
   },
   data () {
@@ -795,28 +800,22 @@ export default {
       navSelected: { name: '' },
       navigation: [
         {
-          name: 'Home',
+          name: 'Start',
           href: '/',
           current: false,
           main: false
         },
         {
-          name: 'About',
-          href: '/about',
+          name: 'Home',
+          href: '/account',
           current: false,
           main: true
         },
         {
-          name: 'Chats',
+          name: 'Chat',
           href: '/apps/clarifier',
           current: false,
           main: true
-        },
-        {
-          name: 'Account',
-          href: '/account',
-          current: false,
-          main: false
         },
         {
           name: 'Cookie Settings',
@@ -845,6 +844,12 @@ export default {
         {
           name: 'Stores',
           href: '/stores',
+          current: false,
+          main: true
+        },
+        {
+          name: 'About',
+          href: '/about',
           current: false,
           main: true
         }

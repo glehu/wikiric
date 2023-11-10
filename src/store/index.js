@@ -25,6 +25,7 @@ export default createStore({
     displayName: '',
     password: '',
     fcmToken: '',
+    ownChatId: '',
     // --- Web Shop ---
     shop: {},
     cart: [],
@@ -53,6 +54,7 @@ export default createStore({
       state.username = user.username
       state.displayName = user.displayName
       state.accountType = user.accountType
+      state.ownChatId = user.ownChatId
     },
     logOut (state) {
       state.authenticated = false

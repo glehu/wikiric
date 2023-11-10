@@ -1,127 +1,99 @@
 <template>
-  <div class="h-full w-full"
+  <div class="h-screen w-screen flex justify-center"
        :style="{backgroundImage: 'url('+require('@/assets/'+'account/pexels-dexter-fernandes-2646237.jpg')+')',
        backgroundPosition: 'center top', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <section class="container">
-      <div style="min-height: 5ch"></div>
-      <div class="text-light p-3">
-        <h2 class="font-bold my-3 flex doHover" style="overflow: hidden">
-          <i class="bi bi-stars" style="font-size: 200%"></i><br>
-          Hey, {{ $store.state.username.split('@')[0] }}.<br><br>
-        </h2>
-        <div class="wrapper">
-          <div id="apps">
-            <div class="card text-white pb-3 p-2 shadow-box">
-              <h3 class="p-3">Apps</h3>
-              <section
-                class="container">
-                <div class="md:flex justify-between text-white mt-3"
-                     style="border-radius: 1rem;">
-                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
-                          v-on:click="gotoClarifier">
-                    <i class="bi bi-chat-dots p-1"></i><span class="font-bold"> Clarifier</span>
-                  </button>
-                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">Communication</h3>
-                </div>
-                <div class="md:flex justify-between text-white mt-3"
-                     style="border-radius: 1rem;">
-                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
-                          v-on:click="gotoAPI">
-                    <i class="bi bi-hurricane p-1"/><span class="font-bold"> Mockingbird</span>
-                  </button>
-                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">SOAP/REST API Testing</h3>
-                </div>
-              </section>
+    <div class="w-full flex justify-center p-2 pt-[55px]">
+      <div class="w-full overflow-x-hidden overflow-y-auto
+                  max-w-screen-xl">
+        <div class="p-8 flex flex-col gap-4">
+          <p class="font-bold text-4xl">Account</p>
+          <div class="flex flex-row flex-wrap gap-4">
+            <div class="app-thumb" v-on:click="logout()">
+              <ArrowLeftOnRectangleIcon class="w-14 h-14"/>
+              <p class="app-text">{{ $t('gen.logout') }}</p>
+            </div>
+            <div class="app-thumb" v-on:click="gotoPreferences()">
+              <Cog6ToothIcon class="w-14 h-14"/>
+              <p class="app-text">Cookies</p>
+            </div>
+            <div class="app-thumb" v-on:click="gotoThirdPartyAccounts()">
+              <UserGroupIcon class="w-14 h-14"/>
+              <p class="app-text">3rd Party</p>
             </div>
           </div>
-          <div id="account">
-            <div class="card text-white pb-3 p-2 shadow-box">
-              <h3 class="p-3">What's next?</h3>
-              <section
-                class="container hidden">
-                <div class="md:flex justify-between text-white mt-3"
-                     style="border-radius: 1rem;">
-                  <div class="flex">
-                    <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
-                            v-on:click="showCart">
-                      <i class="bi bi-cart p-1"></i><span class="font-bold"> Cart</span>
-                    </button>
-                    <div class="lg:flex">
-                      <div class="flex">
-                        <i class="bi bi-stack ms-3"></i>
-                        <p class="ms-2">
-                          {{ $store.state.cart.length }} Items
-                        </p>
-                      </div>
-                      <div class="flex">
-                        <i class="bi bi-cash-stack ms-3"></i>
-                        <p class="ms-2">
-                          {{ cartTotal }} €
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">Your Cart</h3>
-                </div>
-              </section>
-              <section
-                class="container hidden">
-                <div class="md:flex justify-between text-white mt-3"
-                     style="border-radius: 1rem;">
-                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
-                          v-on:click="gotoInvoices">
-                    <i class="bi bi-journal-text p-1"></i><span class="font-bold"> Invoices</span>
-                  </button>
-                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">Your Invoices</h3>
-                </div>
-              </section>
-              <section
-                class="container">
-                <div class="md:flex justify-between text-white mt-3"
-                     style="border-radius: 1rem;">
-                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
-                          v-on:click="gotoPreferences">
-                    <i class="bi bi-wrench p-1"></i><span class="font-bold"> Preferences</span>
-                  </button>
-                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">Cookies & Trackers</h3>
-                </div>
-              </section>
-              <section
-                class="container">
-                <div class="md:flex justify-between text-white mt-3"
-                     style="border-radius: 1rem;">
-                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
-                          v-on:click="gotoThirdPartyAccounts">
-                    <i class="bi bi-people p-1"></i><span class="font-bold"> Accounts</span>
-                  </button>
-                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">3rd Party Accounts</h3>
-                </div>
-              </section>
-              <section
-                class="container">
-                <div class="md:flex justify-between text-white mt-3"
-                     style="border-radius: 1rem;">
-                  <button class="btn btn-outline-light btn-lg text-start" style="width: 200px"
-                          v-on:click="logout">
-                    <i class="bi bi-door-open p-1"></i><span class="font-bold"> Logout</span>
-                  </button>
-                  <h3 class="hidden lg:block text-end" style="font-weight: lighter">See you soon</h3>
-                </div>
-              </section>
+          <p class="font-bold text-4xl mt-2">Collaboration</p>
+          <div class="flex flex-row flex-wrap gap-4">
+            <div class="app-thumb" v-on:click="gotoClarifier()">
+              <ChatBubbleLeftRightIcon class="w-14 h-14"/>
+              <p class="app-text">{{ $t('gen.chatGroups') }}</p>
             </div>
+            <div class="app-thumb" v-on:click="gotoPlanner()">
+              <ViewColumnsIcon class="w-14 h-14"/>
+              <p class="app-text">Planner</p>
+            </div>
+            <div class="app-thumb" v-on:click="gotoKnowledge()">
+              <BookOpenIcon class="w-14 h-14"/>
+              <p class="app-text">{{ $t('gen.knowledge') }}</p>
+            </div>
+            <div class="app-thumb" v-on:click="gotoOwnClarifier()">
+              <UserIcon class="w-14 h-14"/>
+              <p class="app-text">Home</p>
+            </div>
+          </div>
+          <p class="font-bold text-4xl mt-2">E-Commerce</p>
+          <div class="flex flex-row flex-wrap gap-4">
+            <div class="app-thumb" v-on:click="gotoStores()">
+              <BuildingStorefrontIcon class="w-14 h-14"/>
+              <p class="app-text">{{ $t('gen.stores') }}</p>
+            </div>
+            <template v-if="ownStore != null">
+              <div class="app-thumb" v-on:click="gotoStoreInventory()">
+                <CubeIcon class="w-14 h-14"/>
+                <p class="app-text">{{ $t('eco.inventory') }}</p>
+              </div>
+              <div class="app-thumb" v-on:click="gotoStoreOrders()">
+                <DocumentDuplicateIcon class="w-14 h-14"/>
+                <p class="app-text">{{ $t('eco.commissions') }}</p>
+              </div>
+            </template>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 
 <script>
-import { Base64 } from 'js-base64'
+import {
+  ChatBubbleLeftRightIcon,
+  ArrowLeftOnRectangleIcon,
+  Cog6ToothIcon,
+  UserGroupIcon,
+  CubeIcon,
+  DocumentDuplicateIcon,
+  BuildingStorefrontIcon,
+  ViewColumnsIcon,
+  BookOpenIcon,
+  UserIcon
+} from '@heroicons/vue/24/solid'
 
 export default {
+  components: {
+    ChatBubbleLeftRightIcon,
+    ArrowLeftOnRectangleIcon,
+    Cog6ToothIcon,
+    UserGroupIcon,
+    CubeIcon,
+    DocumentDuplicateIcon,
+    BuildingStorefrontIcon,
+    ViewColumnsIcon,
+    BookOpenIcon,
+    UserIcon
+  },
   data () {
-    return {}
+    return {
+      ownStore: null
+    }
   },
   computed: {
     cartTotal () {
@@ -132,6 +104,9 @@ export default {
       return total
     }
   },
+  mounted () {
+    this.getOwnStore()
+  },
   methods: {
     isLoggedIn () {
       return this.$store.state.authenticated
@@ -139,20 +114,27 @@ export default {
     showCart () {
       this.$router.push('/cart')
     },
+    getOwnStore: function () {
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'stores/private/get'
+        })
+          .then((data) => {
+            this.ownStore = data.result
+          })
+          .catch((err) => {
+            this.ownStore = null
+            console.debug(err.message)
+          })
+          .finally(() => {
+            resolve()
+          })
+      })
+    },
     logout () {
       if (this.isLoggedIn()) {
-        const headers = new Headers()
-        headers.set(
-          'Authorization',
-          'Basic ' + Base64.encode(this.$store.state.email + ':' + this.$store.state.password)
-        )
-        fetch(
-          this.$store.state.serverIP + '/logout',
-          {
-            method: 'get',
-            headers: headers
-          }
-        )
         this.$store.commit('logOut')
         this.$store.commit('clearCart')
         this.$router.push('/login?redirect=/account')
@@ -168,60 +150,33 @@ export default {
       this.$router.push('/invoices')
     },
     gotoPlanner () {
-      this.$router.push('/apps/planner/_user')
+      this.$router.push('/apps/plannernew?src=' + this.$store.state.ownChatId)
+    },
+    gotoKnowledge () {
+      this.$router.push('/apps/knowledge?cguid=' + this.$store.state.ownChatId)
+    },
+    gotoOwnClarifier () {
+      this.$router.push('/apps/clarifier/wss/' + this.$store.state.ownChatId)
     },
     gotoClarifier () {
       this.$router.push('/apps/clarifier')
     },
     gotoThirdPartyAccounts () {
       this.$router.push('/thirdparty')
+    },
+    gotoStores () {
+      this.$router.push('/stores')
+    },
+    gotoStoreInventory () {
+      this.$router.push('/stores/own/items')
+    },
+    gotoStoreOrders () {
+      this.$router.push('/stores/own/commissions')
     }
   }
 }
 </script>
 
-<style scoped>
-
-.doHover {
-  animation: hover 3s ease-in-out infinite;
-}
-
-@keyframes hover {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(10%);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
-.wrapper {
-  display: grid;
-  gap: 2em;
-  grid-auto-rows: minmax(100px, auto);
-}
-
-/* Small devices (portrait tablets and large phones, 600px and up) */
-@media only screen and (min-width: 300px) {
-  .wrapper {
-    grid-template-columns: repeat(1, 1fr);
-  }
-}
-
-/* Medium devices (landscape tablets, 768px and up) */
-@media only screen and (min-width: 768px) {
-  .wrapper {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.shadow-box {
-  background-color: rgba(0, 0, 0, 0.6);
-  box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.6);
-  border-radius: 1em
-}
+<style>
 
 </style>

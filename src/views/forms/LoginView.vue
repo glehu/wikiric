@@ -196,6 +196,7 @@ export default {
     processLogin (response) {
       this.user.username = response.result.username
       this.user.displayName = response.result.displayName
+      this.user.ownChatId = response.result.chatID
       this.$store.commit('logIn', this.user)
       this.$router.replace(this.$route.query.redirect.toString() || '/')
     },

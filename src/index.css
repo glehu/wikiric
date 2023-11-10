@@ -90,7 +90,7 @@
     }
 
     hr {
-        @apply my-6 h-[4px] w-full border-[1px] border-zinc-500 bg-zinc-500;
+        @apply my-6 h-[4px] w-full border-[1px] border-zinc-500 bg-zinc-500 rounded;
     }
 
     .markedView > :last-child {
@@ -175,7 +175,7 @@
     }
 
     .metaTag {
-        @apply medium_bg rounded-md mb-2 px-2 py-1 dshadow w-fit;
+        @apply medium_bg hover:dark_bg rounded-md mb-2 px-2 py-1 dshadow w-fit;
     }
 
     .metaTag.active {
@@ -217,10 +217,11 @@
 
     .imagecontainer {
         @apply min-w-[16rem] min-h-[16rem]
-        md:min-w-[18rem] md:min-h-[18rem]
         max-w-[16rem] max-h-[16rem]
+        md:min-w-[18rem] md:min-h-[18rem]
         md:max-w-[18rem] md:max-h-[18rem]
-        flex items-start justify-center overflow-hidden;
+        flex items-center justify-center overflow-hidden
+        p-1;
     }
 
     .tooltip-mock-destination.show {
@@ -238,5 +239,26 @@
         opacity: 0;
         transform: translateY(10px);
         @apply text-neutral-200;
+    }
+
+    .btn_disclosure {
+        @apply flex justify-between gap-2
+        medium_bg dshadow
+        px-2 py-1 hover:darkest_bg
+        focus:outline-none focus-visible:ring
+        focus-visible:ring-neutral-500
+        focus-visible:ring-opacity-75
+    }
+
+    .app-thumb {
+        @apply flex flex-col gap-4 text-neutral-300
+        justify-center items-center w-36 h-36
+        dshadow rounded-lg medium_bg
+        p-2 overflow-hidden text-lg bg-opacity-75
+        cursor-pointer hover:bright_bg;
+    }
+
+    .app-text {
+        @apply text-center;
     }
 }

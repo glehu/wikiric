@@ -954,6 +954,7 @@ export default {
   },
   data () {
     return {
+      chatGUID: '',
       source: '',
       knowledgeExists: true,
       knowledge: {
@@ -1042,7 +1043,11 @@ export default {
       // Whose knowledge are we trying to see? Return if there is no source
       let fromChat = false
       let srcGUID = this.srcguid
-      if (this.srcguid != null) {
+      if (srcGUID == null || srcGUID === '') {
+        srcGUID = params.cguid
+        this.chatGUID = srcGUID
+      }
+      if (srcGUID != null) {
         fromChat = true
         const chatroom = await this.getClarifierChatroom(srcGUID)
         if (chatroom != null) {
@@ -1161,8 +1166,11 @@ export default {
         const params = new Proxy(new URLSearchParams(window.location.search), {
           get: (searchParams, prop) => searchParams.get(prop)
         })
+        // Keep some parameters
         if (params.kguid) queryObj.kguid = params.kguid
+        if (params.cguid) queryObj.cguid = params.cguid
         if (params.sub) queryObj.sub = params.sub
+        // Replace current router state
         this.$router.replace({
           query: queryObj
         })
@@ -1237,6 +1245,7 @@ export default {
                 get: (searchParams, prop) => searchParams.get(prop)
               })
               if (params.kguid) queryObj.kguid = params.kguid
+              if (params.cguid) queryObj.cguid = params.cguid
               if (params.sub) queryObj.sub = params.sub
               this.$router.replace({
                 query: queryObj
@@ -1402,6 +1411,8 @@ export default {
       if (!this.isoverlay) {
         if (this.srcguid) {
           this.$router.push('/apps/process/' + id + '?src=' + this.srcguid)
+        } else if (this.chatGUID) {
+          this.$router.push('/apps/process/' + id + '?cguid=' + this.chatGUID)
         } else {
           this.$router.push('/apps/process/' + id)
         }
@@ -1732,14 +1743,13 @@ export default {
     },
     uploadSnippet: function () {
       const content = JSON.stringify({
-        type: this.uploadFileType,
-        payload: this.uploadFileBase64,
+        base64: this.uploadFileBase64,
         name: this.uploadFileName
       })
       this.$Worker.execute({
         action: 'api',
         method: 'post',
-        url: 'm6/create',
+        url: 'files/private/create',
         body: content
       })
         .then((data) => (this.processUploadSnippetResponse(data.result)))
@@ -1755,11 +1765,7 @@ export default {
         })
     },
     processUploadSnippetResponse: async function (response) {
-      if (response.httpCode !== 201) {
-        this.handleUploadSnippetError()
-        return
-      }
-      const contentURL = this.$store.state.serverIP + '/m6/get/' + response.uid
+      const contentURL = this.$store.state.serverIP + '/files/public/get/' + response
       let prefix
       if (this.uploadFileType.includes('image')) {
         prefix = '!'
