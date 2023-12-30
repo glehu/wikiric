@@ -1,10 +1,8 @@
 <template>
-  <div class="h-screen w-screen flex justify-center"
-       :style="{backgroundImage: 'url('+require('@/assets/'+'account/pexels-dexter-fernandes-2646237.jpg')+')',
-       backgroundPosition: 'center top', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
-    <div class="w-full flex justify-center p-2 pt-[55px]">
+  <div class="h-screen w-screen flex justify-center background">
+    <div class="w-full flex justify-center px-2 pt_nav">
       <div class="w-full overflow-x-hidden overflow-y-auto
-                  max-w-screen-xl">
+                  max-w-screen-xl pb-32">
         <div class="p-8 flex flex-col gap-4">
           <p class="font-bold text-4xl">Account</p>
           <div class="flex flex-row flex-wrap gap-4">
@@ -57,6 +55,14 @@
               </div>
             </template>
           </div>
+          <p class="font-bold text-4xl mt-2">Analytics</p>
+          <p class="font-bold text-2xl mt-2">APIs</p>
+          <div class="flex flex-row flex-wrap gap-4">
+            <div class="app-thumb" v-on:click="gotoMockingbird()">
+              <SignalIcon class="w-14 h-14"/>
+              <p class="app-text">Mockingbird</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -74,7 +80,8 @@ import {
   BuildingStorefrontIcon,
   ViewColumnsIcon,
   BookOpenIcon,
-  UserIcon
+  UserIcon,
+  SignalIcon
 } from '@heroicons/vue/24/solid'
 
 export default {
@@ -88,7 +95,8 @@ export default {
     BuildingStorefrontIcon,
     ViewColumnsIcon,
     BookOpenIcon,
-    UserIcon
+    UserIcon,
+    SignalIcon
   },
   data () {
     return {
@@ -172,6 +180,9 @@ export default {
     },
     gotoStoreOrders () {
       this.$router.push('/stores/own/commissions')
+    },
+    gotoMockingbird () {
+      this.$router.push('/dev/mockingbird')
     }
   }
 }

@@ -126,7 +126,7 @@
     "qrHint": "If a QR code appears, simply scan it with any banking app.",
     "demand1": "Please transfer the total of",
     "demand2": "to this bank account to get your item(s) shipped to you",
-    "submitCart": "Submit Order",
+    "submitOrder": "Submit Order",
     "sameAsBilling": "Same as billing address"
   },
   "orderState": {

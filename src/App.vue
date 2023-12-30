@@ -1,9 +1,9 @@
 <template>
-  <div id="root" class="home z-0 w-full darkest_bg">
+  <div id="root" class="home z-0 w-full">
     <navbarelem class="fixed top-0 z-20"></navbarelem>
     <!-- More Than A Dream -->
     <div id="router_view_elem" ref="router_view_elem"
-         class="fixed top-0 left-0 z-10 w-full darkest_bg">
+         class="fixed top-0 left-0 z-10 w-full background">
       <router-view/>
       <template v-if="incomingCall">
         <div class="w-full h-full absolute left-0 top-0 flex items-center justify-center
@@ -62,7 +62,7 @@ export default {
 
       this.connector = new BroadcastChannel('connector')
       this.connector.onmessage = event => {
-        if (event.data.type === 'incoming call') {
+        if (event.data.typ === 'incoming call') {
           this.incomingCall = true
           this.call = event.data
         }

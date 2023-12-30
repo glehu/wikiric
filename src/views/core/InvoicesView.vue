@@ -1,7 +1,7 @@
 <template>
   <div class="invoices">
     <section
-      class="container mt-[55px]">
+      class="container mt_nav">
       <div class="text-light p-3">
         <div class="flex">
           <h1 class="font-bold">
@@ -142,7 +142,7 @@ th {
 }
 
 .invoice_positions th, .invoice_positions td {
-  border: 1px dotted gray;
+  border: 1px dotted rgb(128, 128, 128);
 }
 
 .invoice_status td {

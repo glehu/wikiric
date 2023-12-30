@@ -1,6 +1,6 @@
 <template>
   <div class="h-full w-full md:flex items-center justify-center overflow-x-hidden">
-    <form class="register md:flex pt-[55px]"
+    <form class="register md:flex pt_nav"
           @submit.prevent="register()">
       <template v-if="metamask.account === '' && phantom.account === ''">
         <section class="flex justify-center">
@@ -17,7 +17,7 @@
                       <input
                         v-model="user.email"
                         type="email"
-                        class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
+                        class="fmt_input"
                         placeholder="Email"
                         autocomplete="user"
                       />
@@ -27,7 +27,7 @@
                         required
                         v-model="user.username"
                         type="text"
-                        class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
+                        class="fmt_input"
                         placeholder="Username"
                         autocomplete="user"
                       />
@@ -37,7 +37,7 @@
                         required
                         v-model="user.password"
                         type="password"
-                        class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
+                        class="fmt_input"
                         placeholder="Password"
                         autocomplete="new-password"
                       />
@@ -47,25 +47,27 @@
                         required
                         v-model="user.passwordRpt"
                         type="password"
-                        class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
+                        class="fmt_input"
                         placeholder="Confirm Password"
                         autocomplete="new-password"
                       />
                     </div>
                     <div class="form-outline form-white mb-4">
-                      <p class="pointer-events-none text-neutral-300 py-1">How should we call you?</p>
+                      <p class="pointer-events-none  py-1">How should we call you?</p>
                       <input
                         required
                         v-model="user.displayName"
                         type="text"
-                        class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
+                        class="fmt_input"
                         placeholder="Display Name"
                       />
                     </div>
-                    <button class="btn_bg_primary"
-                            type="submit">
-                      Register
-                    </button>
+                    <div class="w-full flex justify-center">
+                      <button class="btn_bg_primary"
+                              type="submit">
+                        <span>Register</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -101,12 +103,12 @@
                     </template>
                     <template v-else>
                       <div class="mb-4">
-                        <p class="pointer-events-none text-neutral-300 py-1">How should we call you?</p>
+                        <p class="pointer-events-none  py-1">How should we call you?</p>
                         <input
                           required
                           v-model="user.username"
                           type="text"
-                          class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
+                          class="py-1 px-2 rounded placeholder-neutral-400  dark_bg"
                           placeholder="Username"
                         />
                       </div>
@@ -151,12 +153,12 @@
                     </template>
                     <template v-else>
                       <div class="mb-4">
-                        <p class="pointer-events-none text-neutral-300 py-1">How should we call you?</p>
+                        <p class="pointer-events-none  py-1">How should we call you?</p>
                         <input
                           required
                           v-model="user.username"
                           type="text"
-                          class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
+                          class="py-1 px-2 rounded placeholder-neutral-400  dark_bg"
                           placeholder="Username"
                         />
                       </div>
@@ -378,7 +380,8 @@ export default {
 }
 
 .bright_card {
-  @apply text-white border-[1px] border-neutral-600 h-full rounded-md medium_bg;
+  @apply h-full rounded-md surface;
+  border: 1px solid var(--md-sys-color-outline-variant);
 }
 
 </style>

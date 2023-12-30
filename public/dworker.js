@@ -4,8 +4,8 @@ let _u = null
 let _t = null
 let _interval = null
 let _interval2 = null
-// const _endpoint = 'http://localhost:9999/' // 'https://wikiric.xyz/'
-// const _wssEndpoint = 'ws://localhost:9999/' // 'wss://wikiric.xyz/'
+// const _endpoint = 'http://localhost:9999/'
+// const _wssEndpoint = 'ws://localhost:9999/'
 const _endpoint = 'https://wikiric.xyz/'
 const _wssEndpoint = 'wss://wikiric.xyz/'
 let ws = null
@@ -211,9 +211,15 @@ onmessage = function (e) {
     })
   } else if (msg.action === 'call') {
     try {
-      ws.send('[c:CALL]' + JSON.stringify({
-        usernameToCall: msg.usernameToCall,
-        chatroomGUID: msg.chatroomGUID
+      // ws.send('[c:CALL]' + JSON.stringify({
+      //   usernameToCall: msg.usernameToCall,
+      //   chatroomGUID: msg.chatroomGUID
+      // }))
+      ws.send(JSON.stringify({
+        act: '[c:CALL]',
+        msg: msg.msg,
+        pid: msg.chatroomGUID,
+        usr: msg.usernameToCall
       }))
       e.ports[0].postMessage({
         success: true
@@ -224,12 +230,18 @@ onmessage = function (e) {
         success: false
       })
     }
-  } else if (msg.action === 'fwd') {
+  } else if (msg.act === 'fwd') {
     try {
-      ws.send('[c:FWD]' + JSON.stringify({
-        username: msg.username,
-        type: msg.type,
-        value: msg.value
+      // ws.send('[c:FWD]' + JSON.stringify({
+      //   username: msg.username,
+      //   type: msg.type,
+      //   value: msg.value
+      // }))
+      ws.send(JSON.stringify({
+        act: '[c:FWD]',
+        typ: msg.typ,
+        msg: msg.msg,
+        usr: msg.usr
       }))
       e.ports[0].postMessage({
         success: true

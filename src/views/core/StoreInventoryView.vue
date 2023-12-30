@@ -1,54 +1,43 @@
 <template>
-  <div class="flex w-full h-full pt-[55px] justify-center bright_bg">
-    <div class="max-w-screen-xl w-full bright_bg
+  <div class="flex w-full h-full pt_nav
+              justify-center background">
+    <div class="max-w-screen-xl w-full
                 rounded-t overflow-x-hidden
-                overflow-y-auto">
-      <div class="px-4 py-3 darkest_bg bshadow z-10">
-        <p class="text-3xl font-bold text-neutral-300">
+                overflow-y-auto surface">
+      <div class="px-4 py-3 surface-variant bshadow z-10">
+        <p class="text-3xl font-bold">
           {{ $t("eco.inventory") }}
         </p>
       </div>
       <div class="pt-2 z-0 relative">
         <template v-if="ownStore != null">
           <div class="w-full h-full p-2 pb-16">
-            <div class="rounded medium_bg w-fit mx-2 mb-4
-                        overflow-hidden dshadow">
-              <div class="px-3 py-1 dark_bg">
-                <div class="flex items-baseline gap-x-2">
-                  <p class="font-bold text-lg">
-                    {{ ownStore.t }}
-                  </p>
-                  <p class="text-sm text-neutral-400">
-                    {{ ownStore.desc }}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="rounded medium_bg w-fit mx-2 mb-4
+            <div class="rounded surface-variant w-fit mx-2 mb-4
                         overflow-hidden dshadow">
               <template v-if="items.length < 1">
-                <div class="flex items-center dark_bg px-3 py-1 cursor-default">
-                  <p class="text-neutral-300">
+                <div class="flex items-center surface px-3 py-1 cursor-default">
+                  <p class="">
                     {{ $t("inventory.none") }}
                   </p>
                 </div>
-                <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
+                <p class="text-sm px-3 py-1 my-2 cursor-default">
                   {{ $t("inventory.noneHint") }}
                 </p>
               </template>
               <template v-else>
-                <div class="flex items-center dark_bg px-3 py-1 cursor-default">
-                  <p class="text-neutral-300">
+                <div class="flex items-center surface px-3 py-1 cursor-default">
+                  <p class="">
                     {{ items.length }} {{ $t("inventory.listed") }}
                   </p>
                 </div>
-                <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
+                <p class="text-sm px-3 py-1 my-2 cursor-default">
                   {{ $t("inventory.desc") }}
                 </p>
               </template>
-              <div class="rounded w-fit m-3 cursor-pointer
-                        dark_bg hover:darkest_bg
-                        px-4 py-2 border-[1px] border-neutral-600"
+              <div class="px-3 py-1 primary-container m-4
+                          hover:dshadow hover:primary
+                          rounded cursor-pointer"
+                   style="border: 1px solid var(--md-sys-color-primary);"
                    v-on:click="isModifyingItem = true">
                 <p class="font-bold">{{ $t("stores.addItem") }}</p>
               </div>
@@ -56,20 +45,21 @@
             <template v-if="items.length > 0">
               <div class="m-2 grid grid-cols-1 lg:grid-cols-2 gap-2">
                 <template v-for="item in items" :key="item">
-                  <div class="medium_bg p-2 rounded dshadow store_item relative w-full">
+                  <div class="surface-variant p-2 rounded bshadow
+                              store_item relative w-full">
                     <div class="">
                       <template v-if="item.iurls == null || item.iurls.length < 1">
-                        <div class="flex flex-col rounded dark_bg relative">
+                        <div class="flex flex-col rounded background relative">
                           <div class="pb-14 flex justify-center">
-                            <p class="text-xs font-bold text-neutral-400
-                                          imagecontainer">
+                            <p class="text-xs font-bold
+                                      imagecontainer">
                               {{ $t("img.no-img") }}
                             </p>
                           </div>
                         </div>
                       </template>
                       <template v-else>
-                        <div class="flex flex-col rounded dark_bg relative">
+                        <div class="flex flex-col rounded background relative">
                           <div class="pb-14 flex justify-center">
                             <div class="imagecontainer">
                               <img :src="getImg(item.iurls[item.iix].url, true)" alt="?"
@@ -87,18 +77,18 @@
                               </template>
                             </div>
                             <div class="flex gap-x-1 px-2 py-1">
-                              <p class="text-sm text-neutral-400">
+                              <p class="text-sm">
                                 [{{ item.iix + 1 }}/{{ item.iurls.length }}]
                               </p>
-                              <p class="text-sm text-neutral-400">
+                              <p class="text-sm">
                                 {{ item.iurls[item.iix].t }}
                               </p>
                             </div>
                           </div>
                         </div>
                       </template>
-                      <div class="text-sm text-neutral-300 w-full">
-                        <div class="cursor-pointer hover:bright_bg
+                      <div class="text-sm  w-full">
+                        <div class="cursor-pointer
                                     rounded px-2 py-1 w-full"
                              v-on:click="showItem(item)">
                           <p class="font-bold text-xl mb-2 mt-2">
@@ -118,7 +108,7 @@
                                   <td><p class="px-1">
                                     {{ attribute.sval }}
                                   </p></td>
-                                  <td><p class="text-neutral-400 text-xs px-1">
+                                  <td><p class=" text-xs px-1">
                                     {{ attribute.desc }}
                                   </p></td>
                                 </tr>
@@ -132,10 +122,11 @@
                               <Listbox v-model="item.tvars[index].vars[0]">
                                 <div class="relative mt-1">
                                   <ListboxButton
-                                    class="dark_bg w-full relative cursor-default rounded-lg py-2 pl-3
-                                           min-w-[8rem] bg-opacity-50
+                                    class="surface
+                                           w-full relative cursor-default rounded-lg py-2 pl-3
+                                           min-w-[12rem]
                                            pr-10 text-left shadow-md focus:outline-none
-                                           border-b-[1px] border-b-neutral-500
+                                           border-b-[1px] border-b-neutral-400
                                            focus-visible:ring-2
                                            focus-visible:ring-white
                                            focus-visible:ring-opacity-75
@@ -143,18 +134,18 @@
                                            focus-visible:ring-offset-orange-300 sm:text-sm"
                                   >
                                     <template v-if="item.tvars[index].vars != null && item.tvars[index].vars[0].sval ">
-                                      <div class="block truncate font-bold text-neutral-300">
+                                      <span class="block truncate font-bold">
                                         {{ variation.t }}: {{ item.tvars[index].vars[0].sval }}
-                                      </div>
+                                      </span>
                                     </template>
                                     <template v-else>
-                                      <span class="block truncate font-bold text-neutral-300">
+                                      <span class="block truncate font-bold">
                                         {{ $t("gen.select") }} {{ variation.t }}...
                                       </span>
                                     </template>
                                     <div
                                       class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                      <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
+                                      <ArrowsUpDownIcon class="h-5 w-5" aria-hidden="true"/>
                                     </div>
                                   </ListboxButton>
                                   <transition
@@ -163,7 +154,7 @@
                                     leave-to-class="opacity-0">
                                     <ListboxOptions
                                       class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md
-                                               dark_bg py-1 text-base shadow-lg ring-1 ring-black
+                                               background py-1 text-base shadow-lg ring-1 ring-black
                                                ring-opacity-5 focus:outline-none sm:text-sm z-50"
                                     >
                                       <ListboxOption
@@ -174,8 +165,8 @@
                                         as="template"
                                       >
                                         <li
-                                          :class="[ active ? 'bg-gray-700' : '',
-                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-neutral-200' ]">
+                                          :class="[ active ? 'primary-container' : '',
+                                  'relative cursor-pointer select-none py-2 pl-10 pr-4' ]">
                                           <div
                                             :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
                                             {{ cat.sval }}
@@ -196,13 +187,15 @@
                         </template>
                         <div class="flex items-center gap-x-2 m-2 mt-4 h-14">
                           <input type="number" min="0" v-model="item.amt"
-                                 class="border-[1px] w-[5rem] h-full
-                                        border-neutral-500 px-3 py-1 rounded
-                                        dark_bg text-xl">
-                          <div class="cursor-pointer border-[1px] h-full
-                                      border-neutral-500 px-3 py-1 rounded
-                                      dark_bg hover:darkest_bg w-fit
-                                      flex items-center justify-between gap-x-4"
+                                 class="surface-variant border-[1px] w-[5rem] h-full
+                                              border-neutral-400 px-1 py-1 rounded
+                                              text-xl text-center"
+                                 style="border: 1px solid var(--md-sys-color-primary);">
+                          <div class="primary-container cursor-pointer h-full
+                                            px-3 py-1 rounded w-fit
+                                            hover:primary hover:dshadow
+                                            flex items-center justify-between gap-x-2"
+                               style="border: 1px solid var(--md-sys-color-primary);"
                                v-on:click="orderItem(item)">
                             <ShoppingCartIcon class="h-8 w-8"/>
                             <div>
@@ -210,10 +203,10 @@
                                 {{ ((item.net * (item.vatp + 1)) * item.amt).toFixed(2) }} €
                               </p>
                               <div class="flex items-center text-xs gap-x-2">
-                                <p class="text-neutral-400">
+                                <p class="">
                                   {{ item.net.toFixed(2) }} €
                                 </p>
-                                <p class="text-neutral-400">
+                                <p class="">
                                   {{ item.vatp.toFixed(2) * 100 }} % {{ $t("eco.vat") }}
                                 </p>
                               </div>
@@ -227,7 +220,7 @@
                       <Menu as="div" class="relative inline-block text-left h-full">
                         <MenuButton
                           title="Options"
-                          class="store_item_edit_overlay hover:bright_bg rounded text-neutral-300
+                          class="store_item_edit_overlay hover:bright_bg rounded
                                m-1 p-1 backdrop-blur-3xl flex items-center cursor-pointer">
                           <SquaresPlusIcon class="h-5 w-5"></SquaresPlusIcon>
                         </MenuButton>
@@ -247,7 +240,7 @@
                                 <button v-on:click="editItem(item)"
                                         :class="[active
                                       ? 'p_card_menu_active'
-                                      : 'text-neutral-900','group p_card_menu_item']">
+                                      : '','group p_card_menu_item']">
                                   <PencilSquareIcon
                                     :active="active"
                                     class="mr-2 h-5 w-5"
@@ -260,7 +253,7 @@
                                 <button v-on:click="deleteItem(item.uid)"
                                         :class="[active
                                       ? 'p_card_menu_active'
-                                      : 'text-neutral-900','group p_card_menu_item']">
+                                      : '','group p_card_menu_item']">
                                   <TrashIcon
                                     :active="active"
                                     class="mr-2 h-5 w-5"
@@ -293,9 +286,7 @@
         <p class="text-sm mb-1 font-bold">{{ $t("inventory.productDesc") }}</p>
         <div class="rounded-lg flex items-center relative mb-1">
           <input id="modName" ref="modName" type="text"
-                 class="search-field py-5 px-4 dark_bg h-8
-                        border-2 border-zinc-700
-                        placeholder-neutral-400"
+                 class="search-field py-5 px-4 surface-variant h-8"
                  placeholder="Name..."
                  v-model="modItem.t">
         </div>
@@ -303,11 +294,10 @@
                   v-model="modItem.desc"
                   placeholder="Description..."
                   rows="8"
-                  class="w-full py-2 px-4 dark_bg text-neutral-100
-                         border-2 border-zinc-700 text-sm
-                         placeholder-neutral-400 resize-y"></textarea>
+                  class="w-full py-2 px-4 surface-variant
+                         text-sm resize-y"></textarea>
         <p class="text-sm mb-1 font-bold">{{ $t("img.images") }}</p>
-        <div class="w-full min-h-[60px] p-2 rounded medium_bg flex
+        <div class="w-full min-h-[60px] p-2 rounded surface flex
                     overflow-x-scroll gap-x-4 mb-2">
           <template v-if="modItem.iurls && modItem.iurls.length > 0">
             <div v-for="(img, index) in modItem.iurls" :key="img"
@@ -317,8 +307,8 @@
                      v-on:click="showItemImages(modItem, index)">
               </div>
               <div class="flex flex-col gap-y-2">
-                <p class="text-sm px-1 py-0.5 rounded w-fit
-                          dark_bg hover:darkest_bg cursor-pointer"
+                <p class="text-sm px-1 py-0.5 rounded w-fit bshadow
+                          surface-variant hover:surface cursor-pointer"
                    v-on:click="removeImg(index)">
                   {{ $t('gen.delete') }}
                 </p>
@@ -329,14 +319,14 @@
           <template v-if="isSubmittingImage">
             <div class="px-4 py-2 flex items-center pointer-events-none">
               <div class="rounded-full h-4 w-4 bg-zinc-600 animate-ping border-2 border-indigo-500"></div>
-              <p class="ml-6 text-neutral-200 font-bold animate-pulse">
+              <p class="ml-6 font-bold animate-pulse">
                 {{ $t("eta.uploadingImg") }}
               </p>
             </div>
           </template>
-          <div class="rounded p-4 border-2 border-dashed flex
+          <div class="rounded p-4 bshadow flex
                       items-center justify-center cursor-pointer
-                      hover:dark_bg"
+                      hover:primary primary-container"
                v-on:click="isAddingMedia = true">
             <p class="font-bold text-sm">
               {{ $t("stores.setImage") }}
@@ -346,16 +336,16 @@
         <p class="text-sm mb-1 font-bold">
           {{ $t("gen.attributes") }}
         </p>
-        <div class="rounded medium_bg p-1 mb-2">
+        <div class="rounded surface p-1 mb-2">
           <table class="">
             <tr class="text-sm">
-              <th class="text-neutral-300">
+              <th class="">
                 Name (e.g. Weight)
               </th>
-              <th class="text-neutral-300">
+              <th class="">
                 Value (e.g. 2)
               </th>
-              <th class="text-neutral-300">
+              <th class="">
                 Description (e.g. kg)
               </th>
               <th></th>
@@ -364,29 +354,26 @@
               <tr>
                 <td>
                   <input type="text" name="mod_attr_t"
-                         class="search-field py-1 px-2 dark_bg
-                                border-2 border-zinc-700 text-sm
-                                placeholder-neutral-400"
+                         class="search-field py-1 px-2 surface-variant
+                                text-sm on-surface-variant-text"
                          v-model="attribute.t">
                 </td>
                 <td>
                   <input type="text" name="mod_attr_sval"
-                         class="search-field py-1 px-2 dark_bg
-                      border-2 border-zinc-700 text-sm
-                      placeholder-neutral-400"
+                         class="search-field py-1 px-2 surface-variant
+                                text-sm on-surface-variant-text"
                          v-model="attribute.sval">
                 </td>
                 <td>
                   <input type="text" name="mod_attr_desc"
-                         class="search-field py-1 px-2 dark_bg
-                      border-2 border-zinc-700 text-sm
-                      placeholder-neutral-400"
+                         class="search-field py-1 px-2 surface-variant
+                                text-sm on-surface-variant-text"
                          v-model="attribute.desc">
                 </td>
                 <td>
-                  <p class="text-sm font-bold px-2 py-1 dark_bg
-                            hover:darkest_bg cursor-pointer
-                            rounded w-fit"
+                  <p class="text-sm font-bold px-2 py-1 surface-variant
+                            hover:error hover:on-error-text cursor-pointer
+                            rounded w-fit on-surface-variant-text"
                      v-on:click="removeAttribute(index)">
                     X
                   </p>
@@ -395,8 +382,8 @@
             </template>
           </table>
           <div class="flex justify-end">
-            <p class="text-sm font-bold px-2 py-1 dark_bg
-                      hover:darkest_bg cursor-pointer
+            <p class="text-sm font-bold px-2 py-1 surface-variant
+                      hover:surface cursor-pointer bshadow
                       rounded w-fit"
                v-on:click="addAttribute()">
               {{ $t("gen.add") }}
@@ -404,14 +391,14 @@
           </div>
         </div>
         <p class="text-sm mb-1 font-bold">{{ $t("gen.variations") }}</p>
-        <div class="rounded medium_bg p-1 mb-2 w-full">
+        <div class="rounded surface p-1 mb-2 w-full">
           <table class="table-auto w-full">
             <tr class="text-sm w-full">
-              <th class="text-neutral-300">
+              <th class="">
                 Type (e.g. Size)
               </th>
               <th></th>
-              <th class="text-neutral-300 w-1/2">
+              <th class="w-1/2">
                 Values (e.g. S, M, L, XL)
               </th>
             </tr>
@@ -419,29 +406,28 @@
               <tr class="w-full align-top">
                 <td>
                   <input type="text" name="mod_attr_t"
-                         class="search-field py-1 px-2 dark_bg
-                                border-2 border-zinc-700 text-sm
-                                placeholder-neutral-400"
+                         class="search-field py-1 px-2 surface-variant
+                                text-sm"
                          v-model="variations.t">
                   <div class="n_dark_input flex items-center w-fit rounded mt-1">
                     <input type="checkbox" name="mod_attr_optional"
                            class="text-2xl"
                            v-model="variations.opt">
-                    <p class="ml-2 text-neutral-400 pointer-events-none">
+                    <p class="ml-2 pointer-events-none">
                       Optional
                     </p>
                   </div>
                 </td>
                 <td>
-                  <p class="text-sm font-bold px-2 py-1 dark_bg
-                            hover:darkest_bg cursor-pointer
+                  <p class="text-sm font-bold px-2 py-1 surface-variant
+                            hover:error hover:on-error-text cursor-pointer
                             rounded w-fit"
                      v-on:click="removeVariation(index)">
                     X
                   </p>
                 </td>
                 <td class="w-1/2">
-                  <div class="rounded bright_bg p-1 mb-2 w-full">
+                  <div class="rounded surface-variant p-1 mb-2 w-full">
                     <table class="table-auto">
                       <tr>
                         <th></th>
@@ -451,14 +437,13 @@
                         <tr>
                           <td>
                             <input type="text" name="mod_attr_t"
-                                   class="search-field py-1 px-2 dark_bg
-                                          border-2 border-zinc-700 text-sm
-                                          placeholder-neutral-400"
+                                   class="search-field py-1 px-2 surface
+                                          text-sm"
                                    v-model="variation.sval">
                           </td>
                           <td>
-                            <p class="text-sm font-bold px-2 py-1 dark_bg
-                                      hover:darkest_bg cursor-pointer
+                            <p class="text-sm font-bold px-2 py-1 surface-variant
+                                      hover:error hover:on-error-text cursor-pointer
                                       rounded w-fit"
                                v-on:click="removeVarVariation(index, indexVarVar)">
                               X
@@ -468,8 +453,8 @@
                       </template>
                     </table>
                     <div class="flex justify-end">
-                      <p class="text-sm font-bold px-2 py-1 dark_bg
-                                hover:darkest_bg cursor-pointer
+                      <p class="text-sm font-bold px-2 py-1 surface-variant
+                                hover:surface cursor-pointer bshadow
                                 rounded w-fit"
                          v-on:click="addVarVariation(index)">
                         {{ $t("gen.add") }}
@@ -481,8 +466,8 @@
             </template>
           </table>
           <div class="flex justify-end">
-            <p class="text-sm font-bold px-2 py-1 dark_bg
-                      hover:darkest_bg cursor-pointer
+            <p class="text-sm font-bold px-2 py-1 surface-variant
+                      hover:surface cursor-pointer bshadow
                       rounded w-fit"
                v-on:click="addVariation()">
               {{ $t("gen.add") }}
@@ -494,9 +479,8 @@
         </p>
         <div class="flex gap-x-2 items-center mb-1">
           <input type="number" name="mod_net" id="mod_net"
-                 class="search-field py-2 px-4 dark_bg
-                        border-2 border-zinc-700 text-sm
-                        placeholder-neutral-400"
+                 class="search-field py-2 px-4 surface
+                        text-sm"
                  v-model="modItem.net"
                  style="width: 8rem"
                  min="0">
@@ -504,9 +488,8 @@
         </div>
         <div class="flex gap-x-2 items-center">
           <input type="number" name="mod_net" id="mod_net"
-                 class="search-field py-2 px-4 dark_bg
-                        border-2 border-zinc-700 text-sm
-                        placeholder-neutral-400"
+                 class="search-field py-2 px-4 surface
+                        text-sm"
                  v-model="modItem.vatp"
                  style="width: 8rem"
                  min="0" step="0.01">
@@ -514,7 +497,7 @@
             {{ $t("eco.vat") }} = {{ modItem.vatp * 100 }} %
           </p>
         </div>
-        <p class="ml-1 text-neutral-200">
+        <p class="ml-1">
           = {{ modItemNet }} € {{ $t("eco.net") }}
         </p>
         <template v-if="isSubmittingItem === false">
@@ -525,8 +508,8 @@
         </template>
         <template v-else>
           <div class="px-4 py-2 flex items-center pointer-events-none">
-            <div class="rounded-full h-4 w-4 bg-zinc-600 animate-ping border-2 border-indigo-500"></div>
-            <p class="ml-6 text-neutral-200 font-bold animate-pulse">
+            <div class="rounded-full h-4 w-4 primary-container animate-ping bshadow"></div>
+            <p class="ml-6 font-bold animate-pulse">
               {{ $t("eta.submittingItem") }}
             </p>
           </div>
@@ -562,10 +545,10 @@
                       placeholder-neutral-400 my-2"
                placeholder="Image caption..."
                v-model="uploadFileMeta">
-        <p class="text-neutral-300 font-bold">{{ uploadFileName }}</p>
+        <p class=" font-bold">{{ uploadFileName }}</p>
         <div class="mt-3 w-full">
           <template v-if="uploadFileType.includes('image')">
-            <button class="darkbutton text-white p-2 w-full flex items-center justify-center rounded-full"
+            <button class="darkbutton  p-2 w-full flex items-center justify-center rounded-full"
                     style="height: 2.5em;
                            border-color: transparent; margin: auto"
                     title="Send"
@@ -577,7 +560,7 @@
             </button>
           </template>
           <template v-else>
-            <div class="text-white p-2 w-full flex items-center justify-center rounded-full
+            <div class=" p-2 w-full flex items-center justify-center rounded-full
                         bg-red-800">
               <p>{{ $t("img.fileErr") }}</p>
             </div>
@@ -607,15 +590,15 @@
               <div class="img_index"
                    :class="{active: index === viewingImageIndex}"
                    v-on:click="viewingImageIndex = index">
-                <p class="text-neutral-400">{{ index + 1 }}</p>
+                <p class="">{{ index + 1 }}</p>
               </div>
             </template>
           </div>
           <div class="flex gap-x-1 px-2 pt-1 pb-2">
-            <p class="text-sm text-neutral-400">
+            <p class="text-sm">
               [{{ viewingImageIndex + 1 }}/{{ viewingImageURLs.length }}]
             </p>
-            <p class="text-sm text-neutral-400">
+            <p class="text-sm">
               {{ viewingImageURLs[viewingImageIndex].t }}
             </p>
           </div>
@@ -1036,7 +1019,6 @@ export default {
 <style>
 
 .search-field {
-  color: white;
   border-radius: 10px;
   resize: none;
   overflow: hidden;
@@ -1052,7 +1034,7 @@ export default {
 }
 
 .n_dark_input {
-  @apply px-2 py-1 dark_bg text-neutral-300 placeholder-neutral-400;
+  @apply px-2 py-1;
 }
 
 </style>

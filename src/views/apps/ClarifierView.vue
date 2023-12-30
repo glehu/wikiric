@@ -1,22 +1,23 @@
 <template>
   <div id="clarifier_view_elem"
-       class="darkest_bg w-full h-[calc(100%-55px)] absolute top-[55px] overflow-x-hidden overflow-y-auto">
+       class="background w-full h-[calc(100%-50px)] absolute
+              top_nav overflow-x-hidden overflow-y-auto">
     <div class="wrapper min-h-full w-full">
       <!-- Active Sessions -->
       <div class="col-span-1 md:col-span-2 xl:h-full">
         <div class="row flex justify-center items-center xl:h-full">
           <div class="w-full xl:h-full">
-            <div class="text-white p-2 rounded-lg xl:w-full xl:h-full">
+            <div class="p-2 rounded-lg xl:w-full xl:h-full">
               <div class="md:mt-0 xl:flex lg:justify-between w-full xl:h-full lg:gap-x-2">
-                <div class="w-full xl:h-full mb-2 p-2 medium_bg rounded-lg">
+                <div class="w-full xl:h-full mb-2 p-2 surface rounded-lg">
                   <div class="m-2">
                     <div class="flex items-end justify-between mb-4">
-                      <h1 class="font-bold text-3xl text-neutral-300 pointer-events-none">
+                      <h1 class="font-bold text-3xl pointer-events-none">
                         Friends
                       </h1>
-                      <button class="px-2 py-1 rounded-md dark_bg hover:darkest_bg"
+                      <button class="px-2 py-1 rounded-md primary-container hover:primary"
                               v-on:click="isAddingFriend = true">
-                        <span class="text-neutral-300">
+                        <span class="">
                           Add Friend
                         </span>
                       </button>
@@ -28,23 +29,23 @@
                       <template v-for="friend in friends.values()" :key="friend">
                         <div class="w-full h-20 flex items-center pt-1 my-1">
                           <div v-on:click="joinActive(friend.chatroom.uid)"
-                               class="w-full h-20 p-2 cursor-pointer medium_bg text-neutral-300
+                               class="w-full h-20 p-2 cursor-pointer surface-variant
                                     flex items-center
-                                    hover:brightness-125 hover:rounded hover:text-white">
+                                    hover:brightness-125 hover:rounded ">
                             <div v-show="hasUnread(friend.chatroom.uid)"
                                  class="flex items-center justify-center ml-2 mr-3">
                               <i class="bi bi-chat-quote-fill z-[500] text-orange-500 text-lg"></i>
                             </div>
                             <div class="w-full">
                               <div class="flex items-center w-full">
-                                <div class="font-bold text-neutral-100">
+                                <div class="font-bold">
                                   {{ getDirectChatroomName(friend.chatroom.directMessageUsername) }}
                                 </div>
                                 <div class="ml-auto text-sm">
                                   {{ getHumanReadableDateText(friend.ts) }}
                                 </div>
                               </div>
-                              <div class="text-neutral-300 h-12 max-h-12 overflow-hidden text-ellipsis break-all">
+                              <div class="h-12 max-h-12 overflow-hidden text-ellipsis break-all">
                                 <template v-if="friend.loading">
                                   <div class="p-1 mt-3">
                                     <div class="w-2 h-2 rounded-full bg-neutral-400 animate-ping"></div>
@@ -59,13 +60,13 @@
                     </template>
                   </div>
                 </div>
-                <div class="w-full xl:h-full mb-2 p-2 medium_bg rounded-lg">
+                <div class="w-full xl:h-full mb-2 p-2 surface rounded-lg">
                   <div class="pointer-events-none m-2 mb-4">
                     <div class="flex items-end justify-between">
-                      <h1 class="font-bold text-3xl text-neutral-300">
+                      <h1 class="font-bold text-3xl">
                         Groups
                       </h1>
-                      <div class="text-end text-neutral-300">
+                      <div class="text-end">
                         <h3 class="text-2xl" v-if="hour >= 5 && hour < 10">
                           <i class="bi bi-sunrise-fill p-1"></i>
                         </h3>
@@ -86,19 +87,19 @@
                       <template v-for="group in $store.state.clarifierSessions" :key="group">
                         <template v-if="group.type !== 'dm' && group.type !== 'home'">
                           <div class="flex items-center h-16">
-                            <div class="text-neutral-300 h-full hover:text-white
-                                        medium_bg rounded dshadow overflow-hidden
-                                        hover:brightness-125 cursor-pointer
+                            <div class="h-full
+                                        surface rounded overflow-hidden
+                                        hover:background cursor-pointer
                                         hover:rounded w-full relative
-                                        flex items-center justify-center
-                                        border-[1px] border-neutral-600"
+                                        flex items-center justify-center"
+                                 style="border: 1px solid var(--md-sys-color-outline-variant)"
                                  v-on:click="joinActive(group.id)">
                               <div class="flex absolute
                                             w-full h-full overflow-hidden
                                             items-center justify-center
                                             brightness-75">
                                 <template v-if="group.banner && group.banner !== ''">
-                                  <img class=""
+                                  <img class="w-full"
                                        v-bind:src="getImg(group.banner,true)"
                                        :alt="getImgAlt(group.t)"/>
                                 </template>
@@ -107,34 +108,34 @@
                                 <div class="flex items-center p-1 pr-4 h-full">
                                   <img class="w-[48px] h-[48px] z-10 rounded-lg ml-1"
                                        v-bind:src="getImg(group.img,true)" :alt="getImgAlt(group.title)"/>
-                                  <p class="sb_link_text text-nowrap z-10 text-xl font-bold
-                                            ml-4 px-2"
-                                     style="text-shadow: 2px 2px 1px rgb(10 10 13)">
-                                    {{ group.title }}
-                                  </p>
+                                  <div class="surface z-10 ml-4 px-1 rounded flex items-center">
+                                    <p class="text-nowrap text-lg font-bold">
+                                      {{ group.title }}
+                                    </p>
+                                  </div>
                                 </div>
                               </template>
                               <template v-else>
                                 <div class="flex items-center h-full p-1">
-                                  <div class="darkest_bg flex items-center justify-center
+                                  <div class="surface-variant flex items-center justify-center
                                               w-[48px] h-[48px] z-10 rounded-lg ml-1">
                                     {{ getImgAlt(group.title) }}
                                   </div>
-                                  <p class="sb_link_text text-nowrap z-10 text-xl font-bold
+                                  <p class="text-nowrap z-10 text-xl font-bold
                                             rounded ml-4 px-2">
                                     {{ group.title }}
                                   </p>
                                 </div>
                               </template>
-                              <i class="bi bi-shield-lock text-neutral-300 z-10"
+                              <i class="bi bi-shield-lock z-10 surface px-1 py-0.5 rounded"
                                  title="End-to-End Encrypted Group"
-                                 style="margin-left: auto; margin-right: 4px"></i>
+                                 style="margin-left: auto; margin-right: 8px"></i>
                             </div>
-                            <button class="text-neutral-300 ml-2 h-10 w-10 flex items-center justify-center"
+                            <button class="ml-2 h-10 w-10 flex items-center justify-center"
                                     title="Remove Group"
                                     v-on:click="removeGroup(group)">
-                              <i class="bi bi-x-lg p-2 w-full h-full rounded-xl dark_bg bg-opacity-50
-                                    hover:brightness-125">
+                              <i class="bi bi-x-lg p-2 w-full h-full rounded-xl
+                                        hover:error">
                               </i>
                             </button>
                           </div>
@@ -152,14 +153,14 @@
       <div class="mb-4">
         <div class="row flex justify-center items-center">
           <div class="w-full max-w-xl">
-            <div class="text-white mr-4 p-2 rounded-lg">
+            <div class=" mr-4 p-6 rounded-lg">
               <div class="md:mt-0">
-                <h1 class="font-bold mb-2 text-3xl text-neutral-300"
-                    style="pointer-events: none">
+                <p class="font-bold mb-2 text-3xl"
+                   style="pointer-events: none">
                   Join or Add
-                </h1>
+                </p>
                 <p style="text-align: justify; text-justify: inter-word; width: 100%; pointer-events: none"
-                   class="text-neutral-300">
+                   class="">
                   Enter an invite ID to join an existing group or create your own by typing in a name for it.
                 </p>
                 <input id="input_session"
@@ -168,13 +169,14 @@
                        v-on:input="checkInput()"
                        v-on:keyup="checkInput()"
                        placeholder="Invite ID or Name..."
-                       class="font-bold px-2 py-1 my-3 dark_bg text-neutral-300 rounded-lg
-                              border-2 border-zinc-600 placeholder-neutral-400 w-full text-lg"
+                       class="font-bold px-2 py-1 my-3 surface rounded-lg
+                              w-full text-lg bshadow"
+                       style="border: 1px solid var(--md-sys-color-outline-variant)"
                        v-on:keyup.enter="joinOrCreate()">
                 <button id="btn_join_session"
                         :ref="'btn_join_session'"
                         disabled
-                        class="rounded border-2 border-zinc-600 text-neutral-200 enabled:bg-indigo-600"
+                        class="rounded enabled:primary"
                         style="max-height: 6ch; height: 6ch"
                         v-on:click="join()">
                   <span class="font-bold lead">Join</span>
@@ -182,7 +184,7 @@
                 <button id="btn_create_session"
                         :ref="'btn_create_session'"
                         disabled
-                        class="rounded border-2 border-zinc-600 text-neutral-200 enabled:bg-indigo-600"
+                        class="rounded enabled:primary"
                         style="max-height: 6ch; height: 6ch"
                         v-on:click="create()">
                   <span class="font-bold lead">Create</span>
@@ -202,15 +204,15 @@
     <template v-slot:body>
       <div class="flex flex-col w-full max-w-[300px]">
         <input type="text" v-model="friendName"
-               class="px-2 py-1 medium_bg text-neutral-200"
+               class="px-2 py-1 medium_bg"
                placeholder="Username">
         <textarea v-model="friendMsg"
                   name="frequestMsg" id="frequestMsg" rows="3"
-                  class="my-1 medium_bg px-2 py-1 text-neutral-200"
+                  class="my-1 medium_bg px-2 py-1"
                   placeholder="Message (optional)"></textarea>
         <button class="btn_bg_primary mt-4"
                 v-on:click="sendFriendRequest()">
-          <span class="text-neutral-300">Send Request</span>
+          <span class="">Send Request</span>
         </button>
       </div>
     </template>
@@ -264,9 +266,9 @@ export default {
           type: 'text'
         })
       })
-        .then((data) => (guid = data.result))
-        .then(() => (this.$router.push('/apps/clarifier/wss/' + guid)))
-        .catch((err) => console.log(err.message))
+      .then((data) => (guid = data.result))
+      .then(() => (this.$router.push('/apps/clarifier/wss/' + guid)))
+      .catch((err) => console.log(err.message))
     },
     getImg: function (imgGUID, get = false) {
       if (imgGUID === '') {
@@ -343,29 +345,29 @@ export default {
         method: 'get',
         url: 'chat/private/users/friends'
       })
-        .then(async (data) => {
-          // OLD Code ahead
-          if (data.result.thiswillneverwork && data.result && data.result.friends && data.result.friends.length > 0) {
-            this.friends = new Map()
-            // Iterate over all direct chatrooms
-            for (let i = 0; i < data.result.chatrooms.length; i++) {
-              this.friends.set(data.result.chatrooms[i], {
-                chatroom: data.result.chatrooms[i],
-                msg: '',
-                loading: true
-              })
-              this.processFriend(data, i)
-                .then((result) => {
-                  if (result.chatroom) {
-                    this.friends.set(result.chatroom, result)
-                  }
-                })
-            }
-          } else {
-            this.friends = new Map()
+      .then(async (data) => {
+        // OLD Code ahead
+        if (data.result.thiswillneverwork && data.result && data.result.friends && data.result.friends.length > 0) {
+          this.friends = new Map()
+          // Iterate over all direct chatrooms
+          for (let i = 0; i < data.result.chatrooms.length; i++) {
+            this.friends.set(data.result.chatrooms[i], {
+              chatroom: data.result.chatrooms[i],
+              msg: '',
+              loading: true
+            })
+            this.processFriend(data, i)
+            .then((result) => {
+              if (result.chatroom) {
+                this.friends.set(result.chatroom, result)
+              }
+            })
           }
-        })
-        .catch((err) => console.debug(err.message))
+        } else {
+          this.friends = new Map()
+        }
+      })
+      .catch((err) => console.debug(err.message))
     },
     processFriend: async function (data, i) {
       let userId = 'none'
@@ -412,8 +414,8 @@ export default {
     getDirectChatroomName: function (username) {
       if (username == null) return ''
       return username
-        .replaceAll('|' + this.$store.state.username + '|', '||')
-        .replaceAll('|', ' ').replaceAll('  ', ' ').trim()
+      .replaceAll('|' + this.$store.state.username + '|', '||')
+      .replaceAll('|', ' ').replaceAll('  ', ' ').trim()
     },
     getLastMessage: function (guid) {
       return new Promise((resolve) => {
@@ -424,14 +426,14 @@ export default {
           method: 'get',
           url: 'm5/getmessages/' + guid + parameters
         })
-          .then((data) => (message = JSON.parse(data.result.messages[0])))
-          .then(() => (
-            this.$store.commit('addClarifierTimestampNew', {
-              id: guid,
-              ts: Math.floor(new Date(message.ts).getTime())
-            })
-          ))
-          .then(() => (resolve(message)))
+        .then((data) => (message = JSON.parse(data.result.messages[0])))
+        .then(() => (
+          this.$store.commit('addClarifierTimestampNew', {
+            id: guid,
+            ts: Math.floor(new Date(message.ts).getTime())
+          })
+        ))
+        .then(() => (resolve(message)))
       })
     },
     hasUnread: function (guid) {
@@ -485,22 +487,22 @@ export default {
         url: 'users/private/befriend',
         body: JSON.stringify(payload)
       })
-        .then((data) => {
-          console.log(data)
-          this.isAddingFriend = false
-          this.friendName = ''
-          this.friendMsg = ''
-          this.getNotifications()
-          this.$notify(
-            {
-              title: 'Request Sent!',
-              text: 'Waiting for approval.',
-              type: 'info'
-            })
-        })
-        .catch((err) => {
-          console.debug(err.message)
-        })
+      .then((data) => {
+        console.log(data)
+        this.isAddingFriend = false
+        this.friendName = ''
+        this.friendMsg = ''
+        this.getNotifications()
+        this.$notify(
+          {
+            title: 'Request Sent!',
+            text: 'Waiting for approval.',
+            type: 'info'
+          })
+      })
+      .catch((err) => {
+        console.debug(err.message)
+      })
     },
     getNotifications: function () {
       this.$Worker.execute({
@@ -508,12 +510,12 @@ export default {
         method: 'get',
         url: 'notification/private/read'
       })
-        .then((data) => {
-          console.log(data)
-        })
-        .catch((err) => {
-          console.debug(err.message)
-        })
+      .then((data) => {
+        console.log(data)
+      })
+      .catch((err) => {
+        console.debug(err.message)
+      })
     }
   }
 }
@@ -525,28 +527,12 @@ export default {
   @apply darkest_bg;
 }
 
-.c_darkergray {
-  @apply text-neutral-900;
-}
-
 .b_darkgray {
   @apply bg-gray-800;
 }
 
-.c_darkgray {
-  @apply text-neutral-800;
-}
-
 .b_gray {
   @apply bg-gray-700;
-}
-
-.c_gray {
-  @apply text-neutral-700;
-}
-
-.c_lightgray {
-  @apply text-neutral-400;
 }
 
 .b_orange {

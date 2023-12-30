@@ -3,11 +3,11 @@
   <div class="container">
     <div class="wrapper">
       <div>
-        <p class="text-white" style="text-align: justify; text-justify: inter-word; width: 100%">
+        <p class="" style="text-align: justify; text-justify: inter-word; width: 100%">
           This form is more than just a form, it's a script waiting to be finished by you, character by character being
           typed ( <i class="bi bi-keyboard"/> ) into those fields. You're writing your own story, after all.
         </p>
-        <p class="text-white text-center  md:hidden">
+        <p class=" text-center  md:hidden">
           [ For the best experience, use a large screen by using a desktop PC for example. ]
         </p>
         <form
@@ -16,7 +16,7 @@
           method="POST"
           data-netlify="true"
           netlify-honeypot="bot-field"
-          class="form-control-plaintext text-white"
+          class="form-control-plaintext "
           enctype="application/x-www-form-urlencoded"
           @submit.prevent="handleSubmit">
           <input type="hidden" name="form-name" value="form_artistsubmission"/>
@@ -120,7 +120,7 @@
                    class="font-bold form-control"/>
           </p>
           <!-- FORM END -->
-          <p class="text-white text-end">
+          <p class=" text-end">
             By submitting this form, you agree to the storage of any provided data.
           </p>
           <p class="text-end">
@@ -129,9 +129,9 @@
         </form>
       </div>
       <div>
-        <p class="h3 text-white font-bold"><i class="bi bi-file-earmark-text"></i> Episode 1: Becoming one of us</p>
+        <p class="h3  font-bold"><i class="bi bi-file-earmark-text"></i> Episode 1: Becoming one of us</p>
         <hr style="color:white">
-        <p class="text-white text-center" style="font-style: italic">
+        <p class=" text-center" style="font-style: italic">
           You're a representative for yourself, your band, your collective or organisation.
           <br> After entering Wiki's digital office, he asks you to introduce yourself.
           <br><br> Every protagonist (or antagonist, if you want) needs an introduction.
@@ -139,38 +139,38 @@
         </p>
         <hr style="color:white">
         <div id="story">
-          <p id="story_artist_name" class="text-white">
+          <p id="story_artist_name" class="">
             This is {{ getArtistName() }}
           </p>
           <div v-if="nameFilled || nameSkipped">
-            <p class="text-white text-end px-4 py-2 wiki_message">
+            <p class=" text-end px-4 py-2 wiki_message">
               Welcome! I hope you're fine. Grab yourself some water, if you like.
               <br>You've come to the right person. But for me to be able to help you out, I need some more info...
             </p>
-            <p id="story_artist_type" class="text-white">
+            <p id="story_artist_type" class="">
               Of course! Well, I'm {{ getArtistType() }} {{ getArtistTypeDescription() }}
             </p>
           </div>
           <div v-if="typeFilled">
-            <p class="text-white text-end px-4 py-2 wiki_message">
+            <p class=" text-end px-4 py-2 wiki_message">
               That sounds great. Exactly what we needed! Even though I hate labeling things, would you be able to
               tell me what you're generally working on? This makes it easier for others to find you! You can decide not
               to answer this question, though, and continue with the next questions.
             </p>
-            <p id="story_artist_style" class="text-white">
+            <p id="story_artist_style" class="">
               Understandable! I would say you could generally put my work in the following category:
               {{ getArtistStyle() }}
             </p>
           </div>
           <div v-if="styleFilled || styleSkipped">
-            <p class="text-white text-end px-4 py-2 wiki_message">
+            <p class=" text-end px-4 py-2 wiki_message">
               Excellent. I'm glad you took your time to teach me about your work. You may now tell the world what you
               are about and what your goals and ambitions are! You may also provide me with some links to your social
               media while you're at it.
               <br>Thank you!
             </p>
           </div>
-          <p id="story_artist_lore" class="text-white">{{ getArtistLore() }}</p>
+          <p id="story_artist_lore" class="">{{ getArtistLore() }}</p>
         </div>
       </div>
     </div>

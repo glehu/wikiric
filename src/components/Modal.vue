@@ -16,20 +16,20 @@ export default {
 <template>
   <transition name="modal-fade">
     <div class="modal-backdrop">
-      <div class="modal bright_bg c_lightgray"
+      <div class="modal background"
            role="dialog"
            aria-labelledby="modalTitle"
            aria-describedby="modalDescription"
       >
         <header
-          class="modal-header dark_bg z-50"
+          class="modal-header surface-variant z-50"
           id="modalTitle"
         >
           <slot name="header">
           </slot>
           <button
             type="button"
-            class="btn-close orange-hover"
+            class="btn-close hover:primary rounded"
             @click="close"
             aria-label="Close modal"
           >
@@ -73,7 +73,7 @@ export default {
 }
 
 .modal {
-  @apply relative rounded-lg max-h-[calc(100dvh-60px)] max-w-[100dvw];
+  @apply relative rounded-lg max-h-[calc(100dvh-50px)] max-w-[100dvw];
   box-shadow: black 2px 2px 10px 1px;
   overflow: hidden;
   display: flex;
@@ -82,7 +82,7 @@ export default {
   width: fit-content;
   top: unset;
   left: unset;
-  transform: translateY(28px);
+  margin-top: 50px;
 }
 
 .modal-header,
@@ -96,7 +96,8 @@ export default {
   left: 0;
   width: 100%;
   height: 52px;
-  @apply font-bold text-lg border-b-4 border-b-zinc-800 items-center pl-4 text-neutral-300;
+  border-bottom: 2px solid var(--md-sys-color-outline-variant);
+  @apply font-bold text-lg items-center pl-4 ;
 }
 
 .modal-body {
@@ -104,7 +105,7 @@ export default {
   padding: 12px;
   max-height: 100%;
   overflow-y: auto;
-  @apply pt-4;
+  @apply pt-5;
 }
 
 .modal-footer {

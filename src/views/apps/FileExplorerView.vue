@@ -1,37 +1,38 @@
 <template>
   <div id="fileExplorer" ref="fileExplorer"
-       class="medium_bg w-full h-full relative overflow-hidden rounded-tr-lg">
-    <div class="text-neutral-300 w-full min-h-[56px] max-h-[56px] px-2 py-3
-                flex items-center medium_bg bshadow z-20 relative
-                divide-x-2 divide-neutral-600">
-      <div class="sidebar_button bright_bg rounded-md w-fit mr-2">
+       class="background w-full h-full relative overflow-hidden rounded-tr-lg">
+    <div class="w-full min-h-[56px] max-h-[56px] px-2 py-3
+                flex items-center background bshadow z-20 relative">
+      <div class="sidebar_button rounded-md w-fit mr-2 hover:primary p-2 cursor-pointer">
         <div v-on:click="clickedBack()"
-             v-tooltip="{ content: 'Exit' }"
-             class="cursor-pointer hover:text-neutral-200 p-2">
-          <XMarkIcon class="h-6 w-6"></XMarkIcon>
+             v-tooltip="{ content: 'Exit' }">
+          <XMarkIcon class="h-7 w-7"></XMarkIcon>
         </div>
       </div>
-      <div class="pl-2">
+      <div class="pl-2 w-full">
         <input type="text" name="fileSearch" id="fileSearch" ref="fileSearch"
                v-model="query"
                placeholder="Search..."
-               class="bright_bg rounded-md px-2 py-1 h-[40px]">
+               class="fmt_input rounded-md px-2 py-1 h-[40px] w-full bshadow">
       </div>
     </div>
     <template v-if="snippets && snippets.length > 0">
       <div class="h-[calc(100%-50px)] w-full flex flex-col relative gap-2
-                  overflow-x-hidden overflow-y-auto p-2 bright_bg">
+                  overflow-x-hidden overflow-y-auto p-2 background">
         <template v-for="snippet in snippets" :key="snippet.uid">
           <template v-if="query === '' || snippet.t.toLowerCase().includes(query)">
             <div class="w-full h-fit relative file_outer pr-2">
-              <div class="file_download absolute top-0 right-2 darkest_bg rounded p-2 cursor-pointer"
+              <div class="error file_download absolute top-2 right-4 rounded p-2 cursor-pointer"
+                   style="border: 1px solid var(--md-sys-color-outline-variant)"
                    v-tooltip.left="{content: 'Delete File'}"
                    v-on:click="deleteSnippet(snippet.uid)">
                 <TrashIcon class="h-6 w-6"></TrashIcon>
               </div>
               <a :href="snippet.pth"
                  download>
-                <div class="btn_bg_primary cursor-pointer"
+                <div class="surface p-2 rounded cursor-pointer flex flex-col
+                            hover:surface-variant"
+                     style="border: 1px solid var(--md-sys-color-outline-variant)"
                      v-tooltip.top="{content: 'Download File'}">
                   <template v-if="snippet.mime.includes('image/')">
                     <img :src="snippet.pth"
@@ -62,7 +63,7 @@
     </template>
     <template v-else>
       <div class="w-full h-[calc(100%-50px)] flex items-center justify-center pointer-events-none">
-        <p class="p-2 text-sm text-neutral-300 dark_bg rounded-md">No files found!</p>
+        <p class="p-2 text-sm  dark_bg rounded-md">No files found!</p>
       </div>
     </template>
   </div>
@@ -100,9 +101,9 @@ export default {
       const mainDiv = this.$refs.fileExplorer
       if (mainDiv) {
         if (!this.isoverlay) {
-          mainDiv.classList.add('pt-[55px]')
+          mainDiv.classList.add('pt_nav')
         } else {
-          mainDiv.classList.remove('pt-[55px]')
+          mainDiv.classList.remove('pt_nav')
         }
       }
       await this.getSnippets()

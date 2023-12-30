@@ -1,29 +1,29 @@
 <template>
   <div id="knowledgeFinder"
-       class="bright_bg w-full h-full relative overflow-hidden"
+       class="background w-full h-full relative overflow-hidden"
        :class="{'rounded-tl': isoverlay, 'rounded-tr': !isoverlay}">
     <template v-if="knowledgeExists">
       <div class="h-full w-full overflow-y-auto">
         <template v-if="!isViewingWisdom && !isViewingProcess">
           <div class="lg:flex w-full h-fit lg:h-full">
             <div id="knowledgeFinder_sidebar"
-                 class="h-full overflow-hidden medium_bg
-                        lg:w-[clamp(450px,33%,550px)] bshadow">
+                 class="h-full overflow-hidden surface-variant z-10 bshadow
+                        lg:w-[clamp(450px,33%,550px)]">
               <div class="h-full relative">
                 <div class="py-1">
                   <div class="flex items-center">
                     <div v-on:click="clickedBack()"
-                         class="h-full ml-2 mr-2 p-2 rounded-lg text-neutral-300
+                         class="h-full ml-2 p-2 rounded-lg
                                 hover:text-orange-500 cursor-pointer flex items-center justify-center">
                       <i class="sb_link_icon bi bi-x-square text-xl"></i>
                     </div>
                     <div class="w-full overflow-x-hidden pr-2">
-                      <div class="py-2 px-2 pointer-events-none">
-                        <div class="text-xl border-l border-gray-300 pl-5 text-neutral-300 font-bold">
-                          {{ this.knowledge.t }}
+                      <div class="py-2 pointer-events-none">
+                        <div class="text-xl border-l border-gray-300 pl-3  font-bold">
+                          <p>{{ this.knowledge.t }}</p>
                         </div>
-                        <div class="text-sm border-l border-gray-300 pl-5 text-neutral-300">
-                          {{ this.knowledge.desc }}
+                        <div class="text-sm border-l border-gray-300 pl-3">
+                          <p>{{ this.knowledge.desc }}</p>
                         </div>
                       </div>
                     </div>
@@ -31,22 +31,25 @@
                 </div>
                 <div class="py-1 px-3">
                   <div class="rounded-lg flex items-center relative">
-                    <MagnifyingGlassIcon class="w-6 h-6 mx-2 text-neutral-300 absolute translate-x-1"/>
+                    <MagnifyingGlassIcon class="w-6 h-6 mx-2  absolute translate-x-1"/>
                     <input id="search-field" type="text"
-                           class="search-field py-6 pl-10 pr-4 dark_bg h-8 border-2 border-zinc-700"
+                           class="fmt_input search-field py-6 pl-10 pr-4 w-full h-8
+                                  surface on-surface-text bshadow"
                            placeholder="Search..."
                            v-on:keyup.enter="searchWisdom(); getProcesses()"
                            v-model="queryText">
                   </div>
                   <template class="hidden lg:block">
-                    <div
-                      style="width: 100%; height: 35px; padding-top: 5px; display: flex; position: relative; align-items: center">
-                      <span class="font-bold text-neutral-300 pointer-events-none">Categories</span>
-                      <button class="text-white btn-no-outline"
+                    <div style="width: 100%; height: 35px; padding-top: 5px;
+                                display: flex; position: relative; align-items: center">
+                      <p class="font-bold pointer-events-none">
+                        Categories
+                      </p>
+                      <button class="btn-no-outline"
                               style="position: absolute; right: 0"
                               title="New Category"
                               v-on:click="startAddingCategory()">
-                        <i class="bi bi-plus lead orange-hover text-neutral-300" style="font-size: 150%"></i>
+                        <i class="bi bi-plus lead orange-hover" style="font-size: 150%"></i>
                       </button>
                     </div>
                     <div class="pb-2 flex items-center w-full">
@@ -63,9 +66,9 @@
                           </template>
                         </template>
                         <template v-else>
-                          <button class="w-full flex justify-center text-neutral-500 font-bold text-sm"
+                          <button class="w-full flex justify-center font-bold text-sm"
                                   v-on:click="startAddingCategory()">
-                            No Categories.
+                            <span>No Categories.</span>
                           </button>
                         </template>
                       </div>
@@ -76,16 +79,14 @@
                 <div class="p-3 lg:absolute lg:bottom-0 lg:w-full">
                   <div class="flex">
                     <button v-on:click="writeWisdom('ask')"
-                            class="border-orange-600 hover:bg-orange-700 border-2
-                                   rounded py-1 px-2 text-neutral-200 mr-3 w-1/2">
+                            class="btn_bg_primary w-1/2">
                       <i class="bi bi-question-lg mr-2"></i>
-                      Ask
+                      <span>Ask</span>
                     </button>
                     <button v-on:click="writeWisdom('teach')"
-                            class="border-indigo-500 bg-indigo-600 hover:bg-indigo-700 border-2
-                                   rounded py-1 px-2 text-neutral-200 w-1/2">
+                            class="btn_bg_primary w-1/2">
                       <i class="bi bi-lightbulb small mr-2"></i>
-                      Teach
+                      <span>Teach</span>
                     </button>
                   </div>
                 </div>
@@ -94,29 +95,29 @@
             <div class="lg:overflow-y-auto overflow-x-hidden h-full
                         lg:w-full">
               <TabGroup as="div" class="w-full">
-                <TabList as="div" class="tab-group dshadow p-1">
+                <TabList as="div" class="tab-group">
                   <Tab class="w-full" v-slot="{ selected }">
                     <button :class="[
                               'w-full',
                               selected
-                              ? 'dark_bg text-white border-b-2 border-b-indigo-400'
-                              : 'hover:dark_bg hover:text-white',
+                              ? 'active_tab'
+                              : 'hover:surface',
                             ]"
                             class="tab"
                             v-on:click="tabSelection = 'knowledge'; getRecentKeywords()">
-                      Knowledge
+                      <span>Knowledge</span>
                     </button>
                   </Tab>
                   <Tab class="w-full" v-slot="{ selected }">
                     <button :class="[
                               'w-full',
                               selected
-                              ? 'dark_bg text-white border-b-2 border-b-indigo-400'
-                              : 'hover:dark_bg hover:text-white',
+                              ? 'active_tab'
+                              : 'hover:surface',
                             ]"
                             class="tab"
                             v-on:click="tabSelection = 'processes'">
-                      Processes
+                      <span>Processes</span>
                     </button>
                   </Tab>
                 </TabList>
@@ -125,15 +126,14 @@
                             class="p-4">
                     <template v-if="emptyState">
                       <div class="">
-                        <div class="text-neutral-400">
-                          <p class="text-xl font-bold mb-2 pointer-events-none text-neutral-300">
+                        <div class="">
+                          <p class="text-xl font-bold mb-2 pointer-events-none">
                             Top Contributors
                           </p>
-                          <div class="flex w-full overflow-x-auto mb-2 pb-[6px] gap-x-4">
+                          <div class="flex w-full overflow-x-auto mb-2 p-2 gap-x-4">
                             <template v-if="topWriters.contributors && topWriters.contributors.length > 0">
                               <div v-for="author in topWriters.contributors" :key="author.username"
-                                   class="text-neutral-400 dshadow rounded-lg overflow-hidden
-                                        medium_bg">
+                                   class="rounded-lg overflow-hidden surface">
                                 <div class="py-2 px-3 pointer-events-none">
                                   <p class="text-xl">{{ author.name }}</p>
                                 </div>
@@ -146,39 +146,41 @@
                               </div>
                             </template>
                             <template v-else>
-                              <div class="medium_bg rounded-md m-1 px-3 py-2 dshadow">
-                                <p class="text-sm text-neutral-300 font-bold">
+                              <div class="rounded-md px-3">
+                                <p class="text-sm italic">
                                   No contributions have been made yet.
                                 </p>
                               </div>
                             </template>
                           </div>
                         </div>
-                        <div v-if="questions.length > 0" class="text-neutral-400">
+                        <div v-if="questions.length > 0" class="">
                           <div class="flex my-2 items-center">
-                            <p class="text-xl font-bold pointer-events-none text-neutral-300">
+                            <p class="text-xl font-bold pointer-events-none">
                               Recent Questions
                             </p>
-                            <button class="ml-4 rounded dark_bg hover:darkest_bg px-1 h-fit w-fit"
+                            <button class="ml-4 rounded primary-container
+                                           hover:primary px-1 h-fit w-fit"
                                     v-on:click="filterQuestions()">
-                              <span class="text-sm font-bold text-neutral-300">Show all</span>
+                              <span class="text-sm font-bold">Show all</span>
                             </button>
                           </div>
-                          <div class="flex w-full overflow-x-auto gap-x-2">
+                          <div class="flex w-full overflow-x-auto gap-x-2 p-2">
                             <template v-for="task in questions" :key="task.uID">
                               <div class="w-full">
                                 <div v-on:click="gotoWisdom(task.result.uid)"
-                                     class="w-full rounded-lg cursor-pointer dark_bg hover:darkest_bg
+                                     class="w-full rounded-lg cursor-pointer
+                                            surface hover:surface-variant
                                       relative min-w-[250px] py-2 px-3">
                                   <div class="flex w-full mb-1 text-sm">
                                     <p>{{ task.name }}</p>
                                     <p class="ml-auto">
                                       {{ getHumanReadableDateText(task.result.ts, true) }}</p>
                                   </div>
-                                  <div class="text-neutral-300 pointer-events-none">
+                                  <div class=" pointer-events-none">
                                     <p class="font-bold text-lg">{{ task.result.t }}</p>
                                   </div>
-                                  <div class="text-neutral-300 pointer-events-none
+                                  <div class=" pointer-events-none
                                         max-h-[11em] overflow-y-hidden">
                                     <div class="flex items-center">
                                       <p class="text-sm">{{ task.result.desc }}</p>
@@ -189,39 +191,36 @@
                             </template>
                           </div>
                         </div>
-                        <p class="text-xl font-bold my-2 pointer-events-none text-neutral-300">
+                        <p class="text-xl font-bold my-2 pointer-events-none">
                           Keyword Cloud
                         </p>
-                        <div class="flex w-full justify-center items-center p-2 medium_bg rounded-lg dshadow">
+                        <div
+                          class="flex w-[calc(100%-16px)] justify-center items-center mx-2 mt-4 p-2 surface rounded-lg">
                           <div id="d3wordcloud"></div>
                         </div>
                       </div>
                     </template>
                     <template v-if="noResults">
                       <div class="flex w-full justify-center items-center lg:mt-10">
-                        <div class="dark_bg rounded-md p-3 text-neutral-300">
+                        <div class="surface rounded-md p-3">
                           <p class="pointer-events-none text-center">No Results for...</p>
-                          <p class="text-neutral-300 text-center my-2">{{ querySubmission }}</p>
+                          <p class="text-center my-2">{{ querySubmission }}</p>
                           <p
-                            class="text-neutral-300 pointer-events-none mt-3 text-center
+                            class="pointer-events-none mt-3 text-center
                                    border-t border-t-gray-400 pt-3">
                             Ask a question or teach people!
                           </p>
                           <div class="mt-2">
                             <div class="flex">
                               <button v-on:click="writeWisdom('ask')"
-                                      class="border-orange-500 hover:bg-orange-700 border-2
-                                             rounded-md py-1 px-2 text-neutral-200
-                                             hover:text-neutral-200 mr-3 w-1/2">
+                                      class="btn_bg_primary w-1/2">
                                 <i class="bi bi-question-lg mr-2"></i>
-                                Ask
+                                <span>Ask</span>
                               </button>
                               <button v-on:click="writeWisdom('teach')"
-                                      class="border-indigo-500 bg-indigo-600 hover:bg-indigo-700 border-2
-                                             rounded-md py-1 px-2 text-neutral-200
-                                             hover:text-neutral-200 w-1/2">
+                                      class="btn_bg_primary w-1/2">
                                 <i class="bi bi-lightbulb small mr-2"></i>
-                                Teach
+                                <span>Teach</span>
                               </button>
                             </div>
                           </div>
@@ -233,14 +232,14 @@
                       <div>
                         <div class="flex items-center gap-x-2">
                           <div class="metaTag pointer-events-none">
-                            <p class="text-xs text-neutral-300 font-bold">
+                            <p class="text-xs  font-bold">
                               {{ results.length }} results in {{ results.time }} s
                             </p>
                           </div>
-                          <p class="pl-1 mb-2 text-xs text-neutral-300 font-bold">Sort by:</p>
+                          <p class="pl-1 mb-2 text-xs  font-bold">Sort by:</p>
                           <div class="metaTag cursor-pointer" :class="{active: sort.byRelevance}"
                                v-on:click="sortResults('relevance')">
-                            <div class="flex items-center text-neutral-300">
+                            <div class="flex items-center">
                               <FunnelIcon class="h-4 w-4 mr-1"/>
                               <p class="text-xs font-bold">
                                 Relevance
@@ -249,7 +248,7 @@
                           </div>
                           <div class="metaTag cursor-pointer" :class="{active: sort.byViews}"
                                v-on:click="sortResults('views')">
-                            <div class="flex items-center text-neutral-300">
+                            <div class="flex items-center">
                               <EyeIcon class="h-4 w-4 mr-1"/>
                               <p class="text-xs font-bold">
                                 Views
@@ -266,34 +265,34 @@
                                  placement="top-end">
                             <div v-on:click="gotoWisdom(result.result.uid)"
                                  class="result cursor-pointer">
-                              <div class="text-neutral-300 flex items-center text-sm">
+                              <div class=" flex items-center text-sm">
                                 <template v-if="result.priority === 'highx'">
-                                  <SparklesIcon class="w-5 h-5 mr-2 text-amber-600"></SparklesIcon>
+                                  <SparklesIcon class="w-5 h-5 mr-2"></SparklesIcon>
                                 </template>
                                 <div class="text-sm">
-                                  <p class="text-neutral-200">
+                                  <p class="">
                                     {{ result.result.usr }}
                                   </p>
-                                  <p class="text-neutral-300">
+                                  <p class="">
                                     {{ getHumanReadableDateText(result.result.ts, true) }}
                                   </p>
                                 </div>
                                 <div class="pointer-events-none ml-auto flex items-center">
                                   <template v-if="result.result.type === 'lesson'">
                                     <div
-                                      class="px-2 py-0.5 ml-2 min-w-[86px] rounded-md bg-indigo-800 text-neutral-300 font-bold">
-                                      {{ capitalizeFirstLetter(result.result.type) }}
+                                      class="primary-container px-2 py-0.5 ml-2 min-w-[86px] rounded-md  font-bold">
+                                      <p>{{ capitalizeFirstLetter(result.result.type) }}</p>
                                     </div>
                                   </template>
                                   <template v-else-if="result.result.type === 'question'">
                                     <div
-                                      class="px-2 py-0.5 ml-2 min-w-[86px] rounded-md bg-orange-800 text-neutral-300 font-bold">
-                                      {{ capitalizeFirstLetter(result.result.type) }}
+                                      class="tertiary-container px-2 py-0.5 ml-2 min-w-[86px] rounded-md  font-bold">
+                                      <p>{{ capitalizeFirstLetter(result.result.type) }}</p>
                                     </div>
                                   </template>
                                   <template v-else>
-                                    <div class="px-1 py-0.5 ml-2 min-w-[86px] rounded-md medium_bg text-neutral-300">
-                                      {{ capitalizeFirstLetter(result.result.type) }}
+                                    <div class="background px-1 py-0.5 ml-2 min-w-[86px] rounded-md  font-bold">
+                                      <p>{{ capitalizeFirstLetter(result.result.type) }}</p>
                                     </div>
                                   </template>
                                 </div>
@@ -303,19 +302,19 @@
                                      overflow-ellipsis mb-1">
                                   <template v-if="result.result.type === 'task'">
                                     <template v-if="result.result.done">
-                                      <div class="px-1 py-1 rounded bg-green-800 flex w-16 mr-2 items-center">
-                                        <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
-                                        <span class="text-xs font-bold text-neutral-300">Done</span>
+                                      <div class="px-1 py-1 rounded primary flex w-16 mr-2 items-center">
+                                        <CheckIcon class="h-4 w-4 mr-1"></CheckIcon>
+                                        <span class="text-xs font-bold">Done</span>
                                       </div>
                                     </template>
                                     <template v-else>
-                                      <div class="px-1 py-1 rounded bg-red-800 flex w-16 mr-2 items-center">
-                                        <Cog6ToothIcon class="h-4 w-4 mr-1 text-neutral-300"></Cog6ToothIcon>
-                                        <span class="text-xs font-bold text-neutral-300">W.I.P.</span>
+                                      <div class="px-1 py-1 rounded error flex w-16 mr-2 items-center">
+                                        <Cog6ToothIcon class="h-4 w-4 mr-1"></Cog6ToothIcon>
+                                        <p class="text-xs font-bold">WIP</p>
                                       </div>
                                     </template>
                                   </template>
-                                  <p class="text-xl font-bold text-neutral-200">
+                                  <p class="text-xl font-bold">
                                     {{ result.result.t }}
                                   </p>
                                 </div>
@@ -323,7 +322,7 @@
                               </div>
                               <div class="flex my-2 items-center">
                                 <div v-if="result.result.views"
-                                     class="text-neutral-300 gray-hover flex items-center
+                                     class=" gray-hover flex items-center
                                             px-2 py-1 mr-1 rounded">
                                   <EyeIcon class="w-4 h-4 mr-1"></EyeIcon>
                                   <span class="font-bold text-sm">{{ result.result.views }}</span>
@@ -331,7 +330,7 @@
                                 <template v-if="result.result && result.result.reacts">
                                   <div class="flex">
                                     <div v-for="reaction in result.result.reacts" :key="reaction.src"
-                                         class="text-neutral-300 gray-hover flex items-center
+                                         class=" gray-hover flex items-center
                                                 px-2 py-1 mr-1 rounded"
                                          :title="reaction.src.toString() + ' reacted to this.'"
                                          :id="'react_' + result.result.uid + '_' + reaction.t">
@@ -356,8 +355,9 @@
                                 </template>
                                 <template v-for="cat in result.result.cats" :key="cat">
                                   <div v-if="cat.category != null"
-                                       class="text-neutral-400 border-[1px] border-zinc-600 flex items-center
-                                    py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm darkest_bg">
+                                       class="border-[1px] border-zinc-600 flex items-center
+                                              py-0.5 px-1 rounded mr-1 mb-1
+                                              pointer-events-none text-sm darkest_bg">
                                     {{ cat }}
                                   </div>
                                 </template>
@@ -407,8 +407,11 @@
                                   <template v-else>
                                     <template v-if="related && related.ref">
                                       <div>
-                                        <p class="text-xs font-bold pointer-events-none">Source Entry:</p>
-                                        <div class="mt-2 p-2 medium_bg rounded max-w-[200px] break-all">
+                                        <p class="text-xs font-bold pointer-events-none">
+                                          Source Entry:
+                                        </p>
+                                        <div class="mt-2 p-2 surface rounded
+                                                    max-w-[200px] break-all">
                                           <div class="text-sm">
                                             {{ related.ref.usr }}
                                           </div>
@@ -421,7 +424,7 @@
                                             </div>
                                           </template>
                                           <div class="mt-2 text-xs font-bold px-1 py-0.5
-                                                    rounded darkest_bg w-fit pointer-events-none">
+                                                    rounded surface-variant w-fit pointer-events-none">
                                             {{ capitalizeFirstLetter(related.ref.type) }}
                                           </div>
                                         </div>
@@ -445,22 +448,19 @@
                   </TabPanel>
                   <TabPanel id="processes_tab" ref="processes_tab"
                             class="p-4">
-                    <div class="darkest_bg rounded p-3 mb-3">
-                      <div class="flex items-center text-neutral-200">
+                    <div class="inverse-surface rounded p-3 mb-3">
+                      <div class="flex items-center">
                         <BeakerIcon class="min-w-[55px] max-w-[55px] min-h-[55px] max-h-[55px] mr-3"></BeakerIcon>
                         <div>
                           <p class="text-2xl font-bold">Experimental Feature</p>
-                          <p class="text-neutral-300 text-xs max-w-xs text-justify">
+                          <p class="text-xs max-w-xs text-justify">
                             The "Processes" feature is currently under development and may
                             change rapidly and unexpectedly.
                           </p>
                         </div>
                       </div>
                       <button v-on:click="writeProcess()"
-                              class="border-2 border-indigo-500
-                                     bg-indigo-600 hover:bg-indigo-700
-                                     flex mt-4 mb-2 py-1 px-2 rounded-md
-                                     text-neutral-200 hover:text-neutral-200">
+                              class="btn_bg_primary mt-4">
                         <PlusCircleIcon class="w-6 h-6 mr-2"></PlusCircleIcon>
                         <span>Create Process</span>
                       </button>
@@ -468,18 +468,17 @@
                     <div class="h-full w-full">
                       <template v-if="processes.length < 1">
                         <div class="flex w-full justify-center items-center lg:mt-10">
-                          <div class="dark_bg rounded-md p-3 text-neutral-300">
+                          <div class="surface rounded-md p-3">
                             <p class="pointer-events-none text-center">No Processes for...</p>
-                            <p class="text-neutral-300 text-center my-2">{{ querySubmission }}</p>
+                            <p class="text-center my-2">{{ querySubmission }}</p>
                             <p
-                              class="text-neutral-300 pointer-events-none mt-3 text-center border-t border-t-gray-400 pt-3">
+                              class="pointer-events-none mt-3 text-center border-t border-t-gray-400 pt-3">
                               Start a Process now!
                             </p>
                             <div class="mt-2">
                               <div class="flex">
                                 <button v-on:click="writeProcess()"
-                                        class="border-indigo-500 bg-indigo-600 hover:bg-indigo-700 border-2 flex
-                                               rounded-md py-1 px-2 text-neutral-200 hover:text-neutral-200">
+                                        class="btn_bg_primary">
                                   <PlusCircleIcon class="w-6 h-6 mr-2"></PlusCircleIcon>
                                   <span>Create Process</span>
                                 </button>
@@ -490,10 +489,10 @@
                       </template>
                       <template v-else>
                         <div class="flex items-center gap-x-2">
-                          <p class="pl-1 mb-2 text-xs text-neutral-300 font-bold">Show:</p>
+                          <p class="pl-1 mb-2 text-xs  font-bold">Show:</p>
                           <div class="metaTag cursor-pointer" :class="{active: sort.byRootNodes}"
                                v-on:click="sort.byAllNodes = false; sort.byRootNodes = true">
-                            <div class="flex items-center text-neutral-300">
+                            <div class="flex items-center">
                               <FunnelIcon class="h-4 w-4 mr-1"/>
                               <p class="text-xs font-bold">
                                 Root Nodes
@@ -502,7 +501,7 @@
                           </div>
                           <div class="metaTag cursor-pointer" :class="{active: sort.byAllNodes}"
                                v-on:click="sort.byAllNodes = true; sort.byRootNodes = false">
-                            <div class="flex items-center text-neutral-300">
+                            <div class="flex items-center">
                               <EyeIcon class="h-4 w-4 mr-1"/>
                               <p class="text-xs font-bold">
                                 All Nodes
@@ -514,19 +513,19 @@
                           <div v-on:click="gotoProcess(result.uid)"
                                v-if="result.root || sort.byAllNodes"
                                class="result cursor-pointer">
-                            <div class="text-neutral-300 flex items-center text-sm">
+                            <div class=" flex items-center text-sm">
                               <div class="text-sm">
-                                <p class="text-neutral-200">
+                                <p class="">
                                   {{ result.usr }}
                                 </p>
-                                <p class="text-neutral-300">
+                                <p class="">
                                   {{ getHumanReadableDateText(result.ts, true) }}
                                 </p>
                               </div>
                             </div>
                             <div class="w-full my-2">
                               <div class="flex items-center overflow-hidden overflow-ellipsis">
-                                <p class="text-xl font-bold text-neutral-200 mb-2">
+                                <p class="text-xl font-bold  mb-2">
                                   {{ result.t }}
                                 </p>
                               </div>
@@ -558,36 +557,42 @@
     </template>
     <template v-else>
       <template v-if="!isoverlay">
-        <div class="pt-[55px]"></div>
+        <div class="pt_nav"></div>
       </template>
-      <div class="h-full w-full bright_bg">
-        <div class="px-8 pt-4 pb-8 m-8 dark_bg rounded-md dshadow max-w-screen-lg">
-          <div class="text-neutral-300 mb-5 pointer-events-none">
+      <div class="h-full w-full background">
+        <div class="px-8 pt-4 pb-8 m-8 background rounded-md dshadow max-w-screen-lg">
+          <div class=" mb-5 pointer-events-none">
             <span class="text-4xl font-bold">Create new Knowledge Hub</span>
           </div>
           <form class="lg:flex lg:gap-x-4" @submit.prevent="createKnowledge()">
-            <div class="text-neutral-300 w-full lg:w-[50%]">
-              <label for="title" class="text-2xl">Title</label>
+            <div class=" w-full lg:w-[50%]">
+              <label for="title" class="text-2xl">
+                <span>Title</span>
+              </label>
               <br>
-              <input type="text" id="title" class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
+              <input type="text" id="title" class="rounded text-xl w-full p-2"
                      required v-model="titleCreation">
               <br>
-              <label for="description" class="text-2xl">Description</label>
+              <label for="description" class="text-2xl">
+                <span>Description</span>
+              </label>
               <br>
               <textarea type="text" rows="3" id="description"
-                        class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
+                        class="rounded text-xl w-full p-2"
                         v-model="descriptionCreation"></textarea>
             </div>
-            <div class="text-neutral-300 w-full lg:w-[50%]">
-              <label for="keywords" class="text-2xl mr-3">Keywords</label>
-              <span class="text-neutral-500">Comma separated</span>
+            <div class=" w-full lg:w-[50%]">
+              <label for="keywords" class="text-2xl mr-3">
+                <span>Keywords</span>
+              </label>
+              <span class="">Comma separated</span>
               <br>
-              <input type="text" id="keywords" class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
+              <input type="text" id="keywords" class="rounded text-xl w-full p-2"
                      v-model="keywordsCreation">
               <br>
               <button type="submit"
                       class="mt-6 btn_bg_primary">
-                Create
+                <span>Create</span>
               </button>
             </div>
           </form>
@@ -619,57 +624,62 @@
     <modal @close="isWritingWisdom = false"
            v-show="isWritingWisdom">
       <template v-slot:header>
-        <template v-if="isWritingLesson">Teach</template>
-        <template v-else-if="isWritingQuestion">Ask</template>
+        <template v-if="isWritingLesson">
+          <p>Teach</p>
+        </template>
+        <template v-else-if="isWritingQuestion">
+          <p>Ask</p>
+        </template>
       </template>
       <template v-slot:body>
-        <div class="flex w-[90dvw] max-h-[90dvh] gap-x-4 px-2">
+        <div class="flex w-[calc(100dvw-36px)] h-[calc(100dvh-150px)] gap-x-1 p-2 overflow-x-hidden">
           <div class="w-full md:w-1/2">
             <div class="md:hidden flex mt-2 w-full">
-              <div class="mb-3 text-black font-bold bg-zinc-800 rounded p-2
+              <div class="mb-1 text-black font-bold rounded
                           w-full flex items-center justify-end">
                 <button v-on:click="createLesson()"
                         class="mr-2 btn_bg_primary"
                         v-tooltip.top="{
                        content: 'Save changes'
                      }">
-                  Submit
+                  <span>Submit</span>
                 </button>
                 <button v-on:click="isWritingWisdom = false"
-                        class="mr-2 py-2 px-3 border-2 border-zinc-500 rounded-md hover:bg-zinc-800
-                               text-neutral-200 bg-zinc-700"
+                        class="mr-2 py-2 px-3 hover:dshadow rounded-md"
                         v-tooltip.top="{
                        content: 'Discard changes'
                      }">
-                  Cancel
+                  <span>Cancel</span>
                 </button>
               </div>
             </div>
-            <label for="wisTitle" class="text-xl font-bold">Title:</label>
-            <br>
-            <input type="text" id="wisTitle" v-model="wisTitle"
-                   class="medium_bg rounded-md w-full py-2 px-3 mt-1 text-neutral-200">
-            <br>
             <div class="block lg:flex w-full">
               <div class="lg:w-1/2">
-                <label for="wisCategories" class="text-xl mt-2 font-bold">Categories:</label>
+                <label for="wisCategories" class="mt-2 font-bold">
+                  <span>Categories:</span>
+                </label>
                 <br>
                 <Listbox v-model="wisCategories" multiple id="wisCategories">
                   <div class="relative mt-1">
                     <ListboxButton
-                      class="medium_bg w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                      class="surface w-full relative cursor-default rounded-lg
+                             py-2 pl-3 pr-10 mb-2 text-left shadow-sm focus:outline-none
+                             focus-visible:border-indigo-500 focus-visible:ring-2
+                             focus-visible:ring-white focus-visible:ring-opacity-75
+                             focus-visible:ring-offset-2
+                             focus-visible:ring-offset-orange-300 sm:text-sm"
                     >
                       <template v-if="wisCategories.length > 0">
-                        <div class="block truncate font-bold text-neutral-300">
-                          {{ wisCategories.map((cat) => cat.category).join(', ') }}
+                        <div class="block truncate font-bold">
+                          <p>{{ wisCategories.map((cat) => cat.category).join(', ') }}</p>
                         </div>
                       </template>
                       <template v-else>
-                        <span class="block truncate font-bold text-neutral-400">Select...</span>
+                        <span class="block truncate font-bold ">Select...</span>
                       </template>
                       <div
                         class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                        <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
+                        <ArrowsUpDownIcon class="h-5 w-5 " aria-hidden="true"/>
                       </div>
                     </ListboxButton>
                     <transition
@@ -677,7 +687,7 @@
                       leave-from-class="opacity-100"
                       leave-to-class="opacity-0">
                       <ListboxOptions
-                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md dark_bg py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md surface py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
                       >
                         <ListboxOption
                           v-slot="{ active, selected }"
@@ -687,11 +697,11 @@
                           as="template"
                         >
                           <li
-                            :class="[ active ? 'bg-gray-700' : '',
-                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-neutral-200' ]">
+                            :class="[ active ? 'primary-container' : '',
+                                  'relative cursor-pointer select-none py-2 pl-10 pr-4' ]">
                             <div
                               :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
-                              {{ cat.category }}
+                              <p>{{ cat.category }}</p>
                             </div>
                             <div
                               v-if="selected"
@@ -706,61 +716,63 @@
                 </Listbox>
               </div>
               <div class="lg:w-3/5 lg:ml-3">
-                <label for="wisKeywords" class="text-xl mt-2 font-bold">Keywords:</label>
+                <label for="wisKeywords" class="mt-2 font-bold">Keywords:</label>
                 <br>
                 <input type="text" id="wisKeywords" v-model="wisKeywords"
-                       class="medium_bg rounded-md py-2 px-3 mt-1 w-full text-neutral-200">
+                       class="fmt_input surface rounded-md py-2 px-3 mt-1 w-full">
               </div>
             </div>
-            <div class="flex items-baseline mt-2">
-              <label for="wisDescription" class="text-xl font-bold">Description:</label>
+            <label for="wisTitle" class="font-bold">
+              <span>Title:</span>
+            </label>
+            <input type="text" id="wisTitle" v-model="wisTitle"
+                   class="fmt_input surface rounded-md w-full py-2 px-3 mt-1 mb-2">
+            <div class="flex items-center">
+              <label for="wisDescription" class="font-bold">Description:</label>
               <div class="ml-2 p-1">
-                <button class="btn_small_icon text-neutral-200"
+                <button class="btn_small_icon"
                         v-on:click="isAddingMedia = true">
                   <DocumentArrowUpIcon
                     class="h-6 w-6 mr-1"
                     aria-hidden="true"
                   />
-                  Add File
+                  <span>Add File</span>
                 </button>
               </div>
             </div>
-            <div class="w-full mt-1">
-            <textarea type="text" id="wisDescription" v-model="wisDescription"
-                      rows="20" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
+            <div class="w-full mt-1 h-full" id="wisDescriptionEditor" ref="wisDescriptionEditor">
+              <textarea type="text" id="wisDescription" v-model="wisDescription"
+                        rows="20" class="fmt_input w-full surface py-2 px-3 hidden"></textarea>
             </div>
-            <br>
             <label for="wisCopyContent" class="text-xl mt-2 font-bold">Copy Content:</label>
-            <br>
             <div class="w-full overflow-hidden mt-1">
-            <textarea type="text" id="wisCopyContent" v-model="wisCopyContent"
-                      rows="5" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
+              <textarea type="text" id="wisCopyContent" v-model="wisCopyContent"
+                        rows="5" class="fmt_input w-full surface py-2 px-3"></textarea>
             </div>
           </div>
           <div class="hidden md:block w-1/2">
             <label class="text-xl font-bold pointer-events-none">Preview:</label>
             <br>
             <div class="flex mt-1 w-full">
-              <div class="text-black font-bold bg-zinc-800 p-4 rounded-md w-full
+              <div class="text-black font-bold rounded-md w-full
                           flex justify-end items-center mb-2">
                 <button v-on:click="createLesson()"
                         class="mr-2 btn_bg_primary"
                         v-tooltip.top="{
                        content: 'Submit entry'
                      }">
-                  Submit
+                  <span>Submit</span>
                 </button>
-                <button v-on:click="isWritingLesson = false"
-                        class="mr-2 py-2 px-3 border-2 border-zinc-500 rounded-md hover:bg-zinc-800
-                               text-neutral-200 bg-zinc-700"
+                <button v-on:click="isWritingWisdom = false"
+                        class="mr-2 py-2 px-3 rounded-md hover:dshadow"
                         v-tooltip.top="{
                        content: 'Discard'
                      }">
-                  Cancel
+                  <span>Cancel</span>
                 </button>
               </div>
             </div>
-            <div class="medium_bg rounded-md p-2 mt-1 cursor-not-allowed">
+            <div class="surface rounded-md p-2 mt-1 cursor-not-allowed fmt_border">
               <Markdown :source="'# ' + wisTitle" class="w-full markedView" :plugins="plugins"></Markdown>
               <Markdown :source="wisDescription" class="w-full mt-4 markedView" :plugins="plugins"></Markdown>
             </div>
@@ -804,16 +816,19 @@
                style="width: 100%"
                multiple v-on:change="handleUploadFileSelect"/>
         <template v-if="uploadFileBase64 !== ''">
-          <p class="text-neutral-300 font-bold">{{ this.uploadFileName }}</p>
+          <p class=" font-bold">{{ this.uploadFileName }}</p>
           <div class="mt-3 w-full">
-            <button class="darkbutton text-white p-2 w-full
+            <button class="darkbutton p-2 w-full
                            flex items-center justify-center rounded-full"
                     style="height: 2.5em;
                            border-color: transparent; margin: auto"
                     title="Send"
                     v-on:click="uploadSnippet">
-              <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Submit</span>
-              <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ this.uploadFileType }}</span>
+              <span class="font-bold flex on-primary-text">Submit</span>
+              <span style="margin-left: 10px"
+                    class="c_lightgray text-xs on-primary-text">
+                {{ this.uploadFileType }}
+              </span>
             </button>
           </div>
         </template>
@@ -832,24 +847,24 @@
             <label for="processTitle" class="text-xl font-bold">Title:</label>
             <br>
             <input type="text" id="processTitle" ref="processTitle" v-model="processTitle"
-                   class="medium_bg rounded-md w-full py-2 px-3 text-neutral-200">
+                   class="surface rounded-md w-full py-2 px-3">
             <br>
             <label for="processKeywords" class="text-xl mt-2 font-bold">Keywords:</label>
             <br>
             <input type="text" id="processKeywords" v-model="processKeywords"
-                   class="medium_bg rounded-md py-2 px-3 w-full text-neutral-200">
+                   class="surface rounded-md py-2 px-3 w-full">
             <br>
             <label for="processDescription" class="text-xl mt-2 font-bold">Description:</label>
             <br>
-            <div class="rounded-md w-full overflow-hidden">
+            <div class="w-full">
               <textarea type="text" id="processDescription" v-model="processDescription"
-                        rows="2" class="w-full medium_bg py-2 px-3 text-neutral-200"></textarea>
+                        rows="2" class="w-full surface py-2 px-3"></textarea>
             </div>
             <div class="flex mt-2 mb-4 w-full">
               <div class="mb-3 ml-auto text-black font-bold">
                 <button v-on:click="createProcess()"
                         class="mr-2 btn_bg_primary">
-                  Create
+                  <span>Create</span>
                 </button>
               </div>
             </div>
@@ -909,6 +924,12 @@ import { DateTime } from 'luxon'
 import markdownItMermaid from 'markdown-it-mermaid'
 import mermaid from 'mermaid'
 import { dbGetDisplayName } from '@/libs/wikistore'
+import { Compartment, EditorState } from '@codemirror/state'
+import { basicSetup } from 'codemirror'
+import { EditorView, keymap } from '@codemirror/view'
+import { indentWithTab } from '@codemirror/commands'
+import { markdown } from '@codemirror/lang-markdown'
+import { languages } from '@codemirror/language-data'
 
 export default {
   name: 'KnowledgeFinderView',
@@ -1032,9 +1053,9 @@ export default {
       const mainDiv = document.getElementById('knowledgeFinder')
       if (mainDiv) {
         if (!this.isoverlay) {
-          mainDiv.classList.add('pt-[55px]')
+          mainDiv.classList.add('pt_nav')
         } else {
-          mainDiv.classList.remove('pt-[55px]')
+          mainDiv.classList.remove('pt_nav')
         }
       }
       // Focus search field
@@ -1072,7 +1093,7 @@ export default {
       this.getTopContributors(srcGUID)
       this.getRecentCategories()
       this.getRecentQuestions()
-      this.getProcesses()
+      this.getProcesses('.')
     },
     getClarifierChatroom: async function (sessionID) {
       if (!sessionID) return
@@ -1082,7 +1103,7 @@ export default {
           method: 'get',
           url: 'chat/private/get/' + sessionID
         }).then((data) => resolve(data.result))
-          .catch((err) => console.debug(err.message))
+        .catch((err) => console.debug(err.message))
       })
     },
     getKnowledge: async function (guid, fromChat = false) {
@@ -1103,9 +1124,9 @@ export default {
           this.knowledge = data.result
           resolve()
         })
-          .catch((err) => {
-            if (err.message) this.knowledgeExists = false
-          })
+        .catch((err) => {
+          if (err.message) this.knowledgeExists = false
+        })
       })
     },
     createKnowledge: async function () {
@@ -1122,12 +1143,12 @@ export default {
           url: 'knowledge/private/create',
           body: JSON.stringify(payload)
         })
-          .then((data) => {
-            this.knowledgeExists = true
-            this.getKnowledge(data.result, false)
-          })
-          .then(() => resolve())
-          .catch((err) => console.debug(err.message))
+        .then((data) => {
+          this.knowledgeExists = true
+          this.getKnowledge(data.result, false)
+        })
+        .then(() => resolve())
+        .catch((err) => console.debug(err.message))
       })
     },
     addCategory: async function () {
@@ -1142,14 +1163,14 @@ export default {
           url: 'm7/edit/categories/' + this.knowledge.uid,
           body: JSON.stringify(payload)
         })
-          .then(() => {
-            this.newCategory = ''
-            this.knowledgeExists = true
-            this.isAddingCategory = false
-            this.getKnowledge(this.srcguid)
-          })
-          .then(() => resolve)
-          .catch((err) => console.debug(err.message))
+        .then(() => {
+          this.newCategory = ''
+          this.knowledgeExists = true
+          this.isAddingCategory = false
+          this.getKnowledge(this.srcguid)
+        })
+        .then(() => resolve)
+        .catch((err) => console.debug(err.message))
       })
     },
     searchWisdom: async function (substitute = null, questionsOnly = false, fields = '') {
@@ -1195,63 +1216,63 @@ export default {
           url: 'wisdom/private/query/' + this.knowledge.uid,
           body: JSON.stringify(payload)
         })
-          .then((data) => {
-            if (!questionsOnly) this.noResults = false
-            let tmpNoResults = true
-            const parsedData = data.result
-            this.results.time = parsedData.respTime
-            if (parsedData.lessons && parsedData.lessons.length > 0) {
-              tmpNoResults = false
-              this.addResults(parsedData.lessons, 'lesson', questionsOnly)
+        .then((data) => {
+          if (!questionsOnly) this.noResults = false
+          let tmpNoResults = true
+          const parsedData = data.result
+          this.results.time = parsedData.respTime
+          if (parsedData.lessons && parsedData.lessons.length > 0) {
+            tmpNoResults = false
+            this.addResults(parsedData.lessons, 'lesson', questionsOnly)
+          }
+          if (parsedData.tasks && parsedData.tasks.length > 0) {
+            tmpNoResults = false
+            this.addResults(parsedData.tasks, 'task', questionsOnly)
+          }
+          if (parsedData.answers && parsedData.answers.length > 0) {
+            tmpNoResults = false
+            this.addResults(parsedData.answers, 'answer', questionsOnly)
+          }
+          if (parsedData.questions && parsedData.questions.length > 0) {
+            tmpNoResults = false
+            this.addResults(parsedData.questions, 'question', questionsOnly)
+          }
+          if (parsedData.replies && parsedData.replies.length > 0) {
+            tmpNoResults = false
+            this.addResults(parsedData.replies, 'reply', questionsOnly)
+          }
+          if (parsedData.boxes && parsedData.boxes.length > 0) {
+            tmpNoResults = false
+            this.addResults(parsedData.boxes, 'box', questionsOnly)
+          }
+          if (!questionsOnly) this.noResults = tmpNoResults
+        })
+        .then(() => resolve())
+        .catch((err) => {
+          console.debug(err.message)
+          if (!questionsOnly) this.noResults = true
+        })
+        .finally(() => {
+          if (this.results.length > 0) {
+            if (this.sort.byRelevance) this.results.sort(this.compareRelevance)
+            if (this.sort.byViews) this.results.sort(this.compareViews)
+          }
+          if (substitute) this.querySubmission = original
+          if (!questionsOnly) {
+            const queryObj = {
+              query: this.querySubmission
             }
-            if (parsedData.tasks && parsedData.tasks.length > 0) {
-              tmpNoResults = false
-              this.addResults(parsedData.tasks, 'task', questionsOnly)
-            }
-            if (parsedData.answers && parsedData.answers.length > 0) {
-              tmpNoResults = false
-              this.addResults(parsedData.answers, 'answer', questionsOnly)
-            }
-            if (parsedData.questions && parsedData.questions.length > 0) {
-              tmpNoResults = false
-              this.addResults(parsedData.questions, 'question', questionsOnly)
-            }
-            if (parsedData.replies && parsedData.replies.length > 0) {
-              tmpNoResults = false
-              this.addResults(parsedData.replies, 'reply', questionsOnly)
-            }
-            if (parsedData.boxes && parsedData.boxes.length > 0) {
-              tmpNoResults = false
-              this.addResults(parsedData.boxes, 'box', questionsOnly)
-            }
-            if (!questionsOnly) this.noResults = tmpNoResults
-          })
-          .then(() => resolve())
-          .catch((err) => {
-            console.debug(err.message)
-            if (!questionsOnly) this.noResults = true
-          })
-          .finally(() => {
-            if (this.results.length > 0) {
-              if (this.sort.byRelevance) this.results.sort(this.compareRelevance)
-              if (this.sort.byViews) this.results.sort(this.compareViews)
-            }
-            if (substitute) this.querySubmission = original
-            if (!questionsOnly) {
-              const queryObj = {
-                query: this.querySubmission
-              }
-              const params = new Proxy(new URLSearchParams(window.location.search), {
-                get: (searchParams, prop) => searchParams.get(prop)
-              })
-              if (params.kguid) queryObj.kguid = params.kguid
-              if (params.cguid) queryObj.cguid = params.cguid
-              if (params.sub) queryObj.sub = params.sub
-              this.$router.replace({
-                query: queryObj
-              })
-            }
-          })
+            const params = new Proxy(new URLSearchParams(window.location.search), {
+              get: (searchParams, prop) => searchParams.get(prop)
+            })
+            if (params.kguid) queryObj.kguid = params.kguid
+            if (params.cguid) queryObj.cguid = params.cguid
+            if (params.sub) queryObj.sub = params.sub
+            this.$router.replace({
+              query: queryObj
+            })
+          }
+        })
       })
     },
     addResults: async function (results, type, questionsOnly) {
@@ -1324,14 +1345,14 @@ export default {
           url: 'wisdom/private/create',
           body: bodyPayload
         })
-          .then(() => {
-            this.resetWriting()
-          })
-          .then(() => resolve)
-          .catch((err) => {
-            console.debug(err.message)
-            this.noResults = true
-          })
+        .then(() => {
+          this.resetWriting()
+        })
+        .then(() => resolve)
+        .catch((err) => {
+          console.debug(err.message)
+          this.noResults = true
+        })
       })
     },
     writeWisdom: function (type = 'lesson') {
@@ -1353,6 +1374,7 @@ export default {
       this.isEditingWisdom = false
       // Defaults
       this.wisTitle = this.capitalizeFirstLetter(this.queryText).trim()
+      this.showDescriptionCodeMirror()
     },
     resetWriting: function () {
       this.wisTitle = ''
@@ -1376,21 +1398,21 @@ export default {
           method: 'get',
           url: 'wisdom/private/contributors/' + this.knowledge.uid
         })
-          .then(async (data) => {
-            this.topWriters = data.result
-            let dName
-            for (let i = 0; i < this.topWriters.contributors.length; i++) {
-              dName = await dbGetDisplayName(this.topWriters.contributors[i].usr)
-              if (dName == null) {
-                dName = this.topWriters.contributors[i].usr
-              }
-              this.topWriters.contributors[i].name = dName
+        .then(async (data) => {
+          this.topWriters = data.result
+          let dName
+          for (let i = 0; i < this.topWriters.contributors.length; i++) {
+            dName = await dbGetDisplayName(this.topWriters.contributors[i].usr)
+            if (dName == null) {
+              dName = this.topWriters.contributors[i].usr
             }
-          })
-          .catch((err) => {
-            console.debug(err.message)
-          })
-          .finally(() => resolve())
+            this.topWriters.contributors[i].name = dName
+          }
+        })
+        .catch((err) => {
+          console.debug(err.message)
+        })
+        .finally(() => resolve())
       })
     },
     gotoWisdom: function (id) {
@@ -1440,56 +1462,56 @@ export default {
       const words = typeof text === 'string' ? text.split(/\W+/g) : Array.from(text)
 
       const data = d3.rollups(words, size, w => w)
-        .sort(([, a], [, b]) => d3.descending(a, b))
-        .slice(0, maxWords)
-        .map(([key, size]) => ({
-          text: word(key),
-          size: size
-        }))
+      .sort(([, a], [, b]) => d3.descending(a, b))
+      .slice(0, maxWords)
+      .map(([key, size]) => ({
+        text: word(key),
+        size: size
+      }))
 
       const svg = d3.create('svg')
-        .attr('viewBox', [0, 0, width, height])
-        .attr('width', width)
-        .attr('font-family', fontFamily)
-        .attr('text-anchor', 'middle')
-        .attr('style', 'max-width: 100%; height: auto; height: intrinsic; font-weight: bold; font-style: italic;')
+      .attr('viewBox', [0, 0, width, height])
+      .attr('width', width)
+      .attr('font-family', fontFamily)
+      .attr('text-anchor', 'middle')
+      .attr('style', 'max-width: 100%; height: auto; height: intrinsic; font-weight: bold; font-style: italic;')
 
       const g = svg.append('g').attr('transform', `translate(${marginLeft},${marginTop})`)
       const vueInstance = this
       const cloud = d3Cloud()
-        .size([width - marginLeft - marginRight, height - marginTop - marginBottom])
-        .words(data)
-        .padding(padding)
-        .rotate(rotate)
-        .font(fontFamily)
-        .fontSize(d => (Math.sqrt(d.size) * fontScale))
-        .on('word', ({
-          size,
-          x,
-          y,
-          rotate,
-          text
-        }) => {
-          g.append('text')
-            .attr('font-size', size)
-            .attr('fill', 'rgb(206,206,206)')
-            .attr('transform', `translate(${x},${y}) rotate(${rotate})`)
-            .text(text)
-            .on('click', function () {
-              vueInstance.searchWisdom(text, false, 'keys')
-            })
-            .attr('class', 'cursor-pointer')
-            .on('mouseover', function () {
-              d3.select(this).transition()
-                .duration('100')
-                .attr('fill', '#da6c0e')
-            })
-            .on('mouseout', function () {
-              d3.select(this).transition()
-                .duration('200')
-                .attr('fill', 'rgb(206,206,206)')
-            })
+      .size([width - marginLeft - marginRight, height - marginTop - marginBottom])
+      .words(data)
+      .padding(padding)
+      .rotate(rotate)
+      .font(fontFamily)
+      .fontSize(d => (Math.sqrt(d.size) * fontScale))
+      .on('word', ({
+                     size,
+                     x,
+                     y,
+                     rotate,
+                     text
+                   }) => {
+        g.append('text')
+        .attr('font-size', size)
+        .attr('fill', 'var(--md-sys-color-on-surface)')
+        .attr('transform', `translate(${x},${y}) rotate(${rotate})`)
+        .text(text)
+        .on('click', function () {
+          vueInstance.searchWisdom(text, false, 'keys')
         })
+        .attr('class', 'cursor-pointer')
+        .on('mouseover', function () {
+          d3.select(this).transition()
+          .duration('100')
+          .attr('fill', 'var(--md-sys-color-primary)')
+        })
+        .on('mouseout', function () {
+          d3.select(this).transition()
+          .duration('200')
+          .attr('fill', 'var(--md-sys-color-on-surface)')
+        })
+      })
 
       cloud.start()
       invalidation && invalidation.then(() => cloud.stop())
@@ -1502,20 +1524,20 @@ export default {
           method: 'get',
           url: 'wisdom/private/meta/' + this.knowledge.uid + '?type=keys'
         })
-          .then((data) => {
-            let keywords = []
-            if (data.result.keys) keywords = data.result.keys
-            const svg = this.wordCloud(keywords)
-            const myNode = document.getElementById('d3wordcloud')
-            while (myNode.lastElementChild) {
-              myNode.removeChild(myNode.lastElementChild)
-            }
-            myNode.appendChild(svg)
-          })
-          .catch((err) => {
-            console.debug(err.message)
-          })
-          .finally(() => resolve())
+        .then((data) => {
+          let keywords = []
+          if (data.result.keys) keywords = data.result.keys
+          const svg = this.wordCloud(keywords)
+          const myNode = document.getElementById('d3wordcloud')
+          while (myNode.lastElementChild) {
+            myNode.removeChild(myNode.lastElementChild)
+          }
+          myNode.appendChild(svg)
+        })
+        .catch((err) => {
+          console.debug(err.message)
+        })
+        .finally(() => resolve())
       })
     },
     getRecentCategories: async function () {
@@ -1525,23 +1547,23 @@ export default {
           method: 'get',
           url: 'm7/categorylist/' + this.knowledge.uid
         })
-          .then((data) => {
-            if (!data.result.categories) return
-            if (this.knowledge && this.knowledge.categories) {
-              for (let i = 0; i < data.result.categories.length; i++) {
-                const category = data.result.categories[i]
-                for (let j = 0; j < this.knowledge.categories.length; j++) {
-                  if (this.knowledge.categories[j].category === category.category) {
-                    this.knowledge.categories[j].count = category.count
-                  }
+        .then((data) => {
+          if (!data.result.categories) return
+          if (this.knowledge && this.knowledge.categories) {
+            for (let i = 0; i < data.result.categories.length; i++) {
+              const category = data.result.categories[i]
+              for (let j = 0; j < this.knowledge.categories.length; j++) {
+                if (this.knowledge.categories[j].category === category.category) {
+                  this.knowledge.categories[j].count = category.count
                 }
               }
             }
-          })
-          .catch((err) => {
-            console.debug(err.message)
-          })
-          .finally(() => resolve())
+          }
+        })
+        .catch((err) => {
+          console.debug(err.message)
+        })
+        .finally(() => resolve())
       })
     },
     startAddingCategory: function () {
@@ -1602,7 +1624,7 @@ export default {
       this.questions = []
       return new Promise((resolve) => {
         this.searchWisdom('type:question state:false question', true)
-          .then(() => resolve())
+        .then(() => resolve())
       })
     },
     getProcesses: async function (substitute = null) {
@@ -1610,7 +1632,7 @@ export default {
       return new Promise((resolve) => {
         const entryType = this.extractEntryType()
         const payload = {
-          query: this.querySubmission,
+          query: substitute ?? this.querySubmission,
           type: entryType
         }
         this.$Worker.execute({
@@ -1619,14 +1641,14 @@ export default {
           url: 'process/private/query/' + this.knowledge.uid,
           body: JSON.stringify(payload)
         })
-          .then((data) => {
-            // Retrieve all boxes and tasks from server response
-            this.processes = data.result.processes
-          })
-          .then(() => resolve())
-          .catch((err) => {
-            console.debug(err.message)
-          })
+        .then((data) => {
+          // Retrieve all boxes and tasks from server response
+          this.processes = data.result.processes
+        })
+        .then(() => resolve())
+        .catch((err) => {
+          console.debug(err.message)
+        })
       })
     },
     writeProcess: function () {
@@ -1659,10 +1681,10 @@ export default {
           this.processKeywords = ''
           this.gotoProcess(data.result)
         })
-          .then(() => resolve())
-          .catch((err) => {
-            console.debug(err.message)
-          })
+        .then(() => resolve())
+        .catch((err) => {
+          console.debug(err.message)
+        })
       })
     },
     filterQuestions: function () {
@@ -1678,13 +1700,13 @@ export default {
         method: 'get',
         url: 'wisdom/private/investigate/' + guid
       })
-        .then((data) => {
-          this.related = data.result
-          this.relatedLoading = false
-        })
-        .finally(() => {
-          return true
-        })
+      .then((data) => {
+        this.related = data.result
+        this.relatedLoading = false
+      })
+      .finally(() => {
+        return true
+      })
       return true
     },
     limitTo: function (string, length) {
@@ -1698,9 +1720,8 @@ export default {
       if (text == null || text === '') return
       const textarea = document.getElementById(id)
       if (textarea == null) return
-      const startPosition = textarea.selectionStart
-      const endPosition = textarea.selectionEnd
-
+      const startPosition = this.cm.state.selection.main.head
+      const endPosition = this.cm.state.selection.main.head
       textarea.value = `${textarea.value.substring(
         0,
         startPosition
@@ -1708,8 +1729,8 @@ export default {
         endPosition,
         textarea.value.length
       )}`
-
       this.wisDescription = textarea.value
+      this.showDescriptionCodeMirror()
     },
     handleUploadFileSelect: async function (evt, drop = false) {
       if (!evt) return
@@ -1752,8 +1773,8 @@ export default {
         url: 'files/private/create',
         body: content
       })
-        .then((data) => (this.processUploadSnippetResponse(data.result)))
-        .catch((err) => (this.handleUploadSnippetError(err.message)))
+      .then((data) => (this.processUploadSnippetResponse(data.result)))
+      .catch((err) => (this.handleUploadSnippetError(err.message)))
     },
     handleUploadSnippetError: function (errorMessage = '') {
       console.debug(errorMessage)
@@ -1765,7 +1786,7 @@ export default {
         })
     },
     processUploadSnippetResponse: async function (response) {
-      const contentURL = this.$store.state.serverIP + '/files/public/get/' + response
+      const contentURL = this.$store.state.serverIP + '/files/public/get/' + response.trim()
       let prefix
       if (this.uploadFileType.includes('image')) {
         prefix = '!'
@@ -1853,6 +1874,42 @@ export default {
         }
       }
       return state
+    },
+    showDescriptionCodeMirror: function () {
+      setTimeout(() => {
+        if (this.cm == null) {
+          const elem = document.getElementById('wisDescriptionEditor')
+          if (elem == null) {
+            return
+          }
+          const tabSize = new Compartment()
+          const updateWisDescription = EditorState.transactionExtender.of(tr => {
+            if (!tr.docChanged) return null
+            this.wisDescription = tr.newDoc.toString()
+          })
+          const state = EditorState.create({
+            doc: this.wisDescription,
+            extensions: [
+              basicSetup,
+              tabSize.of(EditorState.tabSize.of(4)),
+              keymap.of([indentWithTab]),
+              markdown({ codeLanguages: languages }),
+              updateWisDescription,
+              EditorView.lineWrapping
+            ]
+          })
+          const view = new EditorView({
+            state,
+            parent: elem
+          })
+          if (view == null) return
+          this.cm = view
+        } else {
+          this.cm.dispatch({
+            changes: { from: 0, to: this.cm.state.doc.length, insert: this.wisDescription }
+          })
+        }
+      }, 0)
     }
   }
 }
@@ -1861,7 +1918,6 @@ export default {
 <style>
 
 .search-field {
-  color: white;
   border-radius: 10px;
   resize: none;
   overflow: hidden;
@@ -1869,29 +1925,42 @@ export default {
 }
 
 .gray-hover:hover {
-  @apply medium_bg text-neutral-200;
+  @apply medium_bg ;
   cursor: pointer;
   border-radius: 10px;
 }
 
 .kf_category {
-  @apply font-bold text-xs text-neutral-400 bg-black bg-opacity-40 cursor-default mb-1 flex items-center text-center px-3 rounded-full hover:border-gray-100 hover:text-neutral-100 h-8;
+  @apply font-bold text-xs bg-black bg-opacity-40 cursor-default mb-1 flex items-center text-center px-3 rounded-full hover:border-gray-100 h-8;
 }
 
 .result {
-  @apply mb-2 relative text-neutral-300 px-3 py-3 rounded medium_bg dshadow;
+  @apply mb-2 relative px-3 py-3 rounded surface;
 }
 
 .result:hover {
-  @apply darkest_bg bg-opacity-50 dshadow;
+  @apply dshadow;
 }
 
 .tab-group {
-  @apply flex gap-x-2 w-full justify-between medium_bg;
+  @apply flex w-full justify-between gap-1;
 }
 
 .tab {
-  @apply p-2 rounded-md w-full text-neutral-300 text-center;
+  @apply p-2 w-full text-center bshadow surface-variant;
+}
+
+.active_tab {
+  @apply background shadow-none;
+}
+
+.active_tab * {
+  @apply font-bold;
+}
+
+.cm-editor {
+  @apply w-full h-full fmt_border overflow-hidden;
+  background-color: var(--md-sys-color-surface-light);
 }
 
 </style>

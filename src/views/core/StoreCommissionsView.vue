@@ -1,57 +1,44 @@
 <template>
-  <div class="flex w-full h-full pt-[55px] justify-center bright_bg">
-    <div class="max-w-screen-xl w-full bright_bg
+  <div class="flex w-full h-full pt_nav justify-center">
+    <div class="max-w-screen-xl w-full surface rounded-t-md
                 overflow-x-hidden
                 overflow-y-auto">
-      <div class="px-4 py-3 darkest_bg bshadow z-10">
-        <p class="text-3xl font-bold text-neutral-300">
+      <div class="px-4 py-3 surface-variant bshadow z-10">
+        <p class="text-3xl font-bold">
           {{ $t("eco.commissions") }}
         </p>
       </div>
       <div class="pt-2 z-0 relative">
         <template v-if="ownStore != null">
           <div class="w-full h-full p-2 pb-16">
-            <div class="rounded medium_bg w-fit mx-2 mb-4
-                        overflow-hidden dshadow">
-              <div class="px-3 py-1 dark_bg">
-                <div class="">
-                  <p class="font-bold text-xl">
-                    {{ ownStore.t }}
-                  </p>
-                  <p class="text-sm text-neutral-400">
-                    {{ ownStore.desc }}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="rounded medium_bg w-fit mx-2 mb-4
-                      overflow-hidden dshadow">
+            <div class="rounded surface w-fit mx-2 mb-4
+                        overflow-hidden bshadow">
               <template v-if="orders && orders.length < 1">
                 <div class="flex items-center dark_bg px-3 py-1 cursor-default">
-                  <p class="text-neutral-300">
+                  <p class="">
                     {{ $t("commissions.none") }}
                   </p>
                 </div>
               </template>
               <template v-else>
-                <div class="flex items-center dark_bg px-3 py-1 cursor-default">
-                  <p class="text-neutral-300">
+                <div class="flex items-center surface-variant px-3 py-1 cursor-default">
+                  <p class="">
                     {{ orders.length }} {{ $t("commissions.listed") }}
                   </p>
                 </div>
-                <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
+                <p class="text-sm px-3 py-1 my-2 cursor-default">
                   {{ $t("commissions.desc") }}
                 </p>
-                <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
+                <p class="text-sm px-3 py-1 my-2 cursor-default">
                   {{ $t("commissions.btnReportDesc") }}
                 </p>
-                <div class="grid grid-cols-1 gap-y-2 w-[175px] my-4">
-                  <div class="px-3 py-1 dark_bg hover:darkest_bg
-                              rounded-r cursor-pointer
-                              border-b-[2px] border-r-[2px]
-                              border-indigo-500"
+                <div class="grid grid-cols-1 gap-y-2 w-[175px] m-4">
+                  <div class="px-3 py-1 primary-container
+                              hover:dshadow hover:primary
+                              rounded cursor-pointer"
+                       style="border: 1px solid var(--md-sys-color-primary);"
                        v-on:click="generateReport()">
-                    <p class="px-2 py-1 text-sm font-bold text-neutral-300">
+                    <p class="px-2 py-1 text-sm font-bold">
                       {{ $t("commissions.btnReport") }}
                     </p>
                   </div>
@@ -61,15 +48,16 @@
             <template v-if="orders && orders.length > 0">
               <div class="m-2 flex flex-col gap-y-4">
                 <template v-for="order in orders" :key="order">
-                  <div class="px-3 py-2 rounded medium_bg overflow-hidden">
+                  <div class="px-3 py-2 rounded surface-variant
+                              overflow-hidden bshadow">
                     <div class="flex items-center gap-x-2">
                       <DocumentTextIcon
-                        class="w-12 h-12 text-neutral-300"/>
+                        class="w-12 h-12"/>
                       <div>
                         <p class="font-bold text-xl mb-1">
                           {{ getHumanReadableDateText(order.ts) }}
                         </p>
-                        <p class="text-neutral-400 text-xs">
+                        <p class="text-xs">
                           OrderID: {{ order.uid }}
                         </p>
                       </div>
@@ -80,7 +68,7 @@
                         <tr>
                           <td>{{ $t("eco.billing") }}:</td>
                           <td>
-                            <p class="px-2 py-1 rounded dark_bg">
+                            <p class="px-2 py-1 rounded">
                               {{ $t("orderState." + order.bstate) }}
                             </p>
                           </td>
@@ -88,7 +76,7 @@
                         <tr>
                           <td>{{ $t("eco.delivery") }}:</td>
                           <td>
-                            <p class="px-2 py-1 rounded dark_bg">
+                            <p class="px-2 py-1 rounded">
                               {{ $t("orderState." + order.dstate) }}
                             </p>
                           </td>
@@ -96,26 +84,26 @@
                         <tr>
                           <td>{{ $t("eco.commission") }}:</td>
                           <td>
-                            <p class="px-2 py-1 rounded dark_bg">
+                            <p class="px-2 py-1 rounded">
                               {{ $t("orderState." + order.state) }}
                             </p>
                           </td>
                         </tr>
                       </table>
-                      <div class="flex py-2 dark_bg w-fit
-                                  items-center border-[1px]
-                                  border-neutral-500
-                                  flex-col px-4 justify-center">
-                        <p class="text-3xl font-bold text-green-500">
+                      <div class="flex py-2 surface w-fit
+                                  items-center
+                                  flex-col px-4 justify-center"
+                           style="border: 1px solid var(--md-sys-color-outline);">
+                        <p class="text-3xl font-bold">
                           + {{ order.net }} €
                         </p>
-                        <p class="text-neutral-400 text-sm">
+                        <p class="text-sm">
                           {{ order.gross }} € {{ $t("eco.withVat") }}
                         </p>
                       </div>
                       <div class="py-2 flex flex-wrap gap-x-4 gap-y-4">
                         <div class="w-fit">
-                          <p class="font-bold px-3 py-1 rounded dark_bg text-neutral-300">
+                          <p class="font-bold px-3 py-1 rounded">
                             {{ $t("eco.delivery") }}
                           </p>
                           <div class="p-2">
@@ -130,7 +118,7 @@
                           </div>
                         </div>
                         <div class="w-fit">
-                          <p class="font-bold px-3 py-1 rounded dark_bg text-neutral-300">
+                          <p class="font-bold px-3 py-1 rounded">
                             {{ $t("eco.billing") }}
                           </p>
                           <div class="p-2">
@@ -147,8 +135,8 @@
                       </div>
                     </div>
                     <div class="flex items-end my-4">
-                      <div class="p-2 bright_bg flex gap-2
-                                  rounded-md h-fit dshadow
+                      <div class="p-2 flex gap-2 surface
+                                  rounded-md h-fit
                                   text-sm font-bold">
                         <div class="order_btn"
                              v-on:click="attemptStateChange(
@@ -198,7 +186,7 @@
                                   :key="item">
                           <tr>
                             <td>
-                              <p class="text-neutral-400">
+                              <p class="">
                                 {{ index + 1 }}
                               </p>
                             </td>
@@ -228,7 +216,8 @@
                             </td>
                             <td>
                               <div class="flex-col">
-                                <p class="p-2 medium_bg rounded mt-1 text-end">
+                                <p class="p-2 surface-variant rounded mt-1
+                                          text-end font-bold text-lg">
                                   {{ formatCurrency(item.net) }} €
                                 </p>
                                 <p class="p-2 text-end">
@@ -258,8 +247,8 @@
     </template>
     <template v-slot:body>
       <template v-if="report && report.items && report.items.length > 0">
-        <div class="mb-2 p-2 w-full rounded darkest_bg">
-          <div class="hover:medium_bg w-fit px-2 py-1
+        <div class="mb-2 p-2 w-full rounded surface">
+          <div class="hover:primary w-fit px-2 py-1
                       rounded cursor-pointer"
                v-on:click="copyReport()">
             <p>
@@ -282,7 +271,7 @@
           <template v-for="(item, index) in report.items"
                     :key="item">
             <tr>
-              <td><span class="text-neutral-400">
+              <td><span class="">
                                 {{ index + 1 }}
                               </span></td>
               <td><p class="text-center text-lg">
@@ -315,7 +304,8 @@
               </td>
               <td>
                 <div class="flex-col">
-                  <p class="p-2 medium_bg rounded mt-1 text-end">
+                  <p class="p-2 surface-variant rounded mt-1
+                            text-end font-bold text-lg">
                     {{ formatCurrency(item.net) }} €
                   </p>
                   <p class="p-2 text-end">
@@ -327,6 +317,13 @@
             </tr>
           </template>
         </table>
+      </template>
+      <template v-else>
+        <div>
+          <p class="min-w-[300px] min-h-[100px]">
+            {{ $t("gen.emptyState") }}
+          </p>
+        </div>
       </template>
     </template>
     <template v-slot:footer>
@@ -677,7 +674,6 @@ export default {
 <style>
 
 .search-field {
-  color: white;
   border-radius: 10px;
   resize: none;
   overflow: hidden;
@@ -693,7 +689,7 @@ export default {
 }
 
 .ftable {
-  @apply table dark_bg;
+  @apply table surface;
 }
 
 .ftable tr {
@@ -701,19 +697,20 @@ export default {
 
 .ftable th,
 .ftable td {
-  @apply px-2 py-1 border-[1px] border-neutral-500;
+  @apply px-2 py-1;
+  border: 1px solid var(--md-sys-color-outline);
 }
 
 .order_btn {
-  @apply p-2 medium_bg hover:darkest_bg rounded
-  border-[1px] border-neutral-500
+  @apply p-2 primary-container hover:primary rounded
   cursor-pointer;
+  border: 1px solid var(--md-sys-color-outline-variant);
 }
 
 .order_btn_danger {
-  @apply p-2 bg-red-900 hover:darkest_bg rounded
-  border-[1px] border-red-600
+  @apply p-2 error hover:error-container rounded
   cursor-pointer;
+  border: 1px solid var(--md-sys-color-error);
 }
 
 </style>

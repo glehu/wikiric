@@ -1,148 +1,62 @@
+@import url(tokens.css);
+@import url(theme.light.css);
+@import url(theme.dark.css);
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --h_nav: 40px;
+}
+
+::placeholder {
+    @apply italic;
+}
+
 @layer components {
-    h1, h2, h3, h4, h5, h6, p, td, th, li {
-        @apply text-neutral-200;
-    }
-
-    .markedView p {
-        @apply mb-4;
-    }
-
-    .markedView a {
-        @apply darkest_bg hover:underline
-        px-1.5 pb-0.5 text-neutral-300 rounded text-center;
-    }
-
-    .markedView a:hover {
-        box-shadow: 0 0 0 2px rgb(99 102 241);
-        @apply bg-indigo-900 text-white;
-    }
-
-    .markedView a::before {
-        content: "»";
-        box-shadow: 0 0 0 2px rgb(24 24 27);
-        @apply mr-1 no-underline px-1 font-bold rounded text-xs
-        bg-indigo-800 hover:bg-indigo-500
-        text-neutral-300 hover:text-neutral-200;
-    }
-
-    .markedView img {
-        max-width: clamp(200px, 100%, 36rem);
-    }
-
-    .markedView ul {
-        @apply list-disc list-inside mb-2;
-    }
-
-    .markedView ol {
-        @apply list-decimal list-inside mb-2;
-    }
-
-    .markedView ul, ol, table {
-        @apply mb-4
-    }
-
-    .markedView pre {
-        @apply mb-2;
-    }
-
-    .markedView table {
-        @apply mb-4;
-    }
-
-    .markedView th {
-        @apply p-2 text-neutral-200 font-bold border border-b-2 border-zinc-500 darkest_bg;
-    }
-
-    .markedView td {
-        @apply p-2 border border-zinc-500 dark_bg;
-    }
-
-    .markedView h1 {
-        @apply text-3xl mb-6 mt-10 font-bold text-neutral-200;
-    }
-
-    .markedView h2 {
-        @apply text-2xl mb-6 mt-8 font-bold text-neutral-200;
-    }
-
-    .markedView h3 {
-        @apply text-xl mb-4 mt-8 font-bold text-neutral-200;
-    }
-
-    .markedView h4 {
-        @apply text-xl mb-4 mt-8 font-bold text-neutral-200;
-    }
-
-    .markedView h5 {
-        @apply text-lg mb-4 mt-6 font-bold text-neutral-200;
-    }
-
-    .markedView h6 {
-        @apply text-lg my-2 font-bold text-neutral-200;
-    }
-
-    .markedView code {
-        @apply py-0.5 px-1 rounded-md border border-zinc-500 text-neutral-300 my-2 dark_bg;
-    }
-
-    hr {
-        @apply my-6 h-[4px] w-full border-[1px] border-zinc-500 bg-zinc-500 rounded;
-    }
-
-    .markedView > :last-child {
-        @apply mb-0 !important;
-    }
-
-    .markedView > :first-child {
-        @apply mt-0 !important;
-    }
-
-    .markedView blockquote {
-        @apply py-2 px-4 border-l-8 border-l-indigo-500 rounded bg-indigo-900 mb-4;
-    }
-
-    .markedView blockquote > :last-child {
-        @apply mb-0 !important;
-    }
-
-    .markedView blockquote > :first-child {
-        @apply mt-0 !important;
-    }
-
     .brightest_bg {
         @apply bg-zinc-500
     }
 
     .bright_bg {
-        @apply bg-zinc-600;
+        @apply bg-zinc-500;
     }
 
     .medium_bg {
-        @apply bg-zinc-700;
+        @apply bg-zinc-600;
     }
 
     .dark_bg {
-        @apply bg-zinc-800;
+        @apply bg-zinc-700;
     }
 
     .darkest_bg {
-        @apply bg-zinc-900;
+        @apply bg-zinc-800;
     }
 
     .btn_bg_primary {
-        @apply bg-indigo-600 hover:bg-indigo-700
-        border-2 border-indigo-400
-        text-neutral-200 hover:text-neutral-200
-        m-1 py-2 px-4 rounded-md cursor-pointer;
+        background-color: var(--md-sys-color-primary);
+        @apply m-1 py-2 px-4 rounded-md cursor-pointer hover:bshadow flex justify-center;
+    }
+
+    .btn_bg_primary:hover {
+        background-color: var(--md-sys-color-primary-container);
+    }
+
+    .btn_bg_primary p,
+    .btn_bg_primary * {
+        color: var(--md-sys-color-on-primary) !important;
+    }
+
+    .btn_bg_primary:hover p,
+    .btn_bg_primary:hover * {
+        color: var(--md-sys-color-on-primary-container) !important;
     }
 
     .btn_small_icon {
         @apply text-sm flex items-center py-2 pl-2 pr-3 rounded
-        hover:darkest_bg hover:text-white
+        hover:primary hover:dshadow
     }
 
     .prevent-select {
@@ -159,7 +73,7 @@
     }
 
     .vpopper {
-        @apply p-2 rounded dark_bg opacity-100 text-neutral-300;
+        @apply p-2 rounded background opacity-100;
     }
 
     .logo {
@@ -167,27 +81,46 @@
     }
 
     .bshadow {
-        box-shadow: 0 0 4px 2px rgb(40 40 43);
+        box-shadow: rgba(0, 0, 0, 0.2) 0 0 2px 1px
     }
 
     .dshadow {
-        box-shadow: 2px 2px 2px 0 rgb(40 40 43);
+        box-shadow: rgba(0, 0, 0, 0.2) 0 3px 3px -2px,
+        rgba(0, 0, 0, 0.14) 0 1px 4px 0,
+        rgba(0, 0, 0, 0.12) 0 1px 8px 0;
     }
 
     .metaTag {
-        @apply medium_bg hover:dark_bg rounded-md mb-2 px-2 py-1 dshadow w-fit;
+        background-color: var(--md-sys-color-surface-variant);
+        border: 1px solid var(--md-sys-color-outline-variant);
+        @apply rounded-md mb-2 px-2 py-1 w-fit;
     }
 
     .metaTag.active {
-        @apply border-b-2 border-b-indigo-400 dark_bg;
+        background-color: var(--md-sys-color-primary-container);
+        @apply dshadow;
+    }
+
+    .metaTag p,
+    .metaTag * {
+        color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .metaTag.active p,
+    .metaTag.active * {
+        color: var(--md-sys-color-on-primary-container);
     }
 
     .darkbutton {
-        background-color: #192129;
+        @apply primary;
+    }
+
+    .darkbutton * {
+        color: var(--md-sys-color-on-primary) !important;
     }
 
     .darkbutton:hover {
-        background-color: #303c46;
+        @apply primary-container;
     }
 
     .file_input {
@@ -196,23 +129,18 @@
 
     .img_index {
         @apply w-6 h-6 rounded-full text-xs
-        bg-opacity-75 hover:bg-opacity-100
-        dark_bg hover:medium_bg
+        background
         flex items-center justify-center p-1
-        border-2 border-neutral-500
         cursor-pointer;
-    }
-
-    .img_index p {
-        @apply text-neutral-400
+        border: 1px solid var(--md-sys-color-primary);
     }
 
     .img_index.active {
-        @apply bright_bg;
+        @apply primary-container;
     }
 
     .img_index.active p {
-        @apply text-neutral-300 font-bold;
+        @apply font-bold;
     }
 
     .imagecontainer {
@@ -238,27 +166,594 @@
         width: auto;
         opacity: 0;
         transform: translateY(10px);
-        @apply text-neutral-200;
     }
 
     .btn_disclosure {
         @apply flex justify-between gap-2
-        medium_bg dshadow
-        px-2 py-1 hover:darkest_bg
+        px-2 py-1
         focus:outline-none focus-visible:ring
         focus-visible:ring-neutral-500
         focus-visible:ring-opacity-75
     }
 
     .app-thumb {
-        @apply flex flex-col gap-4 text-neutral-300
+        @apply surface hover:surface-variant
+        flex flex-col gap-4
         justify-center items-center w-36 h-36
-        dshadow rounded-lg medium_bg
-        p-2 overflow-hidden text-lg bg-opacity-75
-        cursor-pointer hover:bright_bg;
+        dshadow rounded-lg
+        p-2 overflow-hidden text-lg
+        cursor-pointer;
     }
 
     .app-text {
         @apply text-center;
+    }
+
+    .fmt_input {
+        @apply py-1 px-2 rounded surface;
+        border: 1px solid var(--md-sys-color-outline-variant)
+    }
+
+    .fmt_input_emphasis {
+        @apply py-1 px-2 rounded background bshadow;
+        border: 1px solid var(--md-sys-color-outline-variant)
+    }
+
+    input:checked {
+        accent-color: var(--md-sys-color-primary);
+    }
+
+    .primary-light {
+        background-color: var(--md-sys-color-primary-light);
+    }
+
+    .tertiary-light {
+        background-color: var(--md-sys-color-tertiary-light);
+    }
+
+    .primary-light > *,
+    .text-light > * {
+        color: var(--md-sys-color-on-primary-light);
+    }
+
+    .fmt_border_bottom {
+        border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .fmt_border_top {
+        border-top: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .primary_border_bottom {
+        border-bottom: 2px solid var(--md-sys-color-primary-light);
+    }
+
+    .fmt_border_left {
+        border-left: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .fmt_border {
+        border: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .listbox_button {
+        @apply fmt_border surface w-full mb-2 relative cursor-default rounded-lg
+        py-2 pl-3 pr-10 text-left shadow-sm focus:outline-none
+        focus-visible:border-indigo-500 focus-visible:ring-2
+        focus-visible:ring-white focus-visible:ring-opacity-75
+        focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm;
+    }
+
+    .background {
+        background-color: var(--md-sys-color-background);
+    }
+
+    .background > * {
+        color: var(--md-sys-color-on-background);
+    }
+
+    .background-text {
+        color: var(--md-sys-color-background);
+    }
+
+    .on-background {
+        background-color: var(--md-sys-color-on-background);
+    }
+
+    .on-background > * {
+        color: var(--md-sys-color-background);
+    }
+
+    .on-background-text {
+        color: var(--md-sys-color-on-background);
+    }
+
+    .surface {
+        background-color: var(--md-sys-color-surface);
+    }
+
+    .surface > *,
+    .surface::placeholder {
+        color: var(--md-sys-color-on-surface);
+    }
+
+    .surface-text {
+        color: var(--md-sys-color-surface);
+    }
+
+    .on-surface {
+        background-color: var(--md-sys-color-on-surface);
+    }
+
+    .on-surface > * {
+        color: var(--md-sys-color-surface);
+    }
+
+    .on-surface-text {
+        color: var(--md-sys-color-on-surface);
+    }
+
+    .surface-variant {
+        background-color: var(--md-sys-color-surface-variant);
+    }
+
+    .surface-variant > * {
+        color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .surface-variant-text {
+        color: var(--md-sys-color-surface-variant);
+    }
+
+    .on-surface-variant {
+        background-color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .on-surface-variant > * {
+        color: var(--md-sys-color-surface-variant);
+    }
+
+    .on-surface-variant-text {
+        color: var(--md-sys-color-on-surface-variant);
+    }
+
+    .outline {
+        background-color: var(--md-sys-color-outline);
+    }
+
+    .outline > * {
+        color: var(--md-sys-color-inverse-on-surface);
+    }
+
+    .outline-text {
+        color: var(--md-sys-color-outline);
+    }
+
+    .inverse-on-surface {
+        background-color: var(--md-sys-color-inverse-on-surface);
+    }
+
+    .inverse-on-surface > * {
+        color: var(--md-sys-color-outline);
+    }
+
+    .inverse-on-surface-text {
+        color: var(--md-sys-color-inverse-on-surface);
+    }
+
+    .inverse-surface {
+        background-color: var(--md-sys-color-inverse-surface);
+    }
+
+    .inverse-surface > * {
+        color: var(--md-sys-color-background);
+    }
+
+    .inverse-surface-text {
+        color: var(--md-sys-color-inverse-surface);
+    }
+
+    .inverse-primary,
+    .inverse_primary_bg {
+        background-color: var(--md-sys-color-inverse-primary);
+    }
+
+    .inverse-primary > *,
+    .inverse-primary::placeholder {
+        color: var(--md-sys-color-inverse-surface);
+    }
+
+    .inverse-primary-text {
+        color: var(--md-sys-color-inverse-primary);
+    }
+
+    .shadow {
+        background-color: var(--md-sys-color-shadow);
+    }
+
+    .shadow > * {
+        color: var(--md-sys-color-shadow);
+    }
+
+    .shadow-text {
+        color: var(--md-sys-color-shadow);
+    }
+
+    .surface-tint {
+        background-color: var(--md-sys-color-surface-tint);
+    }
+
+    .surface-tint > * {
+        color: var(--md-sys-color-surface-tint);
+    }
+
+    .surface-tint-text {
+        color: var(--md-sys-color-surface-tint);
+    }
+
+    .outline-variant {
+        background-color: var(--md-sys-color-outline-variant);
+    }
+
+    .outline-variant > * {
+        color: var(--md-sys-color-outline-variant);
+    }
+
+    .outline-variant-text {
+        color: var(--md-sys-color-outline-variant);
+    }
+
+    .scrim {
+        background-color: var(--md-sys-color-scrim);
+    }
+
+    .scrim > * {
+        color: var(--md-sys-color-scrim);
+    }
+
+    .scrim-text {
+        color: var(--md-sys-color-scrim);
+    }
+
+    .primary,
+    .primary_bg {
+        background-color: var(--md-sys-color-primary);
+    }
+
+    .primary > * {
+        color: var(--md-sys-color-on-primary) !important;
+    }
+
+    .primary-text {
+        color: var(--md-sys-color-primary);
+    }
+
+    .on-primary {
+        background-color: var(--md-sys-color-on-primary);
+    }
+
+    .on-primary > * {
+        color: var(--md-sys-color-primary);
+    }
+
+    .on-primary-text {
+        color: var(--md-sys-color-on-primary);
+    }
+
+    .primary-container {
+        background-color: var(--md-sys-color-primary-container);
+    }
+
+    .primary-container > * {
+        color: var(--md-sys-color-on-primary-container) !important;
+    }
+
+    .primary-container-text {
+        color: var(--md-sys-color-primary-container);
+    }
+
+    .on-primary-container {
+        background-color: var(--md-sys-color-on-primary-container);
+    }
+
+    .on-primary-container > * {
+        color: var(--md-sys-color-primary-container);
+    }
+
+    .on-primary-container-text {
+        color: var(--md-sys-color-on-primary-container);
+    }
+
+    .secondary {
+        background-color: var(--md-sys-color-secondary);
+    }
+
+    .secondary > * {
+        color: var(--md-sys-color-on-secondary);
+    }
+
+    .secondary-text {
+        color: var(--md-sys-color-secondary);
+    }
+
+    .on-secondary {
+        background-color: var(--md-sys-color-on-secondary);
+    }
+
+    .on-secondary > * {
+        color: var(--md-sys-color-secondary);
+    }
+
+    .on-secondary-text {
+        color: var(--md-sys-color-on-secondary);
+    }
+
+    .secondary-container {
+        background-color: var(--md-sys-color-secondary-container);
+    }
+
+    .secondary-container > *,
+    .secondary-container textarea::placeholder {
+        color: var(--md-sys-color-on-secondary-container);
+    }
+
+    .secondary-container-text {
+        color: var(--md-sys-color-secondary-container);
+    }
+
+    .on-secondary-container {
+        background-color: var(--md-sys-color-on-secondary-container);
+    }
+
+    .on-secondary-container > * {
+        color: var(--md-sys-color-secondary-container);
+    }
+
+    .on-secondary-container-text {
+        color: var(--md-sys-color-on-secondary-container);
+    }
+
+    .tertiary {
+        background-color: var(--md-sys-color-tertiary);
+    }
+
+    .tertiary > * {
+        color: var(--md-sys-color-on-tertiary);
+    }
+
+    .tertiary-text {
+        color: var(--md-sys-color-tertiary);
+    }
+
+    .on-tertiary {
+        background-color: var(--md-sys-color-on-tertiary);
+    }
+
+    .on-tertiary > * {
+        color: var(--md-sys-color-tertiary);
+    }
+
+    .on-tertiary-text {
+        color: var(--md-sys-color-on-tertiary);
+    }
+
+    .tertiary-container {
+        background-color: var(--md-sys-color-tertiary-container);
+    }
+
+    .tertiary-container > * {
+        color: var(--md-sys-color-on-tertiary-container);
+    }
+
+    .tertiary-container-text {
+        color: var(--md-sys-color-tertiary-container);
+    }
+
+    .on-tertiary-container {
+        background-color: var(--md-sys-color-on-tertiary-container);
+    }
+
+    .on-tertiary-container > * {
+        color: var(--md-sys-color-tertiary-container);
+    }
+
+    .on-tertiary-container-text {
+        color: var(--md-sys-color-on-tertiary-container);
+    }
+
+    .error {
+        background-color: var(--md-sys-color-error);
+    }
+
+    .error > * {
+        color: var(--md-sys-color-error-container) !important;
+    }
+
+    .error-text {
+        color: var(--md-sys-color-error);
+    }
+
+    .error-container {
+        background-color: var(--md-sys-color-error-container);
+    }
+
+    .error-container > * {
+        color: var(--md-sys-color-error);
+    }
+
+    .error-container-text {
+        color: var(--md-sys-color-error-container);
+    }
+
+    .on-error {
+        background-color: var(--md-sys-color-on-error);
+    }
+
+    .on-error > * {
+        color: var(--md-sys-color-on-error-container);
+    }
+
+    .on-error-text {
+        color: var(--md-sys-color-on-error);
+    }
+
+    .on-error-container {
+        background-color: var(--md-sys-color-on-error-container);
+    }
+
+    .on-error-container > * {
+        color: var(--md-sys-color-on-error);
+    }
+
+    .on-error-container-text {
+        color: var(--md-sys-color-on-error-container);
+    }
+
+    .markedView p {
+        @apply mb-4;
+    }
+
+    .markedView a {
+        color: var(--md-sys-color-on-primary);
+        border-bottom: 2px solid var(--md-sys-color-primary-light);
+        @apply text-center px-1 primary-container font-bold;
+    }
+
+    .markedView a:hover {
+        color: var(--md-sys-color-on-surface);
+        @apply surface-variant;
+    }
+
+    .markedView a::before {
+        content: "»";
+        @apply mr-2 no-underline px-1 font-bold rounded text-xs;
+    }
+
+    .markedView img {
+        max-width: clamp(200px, 100%, 36rem);
+    }
+
+    .markedView ul {
+        @apply list-disc list-inside ml-4 mb-2;
+    }
+
+    .markedView ol {
+        @apply list-decimal list-inside ml-4 mb-2;
+    }
+
+    .markedView ul p,
+    .markedView ol p {
+        @apply w-fit inline;
+    }
+
+    .markedView ul, ol, table {
+        @apply mb-4
+    }
+
+    .markedView pre {
+        @apply mb-2;
+    }
+
+    .markedView table {
+        @apply mb-4;
+    }
+
+    .markedView th {
+        @apply p-2 font-bold fmt_border surface-variant;
+    }
+
+    .markedView td {
+        @apply p-2 fmt_border background;
+    }
+
+    .markedView h1 {
+        @apply text-3xl mb-6 mt-10 font-bold;
+    }
+
+    .markedView h2 {
+        @apply text-2xl mb-6 mt-8 font-bold;
+    }
+
+    .markedView h3 {
+        @apply text-xl mb-4 mt-8 font-bold;
+    }
+
+    .markedView h4 {
+        @apply text-xl mb-4 mt-8 font-bold;
+    }
+
+    .markedView h5 {
+        @apply text-lg mb-4 mt-6 font-bold;
+    }
+
+    .markedView h6 {
+        @apply text-lg my-2 font-bold;
+    }
+
+    .markedView code {
+        @apply py-0.5 px-1 rounded-md fmt_border my-2 surface-variant;
+    }
+
+    hr {
+        @apply my-6 h-[2px] w-full rounded outline-variant;
+        border: 1px solid var(--md-sys-color-outline-variant);
+    }
+
+    .markedView > :last-child {
+        @apply mb-0 !important;
+    }
+
+    .markedView > :first-child {
+        @apply mt-0 !important;
+    }
+
+    .markedView blockquote {
+        border-left: 8px solid var(--md-sys-color-tertiary-container);
+        @apply py-2 px-4 rounded tertiary mb-4;
+    }
+
+    .markedView blockquote > :last-child {
+        @apply mb-0 !important;
+    }
+
+    .markedView blockquote > :first-child {
+        @apply mt-0 !important;
+    }
+
+    .navbar_body {
+        height: var(--h_nav);
+        max-height: var(--h_nav);
+        min-height: var(--h_nav);
+    }
+
+    .mt_nav {
+        margin-top: var(--h_nav);
+    }
+
+    .pt_nav {
+        padding-top: var(--h_nav);
+    }
+
+    .top_nav {
+        @apply top-[var(--h\_nav)]
+    }
+
+    .h_full_nav {
+        height: calc(100% - var(--h_nav));
+    }
+
+    .fmt_button {
+        @apply px-1 py-0.5 cursor-pointer flex items-center w-fit
+        hover:primary rounded h-fit background fmt_border;
+    }
+
+    .fmt_button_danger {
+        @apply m-1 py-2 px-4 error hover:error-container rounded-md
+        cursor-pointer w-fit h-fit flex items-center justify-center;
+        border: 1px solid var(--md-sys-color-error);
+    }
+
+    .no_fmt > * {
+        color: initial;
     }
 }

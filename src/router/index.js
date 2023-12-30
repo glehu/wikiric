@@ -67,10 +67,15 @@ const routes = [
     component: () => import('../views/settings/UserPreferencesView.vue')
   },
   {
-    path: '/dev/api',
-    name: 'WAPI Manager',
-    component: () => import('../views/dev/api/APIManagerView.vue'),
+    path: '/dev/mockingbird',
+    name: 'WMockingbird',
+    component: () => import('../views/dev/api/MockingbirdView.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/dev/theme',
+    name: 'WTheme',
+    component: () => import('../views/dev/ThemeView.vue')
   },
   {
     path: '/invoices',

@@ -1,13 +1,13 @@
 <template>
   <div class="h-full w-full md:flex items-center justify-center overflow-x-hidden">
-    <form class="login grid grid-cols-1 md:flex pt-[55px]" @submit.prevent="login">
+    <form class="login grid grid-cols-1 md:flex pt_nav" @submit.prevent="login">
       <section class="flex justify-center">
         <div class="container p-3 h-full">
           <div class="justify-center items-center h-full">
             <div class="bright_card bshadow">
               <div class="p-4 text-center">
                 <div class="md:mt-0">
-                  <h2 class="font-bold mb-2 text-uppercase text-4xl mb-4">
+                  <h2 class="font-bold text-uppercase text-4xl mb-4">
                     Sign In
                   </h2>
                   <div class="mb-4">
@@ -15,7 +15,7 @@
                       required
                       v-model="user.email"
                       type="email"
-                      class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
+                      class="fmt_input"
                       placeholder="Username"
                       autocomplete="username"
                     />
@@ -26,23 +26,26 @@
                       v-model="user.password"
                       v-on:keyup.enter="login"
                       type="password"
-                      class="py-1 px-2 rounded placeholder-neutral-400 text-neutral-200 dark_bg"
+                      class="fmt_input"
                       placeholder="Password"
                       autocomplete="current-password"
                     />
                   </div>
-                  <!--<p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#">Forgot password?</a></p>-->
-                  <button class="btn_bg_primary"
-                          type="button"
-                          v-on:click="login">
-                    Login
-                  </button>
+                  <!--<p class="small mb-5 pb-lg-2"><a class="-50" href="#">Forgot password?</a></p>-->
+                  <div class="w-full flex justify-center">
+                    <button class="btn_bg_primary"
+                            type="button"
+                            v-on:click="login">
+                      <span>Login</span>
+                    </button>
+                  </div>
                   <div class="flex items-center justify-center w-full mt-5 gap-x-2">
-                    <p class="pointer-events-none text-neutral-300 text-sm">No Account?</p>
+                    <p class="pointer-events-none  text-sm">No Account?</p>
                     <button v-on:click="gotoRegister"
                             type="button"
-                            class="text-white muArrow rounded dark_bg hover:darkest_bg px-2 py-1 ml-2">
-                      Sign Up
+                            class="muArrow rounded surface-variant px-2 py-1 ml-2
+                                   font-bold text-sm">
+                      <span>Sign Up</span>
                     </button>
                   </div>
                 </div>
@@ -282,7 +285,8 @@ export default {
 }
 
 .bright_card {
-  @apply text-white border-[1px] border-neutral-600 h-full rounded-md medium_bg;
+  @apply h-full rounded-md surface;
+  border: 1px solid var(--md-sys-color-outline-variant);
 }
 
 </style>

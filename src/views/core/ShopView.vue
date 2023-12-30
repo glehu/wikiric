@@ -17,10 +17,10 @@
           </button>
         </div>
         <div style="display: flex; margin: 1ch">
-          <button class="btn text-white animRot" title="Change Artist" v-on:click="console.log('')">
+          <button class="btn  animRot" title="Change Artist" v-on:click="console.log('')">
             <i class="bi bi-arrow-clockwise h1"></i>
           </button>
-          <h1 class="font-bold text-white">{{ this.artist }}</h1>
+          <h1 class="font-bold ">{{ this.artist }}</h1>
         </div>
       </div>
     </section>
@@ -53,7 +53,7 @@
               <button class="btn btn-outline-light ms-2">
                 <abbr title="Buy now."><i class="bi bi-cash-stack"></i></abbr> <span class="hide_on_big">Buy</span>
               </button>
-              <input class="ms-2 bg-black text-white p-2"
+              <input class="ms-2 bg-black  p-2"
                      :id="'AMT_' + JSON.parse(item).uID"
                      type="number" value="1" min="1" max="99" size="2"
                      style="border-radius: 1rem">

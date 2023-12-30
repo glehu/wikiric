@@ -1,41 +1,33 @@
 <template>
-  <div class="flex w-full h-full pt-[55px] justify-center bright_bg">
-    <div class="max-w-screen-xl w-full bright_bg
-                overflow-x-hidden overflow-y-scroll">
-      <div class="px-4 py-3 darkest_bg bshadow mb-2 cursor-default">
-        <p class="text-3xl font-bold text-neutral-300">wikiric Stores</p>
+  <div class="flex w-full h-full pt_nav justify-center background">
+    <div class="max-w-screen-xl w-full
+                overflow-x-hidden overflow-y-auto">
+      <div class="px-4 py-3 surface bshadow mb-2 cursor-default rounded-b-lg">
+        <p class="text-3xl font-bold">wikiric Stores</p>
       </div>
       <div class="px-4 py-3 flex flex-col gap-y-2">
-        <div class="px-2 py-1 medium_bg dshadow mb-2
-                    overflow-hidden rounded cursor-default">
-          <p class="font-bold">{{ $t("stores.find-a") }}</p>
-        </div>
-        <div class="w-full flex justify-center">
+        <div class="w-full flex justify-center mt-2 mb-4">
           <div class="w-[80%] mx-2">
             <div class="rounded-lg flex items-center relative">
-              <MagnifyingGlassIcon class="w-6 h-6 mx-2 text-neutral-300 absolute translate-x-1"/>
+              <MagnifyingGlassIcon class="w-6 h-6 mx-2 absolute translate-x-1"/>
               <input id="search-field" type="text"
-                     class="search-field py-6 pl-10 pr-4 dark_bg h-8 border-2 border-zinc-700"
+                     class="search-field py-6 pl-10 pr-4 surface h-8 bshadow"
                      placeholder="Search..."
                      v-on:keyup.enter="searchStores()"
                      v-model="queryText">
             </div>
           </div>
         </div>
-        <div class="px-2 py-1 medium_bg dshadow mb-2
-                    overflow-hidden rounded cursor-default">
-          <p class="font-bold">{{ $t("stores.your-s") }}</p>
-        </div>
         <template v-if="!isLoggedIn">
-          <div class="rounded dark_bg w-fit mx-2 mb-4
-                      overflow-hidden dshadow cursor-default">
+          <div class="rounded surface w-fit mx-2 mb-4
+                      overflow-hidden bshadow cursor-default">
             <p class="px-3 py-1 font-bold">{{ $t("stores.sign-in") }}</p>
           </div>
         </template>
         <template v-else-if="ownStore != null">
-          <div class="rounded medium_bg w-fit mx-2 mb-8 pb-4
-                      overflow-hidden dshadow">
-            <div class="px-3 py-1 darkest_bg
+          <div class="rounded surface w-fit mx-2 mb-8 pb-4
+                      overflow-hidden bshadow">
+            <div class="px-3 py-1 surface-variant
                         sm:flex sm:items-center sm:gap-x-4">
               <template v-if="ownStore.iurl && ownStore.iurl !== ''">
                 <img :src="getImg(ownStore.iurl, true)" alt="?"
@@ -45,91 +37,81 @@
                 <p class="font-bold text-xl sm:text-2xl">
                   {{ ownStore.t }}
                 </p>
-                <p class="text-sm text-neutral-400">
+                <p class="text-sm">
                   {{ ownStore.desc }}
                 </p>
               </div>
             </div>
-            <p class="mt-2 px-3 py-1 text-xs text-neutral-400">
+            <p class="mt-2 px-3 py-1 text-xs">
               Store ID: {{ ownStore.uid }}
             </p>
             <div class="p-3 grid grid-cols-2 gap-2">
-              <div class="px-3 py-2 rounded dark_bg w-fit flex items-center gap-x-2">
-                <p class="text-neutral-300 font-bold text-lg">
+              <div class="px-3 py-2 rounded surface-variant w-fit flex items-center gap-x-2">
+                <p class=" font-bold text-lg">
                   {{ ownStore.views }}
                 </p>
-                <EyeIcon class="w-6 h-6 text-neutral-300"/>
+                <EyeIcon class="w-6 h-6"/>
               </div>
             </div>
             <div class="p-3 grid grid-cols-2 gap-2">
               <div class="rounded cursor-pointer dshadow
-                          dark_bg hover:darkest_bg
-                          px-4 py-2 border-[1px] border-neutral-600"
+                          primary-container hover:primary
+                          px-4 py-2"
                    v-on:click="$router.push('/stores/own/items')">
                 <p class="font-bold text-xl">
                   {{ $t("eco.inventory") }}
                 </p>
                 <p>{{ items }} {{ $t("eco.items") }}</p>
-                <p class="mt-2 text-xs text-neutral-400">
+                <p class="mt-2 text-xs">
                   {{ $t("stores.invDesc") }}
                 </p>
               </div>
               <div class="rounded cursor-pointer dshadow
-                          dark_bg hover:darkest_bg
-                          px-4 py-2 border-[1px] border-neutral-600"
+                          primary-container hover:primary
+                          px-4 py-2"
                    v-on:click="$router.push('/stores/own/commissions')">
                 <p class="font-bold text-xl">
                   {{ $t("eco.commissions") }}
                 </p>
                 <p>{{ orders }} {{ $t("eco.commissions") }}</p>
-                <p class="mt-2 text-xs text-neutral-400">
+                <p class="mt-2 text-xs">
                   {{ $t("stores.commDesc") }}
                 </p>
               </div>
             </div>
             <div class="grid grid-cols-1 gap-y-2 w-fit mt-4">
-              <div class="px-3 py-1 dark_bg hover:darkest_bg
-                          rounded-r cursor-pointer dshadow
-                          border-t-[1px] border-b-[1px] border-r-[1px]
-                          border-neutral-600"
+              <div class="px-3 py-1 surface-variant hover:surface
+                          rounded-r cursor-pointer dshadow"
                    v-on:click="openShop()">
-                <p class="px-2 py-1 text-sm font-bold text-neutral-300">
+                <p class="px-2 py-1 text-sm font-bold">
                   {{ $t("stores.viewStore") }}
                 </p>
               </div>
-              <div class="px-3 py-1 dark_bg hover:darkest_bg
-                          rounded-r cursor-pointer dshadow
-                          border-t-[1px] border-b-[1px] border-r-[1px]
-                          border-neutral-600"
+              <div class="px-3 py-1 surface-variant hover:surface
+                          rounded-r cursor-pointer dshadow"
                    v-on:click="copyShopLink()">
-                <p class="px-2 py-1 text-sm font-bold text-neutral-300">
+                <p class="px-2 py-1 text-sm font-bold">
                   {{ $t("gen.copyLink") }}
                 </p>
               </div>
-              <div class="px-3 py-1 dark_bg hover:darkest_bg
-                          rounded-r cursor-pointer dshadow
-                          border-t-[1px] border-b-[1px] border-r-[1px]
-                          border-neutral-600"
+              <div class="px-3 py-1 surface-variant hover:surface
+                          rounded-r cursor-pointer dshadow"
                    v-on:click="isAddingMedia = true">
-                <p class="px-2 py-1 text-sm font-bold text-neutral-300">
+                <p class="px-2 py-1 text-sm font-bold">
                   {{ $t("stores.setImage") }}
                 </p>
               </div>
-              <div class="px-3 py-1 dark_bg hover:darkest_bg
-                          rounded-r cursor-pointer dshadow
-                          border-t-[1px] border-b-[1px] border-r-[1px]
-                          border-neutral-600"
+              <div class="px-3 py-1 surface-variant hover:surface
+                          rounded-r cursor-pointer dshadow"
                    v-on:click="editStoreBank()">
-                <p class="px-2 py-1 text-sm font-bold text-neutral-300">
+                <p class="px-2 py-1 text-sm font-bold">
                   {{ $t("eco.bank") }}
                 </p>
               </div>
-              <div class="px-3 py-1 dark_bg hover:darkest_bg
-                          rounded-r cursor-pointer dshadow
-                          border-t-[1px] border-b-[1px] border-r-[1px]
-                          border-neutral-600"
+              <div class="hidden px-3 py-1 surface-variant hover:surface
+                          rounded-r cursor-pointer dshadow"
                    v-on:click="editStoreAppearance()">
-                <p class="px-2 py-1 text-sm font-bold text-neutral-300">
+                <p class="px-2 py-1 text-sm font-bold">
                   {{ $t("gen.appearance") }}
                 </p>
               </div>
@@ -142,11 +124,11 @@
                       overflow-hidden dshadow">
               <div class="flex items-center dark_bg px-3 py-1 cursor-default">
                 <StarIcon class="w-5 h-5 text-orange-500 mr-2"/>
-                <p class="text-neutral-300">
+                <p class="">
                   {{ $t("stores.opt-in-t") }}
                 </p>
               </div>
-              <p class="text-sm text-neutral-300 px-3 py-1 my-2 cursor-default">
+              <p class="text-sm  px-3 py-1 my-2 cursor-default">
                 {{ $t("stores.opt-in-d1") }}
                 <br>
                 {{ $t("stores.opt-in-d2") }}
@@ -305,10 +287,10 @@
              style="width: 100%"
              v-on:change="handleUploadFileSelect"/>
       <template v-if="uploadFileBase64 !== ''">
-        <p class="text-neutral-300 font-bold">{{ uploadFileName }}</p>
+        <p class=" font-bold">{{ uploadFileName }}</p>
         <div class="mt-3 w-full">
           <template v-if="uploadFileType.includes('image')">
-            <button class="darkbutton text-white p-2 w-full flex items-center justify-center rounded-full"
+            <button class="darkbutton  p-2 w-full flex items-center justify-center rounded-full"
                     style="height: 2.5em;
                            border-color: transparent; margin: auto"
                     title="Send"
@@ -318,7 +300,7 @@
             </button>
           </template>
           <template v-else>
-            <div class="text-white p-2 w-full flex items-center justify-center rounded-full
+            <div class=" p-2 w-full flex items-center justify-center rounded-full
                         bg-red-800">
               <p>File does not contain an image!</p>
             </div>
@@ -675,7 +657,6 @@ export default {
 <style>
 
 .search-field {
-  color: white;
   border-radius: 10px;
   resize: none;
   overflow: hidden;

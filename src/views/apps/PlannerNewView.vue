@@ -1,25 +1,30 @@
 <template>
   <template v-if="knowledgeExists">
-    <div class="flex w-full h-full pt-[55px]">
+    <div class="flex w-full h-full pt_nav"
+         :style="{backgroundImage: 'url('+require('@/assets/'+'account/pexels-dexter-fernandes-2646237.jpg')+')',
+                 backgroundPosition: 'center top', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
       <div id="sidebar"
-           class="active h-[calc(100dvh-55px)] p_sidebar_left bright_bg border-r border-zinc-600 relative">
+           class="active h-[calc(100dvh-50px)] p_sidebar_left
+                  surface relative">
         <div class="w-full h-[calc(100%-20px)] relative">
           <div class="grid grid-cols-2 m-2 h-[42px]">
-            <div class="flex items-center cursor-pointer hover:darkest_bg hover:bg-opacity-50 p-2 rounded-md"
+            <div class="flex items-center cursor-pointer
+                        hover:primary p-2 rounded-md"
                  v-on:click="$router.back()">
-              <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
+              <div class="h-full mr-2 px-1 rounded-xl">
                 <i class="sb_link_icon bi bi-x-square text-xl"></i>
               </div>
-              <div class="font-bold text-neutral-300">
+              <div class="font-bold">
                 Exit
               </div>
             </div>
-            <div class="flex items-center cursor-pointer hover:darkest_bg hover:bg-opacity-50 p-2 rounded-md"
+            <div class="flex items-center cursor-pointer
+                        hover:primary p-2 rounded-md"
                  v-on:click="toggleSidebar()">
-              <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
+              <div class="h-full mr-2 px-1 rounded-xl">
                 <i class="sb_link_icon bi bi-caret-left text-xl"></i>
               </div>
-              <div class="font-bold text-neutral-300">
+              <div class="font-bold">
                 Collapse
               </div>
             </div>
@@ -27,46 +32,53 @@
           <template v-if="calendarOptions">
             <FullCalendar ref="fullCalendar"
                           :options="calendarOptions"
-                          class="w-[calc(100%-20px)] h-[calc(100%-64px)] text-neutral-300"/>
+                          class="w-[calc(100%-20px)] h-[calc(100%-64px)]"/>
           </template>
         </div>
-        <div
-          class="p_sidebar_toggler absolute w-6 right-0 top-0 bottom-0 hover:brightest_bg cursor-pointer flex items-center justify-center overflow-hidden"
-          v-on:click="toggleSidebar()">
-        </div>
       </div>
-      <div class="darkest_bg w-[calc(100%-42px)] h-full overflow-hidden">
-        <div class="flex m-2 h-[42px] gap-xl-4">
-          <div class="flex items-center cursor-pointer hover:dark_bg p-2 rounded-md"
+      <div class="w-full h-full overflow-hidden lg:p-2">
+        <div class="flex m-2 h-[42px] gap-xl-4
+                    background rounded-md w-fit"
+             style="border: 1px solid var(--md-sys-color-outline-variant);">
+          <div class="px-2 flex items-center cursor-pointer hover:primary rounded-md"
                v-on:click="$router.back()">
-            <div class="h-full mr-3 px-1 rounded-xl text-neutral-300 flex items-center">
+            <div class="h-full mr-3 px-1 rounded-xl flex items-center">
               <i class="sb_link_icon bi bi-x-square text-xl"></i>
             </div>
-            <div class="font-bold text-neutral-300">
-              Exit
+            <div class="font-bold">
+              <p>Exit</p>
             </div>
           </div>
-          <div class="flex items-center cursor-pointer hover:dark_bg p-2 rounded-md"
+          <div class="px-2 flex items-center cursor-pointer hover:primary p-2 rounded-md"
+               v-on:click="toggleSidebar()">
+            <div class="h-full mr-2 px-1 rounded-xl">
+              <CalendarDaysIcon class="h-6 w-6"></CalendarDaysIcon>
+            </div>
+            <div class="font-bold">
+              <p>Calendar</p>
+            </div>
+          </div>
+          <div class="px-2 flex items-center cursor-pointer hover:primary p-2 rounded-md"
                v-on:click="getBoxes()">
-            <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
+            <div class="h-full mr-2 px-1 rounded-xl">
               <ArrowPathIcon class="h-6 w-6"></ArrowPathIcon>
             </div>
-            <div class="font-bold text-neutral-300">
-              Reload
+            <div class="font-bold">
+              <p>Reload</p>
             </div>
           </div>
-          <div class="flex items-center cursor-pointer hover:dark_bg p-2 rounded-md"
+          <div class="px-2 flex items-center cursor-pointer hover:primary p-2 rounded-md"
                v-on:click="openSearch()">
-            <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
+            <div class="h-full mr-2 px-1 rounded-xl">
               <FunnelIcon class="h-6 w-6"></FunnelIcon>
             </div>
-            <div class="font-bold text-neutral-300">
-              Filter
+            <div class="font-bold">
+              <p>Filter</p>
             </div>
           </div>
-          <div class="flex items-center cursor-pointer hover:dark_bg p-2 rounded-md"
+          <div class="px-2 flex items-center cursor-pointer hover:primary p-2 rounded-md"
                v-on:click="isListView = !isListView">
-            <div class="h-full mr-2 px-1 rounded-xl text-neutral-300">
+            <div class="h-full mr-2 px-1 rounded-xl">
               <template v-if="!isListView">
                 <ListBulletIcon class="h-6 w-6"></ListBulletIcon>
               </template>
@@ -74,30 +86,32 @@
                 <ViewColumnsIcon class="h-6 w-6"></ViewColumnsIcon>
               </template>
             </div>
-            <div class="font-bold text-neutral-300">
+            <div class="font-bold">
               <template v-if="!isListView">
-                List
+                <p>List</p>
               </template>
               <template v-else>
-                Board
+                <p>Board</p>
               </template>
             </div>
           </div>
           <div class="pl-4 ml-4 border-l-[2px] border-l-neutral-500"></div>
-          <div class="flex items-center cursor-pointer hover:dark_bg rounded-md p-2"
+          <div class="flex items-center cursor-pointer hover:primary rounded-md p-2"
                v-on:click="getBoxes(false, true)">
             <input type="checkbox" id="input_show_unfinished" ref="input_show_unfinished" class="mr-2 cursor-pointer">
-            <label for="input_show_unfinished" class="font-bold text-neutral-300 cursor-pointer">Show All</label>
+            <label for="input_show_unfinished" class="font-bold cursor-pointer">Show All</label>
           </div>
         </div>
         <template v-if="!isListView">
           <div id="board"
-               class="h-full w-full flex p-1 overflow-x-auto overflow-y-auto fixed prevent-select">
+               class="h-full w-full flex flex-row gap-x-1 p-1
+                      overflow-x-auto overflow-y-hidden
+                      fixed prevent-select">
             <template v-if="boxes.length > 0">
               <template v-for="box in boxes" :key="box.box.uid">
                 <div class="p_card box_container" style="margin-bottom: 312px !important"
                      :ref="'boxcontainer_' + box.box.uid" :id="'boxcontainer_' + box.box.uid">
-                  <div class="p_card_header_section relative text-neutral-300 flex items-center p-2">
+                  <div class="p_card_header_section relative flex items-center p-2">
                     <Markdown class="p_markdown p_markdown_xl_only font-bold"
                               :source="box.box.t"
                               :plugins="plugins"></Markdown>
@@ -112,7 +126,7 @@
                       <Menu as="div" class="relative inline-block text-left">
                         <MenuButton
                           title="Options"
-                          class="hover:darkest_bg p-1 ml-2 bg-opacity-50 rounded flex items-center cursor-pointer">
+                          class="hover:primary p-1 ml-2 bg-opacity-50 rounded flex items-center cursor-pointer">
                           <EllipsisVerticalIcon class="h-5 w-5"></EllipsisVerticalIcon>
                         </MenuButton>
                         <transition
@@ -129,7 +143,7 @@
                             <div class="px-1 py-1">
                               <MenuItem v-slot="{ active }">
                                 <button v-on:click="finishTask(box.box, true)"
-                                        :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
+                                        :class="[active ? 'p_card_menu_active' : '','group p_card_menu_item']">
                                   <TrashIcon
                                     :active="active"
                                     class="mr-2 h-5 w-5"
@@ -142,7 +156,7 @@
                             <div class="px-1 py-1">
                               <MenuItem v-slot="{ active }">
                                 <button
-                                  :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
+                                  :class="[active ? 'p_card_menu_active' : '','group p_card_menu_item']">
                                   <ArrowsPointingOutIcon
                                     :active="active"
                                     class="mr-2 h-5 w-5"
@@ -181,7 +195,7 @@
                       }"
                       item-key="order">
                       <template v-if="drag && box.tasks.length < 1" #header>
-                        <div class="m-2 p-2 rounded-md darkest_bg text-center">
+                        <div class="m-2 p-2 rounded-md primary-container text-center">
                           <span>Drag Here!</span>
                         </div>
                       </template>
@@ -210,27 +224,27 @@
                                 <div class="flex flex-wrap mb-2 items-center w-full overflow-x-hidden">
                                   <template v-for="cat in element.categories" :key="cat">
                                     <div v-if="JSON.parse(cat).category != null"
-                                         class="text-neutral-400 border-[1px] border-zinc-600 flex items-center
-                                                py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm darkest_bg">
+                                         class="border-[1px] border-zinc-600 flex items-center
+                                                py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm surface">
                                       {{ JSON.parse(cat).category }}
                                     </div>
                                   </template>
                                 </div>
                               </template>
                               <Markdown class="p_markdown p_markdown_xl_only
-                                               font-bold text-neutral-200 w-full px-1
+                                               font-bold  w-full px-1
                                                break-words"
                                         :source="element.t"
                                         :plugins="plugins"></Markdown>
-                              <Markdown class="p_markdown p_markdown_xl_only text-neutral-300
-                                               text-sm mt-1 w-full px-1"
-                                        :source="element.desc"
-                                        :plugins="plugins"></Markdown>
+                              <Markdown
+                                class="p_markdown p_markdown_xl_only                                                text-sm mt-1 w-full px-1"
+                                :source="element.desc"
+                                :plugins="plugins"></Markdown>
                               <template v-if="element.collaborators">
                                 <div class="my-4">
                                   <template v-for="collaborator in element.collaborators" :key="collaborator">
                                     <div v-if="collaborator != null"
-                                         class="text-neutral-300 flex items-center m-1 pointer-events-none text-sm">
+                                         class="flex items-center m-1 pointer-events-none text-sm">
                                       <UserIcon class="h-4 mr-1"></UserIcon>
                                       {{ collaborator.username }}
                                     </div>
@@ -239,7 +253,7 @@
                               </template>
                               <div class="flex mt-6">
                                 <div class="ml-auto flex items-center">
-                                  <div class="ml-auto flex items-center text-neutral-500 py-0.5 justify-end">
+                                  <div class="ml-auto flex items-center  py-0.5 justify-end">
                                     <p class="text-xs ml-1">
                                       {{ element.name }}
                                     </p>
@@ -252,11 +266,11 @@
                                 <MenuButton
                                   v-on:click="getRelated(element, false)"
                                   title="Show recent comment"
-                                  class="flex mr-auto items-center justify-center p-1 text-neutral-200
-                                   hover:text-neutral-100 cursor-pointer rounded hover:darkest_bg">
+                                  class="flex mr-auto items-center justify-center p-1
+                                   cursor-pointer rounded hover:surface">
                                   <ChatBubbleLeftEllipsisIcon class="h-6 w-6 mr-1"></ChatBubbleLeftEllipsisIcon>
                                   <div class="text-start">
-                                    <div class="text-xs text-neutral-400">
+                                    <div class="text-xs">
                                       {{ getHumanReadableDateText(element.recentComment.ts).replace(' ', '&nbsp;') }}
                                     </div>
                                     <div class="text-xs">{{ element.amountComments }}</div>
@@ -271,17 +285,16 @@
                                   leave-to-class="transform scale-95 opacity-0"
                                 >
                                   <MenuItems
-                                    class="p_card_menu_list_big_p darkest_bg notagger"
+                                    class="p_card_menu_list_big_p surface notagger"
                                   >
                                     <template v-if="taskRelated.replies == null">
                                       <MenuItem as="div" class="px-3 py-3">
-                                        <div class="flex justify-between text-xs text-neutral-400">
+                                        <div class="flex justify-between text-xs">
                                           <div>{{ element.recentComment.usr }}</div>
                                           <div>{{ getHumanReadableDateText(element.recentComment.ts) }}</div>
                                         </div>
                                         <Markdown
-                                          class="p_markdown p_markdown_xl_only text-neutral-300
-                                           text-sm mt-1 break-words"
+                                          class="p_markdown p_markdown_xl_only                                            text-sm mt-1 break-words"
                                           :source="element.recentComment.desc"
                                           :plugins="plugins"></Markdown>
                                       </MenuItem>
@@ -289,13 +302,12 @@
                                     <template v-else>
                                       <template v-for="related in taskRelated.replies" :key="related.uid">
                                         <MenuItem as="div" class="px-3 py-3">
-                                          <div class="flex justify-between text-xs text-neutral-400">
+                                          <div class="flex justify-between text-xs">
                                             <div>{{ related.usr }}</div>
                                             <div>{{ getHumanReadableDateText(related.ts) }}</div>
                                           </div>
                                           <Markdown
-                                            class="p_markdown p_markdown_xl_only text-neutral-300
-                                             text-sm mt-1 break-words"
+                                            class="p_markdown p_markdown_xl_only                                              text-sm mt-1 break-words"
                                             :source="related.desc"
                                             :plugins="plugins"></Markdown>
                                         </MenuItem>
@@ -327,7 +339,7 @@
                                     <div class="px-1 py-1">
                                       <MenuItem v-slot="{ active }">
                                         <button v-on:click="finishTask(element)"
-                                                :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
+                                                :class="[active ? 'p_card_menu_active' : '','group p_card_menu_item']">
                                           <CheckIcon
                                             :active="active"
                                             class="mr-2 h-5 w-5"
@@ -338,7 +350,7 @@
                                       </MenuItem>
                                       <MenuItem v-slot="{ active }">
                                         <button v-on:click="finishTask(element, true)"
-                                                :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
+                                                :class="[active ? 'p_card_menu_active' : '','group p_card_menu_item']">
                                           <TrashIcon
                                             :active="active"
                                             class="mr-2 h-5 w-5"
@@ -350,7 +362,7 @@
                                       <Menu as="div" class="relative inline-block text-left w-full">
                                         <MenuButton
                                           title="Options"
-                                          class="items-center cursor-pointer group p_card_menu_item text-neutral-900 hover:text-white hover:dark_bg hover:bg-opacity-60">
+                                          class="items-center cursor-pointer group p_card_menu_item   hover:dark_bg hover:bg-opacity-60">
                                           <ShareIcon
                                             class="mr-2 h-5 w-5"
                                             aria-hidden="true"
@@ -368,7 +380,7 @@
                                           <MenuItems class="p_card_menu_list_medium_p dark_bg">
                                             <div class="px-1 py-1">
                                               <div class="pointer-events-none">
-                                                <div class="text-neutral-300 group p_card_menu_item font-bold">
+                                                <div class="group p_card_menu_item font-bold">
                                                   <ChatBubbleLeftRightIcon
                                                     class="mr-2 h-5 w-5"
                                                     aria-hidden="true"
@@ -381,8 +393,8 @@
                                               <template v-for="group in $store.state.clarifierSessions" :key="group">
                                                 <MenuItem v-slot="{ active }" class="mb-1">
                                                   <button v-on:click="showShareTask(group, element)"
-                                                          :class="[active ? 'p_card_menu_active' : 'text-neutral-300','group p_card_menu_item p-1']">
-                                                    <img class="darkest_bg mr-2"
+                                                          :class="[active ? 'p_card_menu_active' : ' ','group p_card_menu_item p-1']">
+                                                    <img class="surface mr-2"
                                                          style="width: 32px; height: 32px; border-radius: 10px"
                                                          v-bind:src="getImg(group.img,true)"
                                                          :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
@@ -400,7 +412,7 @@
                                     <div class="px-1 py-1">
                                       <MenuItem v-slot="{ active }">
                                         <button
-                                          :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
+                                          :class="[active ? 'p_card_menu_active' : '','group p_card_menu_item']">
                                           <ArrowsPointingOutIcon
                                             :active="active"
                                             class="mr-2 h-5 w-5"
@@ -420,15 +432,15 @@
                     </draggable>
                   </div>
                   <div class="relative flex items-center cursor-pointer p-2">
-                    <PlusCircleIcon class="h-6 w-6 mx-1 absolute text-neutral-400"></PlusCircleIcon>
-                    <div class="p_input p_input_icon text-neutral-400"
+                    <PlusCircleIcon class="h-6 w-6 mx-1 absolute"></PlusCircleIcon>
+                    <div class="p_input p_input_icon"
                          v-on:click="toggleAndFocusNewTask('taskname_' + box.box.uid)">
-                      Add a Task
+                      New Task
                     </div>
                   </div>
                   <div :id="'taskname_' + box.box.uid"
-                       class="w-full hidden mt-4 p_new_task_disclosure relative p-2">
-                    <p class="absolute pt-1 pl-2 text-neutral-400">##</p>
+                       class="w-full hidden mt-2 p_new_task_disclosure relative">
+                    <p class="absolute pt-1 pl-2">##</p>
                     <input :id="'taskname_' + box.box.uid + '_input'"
                            type="text"
                            class="p_input w-full font-bold"
@@ -446,19 +458,26 @@
                     <Listbox v-model="newTask.categories" multiple id="newtaskcategories">
                       <div class="relative mt-1">
                         <ListboxButton
-                          class="darkest_bg w-full relative cursor-default rounded-lg py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                          :id="'taskname_' + box.box.uid + '_lbox'"
+                          class="surface w-full relative cursor-default
+                                 rounded-lg py-2 pl-3 pr-10 text-left shadow-sm
+                                 focus:outline-none focus-visible:border-indigo-500
+                                 focus-visible:ring-2 focus-visible:ring-white
+                                 focus-visible:ring-opacity-75
+                                 focus-visible:ring-offset-2
+                                 focus-visible:ring-offset-orange-300 sm:text-sm"
                         >
                           <template v-if="newTask.categories.length > 0">
-                            <div class="block truncate font-bold text-neutral-300">
+                            <div class="block truncate font-bold">
                               {{ newTask.categories.map((cat) => cat.category).join(', ') }}
                             </div>
                           </template>
                           <template v-else>
-                            <span class="block truncate font-bold text-neutral-500">Select...</span>
+                            <span class="block truncate font-bold">Select...</span>
                           </template>
                           <div
                             class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                            <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
+                            <ArrowsUpDownIcon class="h-5 w-5" aria-hidden="true"/>
                           </div>
                         </ListboxButton>
                         <transition
@@ -477,7 +496,7 @@
                             >
                               <li
                                 :class="[ active ? 'bg-gray-700' : '',
-                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-neutral-200' ]">
+                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 ' ]">
                                 <div
                                   :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
                                   {{ cat.category }}
@@ -511,10 +530,10 @@
           <div id="list"
                class="h-full w-full pb-2 pl-2 pr-4 overflow-y-auto fixed">
             <template v-if="boxes.length > 0">
-              <table class="w-full table-auto darkest_bg"
+              <table class="w-full table-auto background rounded"
                      style="margin-bottom: 312px !important">
                 <thead>
-                <tr class="text-neutral-300 text-left">
+                <tr class="text-left">
                   <th class="p-2">State</th>
                   <th class="p-2">Title</th>
                   <th class="p-2">Description</th>
@@ -526,11 +545,11 @@
                 </thead>
                 <tbody class="divide-y divide-zinc-500">
                 <template v-for="box in boxes" :key="box.box.uid">
-                  <tr class="text-neutral-300 z-10 list_boxcontainer my-1"
+                  <tr class="z-10 list_boxcontainer my-1"
                       :ref="'list_box_' + box.box.uid" :id="'list_box_' + box.box.uid">
-                    <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
-                    <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
-                    <td class="px-2 py-4 sticky top-0 darkest_bg">
+                    <td class="px-2 py-4 sticky top-0 background"></td>
+                    <td class="px-2 py-4 sticky top-0 background"></td>
+                    <td class="px-2 py-4 sticky top-0 background">
                       <div class="font-bold text-2xl flex items-center justify-between">
                         <p>{{ box.box.t }}</p>
                         <template v-if="box.tasks">
@@ -542,45 +561,45 @@
                         </template>
                       </div>
                     </td>
-                    <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
-                    <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
-                    <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
-                    <td class="px-2 py-4 sticky top-0 darkest_bg"></td>
+                    <td class="px-2 py-4 sticky top-0 background"></td>
+                    <td class="px-2 py-4 sticky top-0 background"></td>
+                    <td class="px-2 py-4 sticky top-0 background"></td>
+                    <td class="px-2 py-4 sticky top-0 background"></td>
                   </tr>
                   <template v-if="box.tasks">
                     <tr v-for="task in box.tasks" :key="task.uid"
                         :ref="'list_task_' + task.uid" :id="'list_task_' + task.uid"
                         v-on:click="openTask(task)"
-                        class="text-neutral-300 cursor-pointer hover:medium_bg
-                             z-20 list_taskcontainer dark_bg">
+                        class="cursor-pointer hover:surface-variant
+                             z-20 list_taskcontainer surface">
                       <td class="p-2">
                         <template v-if="task.done">
-                          <div class="px-1 py-1 rounded bg-green-800 flex w-24 mr-2 items-center">
-                            <CheckIcon class="h-4 w-4 mr-1 text-neutral-300"></CheckIcon>
-                            <span class="text-xs font-bold text-neutral-300">Done</span>
+                          <div class="px-1 py-1 rounded primary flex w-24 mr-2 items-center">
+                            <CheckIcon class="h-4 w-4 mr-1"></CheckIcon>
+                            <span class="text-xs font-bold">Done</span>
                           </div>
                         </template>
                         <template v-else>
-                          <div class="px-1 py-1 rounded bg-red-800 flex w-24 mr-2 items-center">
-                            <Cog6ToothIcon class="h-4 w-4 mr-1 text-neutral-300"></Cog6ToothIcon>
-                            <span class="text-xs font-bold text-neutral-300">Progress</span>
+                          <div class="px-1 py-1 rounded error flex w-24 mr-2 items-center">
+                            <Cog6ToothIcon class="h-4 w-4 mr-1"></Cog6ToothIcon>
+                            <span class="text-xs font-bold">Progress</span>
                           </div>
                         </template>
                       </td>
-                      <td class="p-2 text-neutral-200">{{ task.t }}</td>
+                      <td class="p-2"><p>{{ task.t }}</p></td>
                       <td class="p-2">
-                        <div class="max-h-10 overflow-hidden text-sm">
+                        <p class="max-h-10 overflow-hidden text-sm">
                           {{ task.desc }}
-                        </div>
+                        </p>
                       </td>
                       <template v-if="task.categories">
                         <td class="p-2">
                           <div class="flex flex-wrap items-center">
                             <template v-for="cat in task.categories" :key="cat">
                               <div v-if="JSON.parse(cat).category != null"
-                                   class="text-neutral-400 border-[1px] border-zinc-600 flex items-center
-                                          py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm darkest_bg">
-                                {{ JSON.parse(cat).category }}
+                                   class="border-[1px] border-zinc-600 flex items-center
+                                          py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm surface">
+                                <span>{{ JSON.parse(cat).category }}</span>
                               </div>
                             </template>
                           </div>
@@ -593,14 +612,14 @@
                         <td class="p-2 text-sm">{{ getHumanReadableDateText(task.due) }}</td>
                       </template>
                       <template v-else>
-                        <td class="p-2 text-neutral-500 text-xs">(No&nbsp;Due&nbsp;Date)</td>
+                        <td class="p-2  text-xs">(No&nbsp;Due&nbsp;Date)</td>
                       </template>
                       <template v-if="task.collaborators">
                         <td class="p-2">
                           <div class="grid grid-cols-1 items-center">
                             <template v-for="collaborator in task.collaborators" :key="collaborator">
                               <div v-if="collaborator != null"
-                                   class="text-neutral-200 flex items-center
+                                   class=" flex items-center
                                         rounded-lg mb-1 pointer-events-none text-sm w-fit">
                                 <UserIcon class="h-4 h-4 mr-1"></UserIcon>
                                 {{ collaborator.username }}
@@ -610,7 +629,7 @@
                         </td>
                       </template>
                       <template v-else>
-                        <td class="p-2 text-neutral-500 text-xs">(No&nbsp;Collaborators)</td>
+                        <td class="p-2  text-xs">(No&nbsp;Collaborators)</td>
                       </template>
                       <td class="p-2 text-sm">{{ task.usr }}</td>
                     </tr>
@@ -628,14 +647,14 @@
           <div class="bg-zinc-900 bg-opacity-50 p-2 rounded-md">
             <div class="px-4 py-2 flex items-center">
               <div class="rounded-full h-4 w-4 bg-zinc-600 animate-ping border-2 border-indigo-500"></div>
-              <p class="ml-6 text-neutral-200 font-bold animate-pulse">
+              <p class="ml-6  font-bold animate-pulse">
                 Loading Tasks ...
               </p>
             </div>
             <div class="flex items-center cursor-pointer hover:medium_bg
                           p-2 w-full mt-2 rounded"
                  v-on:click="$router.back()">
-              <div class="text-neutral-400">
+              <div class="">
                 <p class="text-sm">Taking too long?</p>
                 <p>Go Back</p>
               </div>
@@ -646,34 +665,40 @@
     </div>
   </template>
   <template v-else>
-    <div class="h-full w-full pt-[55px] bright_bg">
-      <div class="px-8 pt-4 pb-8 m-8 dark_bg rounded-md dshadow max-w-screen-lg">
-        <div class="text-neutral-300 mb-5 pointer-events-none">
+    <div class="h-full w-full pt_nav background">
+      <div class="px-8 pt-4 pb-8 m-8 background rounded-md dshadow max-w-screen-lg">
+        <div class=" mb-5 pointer-events-none">
           <span class="text-4xl font-bold">Create new Knowledge Hub</span>
         </div>
         <form class="lg:flex lg:gap-x-4" @submit.prevent="createKnowledge()">
-          <div class="text-neutral-300 w-full lg:w-[50%]">
-            <label for="title" class="text-2xl">Title</label>
+          <div class=" w-full lg:w-[50%]">
+            <label for="title" class="text-2xl">
+              <span>Title</span>
+            </label>
             <br>
-            <input type="text" id="title" class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
+            <input type="text" id="title" class="rounded text-xl w-full p-2"
                    required v-model="titleCreation">
             <br>
-            <label for="description" class="text-2xl">Description</label>
+            <label for="description" class="text-2xl">
+              <span>Description</span>
+            </label>
             <br>
             <textarea type="text" rows="3" id="description"
-                      class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
+                      class="rounded text-xl w-full p-2"
                       v-model="descriptionCreation"></textarea>
           </div>
-          <div class="text-neutral-300 w-full lg:w-[50%]">
-            <label for="keywords" class="text-2xl mr-3">Keywords</label>
-            <span class="text-neutral-500">Comma separated</span>
+          <div class=" w-full lg:w-[50%]">
+            <label for="keywords" class="text-2xl mr-3">
+              <span>Keywords</span>
+            </label>
+            <span class="">Comma separated</span>
             <br>
-            <input type="text" id="keywords" class="rounded text-xl w-full p-2 bg-zinc-400 bg-opacity-25"
+            <input type="text" id="keywords" class="rounded text-xl w-full p-2"
                    v-model="keywordsCreation">
             <br>
             <button type="submit"
                     class="mt-6 btn_bg_primary">
-              Create
+              <span>Create</span>
             </button>
           </div>
         </form>
@@ -683,7 +708,7 @@
   <modal @close="isShowingTask = false; sharing.collaborators = []"
          v-show="isShowingTask">
     <template v-slot:header>
-      <div class="h-4 flex items-center text-neutral-400 text-xs">
+      <div class="h-4 flex items-center text-xs">
         <p class="mr-1">{{ showingTask.uid }}</p>
         <i class="bi bi-dot mr-1"></i>
         <p class="mr-1">
@@ -697,29 +722,29 @@
       <div class="w-full sm:w-[600px] flex h-full relative">
         <div class="w-[calc(100%-50px)] sm:w-[calc(100%-100px)] h-full mr-1"
              v-if="!isShowingTaskHistory">
-          <div class="w-full medium_bg p-2 rounded dshadow">
+          <div class="w-full surface p-2 rounded bshadow">
             <template v-if="showingTask.categories && showingTask.categories.length > 0">
               <div class="flex mb-2 items-center">
                 <template v-for="cat in showingTask.categories" :key="cat">
                   <div v-if="JSON.parse(cat).category != null"
-                       class="text-neutral-400 border-[1px] border-zinc-600
+                       class="border-[1px] border-zinc-600
                               flex items-center py-0.5 px-1 rounded mr-1
-                              mb-1 pointer-events-none text-sm darkest_bg">
+                              mb-1 pointer-events-none text-sm surface-variant">
                     {{ JSON.parse(cat).category }}
                   </div>
                 </template>
               </div>
             </template>
-            <Markdown class="markedView font-bold text-neutral-200 w-full"
+            <Markdown class="markedView font-bold w-full"
                       :source="showingTask.t"
                       :plugins="plugins"></Markdown>
-            <Markdown class="markedView text-neutral-300 w-full"
+            <Markdown class="markedView w-full"
                       :source="showingTask.desc"
                       :plugins="plugins"></Markdown>
           </div>
           <div class="w-full my-2">
             <label for="task_view_datetime"
-                   class="text-neutral-300 text-xs font-bold mb-1">
+                   class="text-xs font-bold mb-1">
               Due Date
             </label>
             <div class="flex items-center justify-start">
@@ -727,29 +752,30 @@
                      v-model="showingTask.dueDateFormatted">
               <input id="task_view_time" type="time" class="p_input ml-1" style="color-scheme: dark;"
                      v-model="showingTask.dueTimeFormatted">
-              <button class="rounded-lg dark_bg hover:darkest_bg py-2 px-2 ml-1 text-xs text-neutral-300"
+              <button class="rounded-md surface hover:surface-variant
+                             py-2 px-2 ml-1 text-xs"
                       v-on:click="setTaskDueDate()">
-                Update
+                <span>Update</span>
               </button>
             </div>
           </div>
           <div class="w-full my-2">
-            <div class="text-neutral-300 text-xs font-bold mb-1 flex">
+            <div class="text-xs font-bold mb-1 flex">
               <span>Collaborators</span>
             </div>
             <div class="flex items-center justify-start w-full overflow-x-auto pb-1">
               <template v-if="showingTask.collaborators && showingTask.collaborators.length > 0">
                 <template v-for="collaborator in showingTask.collaborators" :key="collaborator">
                   <div v-if="collaborator != null"
-                       class="text-white flex items-center
+                       class=" flex items-center
                               py-1 px-2 rounded mr-1 mb-1 pointer-events-none text-sm">
-                    <UserIcon class="h-4 h-4 mr-1"></UserIcon>
+                    <UserIcon class="h-4 w-4 mr-1"></UserIcon>
                     {{ collaborator.username }}
                   </div>
                 </template>
               </template>
               <template v-else>
-                <div class="text-neutral-400 text-xs font-bold pointer-events-none">
+                <div class="text-xs font-bold pointer-events-none">
                   (No Collaborators)
                 </div>
               </template>
@@ -759,24 +785,24 @@
                        class="w-[calc(100%-40px)]">
                 <div class="relative my-2">
                   <ListboxButton
-                    class="medium_bg w-full relative cursor-default rounded-lg py-2 pl-3
-                           pr-10 text-left shadow-md focus:outline-none
+                    class="surface w-full relative cursor-default rounded-lg py-2 pl-3
+                           pr-10 text-left focus:outline-none
                            focus-visible:border-indigo-500 focus-visible:ring-2
                            focus-visible:ring-white focus-visible:ring-opacity-75
                            focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300
                            sm:text-sm"
                   >
                     <template v-if="sharing.collaborators.length > 0">
-                      <div class="block truncate font-bold text-neutral-300">
+                      <div class="block truncate font-bold">
                         {{ sharing.collaborators.map((cat) => cat.usr).join(', ') }}
                       </div>
                     </template>
                     <template v-else>
-                      <span class="block truncate font-bold text-neutral-500">Select...</span>
+                      <span class="block truncate font-bold">Select...</span>
                     </template>
                     <div
                       class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                      <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
+                      <ArrowsUpDownIcon class="h-5 w-5 on-surface-text" aria-hidden="true"/>
                     </div>
                   </ListboxButton>
                   <transition
@@ -784,8 +810,10 @@
                     leave-from-class="opacity-100"
                     leave-to-class="opacity-0">
                     <ListboxOptions
-                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md dark_bg py-1
-                             text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none
+                      class="surface absolute mt-1 max-h-60 w-full
+                             overflow-auto rounded-md py-1
+                             text-base shadow-lg ring-1 ring-black
+                             ring-opacity-5 focus:outline-none
                              sm:text-sm"
                     >
                       <ListboxOption
@@ -796,8 +824,8 @@
                         as="template"
                       >
                         <li
-                          :class="[ active ? 'medium_bg' : '',
-                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-neutral-200' ]">
+                          :class="[ active ? 'primary-container' : '',
+                                  'relative cursor-pointer select-none py-2 pl-10 pr-4' ]">
                           <div
                             :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
                             {{ cat.usr }}
@@ -813,10 +841,10 @@
                   </transition>
                 </div>
               </Listbox>
-              <button class="rounded-lg dark_bg hover:darkest_bg py-2.5 px-2 my-2 ml-1 w-[40px]
-                             text-xs text-neutral-300"
+              <button class="rounded-md surface hover:surface-variant
+                             py-2 px-2 ml-1 text-xs"
                       v-on:click="addTaskCollaborators()">
-                Add
+                <span>Add</span>
               </button>
             </div>
           </div>
@@ -824,18 +852,17 @@
             <div class="w-full">
               <textarea type="text" id="input_comment" v-model="showingTaskComment" rows="1"
                         placeholder="Write a comment"
-                        class="w-full border-b border-zinc-400 text-neutral-300 bright_bg
-                               focus:outline-none px-2 py-1 p_input"
+                        class="w-full                                focus:outline-none px-2 py-1 p_input"
                         v-on:keyup="showingTaskKeyup()"></textarea>
               <div hidden
-                   class="p-2 rounded-full hover:medium_bg text-neutral-300 hover:text-white
+                   class="p-2 rounded-full
                           relative right-1 sidebar_button cursor-pointer">
                 <Squares2X2Icon class="h-6 w-6"></Squares2X2Icon>
               </div>
             </div>
             <template v-if="!showingTaskRelated.replies || showingTaskRelated.replies.length < 1">
               <div class="flex w-full items-center justify-center py-4">
-                <div class="w-full text-neutral-400 pointer-events-none">
+                <div class="w-full pointer-events-none">
                   <CubeTransparentIcon class="h-8 w-8 mx-auto"></CubeTransparentIcon>
                   <p class="text-md font-bold italic w-fit mx-auto">No Comments</p>
                 </div>
@@ -843,22 +870,21 @@
             </template>
             <template v-else>
               <div class="flex items-center mt-4 mb-3 pointer-events-none">
-                <ChatBubbleLeftEllipsisIcon class="w-6 h-6 mr-2 text-neutral-300"></ChatBubbleLeftEllipsisIcon>
-                <p class="text-neutral-300 font-bold text-sm">
+                <ChatBubbleLeftEllipsisIcon class="w-6 h-6 mr-2"></ChatBubbleLeftEllipsisIcon>
+                <p class="font-bold text-sm">
                   {{ showingTaskRelated.replies.length }} {{ commentsText }}:
                 </p>
               </div>
               <div v-for="comment in showingTaskRelated.replies" :key="comment.uid"
-                   class="mb-2 w-full medium_bg rounded-r-xl rounded-l-lg border-b-2
-                          border-r-2 border-b-zinc-500 border-r-zinc-500 comment break-words">
+                   class="mb-2 w-full surface rounded-r-xl rounded-l-lg comment break-words">
                 <Markdown :source="comment.desc"
-                          class="text-neutral-300 w-full markedView py-1 px-2"
+                          class="w-full markedView py-1 px-2"
                           :plugins="plugins"></Markdown>
                 <div class="flex w-full">
                   <div
-                    class="text-neutral-400 ml-auto dark_bg rounded-br-xl rounded-tl-xl py-1
+                    class="ml-auto surface-variant rounded-br-xl rounded-tl-xl py-1
                            px-2 min-w-[20%] justify-between flex items-center">
-                    <p class="text-neutral-500 text-xs mr-2">
+                    <p class="text-xs mr-2">
                       {{ getHumanReadableDateText(comment.ts) }}</p>
                     <p class="text-sm">{{ comment.name }}</p>
                   </div>
@@ -876,13 +902,13 @@
             </tr>
             <template v-for="entry in showingTaskHistory" :key="entry">
               <tr class="py-1 mb-1">
-                <td class="text-neutral-300">
+                <td class="">
                   {{ capitalizeFirstLetter(entry.type) }}
                 </td>
                 <td>
                   {{ entry.usr }}
                 </td>
-                <td class="text-neutral-400">
+                <td class="">
                   {{ entry.date.toLocaleString('de-DE').replace(' ', '&nbsp;') }}
                 </td>
               </tr>
@@ -892,7 +918,7 @@
         <div class="min-w-[50px] sm:min-w-[100px] h-full ml-auto divide-y divide-zinc-500 relative">
           <div class="px-1 pb-1">
             <button v-on:click="finishTask(showingTask)"
-                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:dark_bg">
+                    class="group p_card_menu_item hover:primary">
               <CheckIcon
                 class="mr-2 h-6 w-6"
                 aria-hidden="true"
@@ -902,7 +928,7 @@
               </template>
             </button>
             <button v-on:click="finishTask(showingTask, true)"
-                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:dark_bg">
+                    class="group p_card_menu_item hover:primary">
               <TrashIcon
                 class="mr-2 h-6 w-6"
                 aria-hidden="true"
@@ -916,7 +942,7 @@
             <Menu as="div" class="relative inline-block text-left w-full">
               <MenuButton
                 title="Options"
-                class="items-center cursor-pointer group p_card_menu_item text-neutral-300 hover:text-white hover:dark_bg">
+                class="items-center cursor-pointer group p_card_menu_item hover:primary">
                 <ShareIcon
                   class="mr-2 h-6 w-6"
                   aria-hidden="true"
@@ -936,7 +962,7 @@
                 <MenuItems class="p_card_menu_list_medium_p dark_bg">
                   <div class="px-1 py-1">
                     <div class="pointer-events-none">
-                      <div class="text-neutral-300 group p_card_menu_item font-bold">
+                      <div class="group p_card_menu_item font-bold">
                         <ChatBubbleLeftRightIcon
                           class="mr-2 h-6 w-6"
                           aria-hidden="true"
@@ -949,8 +975,8 @@
                     <template v-for="group in $store.state.clarifierSessions" :key="group">
                       <MenuItem v-slot="{ active }" class="mb-1">
                         <button v-on:click="showShareTask(group)"
-                                :class="[active ? 'p_card_menu_active' : 'text-neutral-300','group p_card_menu_item p-1']">
-                          <img class="darkest_bg mr-2"
+                                :class="[active ? 'p_card_menu_active' : ' ','group p_card_menu_item p-1']">
+                          <img class="surface mr-2"
                                style="width: 32px; height: 32px; border-radius: 10px"
                                v-bind:src="getImg(group.img,true)"
                                :alt="'&nbsp;&nbsp;' + group.title.substring(0,1)"/>
@@ -965,7 +991,7 @@
               </transition>
             </Menu>
             <button v-on:click="gotoWisdom(showingTask.uid)"
-                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:dark_bg">
+                    class="group p_card_menu_item hover:primary">
               <WindowIcon
                 class="mr-2 h-6 w-6"
                 aria-hidden="true"
@@ -977,7 +1003,7 @@
           </div>
           <div class="p-1 hidden">
             <button v-on:click="showTaskHistory()"
-                    class="group p_card_menu_item text-neutral-300 hover:text-white hover:dark_bg">
+                    class="group p_card_menu_item hover:primary">
               <template v-if="!isShowingTaskHistory">
                 <ClockIcon
                   class="mr-2 h-6 w-6"
@@ -1005,9 +1031,9 @@
     </template>
   </modal>
   <template v-if="isSearching">
-    <div class="fixed top-[55px] right-1 p_card mt-2"
+    <div class="fixed top_nav right-1 p_card mt-2"
          style="box-shadow: 0 0 6px 4px rgb(23 23 23 / 1)">
-      <div class="p_card_header_section relative text-neutral-300 flex items-center p-2 font-bold w-full">
+      <div class="p_card_header_section relative flex items-center p-2 font-bold w-full">
         <span>Filter</span>
         <i class="bi bi-x-lg ml-auto mr-2 pl-2 hover:text-orange-600 cursor-pointer"
            v-on:click="this.isSearching = false"></i>
@@ -1015,36 +1041,41 @@
       <div class="p_card_header_section flex relative items-center p-2">
         <FunnelIcon class="h-6 w-6 mx-1 absolute"></FunnelIcon>
         <input id="search_input"
-               type="text" class="p_input p_input_icon w-full" placeholder="Search..."
+               type="text"
+               class="p_input p_input_icon w-full"
+               style="border: 1px solid var(--md-sys-color-outline-variant)"
+               placeholder="Search..."
                v-model="searchQuery"
                v-on:keyup="handleEnter()">
       </div>
       <div class="flex w-full mb-1">
-        <button class="rounded-lg dark_bg hover:darkest_bg py-1 px-2 ml-auto mr-2 text-sm text-neutral-400"
+        <button class="rounded-lg surface hover:dshadow
+                       py-1 px-2 ml-auto mr-2 text-sm"
+                style="border: 1px solid var(--md-sys-color-outline-variant)"
                 v-on:click="resetSearchResults()">
-          Reset
+          <span>Reset</span>
         </button>
       </div>
-      <div class="px-10 py-4 mt-2 dark_bg rounded-b">
+      <div class="px-10 py-4 mt-2 surface-variant rounded-b">
         <div class="flex items-center justify-between mb-2">
-          <label for="filterTitle" class="text-sm text-neutral-400 font-bold">Title</label>
+          <label for="filterTitle" class="text-sm font-bold">Title</label>
           <input id="filterTitle" type="checkbox" v-model="filters.filterTitle"
-                 class="w-6 h-6 accent-neutral-400">
+                 class="w-6 h-6">
         </div>
         <div class="flex items-center justify-between mb-2">
-          <label for="filterKeywords" class="text-sm text-neutral-400 font-bold">Keywords</label>
+          <label for="filterKeywords" class="text-sm font-bold">Keywords</label>
           <input id="filterKeywords" type="checkbox" v-model="filters.filterKeywords"
-                 class="w-6 h-6 accent-neutral-400">
+                 class="w-6 h-6">
         </div>
         <div class="flex items-center justify-between mb-2">
-          <label for="filterDescription" class="text-sm text-neutral-400 font-bold">Description</label>
+          <label for="filterDescription" class="text-sm font-bold">Description</label>
           <input id="filterDescription" type="checkbox" v-model="filters.filterDescription"
-                 class="w-6 h-6 accent-neutral-400">
+                 class="w-6 h-6">
         </div>
         <div class="flex items-center justify-between">
-          <label for="filterAuthor" class="text-sm text-neutral-400 font-bold">Author</label>
+          <label for="filterAuthor" class="text-sm font-bold">Author</label>
           <input id="filterAuthor" type="checkbox" v-model="filters.filterAuthor"
-                 class="w-6 h-6 accent-neutral-400">
+                 class="w-6 h-6">
         </div>
       </div>
     </div>
@@ -1060,14 +1091,14 @@
     </template>
     <template v-slot:body>
       <div class="w-[80dvw] sm:w-[412px] h-full relative">
-        <div class="p-2 darkest_bg rounded-md">
-          <div class="text-neutral-400 dark_bg w-full rounded py-1 px-2 mb-2 pointer-events-none">
-            Subchatrooms
+        <div class="p-2 surface rounded-md">
+          <div class="dark_bg w-full rounded py-1 px-2 mb-2 pointer-events-none">
+            Channels
           </div>
           <template v-if="sharing.chatroom && sharing.chatroom.subc">
             <div class="ml-3">
               <RadioGroup v-model="sharing.selectedSubchat">
-                <RadioGroupLabel class="sr-only">Subchatrooms</RadioGroupLabel>
+                <RadioGroupLabel class="sr-only">Channels</RadioGroupLabel>
                 <div class="space-y-2">
                   <RadioGroupOption
                     as="template"
@@ -1077,7 +1108,7 @@
                     v-slot="{ active, checked }">
                     <div
                       :class="[active ? 'ring-2 ring-white ring-opacity-20' : '',
-                               checked ? 'bg-zinc-300 bg-opacity-20 text-white ' : '']"
+                               checked ? 'bg-zinc-300 bg-opacity-20  ' : '']"
                       class="relative flex cursor-pointer rounded-lg px-2 py-1 shadow-md focus:outline-none
                              hover:bg-zinc-500 hover:bg-opacity-20 border-l border-neutral-600">
                       <div class="flex w-full items-center justify-between">
@@ -1086,7 +1117,7 @@
                             <RadioGroupLabel
                               as="p"
                               class="font-medium flex items-center">
-                              <div :class="[checked ? 'text-neutral-300' : 'text-neutral-400']"
+                              <div :class="[checked ? ' ' : ' ']"
                                    class="text-lg">
                                 {{ subchat.t }}
                               </div>
@@ -1095,7 +1126,7 @@
                               as="span"
                               class="inline"
                             >
-                              <div :class="[checked ? 'text-neutral-500' : 'text-neutral-600']"
+                              <div :class="[checked ? '' : '']"
                                    class="text-xs">
                                 <template v-if="subchat.type">
                                   {{ capitalizeFirstLetter(subchat.type) }}
@@ -1107,7 +1138,7 @@
                             </RadioGroupDescription>
                           </div>
                         </div>
-                        <div v-show="checked" class="shrink-0 text-white">
+                        <div v-show="checked" class="shrink-0 ">
                           <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
                             <circle
                               cx="12"
@@ -1133,23 +1164,23 @@
             </div>
           </template>
           <template v-else>
-            <div class="ml-3 text-neutral-500 animate-bounce">Loading...</div>
+            <div class="ml-3  animate-bounce">Loading...</div>
           </template>
         </div>
         <textarea type="text" id="share_message" v-model="sharing.message" rows="1"
                   placeholder="Add a message"
-                  class="w-full border-b border-neutral-400 text-neutral-300 bright_bg bg-opacity-20 focus:outline-none px-2 py-1 p_input mt-2"
+                  class="w-full border-b border-neutral-400 bright_bg bg-opacity-20 focus:outline-none px-2 py-1 p_input mt-2"
                   v-on:keyup="auto_grow('share_message')"></textarea>
         <div class="mt-2 flex w-full relative">
           <div class="ml-auto">
             <template v-if="sharing.selectedSubchat !== ''">
               <button v-on:click="shareTask()"
-                      class="py-2 px-3 rounded dark_bg hover:darkest_bg">
-                <span class="font-bold text-sm text-neutral-400">Share Task</span>
+                      class="py-2 px-3 rounded dark_bg hover:surface">
+                <span class="font-bold text-sm">Share Task</span>
               </button>
             </template>
             <template v-else>
-              <div class="py-2 px-3 text-neutral-400 text-sm pointer-events-none">
+              <div class="py-2 px-3 text-sm pointer-events-none">
                 Choose a Subchat
               </div>
             </template>
@@ -1173,7 +1204,8 @@ import {
   ListBulletIcon,
   PlusCircleIcon,
   SquaresPlusIcon,
-  ViewColumnsIcon
+  ViewColumnsIcon,
+  CalendarDaysIcon
 } from '@heroicons/vue/24/outline'
 import {
   ArrowsPointingOutIcon,
@@ -1258,7 +1290,8 @@ export default {
     ListBulletIcon,
     ViewColumnsIcon,
     Cog6ToothIcon,
-    draggable
+    draggable,
+    CalendarDaysIcon
   },
   data () {
     return {
@@ -1632,11 +1665,13 @@ export default {
       this.toggleElement(id, display)
       const elem = document.getElementById(id)
       const input = document.getElementById(id + '_input')
+      const lbox = document.getElementById(id + '_lbox')
       if (elem.style.display !== 'hidden') {
         input.focus()
-        input.scrollIntoView({
+        lbox.scrollIntoView({
           behavior: 'smooth',
-          block: 'center'
+          block: 'nearest',
+          inline: 'nearest'
         })
       } else {
         input.blur()
@@ -2479,22 +2514,21 @@ export default {
     },
     createKnowledge: async function () {
       const payload = {
-        mainChatroomGUID: this.srcGUID,
-        title: this.titleCreation,
-        description: this.descriptionCreation,
-        keywords: this.keywordsCreation,
-        isPrivate: true
+        pid: this.srcguid,
+        t: this.titleCreation,
+        desc: this.descriptionCreation,
+        keys: this.keywordsCreation
       }
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/create',
+          url: 'knowledge/private/create',
           body: JSON.stringify(payload)
         })
-          .then(() => {
+          .then((data) => {
             this.knowledgeExists = true
-            if (this.srcguid) this.getKnowledge(this.srcguid)
+            this.getKnowledge(data.result, false)
           })
           .then(() => resolve())
           .catch((err) => console.debug(err.message))
@@ -2580,16 +2614,21 @@ export default {
 
 /* Coloring / Shape */
 .p_card {
-  @apply bright_bg rounded text-neutral-300;
+  @apply background rounded ;
+  border: 1px solid var(--md-sys-color-outline-variant);
 }
 
 /* Sizing */
 .p_card {
-  @apply min-w-[256px] max-w-[256px] h-fit m-1;
+  @apply min-w-[256px] max-w-[256px] h-fit m-1
+  max-h-[calc(100dvh-140px)] overflow-y-auto;
 }
 
 .p_input {
-  @apply rounded py-1 px-3 dark_bg hover:darkest_bg focus:darkest_bg placeholder-neutral-400;
+  @apply rounded py-1 px-3 surface
+  hover:primary focus:surface
+  hover:on-primary-text focus:on-surface-text
+  hover:dshadow focus:dshadow;
 }
 
 .p_input_icon {
@@ -2597,7 +2636,7 @@ export default {
 }
 
 .p_card_header_section {
-  @apply min-h-[36px];
+  @apply min-h-[36px] sticky top-0 z-10 background;
 }
 
 .p_task_overlay {
@@ -2609,7 +2648,7 @@ export default {
 }
 
 .p_card_menu_active {
-  @apply darkest_bg bg-opacity-60 text-white font-bold;
+  @apply surface bg-opacity-60  font-bold;
 }
 
 .p_card_menu_item {
@@ -2623,7 +2662,7 @@ export default {
 
 .p_card_menu_list_big_p {
   @apply absolute mt-2 w-80 divide-y divide-zinc-400 border-[1px] border-zinc-400
-  shadow-zinc-900 shadow-2xl rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10;
+  shadow-zinc-900 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10;
 }
 
 .p_markdown p {
@@ -2699,7 +2738,7 @@ export default {
 }
 
 .sidebar_button:hover {
-  @apply medium_bg;
+  @apply primary;
 }
 
 .sidebar_button:hover .sidebar_tooltip {
@@ -2707,11 +2746,11 @@ export default {
 }
 
 .p_sidebar_left {
-  @apply w-7 overflow-x-hidden;
+  @apply w-0 overflow-x-hidden;
 }
 
 .p_sidebar_left > .p_sidebar_toggler {
-  @apply bright_bg hover:brightest_bg;
+  @apply surface-variant hover:primary;
 }
 
 .p_sidebar_left.active {
@@ -2720,7 +2759,7 @@ export default {
 
 .p_sidebar_left.active > .p_sidebar_toggler {
   background-color: unset;
-  @apply hover:bright_bg;
+  @apply hover:primary;
 }
 
 .p_task.active,
@@ -2730,13 +2769,14 @@ export default {
 
 .p_task:hover,
 .p_taskshadow:hover {
-  box-shadow: 0 0 0 2px white;
+  box-shadow: 0 0 0 2px var(--md-sys-color-primary);
 }
 
 .p_task {
-  @apply mb-1 mx-1 w-[calc(100%-0.5rem)] medium_bg rounded
-  flex items-center relative cursor-pointer
-  dshadow;
+  @apply mb-1 mx-1 w-[calc(100%-0.5rem)]
+  surface rounded
+  flex items-center relative cursor-pointer;
+  border: 1px solid var(--md-sys-color-outline-variant)
 }
 
 #board {
@@ -2749,27 +2789,27 @@ export default {
 }
 
 .fc .fc-timegrid-day.fc-day-today {
-  @apply bg-white bg-opacity-20;
+  @apply background bg-opacity-20;
 }
 
 .fc .fc-timegrid-day.fc-day-today .fc-timegrid-day-number {
-  @apply text-neutral-100 font-bold;
+  @apply font-bold;
 }
 
 .fc .fc-timegrid-day {
-  @apply hover:bg-white hover:bg-opacity-10 rounded-md;
+  @apply hover:primary-container hover:bg-opacity-10 rounded-md;
 }
 
 .fc .fc-timegrid {
-  @apply rounded-md darkest_bg p-2 mx-2;
+  @apply rounded-md background p-2 mx-2;
 }
 
 .fc .fc-toolbar.fc-header-toolbar {
-  @apply pl-4 pr-2 py-2 mx-2 mb-2 darkest_bg rounded-md;
+  @apply pl-4 pr-2 py-2 mx-2 mb-2 background rounded-md;
 }
 
 .fc-theme-standard td, .fc-theme-standard th {
-  @apply border-zinc-600;
+  border: 1px solid var(--md-sys-color-outline-variant);
 }
 
 .fc-theme-standard .fc-scrollgrid {
@@ -2778,7 +2818,7 @@ export default {
 
 .fc .fc-timegrid-day-number {
   text-decoration: none;
-  @apply text-neutral-300 cursor-default;
+  @apply cursor-default;
 }
 
 .fc .fc-toolbar-title {
@@ -2798,15 +2838,27 @@ export default {
 }
 
 .fc .fc-v-event {
-  @apply bg-blue-900 border-blue-700 px-1 py-0.5;
+  @apply primary px-1 py-0.5;
 }
 
 .fc .fc-event-title {
-  @apply text-neutral-300 text-sm font-bold;
+  @apply text-sm font-bold;
+}
+
+.fc .fc-button-primary {
+  @apply surface;
+}
+
+.fc .fc-button-primary:disabled {
+  @apply surface-variant;
+}
+
+.fc .fc-button-primary:hover {
+  @apply primary;
 }
 
 .ghost {
-  @apply m-2 brightest_bg border-2 border-zinc-200 rounded;
+  @apply m-2 primary border-2 border-zinc-200 rounded;
 }
 
 .ghost * {
@@ -2818,9 +2870,13 @@ export default {
 }
 
 .due_date {
-  @apply flex items-center text-neutral-300 p-2 mt-1 mx-1 mb-2
+  @apply flex items-center p-2 mt-1 mx-1 mb-2
   bg-orange-700 bg-opacity-25 justify-between rounded
   border-[1px] border-orange-800;
+}
+
+.p_new_task_disclosure {
+  @apply surface-variant bshadow p-3;
 }
 
 </style>

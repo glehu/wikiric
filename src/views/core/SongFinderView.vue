@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center text-white mt-[55px]">
+  <div class="text-center  mt_nav">
     <div class="card-subtitle container">
       <div class="card-body">
         <input
@@ -11,7 +11,7 @@
         />
       </div>
 
-      <table class="table table-bordered text-white">
+      <table class="table table-bordered ">
         <thead>
         <tr>
           <th>Name</th>

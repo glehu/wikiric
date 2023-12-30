@@ -1,16 +1,16 @@
 <template>
   <div id="checkoutAddresses"
        class="h-full w-full md:flex overflow-y-scroll md:overflow-hidden
-              justify-evenly pt-[55px]">
+              justify-evenly pt_nav">
     <div class="md:hidden p-2 flex items-center justify-center">
       <p>{{ $t("checkout.scrollDown") }}</p>
     </div>
     <div id="checkoutItems"
-         class="brightest_bg overflow-hidden w-full h-fit md:h-full bshadow">
+         class="background overflow-hidden w-full h-fit md:h-full bshadow">
       <div class="w-full h-full relative">
-        <div class="px-4 py-2 flex medium_bg">
+        <div class="px-4 py-2 flex surface-variant bshadow">
           <ShoppingCartIcon class="h-8 w-8 mr-4
-                                   text-neutral-200"/>
+                                  "/>
           <p class="font-bold text-2xl">
             {{ $t("stores.shoppingCart") }}
           </p>
@@ -21,15 +21,16 @@
                       overflow-y-auto pb-20">
             <div class="pt-2 px-2 h-full overflow-y-auto pb-20">
               <template v-if="$store.state.cart && $store.state.cart.length > 0">
-                <div class="cursor-pointer px-1 rounded mb-2 mt-1
-                      dark_bg hover:darkest_bg w-fit"
+                <div class="cursor-pointer px-1 rounded mb-2 mt-1 ml-1
+                            bshadow w-fit surface"
                      v-on:click="$store.commit('clearCart')">
-                  <p class="font-bold text-sm text-neutral-300">
+                  <p class="font-bold text-sm">
                     {{ $t("gen.clear") }}
                   </p>
                 </div>
                 <div class="flex flex-col gap-y-2">
-                  <div class="px-4 py-2 mx-1 rounded dark_bg w-fit">
+                  <div class="px-4 py-2 mx-1 rounded surface w-fit"
+                       style="border: 1px solid var(--md-sys-color-outline-variant)">
                     <p class="font-bold">
                       {{ $t("checkout.orderSummary") }}
                     </p>
@@ -61,7 +62,8 @@
                     </table>
                   </div>
                   <div v-for="cartItem in $store.state.cart" :key="cartItem.uid"
-                       class="p-2 m-1 rounded bright_bg dshadow">
+                       class="p-2 m-1 rounded surface"
+                       style="border: 1px solid var(--md-sys-color-outline-variant)">
                     <p class="font-bold">{{ cartItem.t }}</p>
                     <p class="text-sm">{{ cartItem.desc }}</p>
                     <div v-if="cartItem.tvars && cartItem.tvars.length > 0"
@@ -81,27 +83,27 @@
                     </div>
                     <div class="flex gap-x-2 mt-2">
                       <input type="number" min="0" v-model="cartItem.amt"
-                             class="border-[1px] w-[5rem]
-                            border-neutral-500 px-3 py-1 rounded
-                            dark_bg text-xl text-neutral-200">
+                             class="w-[5rem] px-3 py-1 rounded
+                                    surface-variant text-xl"
+                             style="border: 1px solid var(--md-sys-color-outline-variant)">
                       <div>
                         <p class="text-xl font-bold">
                           {{ ((cartItem.net * (cartItem.vatp + 1)) * cartItem.amt).toFixed(2) }} €
                         </p>
                         <div class="flex items-center text-xs gap-x-2">
-                          <p class="text-neutral-400">
+                          <p class="">
                             {{ cartItem.net.toFixed(2) }} €
                           </p>
-                          <p class="text-neutral-400">
+                          <p class="">
                             {{ cartItem.vatp.toFixed(2) * 100 }} % {{ $t("eco.vat") }}
                           </p>
                         </div>
                       </div>
                     </div>
-                    <div class="cursor-pointer px-1 rounded mb-2 mt-2
-                          dark_bg hover:darkest_bg w-fit"
+                    <div class="cursor-pointer px-1 rounded mb-2 mt-4
+                                bshadow w-fit surface"
                          v-on:click="$store.commit('removeFromCart', cartItem); calculate()">
-                      <p class="font-bold text-sm text-neutral-300">
+                      <p class="font-bold text-sm">
                         {{ $t("stores.removeFromCart") }}
                       </p>
                     </div>
@@ -118,15 +120,15 @@
         </div>
       </div>
     </div>
-    <div class="bright_bg h-full w-full">
+    <div class="surface h-full w-full bshadow">
       <div v-if="showPayment !== true" class="h-full w-full">
-        <p class="font-bold text-2xl darkest_bg
-                px-4 py-2">
+        <p class="font-bold text-2xl surface-variant bshadow
+                  px-4 py-2">
           Checkout
         </p>
         <div class="flex justify-center
                     mt-2 px-4 py-2 h-full">
-          <div class="max-w-[600px] w-full pr-2
+          <div class="max-w-[600px] w-full pl-1 pr-2
                       overflow-y-auto pb-20">
             <div ref="shippingAddressContainer"
                  class="flex flex-col gap-y-2">
@@ -181,7 +183,7 @@
                        class="w-4 h-4 mr-2"
                        v-model="shippingAsBilling">
                 <label for="shoppingAsBilling"
-                       class="text-neutral-200 cursor-pointer">
+                       class="cursor-pointer">
                   {{ $t("checkout.sameAsBilling") }}
                 </label>
               </div>
@@ -239,7 +241,7 @@
               <template v-if="$store.state.cart && $store.state.cart.length > 0">
                 <div class="btn_bg_primary font-bold"
                      v-on:click="submitOrder()">
-                  {{ $t("checkout.submitOrder") }}
+                  <p>{{ $t("checkout.submitOrder") }}</p>
                 </div>
               </template>
               <template v-else>
@@ -253,19 +255,19 @@
         </div>
       </div>
       <div v-else class="h-full w-full">
-        <p class="font-bold text-xl lg:text-2xl darkest_bg
+        <p class="font-bold text-xl lg:text-2xl surface-variant bshadow
                   px-4 py-2">
           {{ $t("eco.payment") }}
         </p>
         <div class="px-4 py-2">
-          <p class="mb-4 font-bold">
+          <p class="mb-4 mt-2 font-bold">
             {{ $t("checkout.confirmation") }}
           </p>
           <p class="mb-4">
             {{ $t("checkout.demand1") }}
             <span class="font-bold">{{ ftotalGross }} €</span>
             {{ $t("checkout.demand2") }}:</p>
-          <div class="mb-4 px-4 py-2 rounded dark_bg">
+          <div class="mb-4 px-4 py-2 rounded surface-variant">
             <template v-if="store != null && store.bank && store.bank.bank">
               <p class="text-sm mb-4">
                 {{ $t("checkout.qrHint") }}
@@ -280,8 +282,8 @@
               <p>{{ $t("checkout.noBank") }}</p>
             </template>
           </div>
-          <div class="px-4 py-2 rounded dark_bg">
-            <p class="text-neutral-400 text-sm">Order ID: {{ orderIdResponse }}</p>
+          <div class="px-4 py-2 rounded surface-variant">
+            <p class=" text-sm">Order ID: {{ orderIdResponse }}</p>
           </div>
         </div>
       </div>
@@ -481,14 +483,14 @@ export default {
 <style>
 
 .search-field {
-  @apply text-white rounded-md overflow-hidden w-full;
+  @apply rounded-md overflow-hidden w-full;
   resize: none;
 }
 
 .search-field-enhanced {
-  @apply search-field
-  py-4 px-4 w-full placeholder-neutral-300
-  medium_bg h-6 border-[1px] border-zinc-500;
+  @apply search-field fmt_input
+  py-4 px-4 w-full
+  h-6 background;
 }
 
 td p {

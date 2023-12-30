@@ -1,46 +1,45 @@
 <template>
   <template v-if="knowledgeExists">
     <div id="users" ref="users"></div>
-    <div class="flex w-full h-full relative">
-      <div class="border-b-[2px] border-b-neutral-700 w-full fixed top-0 left-0 pt-[55px]"></div>
-      <div class="fixed left-0 top-0 w-[250px] h-full medium_bg z-50 pt-[55px] z-50">
+    <div class="flex w-full h-full relative background">
+      <div class="fixed left-0 top-0 w-[250px] h-full surface pt_nav z-50">
         <div class="py-1">
           <div class="flex items-center">
             <div v-on:click="clickedBack()"
-                 class="h-full ml-2 mr-2 p-2 rounded-lg text-neutral-300
+                 class="h-full ml-2 mr-2 p-2 rounded-lg
                         hover:text-orange-500 cursor-pointer flex items-center justify-center">
               <i class="sb_link_icon bi bi-x-square text-xl"></i>
             </div>
             <div class="w-full overflow-x-hidden pr-2">
               <div class="py-2 px-2 pointer-events-none">
-                <div class="text-lg border-l border-gray-300 pl-5 text-neutral-300 font-bold">
+                <div class="text-lg border-l border-gray-300 pl-5 font-bold">
                   {{ this.knowledge.t }}
                 </div>
-                <div class="text-sm border-l border-gray-300 pl-5 text-neutral-300 text-neutral-400">
+                <div class="text-sm border-l border-gray-300 pl-5">
                   {{ this.knowledge.desc }}
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="rounded m-2 p-2 dark_bg">
+        <div class="rounded m-2 p-2 surface-variant">
           <p class="font-bold text-xs mb-2">Draw Settings</p>
           <div class="p-1">
             <div class="flex w-full justify-evenly mb-2">
               <div id="btnCursorCursor" ref="btnCursorCursor"
                    class="studioToolbarButton"
                    v-on:click="setToolButton('cursor')">
-                <CursorArrowRaysIcon class="h-6 w-6 text-neutral-100"></CursorArrowRaysIcon>
+                <CursorArrowRaysIcon class="h-6 w-6"></CursorArrowRaysIcon>
               </div>
               <div id="btnCursorDraw" ref="btnCursorDraw"
                    class="studioToolbarButton"
                    v-on:click="setToolButton('draw')">
-                <PaintBrushIcon class="h-6 w-6 text-neutral-100"></PaintBrushIcon>
+                <PaintBrushIcon class="h-6 w-6"></PaintBrushIcon>
               </div>
               <div id="btnCursorText" ref="btnCursorText"
                    class="studioToolbarButton"
                    v-on:click="setToolButton('text')">
-                <PencilSquareIcon class="h-6 w-6 text-neutral-100"></PencilSquareIcon>
+                <PencilSquareIcon class="h-6 w-6"></PencilSquareIcon>
               </div>
             </div>
             <div class="flex w-full justify-evenly mb-2">
@@ -62,85 +61,89 @@
             </div>
             <div class="flex w-full items-center justify-evenly">
               <div>
-                <label for="strokeSize" class="text-sm text-neutral-300">
-                  Size ({{ userSettings.strokeSize }} px)
+                <label for="strokeSize" class="text-sm">
+                  <span>Size ({{ userSettings.strokeSize }} px)</span>
                 </label><br>
                 <input v-model="userSettings.strokeSize" type="range" name="strokeSize" id="strokeSize"
                        step="1" min="1" max="40"
                        class="w-[100px]">
               </div>
-              <div class="rounded-full bg-white"
+              <div class="rounded-full primary"
                    :style="{width: userSettings.strokeSize + 'px', height: userSettings.strokeSize + 'px'}">
                 &nbsp;
               </div>
             </div>
             <div class="flex w-full justify-evenly mb-2">
               <div class="w-16">
-                <label for="colorStroke" class="text-sm text-neutral-300">Stroke</label><br>
-                <input type="color" name="colorStroke" id="colorStroke" ref="colorStroke" value="#FFFFFF">
+                <label for="colorStroke" class="text-sm">
+                  <span>Stroke</span>
+                </label><br>
+                <input type="color" name="colorStroke" id="colorStroke" ref="colorStroke" value="#000000">
               </div>
               <div class="w-16">
-                <label for="colorStroke" class="text-sm text-neutral-300">Fill</label><br>
-                <input type="color" name="colorFill" id="colorFill" ref="colorFill" value="#FFFFFF">
+                <label for="colorStroke" class="text-sm">
+                  <span>Fill</span>
+                </label><br>
+                <input type="color" name="colorFill" id="colorFill" ref="colorFill" value="#000000">
               </div>
             </div>
             <div class="flex w-full justify-end gap-x-2">
-              <button class="text-neutral-300 px-2 py-1 rounded medium_bg hover:darkest_bg"
+              <button class="fmt_border px-2 py-1 rounded surface hover:primary"
                       v-on:click="resetCanvas()">
                 <span>Clear</span>
               </button>
             </div>
           </div>
         </div>
-        <div class="rounded m-2 p-2 dark_bg">
+        <div class="rounded m-2 p-2 surface-variant">
           <p class="font-bold text-xs mb-2">Media</p>
           <div class="p-1">
             <template v-if="imageToDraw !== null">
-              <button class="text-neutral-300 px-2 py-1 rounded w-full
-                             bg-red-800 hover:bg-red-900 border-[1px] border-red-500"
+              <button class=" px-2 py-1 rounded w-full
+                             error"
                       v-on:click="cancelAddMedia()">
                 <span>Cancel media</span>
               </button>
             </template>
             <template v-else>
-              <button class="btn_small_icon text-neutral-300"
+              <button class="btn_small_icon"
                       v-on:click="isAddingMedia = true">
                 <DocumentArrowUpIcon
-                  class="mr-3 h-6 w-6"
-                  aria-hidden="true"
+                    class="mr-3 h-6 w-6"
+                    aria-hidden="true"
                 />
                 <span class="text-mg">Add image</span>
               </button>
             </template>
           </div>
         </div>
-        <div class="rounded m-2 p-2 dark_bg">
+        <div class="rounded m-2 p-2 surface-variant">
           <p class="font-bold text-xs">Session Settings ({{ session.connectedUsers.length }} connected)</p>
           <div class="p-1">
             <div class="flex w-full items-center py-2">
               <Menu as="div" class="relative inline-block text-left">
                 <MenuButton
-                  title="Options"
-                  class="btn_small_icon text-neutral-300 flex items-center cursor-pointer">
+                    title="Options"
+                    class="btn_small_icon  flex items-center cursor-pointer">
                   <UserPlusIcon class="w-6 h-6 mr-3"></UserPlusIcon>
                   <span class="text-md">Invite</span>
                 </MenuButton>
                 <transition
-                  enter-active-class="transition duration-100 ease-out"
-                  enter-from-class="transform scale-95 opacity-0"
-                  enter-to-class="transform scale-100 opacity-100"
-                  leave-active-class="transition duration-75 ease-in"
-                  leave-from-class="transform scale-100 opacity-100"
-                  leave-to-class="transform scale-95 opacity-0"
+                    enter-active-class="transition duration-100 ease-out"
+                    enter-from-class="transform scale-95 opacity-0"
+                    enter-to-class="transform scale-100 opacity-100"
+                    leave-active-class="transition duration-75 ease-in"
+                    leave-from-class="transform scale-100 opacity-100"
+                    leave-to-class="transform scale-95 opacity-0"
                 >
                   <MenuItems
-                    class="p_card_menu_list_big_p bg-zinc-100"
+                      class="p_card_menu_list_big_p surface"
                   >
                     <div class="px-1 py-1">
                       <template v-for="member in members" :key="member.usr">
                         <MenuItem v-slot="{ active }">
                           <button v-on:click="inviteUser(member.id)"
-                                  :class="[active ? 'p_card_menu_active' : 'text-neutral-900','group p_card_menu_item']">
+                                  :class="[active ? 'p_card_menu_active' : '','group p_card_menu_item']">
                             {{ member.usr }}
                           </button>
                         </MenuItem>
@@ -189,8 +192,8 @@
     </div>
   </template>
   <modal
-    v-show="isAddingMedia"
-    @close="cancelAddMedia">
+      v-show="isAddingMedia"
+      @close="cancelAddMedia">
     <template v-slot:header>
       Add File
     </template>
@@ -208,10 +211,10 @@
              style="width: 100%"
              multiple v-on:change="handleUploadFileSelect"/>
       <template v-if="uploadFileBase64 !== ''">
-        <p class="text-neutral-300 font-bold">{{ this.uploadFileName }}</p>
+        <p class=" font-bold">{{ this.uploadFileName }}</p>
         <div class="mt-3 w-full">
           <template v-if="uploadFileType.includes('image')">
-            <button class="darkbutton text-white p-2 w-full flex items-center justify-center rounded-full"
+            <button class="darkbutton  p-2 w-full flex items-center justify-center rounded-full"
                     style="height: 2.5em;
                            border-color: transparent; margin: auto"
                     title="Send"
@@ -221,7 +224,7 @@
             </button>
           </template>
           <template v-else>
-            <div class="text-white p-2 w-full flex items-center justify-center rounded-full
+            <div class=" p-2 w-full flex items-center justify-center rounded-full
                         bg-red-800">
               <p>File does not contain an image!</p>
             </div>
@@ -311,6 +314,7 @@ export default {
       this.srcGUID = srcGUID
       await this.getKnowledge(srcGUID)
       await this.getUniChatroom(srcGUID)
+      await this.getChatMembers(srcGUID)
       this.setUpWRTC()
     },
     getKnowledge: async function (sessionID) {
@@ -318,22 +322,22 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm7/get?src=' + sessionID + '&from=clarifier'
+          url: 'knowledge/private/chat/' + sessionID
         })
-          .then((data) => {
-            this.knowledgeExists = true
-            this.knowledge = data.result
-            if (this.knowledge.categories != null) {
-              for (let i = 0; i < this.knowledge.categories.length; i++) {
-                this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
+            .then((data) => {
+              this.knowledgeExists = true
+              this.knowledge = data.result
+              if (this.knowledge.categories != null) {
+                for (let i = 0; i < this.knowledge.categories.length; i++) {
+                  this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
+                }
               }
-            }
-            resolve()
-          })
-          .catch((err) => {
-            console.debug(err.message)
-            this.knowledgeExists = false
-          })
+              resolve()
+            })
+            .catch((err) => {
+              console.debug(err.message)
+              this.knowledgeExists = false
+            })
       })
     },
     getUniChatroom: async function (sessionID) {
@@ -341,20 +345,32 @@ export default {
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'm5/getchatroom/' + sessionID
+          url: 'chat/private/get/' + sessionID
         })
-          .then((data) => {
-            this.chatroom = data.result
-            this.members = []
-            // Parse JSON serialized users for performance
-            if (this.chatroom.members) {
-              for (let i = 0; i < this.chatroom.members.length; i++) {
-                // Main Members
-                this.members[i] = JSON.parse(this.chatroom.members[i])
+            .then((data) => {
+              this.chatroom = data.result
+            })
+            .then(resolve)
+      })
+    },
+    getChatMembers: async function (sessionID) {
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'chat/private/users/members/' + sessionID
+        })
+            .then((data) => {
+              this.members = []
+              // Parse JSON serialized users for performance
+              if (data.result.members && data.result.members.length > 0) {
+                for (let i = 0; i < data.result.members.length; i++) {
+                  // Main Members
+                  this.members[i] = data.result.members[i]
+                }
               }
-            }
-          })
-          .then(resolve)
+            })
+            .then(resolve)
       })
     },
     clickedBack: function () {
@@ -478,7 +494,7 @@ export default {
             const Y2 = e.clientY - Y1
             vueInst.ctx.rect(X1, Y1, X2, Y2)
             vueInst.broadcast(
-              vueInst.buildABString('[c:DR]', vueInst.userState.prevX, vueInst.userState.prevY, e.clientX, e.clientY)
+                vueInst.buildABString('[c:DR]', vueInst.userState.prevX, vueInst.userState.prevY, e.clientX, e.clientY)
             )
           } else if (shape === 'line') {
             const X2 = e.clientX
@@ -486,14 +502,14 @@ export default {
             vueInst.ctx.moveTo(X1, Y1)
             vueInst.ctx.lineTo(X2, Y2)
             vueInst.broadcast(
-              vueInst.buildABString('[c:DL]', vueInst.userState.prevX, vueInst.userState.prevY, e.clientX, e.clientY)
+                vueInst.buildABString('[c:DL]', vueInst.userState.prevX, vueInst.userState.prevY, e.clientX, e.clientY)
             )
           } else if (shape === 'image') {
             const X2 = e.clientX - X1
             const Y2 = e.clientY - Y1
             vueInst.ctx.drawImage(vueInst.imageToDraw, X1, Y1, X2, Y2)
             vueInst.broadcast(
-              vueInst.buildIString('[c:DI]', vueInst.userState.prevX, vueInst.userState.prevY, e.clientX, e.clientY)
+                vueInst.buildIString('[c:DI]', vueInst.userState.prevX, vueInst.userState.prevY, e.clientX, e.clientY)
             )
             vueInst.cancelAddMedia()
           }
@@ -544,11 +560,11 @@ export default {
       this.ctx2.beginPath()
       // Report back
       this.$notify(
-        {
-          title: 'Canvas cleared!',
-          text: '',
-          type: 'info'
-        })
+          {
+            title: 'Canvas cleared!',
+            text: '',
+            type: 'info'
+          })
     },
     inviteUser: async function (remoteId) {
       if (remoteId == null) return
@@ -557,7 +573,7 @@ export default {
       }
       const remoteName = this.getUserFromId(remoteId)
       this.session.wRTC.initiatePeerConnection(
-        null, this.$store.state.username, remoteId, remoteName, true)
+          null, this.$store.state.username, remoteId, remoteName, true)
     },
     setUpWRTC: function () {
       // Initialize wRTC.js
@@ -577,11 +593,11 @@ export default {
         const username = this.getUserFromId(event.data.remoteId)
         // Report back
         this.$notify(
-          {
-            title: 'User joined!',
-            text: `${username} is now collaborating with you.`,
-            type: 'info'
-          })
+            {
+              title: 'User joined!',
+              text: `${username} is now collaborating with you.`,
+              type: 'info'
+            })
         // Add data channel and connection
         const dC = this.session.wRTC.getPeerConnection(event.data.remoteId).dataChannel
         dC.send('DataChannel:OPEN')
@@ -647,11 +663,11 @@ export default {
           ctx.lineWidth = parseInt(valueList[5])
           ctx.strokeStyle = valueList[6]
           ctx.moveTo(
-            parseInt(valueList[1]),
-            parseInt(valueList[2]))
+              parseInt(valueList[1]),
+              parseInt(valueList[2]))
           ctx.lineTo(
-            parseInt(valueList[3]),
-            parseInt(valueList[4]))
+              parseInt(valueList[3]),
+              parseInt(valueList[4]))
           ctx.stroke()
         } else if (event.data.message.substring(0, 6) === '[c:DR]') {
           // Draw Rect
@@ -664,10 +680,10 @@ export default {
           const X2 = parseInt(valueList[3])
           const Y2 = parseInt(valueList[4])
           ctx.rect(
-            X1,
-            Y1,
-            X2 - X1,
-            Y2 - Y1)
+              X1,
+              Y1,
+              X2 - X1,
+              Y2 - Y1)
           ctx.stroke()
         } else if (event.data.message.substring(0, 6) === '[c:DI]') {
           // Draw Image
@@ -680,10 +696,10 @@ export default {
           const imageToDraw = new Image()
           imageToDraw.onload = function () {
             ctx.drawImage(imageToDraw,
-              X1,
-              Y1,
-              X2 - X1,
-              Y2 - Y1)
+                X1,
+                Y1,
+                X2 - X1,
+                Y2 - Y1)
           }
           imageToDraw.usr = valueList[5]
         } else if (event.data.message.substring(0, 6) === '[c:DT]') {
@@ -701,8 +717,8 @@ export default {
           ctx.lineWidth = parseInt(valueList[3])
           ctx.strokeStyle = valueList[4]
           ctx.lineTo(
-            parseInt(valueList[1]),
-            parseInt(valueList[2]))
+              parseInt(valueList[1]),
+              parseInt(valueList[2]))
           ctx.stroke()
         } else if (event.data.message.substring(0, 6) === '[c:MU]') {
           // Mouse Up
@@ -844,7 +860,7 @@ export default {
       this.ctx.fillText(defaultTextarea.value, x, y)
       // Broadcast
       this.broadcast(
-        this.buildTString('[c:DT]', x, y, defaultTextarea.value)
+          this.buildTString('[c:DT]', x, y, defaultTextarea.value)
       )
       // Reset
       elem.style.display = 'none'
@@ -898,19 +914,18 @@ export default {
 
 <style>
 
-.btnActive {
-  @apply bg-indigo-700;
+.studioToolbarButton {
+  @apply w-16 fmt_border rounded surface
+  flex items-center justify-center p-1
+  cursor-pointer hover:primary-container;
 }
 
-.studioToolbarButton {
-  @apply w-16 border-[2px] border-neutral-500 rounded
-  flex items-center justify-center p-1
-  hover:border-neutral-200
-  cursor-pointer;
+.btnActive {
+  @apply primary;
 }
 
 .p_card_menu_active {
-  @apply darkest_bg bg-opacity-60 text-white font-bold;
+  @apply surface-variant font-bold;
 }
 
 .p_card_menu_item {
@@ -919,16 +934,8 @@ export default {
 
 .p_card_menu_list_big_p {
   @apply absolute top-0 mb-2 w-80 divide-y divide-zinc-400 border-[1px] border-zinc-400
-  shadow-zinc-900 shadow-2xl rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10
+  shadow-zinc-900 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10
   max-h-40 overflow-y-auto;
-}
-
-.darkbutton {
-  @apply darkest_bg px-2 py-2;
-}
-
-.darkbutton:hover {
-  @apply bg-black;
 }
 
 .imgflip_text {

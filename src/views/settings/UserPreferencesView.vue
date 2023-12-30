@@ -1,22 +1,21 @@
 <template>
-  <div class="preferences w-full h-full pt-[55px] px-8 pb-8
-              flex items-center justify-center"
-       style="background-color: #131313">
-    <div class="container mt-5 w-full"
+  <div class="preferences w-full h-full pt_nav px-8 pb-8
+              flex items-center justify-center background">
+    <div class="container mt-5 w-full background"
          style="justify-items: center; display: grid; text-align: center">
-      <h1 class="font-bold text-neutral-200 text-5xl mb-8">
+      <h1 class="font-bold text-5xl mb-8">
         {{ $t("cookie.title") }}
       </h1>
-      <h2 class="text-neutral-300 text-2xl">
+      <h2 class="text-2xl">
         {{ $t("cookie.msg") }}
       </h2>
-      <button class="text-neutral-400 my-4"
+      <button class=" my-4"
               v-on:click="toggleExplanation('cookieExplanation')">
         {{ $t("cookie.btnDesc") }}
       </button>
-      <div id="cookieExplanation" style="display: none">
+      <div id="cookieExplanation" style="display: none" class="background">
         <hr style="color: white">
-        <p class="text-neutral-400 my-3">
+        <p class="my-3">
           {{ $t("cookie.desc") }}
         </p>
         <hr style="color: white">
@@ -33,7 +32,7 @@
                 v-on:click="revokeCookieAllowances">
           {{ $t("cookie.btnReject") }}
         </button>
-        <div class="text-neutral-400">
+        <div class="">
           {{ $t("cookie.reject") }}
         </div>
       </template>

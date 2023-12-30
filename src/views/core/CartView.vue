@@ -11,7 +11,7 @@
         <button class="btn btn-outline-light" v-on:click="clearCart(true)">Clear Cart</button>
         <button class="btn btn-outline-warning ms-5" v-on:click="submitOrder()">Submit Order</button>
         <br>
-        <textarea class="bg-black text-white mt-3" style="width: 75%"
+        <textarea class="bg-black  mt-3" style="width: 75%"
                   v-model="note" placeholder="&nbsp;Add a note for the seller.">
         </textarea>
       </div>

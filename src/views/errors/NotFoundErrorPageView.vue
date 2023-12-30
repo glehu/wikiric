@@ -1,8 +1,8 @@
 <template>
-  <div class="supercenter text-white" style="width: 350px">
+  <div class="supercenter " style="width: 350px">
     <div id="404" class="text-center mb-4">
       <p class="font-bold doHover" style="font-size: 400%;">404</p>
-      <p class="doHover" style="color: gray; font-size: 200%;">(╯°□°）╯︵ ┻━┻</p>
+      <p class="doHover" style="color: rgb(128,128,128); font-size: 200%;">(╯°□°）╯︵ ┻━┻</p>
       <div id="message" class="my-2">
         <strong class="text-xl">
           The requested content does not exist.

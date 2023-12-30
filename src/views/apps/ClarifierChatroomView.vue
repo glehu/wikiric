@@ -1,34 +1,43 @@
 <template>
   <div id="clarifier_chatroom_view_elem"
-       class="darkest_bg w-full h-full absolute overflow-hidden">
+       class="background w-full h-full absolute overflow-hidden">
     <div class="fixed top-0 left-0 w-full h-full flex">
       <div id="sidebar" ref="sidebar"
-           class="sidebar darkest_bg darkergray-on-small h-full relative top-[55px]"
-           style="z-index: 100">
-        <div style="height: calc(100% - 55px)"
-             class="sidebar_bg">
+           class="sidebar surface-variant darkergray-on-small
+                  h-full relative top_nav"
+           style="z-index: 111">
+        <div class="sidebar_bg h_full_nav">
           <div class="h-fit overflow-x-clip relative pb-4">
             <div class="sb_link" v-on:click="toggleSidebar()">
-              <div class="c_lightgray orange-hover flex"
+              <div class="orange-hover flex"
                    v-tooltip.right="{
                          content: 'Toggle Sidebar',
                          disabled: sidebar.active,
                        }">
-                <ChevronRightIcon v-if="!sidebar.active" class="sb_link_icon c_lightgray"/>
-                <ChevronLeftIcon v-else class="sb_link_icon c_lightgray"/>
+                <ChevronRightIcon v-if="!sidebar.active"
+                                  class="sb_link_icon
+                                         on-background-text"/>
+                <ChevronLeftIcon v-else class="sb_link_icon
+                                               on-background-text"/>
+                <p class="sb_link_text" style="margin-left: 22px">
+                  Minimize
+                </p>
               </div>
             </div>
             <ul class="nav_list list-unstyled"
                 style="color: white; margin-top: 5px">
               <li>
                 <div class="sb_link" v-on:click="disconnect(); $router.push('/apps/clarifier')">
-                  <div class="c_lightgray orange-hover flex"
+                  <div class="orange-hover flex"
                        v-tooltip.right="{
                          content: 'Exit',
                          disabled: sidebar.active,
                        }">
-                    <ArrowLeftOnRectangleIcon class="sb_link_icon"/>
-                    <span class="sb_link_text" style="margin-left: 22px">Exit</span>
+                    <ArrowLeftOnRectangleIcon
+                      class="sb_link_icon on-background-text"/>
+                    <p class="sb_link_text" style="margin-left: 22px">
+                      Chat Groups
+                    </p>
                   </div>
                 </div>
               </li>
@@ -36,9 +45,9 @@
           </div>
           <div style="width: 100%; position: relative; z-index: 3"
                class="sb_fold">
-            <span class="sb_link_text c_lightgray nopointer">
-            Activity&nbsp;-&nbsp;{{ $store.state.clarifierSessions.length }}
-          </span>
+            <p class="sb_link_text nopointer">
+              Activity&nbsp;-&nbsp;{{ $store.state.clarifierSessions.length }}
+            </p>
           </div>
           <div id="channel_section" class="channel_section overflow-y-auto overflow-x-hidden"
                style="height: calc(100% - 100px); z-index: 4;
@@ -46,19 +55,19 @@
             <div v-for="group in $store.state.clarifierSessions" :key="group"
                  class="channel_link"
                  style="position: relative; font-weight: bold">
-              <a class="font-bold text-white orange-hover" style="text-decoration: none"
+              <a class="font-bold  orange-hover" style="text-decoration: none"
                  v-on:click="connectToGroup(group.id)"
                  v-tooltip.right="{
                    content: group.title,
                    disabled: sidebar.active,
                  }">
-                <div class="c_lightgray orange-hover"
+                <div class="orange-hover"
                      style="height: 50px; display: flex; align-items: center;">
                   <div style="width: 50px; height: 100%; position: relative;
                             display: flex; align-items: center; justify-content: center;">
                     <div v-if="group.id === chatroom.uid"
                          style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5"
-                         class="brightest_bg rounded-r">
+                         class="primary rounded-r">
                     </div>
                     <div :id="group.id + '_notify'"
                          class="hidden bg-orange-500 rounded-r"
@@ -70,16 +79,16 @@
                            v-bind:src="getImg(group.img,true)" :alt="getImgAlt(group.title)"/>
                     </template>
                     <template v-else>
-                      <div class="medium_bg flex items-center justify-center
+                      <div class="background flex items-center justify-center
                                   w-[40px] h-[40px] z-10 rounded-lg ml-[5px]">
-                        {{ getImgAlt(group.title) }}
+                        <p>{{ getImgAlt(group.title) }}</p>
                       </div>
                     </template>
                   </div>
-                  <span class="sb_link_text text-nowrap"
-                        style="position: absolute; left: 36px;">
-                  {{ group.title }}
-                </span>
+                  <p class="sb_link_text text-nowrap"
+                     style="position: absolute; left: 36px;">
+                    {{ group.title }}
+                  </p>
                 </div>
               </a>
             </div>
@@ -87,22 +96,21 @@
         </div>
       </div>
       <div id="sidebar2" ref="sidebar2"
-           style="margin-top: 55px; box-shadow: 1px 0 4px 1px rgb(40 40 43)"
-           class="sidebar2 medium_bg lg:rounded-tl">
+           class="sidebar2 surface-variant bshadow">
         <div class="h-full relative">
-          <div class="c_lightgray px-2 h-full
+          <div class="px-2 h-full
                       overflow-x-hidden overflow-y-hidden">
             <template v-if="chatroom.burl && chatroom.burl !== ''">
-              <div class="dark_bg rounded mt-2 flex
-                          border-2 border-neutral-800
-                          w-full max-h-[96px] overflow-hidden
+              <div class="rounded my-2 flex
+                          w-full max-h-[128px] overflow-hidden
                           items-center justify-center">
-                <img v-bind:src="getImg(chatroom.burl,true)"
+                <img class="w-full"
+                     v-bind:src="getImg(chatroom.burl,true)"
                      :alt="getImgAlt(chatroom.t)"/>
               </div>
             </template>
             <div style="height: 50px; align-items: center; display: flex">
-              <div id="home_subc" class="subchat dark_bg"
+              <div id="home_subc" class="subchat"
                    style="width: 100%; margin-right: 0; padding-right: 0.5rem"
                    v-on:click="gotoSubchat(null, false)">
                 <i id="home_notify"
@@ -112,35 +120,35 @@
                   <span class="hidden">{{ hasUnread(getSession(), true) }}</span>
                 </i>
                 <HomeIcon class="h-5 w-5"></HomeIcon>
-                <span class="relative left-[20px]">Home</span>
+                <p class="relative left-[20px]">Home</p>
               </div>
             </div>
             <div v-if="canShowSidebar"
-                 class="overflow-y-auto h-[calc(100%-160px)]">
+                 class="overflow-y-auto h-[calc(100%-175px)]">
               <div style="width: 100%; height: 35px; padding-top: 5px">
-                <p class="px-2 font-bold c_lightgray nopointer">Apps</p>
+                <p class="px-2 font-bold nopointer">Apps</p>
               </div>
               <template v-if="chatroom.rank > 1">
-                <div class="w-full text-neutral-300">
+                <div class="w-full">
                   <template v-if="chatroom.rank > 3">
                     <div class="subchat w-full flex items-center"
                          v-on:click="gotoStudio()">
                       <RectangleGroupIcon class="h-5 w-5"></RectangleGroupIcon>
-                      <span class="relative left-[20px]">Studio</span>
+                      <p class="relative left-[20px]">Studio</p>
                     </div>
                   </template>
                   <template v-if="chatroom.rank > 3">
                     <div class="subchat w-full flex items-center"
                          v-on:click="gotoPlanner()">
                       <ViewColumnsIcon class="h-5 w-5"></ViewColumnsIcon>
-                      <span class="relative left-[20px]">Planner</span>
+                      <p class="relative left-[20px]">Planner</p>
                     </div>
                   </template>
                   <template v-if="chatroom.rank > 2">
                     <div class="subchat w-full flex items-center">
                       <div v-on:click="setOverlay(1)" class="w-full flex items-center">
                         <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
-                        <span class="relative left-[20px]">Knowledge</span>
+                        <p class="relative left-[20px]">Knowledge</p>
                       </div>
                       <div class="ml-auto p-2 translate-x-2 shadow-hover
                                   rounded-r hover:bg-indigo-600"
@@ -155,15 +163,15 @@
               <div class="subchat w-full flex items-center"
                    v-on:click="showFiles()">
                 <FolderIcon class="h-5 w-5"></FolderIcon>
-                <span class="relative left-[20px]">Files</span>
+                <p class="relative left-[20px]">Files</p>
               </div>
               <div style="width: 100%; height: 35px; padding-top: 5px"
                    class="px-2 flex relative items-center justify-between">
-                <span class="font-bold c_lightgray nopointer">Subchats</span>
-                <button class="text-white btn-no-outline translate-x-0.5"
-                        v-tooltip.top="{ content: 'New Subchat' }"
+                <p class="font-bold nopointer">Channels</p>
+                <button class="btn-no-outline translate-x-0.5"
+                        v-tooltip.top="{ content: 'New Channel' }"
                         v-on:click="showNewSubchatWindow">
-                  <PlusSmallIcon class="orange-hover text-neutral-300 h-6 w-6"/>
+                  <PlusSmallIcon class="orange-hover h-6 w-6"/>
                 </button>
               </div>
               <template v-for="subchat in chatroom.subc" :key="subchat">
@@ -186,7 +194,7 @@
                   <template v-else>
                     <HashtagIcon class="h-5 w-5"></HashtagIcon>
                   </template>
-                  <span class="relative left-[20px]">{{ subchat.t }}</span>
+                  <p class="relative left-[20px]">{{ subchat.t }}</p>
                 </div>
                 <template v-if="subchat._subMembers">
                   <div v-for="subMember in subchat._subMembers" :key="subMember"
@@ -197,13 +205,17 @@
               </template>
             </div>
             <template v-else>
-              <div class="w-full p-4 text-neutral-300">
+              <div class="w-full p-4">
                 <button class="w-full flex items-center justify-center
                                border border-zinc-600 rounded
                                px-3 py-2 dark_bg hover:darkest_bg"
                         v-on:click="directCall()">
-                  <PhoneIcon class="min-w-[20px] min-h-[20px] max-w-[20px] max-h-[20px] mr-4"></PhoneIcon>
-                  <span class="text-sm">Call {{ chatroom.t }}</span>
+                  <PhoneIcon class="on-secondary-container-text
+                                    min-w-[20px] min-h-[20px] max-w-[20px]
+                                    max-h-[20px] mr-4"></PhoneIcon>
+                  <span class="text-sm  on-secondary-container-text">
+                    Call {{ chatroom.t }}
+                  </span>
                 </button>
               </div>
             </template>
@@ -211,29 +223,44 @@
         </div>
       </div>
       <div id="clarifier_chatroom" ref="clarifier_chatroom"
-           class="clarifier_chatroom flex overflow-clip mt-[55px]"
+           class="clarifier_chatroom flex overflow-clip mt_nav"
            v-on:click="closeModals()">
         <template v-if="overlayType === 0">
           <div id="chat_section" ref="chat_section"
                class="chat_section">
             <div class="w-full h-full">
-              <div class="chat_header medium_bg bshadow">
+              <div class="chat_header background fmt_border_bottom">
                 <div
                   style="width: calc(100% - 130px); overflow-x: clip; display: flex; font-size: 80%; align-items: center">
-                  <div class="orange-hover text-neutral-300 px-2 py-1 rounded-md dark_bg text-sm"
+                  <div class="overflow-x-clip relative md:hidden">
+                    <div class="w-6 h-6 mr-2 ml-1" v-on:click="toggleSidebar()">
+                      <div class="orange-hover flex"
+                           v-tooltip.right="{
+                         content: 'Toggle Sidebar',
+                         disabled: sidebar.active,
+                       }">
+                        <ChevronRightIcon v-if="!sidebar.active"
+                                          class="sb_link_icon
+                                         on-background-text"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="orange-hover px-2 py-1 rounded-md"
                        v-on:click="gotoSubchat(null, false)">
-                    {{ chatroom.t }}
+                    <p>{{ chatroom.t }}</p>
                   </div>
                   <div v-if="isSubchat === true" class="nopointer flex gap-x-2 items-center ml-2">
-                    <ChevronRightIcon class="text-neutral-300 w-[16px]"/>
-                    <span class="text-neutral-300 px-2 py-1 rounded-md dark_bg text-sm">{{ currentSubchat.t }}</span>
+                    <ChevronRightIcon class="on-secondary-container-text w-[16px]"/>
+                    <div class="px-2 py-1 rounded-md">
+                      <p>{{ currentSubchat.t }}</p>
+                    </div>
                   </div>
                   <div v-if="isStreamingVideo"
                        id="stream_nav"
                        class="text-xl flex items-center ml-6">
-                    <h2 class="font-bold text-neutral-300">
+                    <p class="font-bold">
                       {{ streamDuration }}
-                    </h2>
+                    </p>
                   </div>
                   <div v-else>
                     <template v-if="chatroom.type === 'dm'">
@@ -246,27 +273,29 @@
                     </template>
                   </div>
                 </div>
-                <button class="btn-no-outline text-neutral-400"
-                        style="position: absolute; right: 90px"
-                        title="Show Settings"
-                        v-on:click="toggleSessionSettings()">
-                  <WrenchIcon class="sb_link_icon orange-hover"
-                              style="height: 25px; width: 25px"/>
-                </button>
-                <button class="btn-no-outline text-neutral-400 member_section_toggler"
-                        style="position: absolute; right: 50px"
-                        title="Show Subchats"
-                        v-on:click="toggleSidebar2()">
-                  <ChatBubbleBottomCenterTextIcon class="sb_link_icon orange-hover"
-                                                  style="height: 25px; width: 25px"/>
-                </button>
-                <button class="btn-no-outline text-neutral-400 member_section_toggler"
-                        style="position: absolute; right: 10px"
-                        title="Toggle Members"
-                        v-on:click="toggleMemberSidebar()">
-                  <UsersIcon class="orange-hover"
-                             style="height: 25px; width: 25px"/>
-                </button>
+                <div class="absolute inset-y-0 right-0 flex items-center mx-2 my-1 gap-4">
+                  <button class="btn-no-outline"
+                          style=""
+                          title="Show Settings"
+                          v-on:click="toggleSessionSettings()">
+                    <WrenchIcon class="sb_link_icon orange-hover"
+                                style="height: 24px; width: 24px"/>
+                  </button>
+                  <button class="btn-no-outline member_section_toggler"
+                          style=""
+                          title="Show Channels"
+                          v-on:click="toggleSidebar2()">
+                    <ChatBubbleBottomCenterTextIcon class="sb_link_icon orange-hover"
+                                                    style="height: 24px; width: 24px"/>
+                  </button>
+                  <button class="btn-no-outline member_section_toggler"
+                          style=""
+                          title="Toggle Members"
+                          v-on:click="toggleMemberSidebar()">
+                    <UsersIcon class="orange-hover"
+                               style="height: 24px; width: 24px"/>
+                  </button>
+                </div>
               </div>
               <div v-if="canShowVideoElements"
                    id="conference_container" ref="conference_container"
@@ -274,15 +303,15 @@
                           height: calc(100% - 50px - 80px);
                           position: absolute; left: 350px;
                           padding: 0"
-                   class="c_lightgray darkest_bg rounded-bl-md">
-                <div class="w-full h-[calc(100%-55px)] flex">
+                   class="background rounded-bl-md">
+                <div class="w-full h-[calc(100%-50px)] flex">
                   <div style="position: relative; top: 0; left: 0;
                               width: 100%;
                               aspect-ratio: 16 / 9"
                        class="flex">
                     <template v-if="!isStreamingVideo">
-                      <div class="flex pointer-events-none absolute w-full h-full items-center justify-center
-                                  darkest_bg z-30">
+                      <div class="flex pointer-events-none absolute w-full h-full
+                                  items-center justify-center surface-variant z-30">
                         <i class="bi bi-camera-video-off lead"></i>
                         <p style="margin: 0 0 0 10px;
                                 padding-left: 10px;
@@ -298,13 +327,13 @@
                     </template>
                     <template v-else-if="currentSubchat.type === 'webcam' || params">
                       <div id="conference_grid" ref="conference_grid"
-                           class="grid w-full overflow-hidden bg-zinc-900"
+                           class="grid w-full overflow-hidden surface-variant"
                            style="grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));">
                         <div class="relative overflow-hidden w-full h-full">
                           <div class="flex w-full h-full items-center justify-center
                                         absolute top-0 left-0">
-                            <user-circle-icon class="w-8 h-8 text-neutral-100 mr-2"></user-circle-icon>
-                            <p class="text-lg text-neutral-100 font-bold">
+                            <user-circle-icon class="w-8 h-8 mr-2"></user-circle-icon>
+                            <p class="text-lg font-bold">
                               {{ $store.state.username }}
                             </p>
                           </div>
@@ -316,7 +345,7 @@
                                  autoplay playsinline muted controls
                                  class="absolute top-0 left-0 w-full h-full max-w-full max-h-full
                                         conference_media_element hidden"></video>
-                          <p class="absolute top-0 left-0 text-sm bg-zinc-900 bg-opacity-75 p-0.5 z-20">
+                          <p class="absolute top-0 left-0 text-sm background bg-opacity-75 p-0.5 z-20 ">
                             {{ $store.state.username }}
                           </p>
                         </div>
@@ -335,9 +364,9 @@
                                 </template>
                               </template>
                               <template v-else>
-                                <UserCircleIcon class="w-8 h-8 text-neutral-100 mr-2 sender_avatar"></UserCircleIcon>
+                                <UserCircleIcon class="w-8 h-8 mr-2 sender_avatar"></UserCircleIcon>
                               </template>
-                              <p class="text-lg text-neutral-100 font-bold">
+                              <p class="text-lg font-bold ">
                                 {{ getUserFromId(peerCon.remoteId) }}
                               </p>
                             </div>
@@ -349,7 +378,7 @@
                                    autoplay controls
                                    class="absolute bottom-0 left-0 conference_media_element
                                             m-2 w-full h-[32px] rounded-none"></audio>
-                            <p class="absolute top-0 left-0 text-sm bg-zinc-900 p-0.5 z-20">
+                            <p class="absolute top-0 left-0 text-sm background p-0.5 z-20 ">
                               {{ getUserFromId(peerCon.remoteId) }}
                             </p>
                           </div>
@@ -360,7 +389,7 @@
                   <div v-if="!isStreamingVideo && (currentSubchat.type === 'screenshare')"
                        style="position: absolute; top: 10px; right: 10px" class="text-end">
                     <button v-on:click="startCall()"
-                            class="gray-hover c_lightgray px-3 py-2"
+                            class="gray-hover px-3 py-2"
                             style="position: relative;
                                margin-left: 20px; margin-top: 10px;
                                border: 1px solid #ff5d37;
@@ -371,7 +400,7 @@
                     <template v-for="user in mainMembers" :key="user">
                       <template v-if="user.usr !== $store.state.username">
                         <button v-on:click="startCall(user.usr)"
-                                class="gray-hover c_lightgray px-3 py-2"
+                                class="gray-hover px-3 py-2"
                                 style="position: relative;
                                      margin-left: 20px; margin-top: 10px;
                                      border: 1px solid rgba(174, 174, 183, 0.25);
@@ -385,30 +414,28 @@
                 </div>
                 <div class="w-full h-[55px] flex items-center justify-center">
                   <div class="flex items-center justify-center gap-x-2 w-full
-                              p-2 border-t-[2px] border-zinc-700 bg-zinc-900">
+                              p-2 background">
                     <template v-if="isStreamingVideo">
                       <button v-on:click="stopScreenshare()"
                               v-tooltip.top="{ content: 'Hang Up' }"
                               class="p-1 rounded-md gray-hover">
-                        <PhoneXMarkIcon class="w-8 h-8 text-red-500"></PhoneXMarkIcon>
+                        <PhoneXMarkIcon class="w-8 h-8"></PhoneXMarkIcon>
                       </button>
                       <template v-if="peerStreamOutgoingConstraints.video">
                         <template v-if="peerStreamOutgoingPreferences.video">
-                          <button class="p-1 rounded-md gray-hover"
+                          <button class="p-1 rounded-md primary gray-hover"
                                   v-tooltip.top="{ content: 'Turn Off Camera' }"
                                   v-on:click="callStartOrMuteVideo()">
-                            <VideoCameraIcon class="w-8 h-8 text-neutral-400"></VideoCameraIcon>
+                            <VideoCameraIcon class="w-8 h-8"></VideoCameraIcon>
                           </button>
                         </template>
                         <template v-else>
                           <button class="p-1 rounded-md gray-hover"
                                   v-tooltip.top="{ content: 'Turn On Camera' }"
                                   v-on:click="callStartOrMuteVideo()">
-                            <div class="relative">
-                              <VideoCameraIcon class="h-8 w-8 text-neutral-400"></VideoCameraIcon>
-                              <XMarkIcon class="w-8 h-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
-                              <XMarkIcon class="w-8 h-8 text-zinc-900 stroke-2 absolute top-0 left-0"></XMarkIcon>
-                            </div>
+                            <span class="relative">
+                              <VideoCameraIcon class="h-8 w-8"></VideoCameraIcon>
+                            </span>
                           </button>
                         </template>
                       </template>
@@ -416,54 +443,50 @@
                         <button class="p-1 rounded-md gray-hover"
                                 v-tooltip.top="{ content: 'Enable Camera' }"
                                 v-on:click="callSetUserMedia({video: true, audio: undefined})">
-                          <div class="relative">
-                            <VideoCameraIcon class="w-8 h-8 text-neutral-400"></VideoCameraIcon>
-                            <XMarkIcon class="w-8 h-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
-                            <XMarkIcon class="w-8 h-8 text-zinc-900 stroke-2 absolute top-0 left-0"></XMarkIcon>
-                          </div>
+                          <span class="relative">
+                            <VideoCameraIcon class="w-8 h-8"></VideoCameraIcon>
+                          </span>
                         </button>
                       </template>
                       <template v-if="peerStreamOutgoingPreferences.audio">
-                        <button class="p-1 rounded-md gray-hover relative"
+                        <button class="p-1 rounded-md primary gray-hover relative"
                                 v-tooltip.top="{ content: 'Turn Off Microphone' }"
                                 v-on:click="callStartOrMuteAudio()">
-                          <MicrophoneIcon class="w-8 h-8 text-neutral-400"></MicrophoneIcon>
+                          <MicrophoneIcon class="w-8 h-8"></MicrophoneIcon>
                         </button>
                       </template>
                       <template v-else>
                         <button class="p-1 rounded-md gray-hover"
                                 v-tooltip.top="{ content: 'Turn On Microphone' }"
                                 v-on:click="callStartOrMuteAudio()">
-                          <div class="relative">
-                            <MicrophoneIcon class="w-8 h-8 text-neutral-400"></MicrophoneIcon>
-                            <XMarkIcon class="w-8 h-8 text-neutral-200 stroke-2 absolute top-0 left-0.5"></XMarkIcon>
-                            <XMarkIcon class="w-8 h-8 text-zinc-900 stroke-2 absolute top-0 left-0"></XMarkIcon>
-                          </div>
+                          <span class="relative">
+                            <MicrophoneIcon class="w-8 h-8"></MicrophoneIcon>
+                          </span>
                         </button>
                       </template>
                       <template v-if="!isSharingScreen">
                         <button v-tooltip.top="{ content: 'Share Screen' }"
                                 class="p-1 rounded-md gray-hover"
                                 v-on:click="callStartOrStopScreenshare(false, true)">
-                          <WindowIcon class="w-8 h-8 text-neutral-400"></WindowIcon>
+                          <WindowIcon class="w-8 h-8"></WindowIcon>
                         </button>
                       </template>
                       <template v-else>
                         <button v-tooltip.top="{ content: 'Stop Sharing' }"
-                                class="p-1 border border-green-500 rounded-md gray-hover"
+                                class="p-1 primary rounded-md gray-hover"
                                 v-on:click="callStartOrStopScreenshare(true)">
-                          <WindowIcon class="w-8 h-8 text-green-600"></WindowIcon>
+                          <WindowIcon class="w-8 h-8"></WindowIcon>
                         </button>
                       </template>
                     </template>
                     <template v-else>
                       <template v-if="currentSubchat.type === 'webcam' || params">
-                        <button class="p-1 rounded-md text-neutral-300 hover:dark_bg"
+                        <button class="p-1 rounded-md gray-hover"
                                 v-tooltip.top="{ content: 'Audio Call' }"
                                 v-on:click="startCall(undefined, {video: false, audio: true})">
                           <PhoneIcon class="w-8 h-8"></PhoneIcon>
                         </button>
-                        <button class="p-1 rounded-md text-neutral-300 hover:dark_bg"
+                        <button class="p-1 rounded-md gray-hover"
                                 v-tooltip.top="{ content: 'Video Call' }"
                                 v-on:click="startCall(undefined, {video: true, audio: true})">
                           <VideoCameraIcon class="w-8 h-8"></VideoCameraIcon>
@@ -474,7 +497,7 @@
                 </div>
               </div>
               <div id="messages_container" ref="messages_container"
-                   class="messages_container bshadow">
+                   class="background messages_container">
                 <div id="messages_section" ref="messages_section"
                      class="messages_section flex-col-reverse">
                   <div id="init_loading" style="display: none">
@@ -489,63 +512,68 @@
                     <template v-for="msg in messages" :key="msg.uid">
                       <div class="message" :id="msg.uid" v-if="msg.usr">
                         <template v-if="msg.separator === true">
-                          <div class="headerline pointer-events-none">
-                          <span class="text-xs text-neutral-300">
-                            {{ getHumanReadableDateText(msg.ts, false, true) }}
-                          </span>
+                          <div class="headerline pointer-events-none pb-2">
+                            <span class="text-xs on-surface-text">
+                              {{ getHumanReadableDateText(msg.ts, false, true) }}
+                            </span>
                           </div>
                         </template>
                         <template v-if="msg.header === true">
                           <div style="height: 30px"
                                class="mt-2 relative flex items-center">
-                            <template v-if="msg.usr.startsWith('_server')">
-                              <SignalIcon class="sender_avatar translate-y-[10px]"></SignalIcon>
-                            </template>
-                            <template v-else>
-                              <template v-if="msg.iurl && msg.iurl !== ''">
-                                <img :src="getImg(msg.iurl, true)" alt="?"
-                                     class="sender_avatar translate-y-[10px]">
-                                <template v-if="msg.iurla && msg.iurla !== ''">
-                                  <img :src="getImg(msg.iurla, true)" alt="?"
-                                       class="sender_avatar translate-y-[10px] absolute hidden sender_avatar_animated">
-                                </template>
+                            <template v-if="!msg.editable">
+                              <template v-if="msg.usr.startsWith('_server')">
+                                <SignalIcon class="sender_avatar translate-y-[10px]"></SignalIcon>
                               </template>
                               <template v-else>
-                                <UserCircleIcon class="sender_avatar translate-y-[10px]">
-                                </UserCircleIcon>
+                                <template v-if="msg.iurl && msg.iurl !== ''">
+                                  <img :src="getImg(msg.iurl, true)" alt="?"
+                                       class="sender_avatar translate-y-[10px]">
+                                  <template v-if="msg.iurla && msg.iurla !== ''">
+                                    <img :src="getImg(msg.iurla, true)" alt="?"
+                                         class="sender_avatar translate-y-[10px] absolute hidden sender_avatar_animated">
+                                  </template>
+                                </template>
+                                <template v-else>
+                                  <UserCircleIcon class="sender_avatar translate-y-[10px]
+                                                       on-surface-text">
+                                  </UserCircleIcon>
+                                </template>
                               </template>
+                              <div class="orange-hover ml-[10px]"
+                                   style="font-weight: bold"
+                                   @click.stop="showUserProfileFromName(msg.usr)">
+                                <p>{{ msg.name }}</p>
+                              </div>
                             </template>
-                            <div class="orange-hover text-neutral-200 ml-[10px]"
-                                 style="font-weight: bold"
-                                 @click.stop="showUserProfileFromName(msg.usr)">
-                              {{ msg.name }}
-                            </div>
-                            <div class="flex gap-x-2 text-neutral-400 text-xs ml-3">
+                            <div class="flex gap-x-2  text-xs ml-3 w-full"
+                                 :class="{ 'justify-end': msg.editable }">
                               <div style="pointer-events: none">
                                 <template v-if="!msg.isDraft">
-                                  {{ getHumanReadableDateText(msg.ts, true) }}
+                                  <p>{{ getHumanReadableDateText(msg.ts, true) }}</p>
                                 </template>
                                 <template v-else>
                                   <p class="font-bold">Sending...</p>
                                 </template>
                               </div>
                               <template v-if="msg.isEncrypted === true">
-                                <i v-if="msg.decryptionFailed === false" class="bi bi-shield-lock ms-1 msgTag"
+                                <i v-if="msg.decryptionFailed === false"
+                                   class="bi bi-shield-lock ms-1 msgTag on-surface-text"
                                    title="Decrypted Message"></i>
                                 <i v-else class="bi bi-exclamation-triangle-fill ms-1 msgTag"
                                    title="Decryption Error Occurred"></i>
                               </template>
                               <template v-if="msg.tagActive === true">
-                                <i class="bi bi-at ms-1 c_orange" title="You got tagged!"></i>
+                                <i class="bi bi-at ms-1" title="You got tagged!"></i>
                               </template>
                               <template v-if="msg.apiResponse === true">
-                                <i class="bi bi-gear ms-1 c_orange msgTag" title="API Response"></i>
+                                <i class="bi bi-gear ms-1 msgTag" title="API Response"></i>
                                 <div style="pointer-events: none" class="ms-1 msgTag">
-                                  {{ msg.mType }}
+                                  <p>{{ msg.mType }}</p>
                                 </div>
                               </template>
                               <template v-if="msg.mType === 'Task'">
-                                <div class="ms-1 c_orange h-4 w-4 inline-flex items-center justify-center msgTag"
+                                <div class="ms-1 h-4 w-4 inline-flex items-center justify-center msgTag"
                                      title="Planner Task">
                                   <ViewColumnsIcon class="h-full w-full"/>
                                 </div>
@@ -553,22 +581,21 @@
                             </div>
                           </div>
                         </template>
-                        <div class="message_body">
+                        <div class="message_body" :class="{ 'own_message_body': msg.editable}">
                           <div style="min-width: 42px; max-width: 42px">
                             <template v-if="msg.header === false">
                               <div class="msg_time" style="pointer-events: none">
-                                {{ getSimpleTime(msg.ts) }}
+                                <p>{{ getSimpleTime(msg.ts) }}</p>
                               </div>
                             </template>
                           </div>
                           <template v-if="msg.tagActive === true">
-                            <div style="box-shadow: 0 0 4px 0 #ff5d37"
-                                 class="b_orange z-[5] w-2 rounded-l-md">
+                            <div class="b_orange z-[5] w-[4px] rounded-l-md">
                             </div>
                           </template>
                           <div v-if="!msg.usr.startsWith('_server')"
                                class="msg_options gap-x-2">
-                            <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
+                            <div class="inverse-surface rounded gap-x-4 flex px-2 py-1">
                               <button title="Reply" class="orange-hover"
                                       v-if="msg.mType !== 'CryptError'"
                                       v-on:click="replyToMessage(msg)">
@@ -588,7 +615,7 @@
                               </template>
                             </div>
                             <template v-if="msg.mType !== 'CryptError'">
-                              <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
+                              <div class="inverse-surface rounded gap-x-4 flex px-2 py-1">
                                 <button title="Upvote" class="orange-hover"
                                         v-on:click="reactToMessage(msg, '+')">
                                   <i class="bi bi-hand-thumbs-up text-inherit"></i>
@@ -598,13 +625,13 @@
                                   <i class="bi bi-hand-thumbs-down text-inherit"></i>
                                 </button>
                               </div>
-                              <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
+                              <div class="inverse-surface rounded gap-x-4 flex px-2 py-1">
                                 <button title="Awesome!" class="orange-hover"
                                         v-on:click="reactToMessage(msg, '⭐')">
                                   <i class="bi bi-star-fill text-inherit"></i>
                                 </button>
                               </div>
-                              <div class="darkest_bg rounded gap-x-4 flex px-2 py-1">
+                              <div class="inverse-surface rounded gap-x-4 flex px-2 py-1">
                                 <button title="Create Wisdom" class="orange-hover"
                                         v-on:click="createWisdomForMessage(msg)">
                                   <i class="bi bi-book-half text-inherit"></i>
@@ -654,34 +681,32 @@
                             </div>
                           </template>
                           <template v-else-if="msg.mType === 'GIF'">
-                            <div class="clientMessage">
+                            <div class="clientMessage flex flex-col">
                               <img :src="msg.msgURL"
                                    :alt="msg.msg"
                                    :style="{maxWidth: mediaMaxWidth}"
                                    style="cursor: zoom-in"
                                    v-on:click="showImage(msg.msgURL)">
-                              <br>
                               <div>
                                 <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png"
                                      alt="Powered By GIPHY"
-                                     style="width: 100px"/>
+                                     class="brightness-0 dark:brightness-100"
+                                     style="width: 100px;"/>
                               </div>
                             </div>
                           </template>
                           <template v-else-if="msg.mType === 'Image'">
-                            <div>
-                              <img :src="msg.msgURL"
-                                   :alt="msg.msg"
-                                   class="clientMessage"
-                                   :style="{maxWidth: mediaMaxWidth}"
-                                   style="cursor: zoom-in"
-                                   v-on:click="showImage(msg.msgURL)">
-                            </div>
+                            <img :src="msg.msgURL"
+                                 :alt="msg.msg"
+                                 class="clientMessage"
+                                 :style="{maxWidth: mediaMaxWidth}"
+                                 style="cursor: zoom-in"
+                                 v-on:click="showImage(msg.msgURL)">
                           </template>
                           <template v-else-if="msg.mType === 'Audio'">
                             <div class="clientMessage">
                               <p class="pointer-events-none text-sm rounded-md mb-2
-                                      text-neutral-200 font-bold">
+                                         font-bold">
                                 {{ msg.fileName }}
                               </p>
                               <audio controls preload="auto"
@@ -701,26 +726,26 @@
                                            class="clientMessage"/>
                           </template>
                           <template v-else-if="msg.mType === 'Reply'">
-                            <div>
-                              <div class="text-neutral-400 border-l-8 border-l-zinc-800
-                                          rounded-tl-md">
-                                <div class="w-fit rounded-r-md dark_bg py-1 pr-2">
-                                  <p class="text-xs font-bold text-neutral-300 pointer-events-none">
-                                    {{ getHumanReadableDateText(msg.source.time, true) }}
-                                  </p>
-                                </div>
-                                <div class="p-2">
-                                  <Markdown :id="'rsr_' + msg.uid"
-                                            class="py-1 px-2 w-fit mb-1 clientMessage markedView"
-                                            :source="msg.source.msg"
-                                            :breaks="true"
-                                            :plugins="plugins"
-                                            :style="{maxWidth: mediaMaxWidth}"/>
-                                </div>
-                                <div class="w-fit rounded-r-md dark_bg py-1 pr-2">
-                                  <p class="text-xs text-neutral-300 font-bold pointer-events-none">
-                                    Reply to {{ msg.source.usr }}:
-                                  </p>
+                            <div class="w-fit">
+                              <div class="flex my-2 w-fit rounded-lg overflow-hidden">
+                                <div class="flex-grow w-[4px] primary"></div>
+                                <div class="w-fit surface max-w-lg">
+                                  <div class="w-fit py-1 px-2 pl-2">
+                                    <p class="text-xs pointer-events-none w-fit">
+                                      <span class="font-bold">{{ msg.source.usr }}</span>,
+                                      {{ getHumanReadableDateText(msg.source.time, true) }}:
+                                    </p>
+                                  </div>
+                                  <div class="pl-2 pr-1 py-1 flex gap-2 items-start w-fit">
+                                    <ArrowUturnLeftIcon class="w-5 h-5 on-background-text"/>
+                                    <Markdown :id="'rsr_' + msg.uid"
+                                              class="py-1 w-fit mb-1
+                                                   clientMessage markedView text-sm"
+                                              :source="msg.source.msg.replaceAll('\n', ' ')"
+                                              :breaks="true"
+                                              :plugins="plugins"
+                                              :style="{maxWidth: mediaMaxWidth}"/>
+                                  </div>
                                 </div>
                               </div>
                               <Markdown :id="'msg_' + msg.uid"
@@ -736,14 +761,14 @@
                                  download
                                  v-tooltip.top="{content: 'Download File'}">
                                 <div class="my-1 cursor-pointer w-fit
-                                          flex items-center gap-x-2 btn_bg_primary">
+                                            flex items-center gap-x-2 btn_bg_primary">
                                   <template v-if="msg.mType === 'TextFile'">
                                     <DocumentTextIcon class="h-6 w-6"></DocumentTextIcon>
                                   </template>
                                   <template v-else>
                                     <FolderArrowDownIcon class="h-6 w-6"></FolderArrowDownIcon>
                                   </template>
-                                  <p class="pointer-events-none text-sm text-neutral-200 font-bold">
+                                  <p class="pointer-events-none text-sm font-bold">
                                     {{ msg.fileName }}
                                   </p>
                                 </div>
@@ -759,44 +784,52 @@
                           </template>
                           <template v-if="msg.e">
                             <div class="flex items-end pl-2 pb-1">
-                              <p class="text-xs text-neutral-400">
-                                (Edited)
+                              <p class="text-xs">
+                                Edited
                               </p>
                             </div>
                           </template>
                         </div>
                         <div v-if="msg.reacts && msg.reacts.length > 0"
-                             style="display: flex; margin: 5px 0 10px 50px">
+                             style="display: flex; margin: 5px 0 10px 50px"
+                             :class="{ 'justify-end': msg.editable}">
                           <div v-for="reaction in msg.reacts" :key="reaction.t"
-                               style="display: flex; padding: 2px 4px 2px 4px; margin-right: 4px; border-radius: 5px"
-                               class="darkest_bg c_lightgray gray-hover"
+                               style="padding: 1px 4px 1px 4px; margin-right: 4px; border-radius: 5px"
+                               class="surface-variant hover:primary cursor-pointer
+                                      flex flex-row items-center gap-1"
                                :title="reaction.src.toString() + ' reacted to this message.'"
                                v-on:click="reactToMessage(msg, reaction.t)"
                                :id="'react_' + msg.uid + '_' + reaction.t">
-                            <i v-if="reaction.t === '+'"
-                               class="bi bi-hand-thumbs-up" style="margin-right: 2px"></i>
-                            <i v-else-if="reaction.t === '-'"
-                               class="bi bi-hand-thumbs-down" style="margin-right: 2px"></i>
+                            <HandThumbUpIcon v-if="reaction.t === '+'"
+                                             class="w-5 h-5"/>
+                            <HandThumbDownIcon v-else-if="reaction.t === '-'"
+                                               class="w-5 h-5"/>
                             <span v-else> {{ reaction.t }} </span>
-                            {{ reaction.src.length }}
+                            <p class="text-sm font-bold">
+                              {{ reaction.src.length }}
+                            </p>
                           </div>
                         </div>
                         <div :id="'edit_' + msg.uid" class="hidden w-full justify-center">
-                          <div class="text-sm p-2 darkest_bg rounded mt-2 mb-1 text-center flex items-center">
-                            <div class="ml-2 mr-4 text-neutral-400 pointer-events-none">
-                              <template v-if="isEditingMessage">Edit</template>
-                              <template v-else-if="isReplyingToMessage">Reply</template>
+                          <div class="text-sm p-2 background rounded mt-2 mb-1 text-center flex items-center">
+                            <div class="ml-2 mr-4 pointer-events-none">
+                              <template v-if="isEditingMessage">
+                                <span>Edit</span>
+                              </template>
+                              <template v-else-if="isReplyingToMessage">
+                                <span>Reply</span>
+                              </template>
                             </div>
-                            <div class="flex py-1 px-2 medium_bg rounded">
-                              <div v-on:click="addMessage()" class="text-white cursor-pointer mr-1 font-bold">
-                                [Enter]
+                            <div class="flex py-1 px-2 surface rounded">
+                              <div v-on:click="addMessage()" class=" cursor-pointer mr-1 font-bold">
+                                <p>[Enter]</p>
                               </div>
-                              <div class="mr-1 text-neutral-300 pointer-events-none">to save,</div>
+                              <span class="mr-1 pointer-events-none">to save,</span>
                               <div v-on:click="resetEditing(); resetReplying()"
-                                   class="text-white cursor-pointer mr-1 font-bold">
-                                [Esc]
+                                   class=" cursor-pointer mr-1 font-bold">
+                                <p>[Esc]</p>
                               </div>
-                              <span class="text-neutral-300 pointer-events-none">to cancel.</span>
+                              <span class="pointer-events-none">to cancel.</span>
                             </div>
                           </div>
                         </div>
@@ -806,7 +839,7 @@
                   <div ref="welcomeMessage"
                        class="w-full h-full items-start justify-center p-4 mb-2
                                 transition-all delay-500 hidden">
-                    <div class="p-4 rounded dark_bg dshadow">
+                    <div class="p-4 rounded surface-variant">
                       <p class="text-3xl">
                         Welcome to
                         <template v-if="!isSubchat">
@@ -817,17 +850,20 @@
                         </template>
                         {{ $store.state.displayName }}!
                       </p>
-                      <p class="mt-8 mb-4">Feeling lost? Try this:</p>
+                      <p class="mt-4 mb-8">Feeling lost? Try this:</p>
                       <div class="flex w-full justify-evenly gap-x-4">
-                        <div class="p-2 rounded medium_bg cursor-default">
+                        <div class="p-2 rounded cursor-pointer
+                                    background hover:dshadow hover:primary">
                           <p>Invite People</p>
                         </div>
-                        <div class="p-2 rounded medium_bg cursor-pointer hover:darkest_bg"
+                        <div class="p-2 rounded cursor-pointer
+                                    background hover:dshadow hover:primary"
                              v-on:click="$refs.new_comment.focus()">
                           <p>Write a Message</p>
                         </div>
                         <template v-if="!isSubchat">
-                          <div class="p-2 rounded medium_bg cursor-pointer hover:darkest_bg"
+                          <div class="p-2 rounded cursor-pointer
+                                      background hover:dshadow hover:primary"
                                v-on:click="toggleSessionSettings()">
                             <p>Modify Chat Settings</p>
                           </div>
@@ -896,19 +932,19 @@
                         |
                       </div>
                       <button title="Add Text Box"
-                              class="btn b_darkgray gray-hover c_lightgray ms-2"
+                              class="btn b_darkgray gray-hover ms-2"
                               style="border-radius: 10px"
                               v-on:click="addImgflipTextBox()">
                         <i class="bi bi-plus-lg" style="font-size: 125%;"></i>
                       </button>
                       <button title="Reset"
-                              class="btn b_darkgray gray-hover c_lightgray ms-2"
+                              class="btn b_darkgray gray-hover ms-2"
                               style="border-radius: 10px"
                               disabled>
                         <i class="bi bi-arrow-counterclockwise" style="font-size: 125%;"></i>
                       </button>
                       <button title="Send"
-                              class="btn golden-hover golden-hover c_lightgray ms-2"
+                              class="btn golden-hover golden-hover ms-2"
                               style="border-radius: 10px"
                               v-on:click="sendImgflipBoxes()">
                         <i class="bi bi-send text-black"
@@ -954,66 +990,76 @@
                 </template>
               </div>
               <div id="input_container" ref="input_container"
-                   class="bright_bg input_section" v-if="overlayType === 0">
-                <div class="absolute w-full h-fit
+                   class="background input_section" v-if="overlayType === 0">
+                <div class="absolute w-full h-fit max-w-screen-md
                             max-h-[calc(100vh-150px)]
                             flex-col-reverse flex">
-                  <button class="c_lightgray text-center scroll_to_bottom orange-hover"
-                          id="scroll_to_bottom"
-                          v-on:click="scrollToBottom">
+                  <div class="text-center scroll_to_bottom
+                              orange-hover ml-2.5
+                              cursor-pointer flex items-center
+                              justify-center w-full hover:primary"
+                       id="scroll_to_bottom"
+                       v-on:click="scrollToBottom">
                     <i class="bi bi-arrow-down"></i>
-                    Click to jump to the newest messages
+                    <p>
+                      Click to jump to the newest messages
+                    </p>
                     <i class="bi bi-arrow-down"></i>
-                  </button>
+                  </div>
                   <div style="left: 10px; opacity: 1"
                        class="scroll_to_bottom flex items-center px-1 overflow-clip
                               translate-y-[60px]">
                     <template v-if="userActivity.length > 0">
-                      <ChartBarIcon class="h-3 w-3 text-neutral-300"></ChartBarIcon>
+                      <ChartBarIcon class="h-3 w-3 on-surface-text"></ChartBarIcon>
                       <div class="flex items-center divide-x divide-zinc-800">
                         <template v-for="user in userActivity" :key="user">
                           <div class="px-2">
-                      <span class="text-neutral-300 cursor-pointer hover:text-white font-normal"
-                            @click.stop="showUserProfileFromName(user.user)">
-                        {{ user.name }}
-                      </span>
+                            <p class="cursor-pointer font-normal"
+                               @click.stop="showUserProfileFromName(user.user)">
+                              {{ user.name }}
+                            </p>
                           </div>
                         </template>
                       </div>
                     </template>
                     <template v-if="userActivityIdle.length > 0">
-                      <EyeIcon class="h-3 w-3 text-neutral-400"></EyeIcon>
+                      <EyeIcon class="h-3 w-3 on-surface-text"></EyeIcon>
                       <div class="flex items-center divide-x divide-zinc-800">
                         <template v-for="user in userActivityIdle" :key="user">
                           <div class="px-2">
-                      <span class="text-neutral-400 cursor-pointer hover:text-white font-normal"
-                            @click.stop="showUserProfileFromName(user.user)">
-                        {{ user.name }}
-                      </span>
+                            <p class="cursor-pointer font-normal"
+                               @click.stop="showUserProfileFromName(user.user)">
+                              {{ user.name }}
+                            </p>
                           </div>
                         </template>
                       </div>
                     </template>
                   </div>
                   <textarea id="new_comment" ref="new_comment"
-                            class="new_comment medium_bg py-2 px-3 placeholder-neutral-400"
+                            class="surface on-surface-text
+                                   new_comment py-2 px-3 placeholder-neutral-400"
+                            style="border: 1px solid var(--md-sys-color-outline-variant)"
                             type="text"
                             v-model="new_message"
                             maxlength="5000"
                             :placeholder="'Message to ' + chatroom.t"></textarea>
                   <button id="send_image_button"
-                          class="message_button send_image_button medium_bg hover:brightness-200
+                          class="surface
+                                 message_button send_image_button hover:brightness-200
                                  flex justify-center items-center"
                           style="position: absolute; right: 50px; border-radius: 0"
                           title="Send Files"
                           v-on:click="toggleUploadingSnippet">
-                    <DocumentArrowUpIcon class="text-neutral-300 h-6 w-6"></DocumentArrowUpIcon>
+                    <DocumentArrowUpIcon class="on-surface-text h-6 w-6"></DocumentArrowUpIcon>
                   </button>
-                  <button class="message_button medium_bg hover:brightness-200 flex justify-center items-center"
+                  <button class="surface
+                                 message_button hover:brightness-200 rounded-r
+                                 flex justify-center items-center"
                           style="position: absolute; right: 10px; border-radius: 0 6px 6px 0"
                           title="Search on GIPHY"
                           v-on:click="toggleSelectingGIF">
-                    <GifIcon class="text-neutral-300 h-8 w-6"></GifIcon>
+                    <GifIcon class="on-surface-text h-8 w-6"></GifIcon>
                   </button>
                 </div>
               </div>
@@ -1021,7 +1067,7 @@
           </div>
           <div class="user_profile overflow-x-hidden overflow-y-auto"
                v-show="isViewingUserProfile" @click.stop>
-            <div class="relative h-full p-2">
+            <div class="relative h-full p-2 surface-variant">
               <i class="bi bi-x-lg lead orange-hover"
                  style="cursor: pointer; position:absolute; right: 0" title="Close"
                  v-on:click="hideAllWindows()"></i>
@@ -1054,14 +1100,14 @@
                          v-tooltip.top="{ content: 'Offline' }"></div>
                   </template>
                 </div>
-                <div class="block ml-2">
+                <div class="block ml-2 surface-variant">
                   <p class="font-bold text-2xl">
                     {{ viewedUserProfile.name }}
                   </p>
-                  <p class="text-neutral-400">
+                  <p class="">
                     {{ viewedUserProfile.usr }}
                   </p>
-                  <p class="mb-2 text-neutral-400 text-sm">
+                  <p class="mb-2 text-sm">
                     Member since {{ viewedUserProfile.tsFormat }}
                   </p>
                   <div title="This member's messages are being End-to-End encrypted"
@@ -1073,7 +1119,7 @@
                   </div>
                 </div>
               </div>
-              <div class="items-center flex mt-3">
+              <div class="items-center flex mt-3 surface-variant">
                 <template v-if="viewedUserProfile.usr === $store.state.username">
                   <button class="user_profile_button"
                           v-on:click="isEditingProfile = true">
@@ -1097,14 +1143,14 @@
                   </button>
                 </template>
               </div>
-              <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Roles</h5>
+              <h5 class="mt-3 mb-2 headerline text-sm">Roles</h5>
               <div style="display: flex; flex-wrap: wrap">
                 <div v-for="role in viewedUserProfile.roles" :key="role"
-                     class="dark_bg"
+                     class="inverse-surface"
                      style="border-radius: 5px; padding: 0 6px 4px 6px; margin-right: 1ch; margin-bottom: 1ch">
                   <i v-show="isEditingRoles" class="bi bi-x-circle-fill orange-hover"
                      style="margin-right: 4px"></i>
-                  <span class="text-neutral-300">{{ role }}</span>
+                  <p>{{ role }}</p>
                 </div>
                 <span style="border-radius: 2rem; margin-right: 1em" class="orange-hover"
                       v-on:click="addUserRole" title="Add new Role">
@@ -1128,10 +1174,10 @@
                 </div>
               </div>
               <template v-if="chatroom.rank > 1">
-                <h5 class="c_lightgray mt-3 mb-2 headerline text-sm">Badges</h5>
+                <h5 class="mt-3 mb-2 headerline text-sm">Badges</h5>
                 <template v-if="viewedUserProfile.badges == null || viewedUserProfile.badges.length < 1">
                   <div style="border: 1px solid rgb(128,128,128); border-radius: 10px; width: 100%; padding: 10%"
-                       class="c_lightgray text-center items-center pointer-events-none">
+                       class="text-center items-center pointer-events-none">
                     <i class="bi bi-award-fill lead"></i>
                     <br>Keep communicating to earn badges!
                   </div>
@@ -1139,7 +1185,7 @@
                 <template v-else>
                   <div class="w-full grid grid-cols-2 gap-3 mb-4">
                     <div v-for="badge in viewedUserProfile.badges" :key="badge.handle"
-                         class="c_lightgray text-center rounded-xl border-2 border-zinc-600 py-1 px-2 hover:medium_bg">
+                         class="text-center rounded-xl border-2 border-zinc-600 py-1 px-2 hover:medium_bg">
                       <div class="pointer-events-none">
                         <div v-if="badge.handle.startsWith('msg')"
                              style="font-size: 150%">
@@ -1163,10 +1209,10 @@
               </template>
             </div>
           </div>
-          <div class="giphygrid medium_bg p-3 h-full"
+          <div class="giphygrid p-3 h-full"
                style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
-            <div style="height: calc(100% - 50px); width: 100%; overflow-x: clip; overflow-y: auto"
-                 class="b_darkergray rounded-lg">
+            <div style="width: 100%; overflow-x: clip; overflow-y: auto"
+                 class="background rounded-lg h_full_nav">
               <div v-for="gif in gifSelection" :key="gif"
                    style="padding-top: 10px; padding-left: 10px; display: inline-flex"
                    v-on:click="sendSelectedGIF(gif.images.fixed_height.url)">
@@ -1178,8 +1224,8 @@
                  class="flex items-center">
               <input id="gif_query"
                      type="text"
-                     class="font-bold b_darkergray rounded-lg px-2 py-1"
-                     style="height: 34px; color: white; border: none"
+                     class="font-bold fmt_input rounded-lg px-2 py-1"
+                     style="height: 34px; border: none"
                      v-model="gif_query_string"
                      :placeholder="'Search on GIPHY'"
                      v-on:keyup.enter="getGIFSelection(gif_query_string)">
@@ -1187,10 +1233,10 @@
                    style="width: 90px; height: 10px" class="ml-2"/>
             </div>
           </div>
-          <div class="session_settings medium_bg shadow"
+          <div class="session_settings"
                style="overflow-x: hidden; overflow-y: auto"
                v-show="isViewingSessionSettings" @click.stop>
-            <div class="relative w-full p-2">
+            <div class="relative w-full p-2 surface-variant">
               <i class="bi bi-x-lg lead orange-hover"
                  style="cursor: pointer; position:absolute; right: 0" title="Close"
                  v-on:click="hideAllWindows()"></i>
@@ -1200,20 +1246,20 @@
                        v-bind:src="getImg(chatroom.iurl,true)" :alt="getImgAlt(chatroom.t)"/>
                 </template>
                 <template v-else>
-                  <div class="w-[96px] h-[96px] medium_bg flex items-center
+                  <span class="w-[96px] h-[96px] flex items-center
                               justify-center z-10 rounded-lg">
                     {{ getImgAlt(chatroom.t) }}
-                  </div>
+                  </span>
                 </template>
-                <div>
+                <div class="surface-variant">
                   <h1 class="text-2xl font-bold">{{ chatroom.t }}</h1>
-                  <p class="text-neutral-400 text-sm">
+                  <p class="text-sm">
                     Created: {{ chatroom.ts }}
                   </p>
                 </div>
               </div>
               <p class="headerline mt-4 mb-1">Appearance</p>
-              <div class="p-2 rounded dark_bg border-[1px] border-zinc-600">
+              <div class="p-2 rounded surface">
                 <p class="font-bold">Change Image</p>
                 <input type="file" class="file_input w-full" id="files"
                        accept="image/jpeg, image/png"
@@ -1228,20 +1274,21 @@
                 </div>
               </div>
               <p class="headerline mt-4 mb-1">Administration</p>
-              <div class="p-2 rounded dark_bg border-[1px] border-red-700">
-                <h4 class="text-neutral-300 font-bold text-lg nopointer">
+              <div class="p-2 rounded surface border-[1px] border-red-700">
+                <p class="font-bold text-lg nopointer">
                   Restoration
-                </h4>
-                <button class="mt-2 rounded bg-red-700 hover:bg-red-900 font-bold text-black p-2"
+                </p>
+                <button class="mt-2 fmt_button_danger"
                         v-on:click="generateRSAKeyPair(getSession(),true)">
-                  Replace Encryption Key
+                  <span>Replace Encryption Key</span>
                 </button>
               </div>
             </div>
           </div>
           <div class="session_settings shadow" style="overflow-x: hidden; overflow-y: auto"
                v-show="isUploadingSnippet" @click.stop>
-            <div style="position: relative; padding-top: 10px; width: 100%">
+            <div style="position: relative; padding-top: 10px; width: 100%"
+                 class="surface-variant">
               <i class="bi bi-x-lg lead" style="cursor: pointer; position:absolute; right: 0" title="Close"
                  v-on:click="closeUploadingSnippet()"></i>
               <h2 class="font-bold text-2xl mb-4">File Upload</h2>
@@ -1283,16 +1330,15 @@
                 <span class="jetb ms-2">Uploading...</span>
               </div>
               <template v-if="uploadFileBase64 !== ''">
-                <p class="text-neutral-300 font-bold">{{ uploadFileName }}</p>
+                <p class=" font-bold">{{ uploadFileName }}</p>
                 <div class="mt-3 w-full">
-                  <button class="darkbutton text-white p-2 w-full
-                         flex items-center justify-center rounded-full"
-                          style="height: 2.5em; border-color: transparent;
-                         margin: auto"
+                  <button class="darkbutton p-2 w-full
+                                 flex items-center justify-center rounded-full"
+                          style="height: 2.5em; border-color: transparent; margin: auto"
                           title="Send"
                           v-on:click="addMessage">
                     <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Submit</span>
-                    <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ uploadFileType }}</span>
+                    <span style="margin-left: 10px" class="text-xs"> {{ uploadFileType }}</span>
                   </button>
                 </div>
               </template>
@@ -1306,21 +1352,23 @@
           </template>
         </template>
         <template v-else-if="overlayType === 1"
-                  class="h-[calc(100%-55px)] w-full translate-y-[55px] overflow-clip
-                         darkest_bg lg:rounded-xl sm:border-[1px] sm:border-[rgba(174,174,183,0.25)]">
+                  class="h-[calc(100%-50px)] w-full translate-y-[50px] overflow-clip
+                         background lg:rounded-xl sm:border-[1px] sm:border-[rgba(174,174,183,0.25)]">
           <knowledgefinder :isoverlay="true" :srcguid="getSession()"
                            @close="setOverlay(0); prepareInputField()"/>
         </template>
       </div>
-      <div id="member_section" style="margin-top: 55px"
-           class="member_section darkest_bg">
-        <div style="width: 100%; height: 50px; display: flex; align-items: center">
-          <p class="font-bold member_count c_lightgray nopointer"
+      <div id="member_section"
+           class="member_section overflow-hidden background">
+        <div class="background fmt_border_bottom"
+             style="width: 100%; height: 50px; display: flex; align-items: center">
+          <p class="font-bold member_count nopointer"
              style="padding-left: 20px">
             Members&nbsp;-&nbsp;{{ getMemberCount() }}
           </p>
-          <button class="btn-no-outline member_section_toggler c_lightgray"
-                  style="position: absolute; right: 10px"
+          <button class="btn-no-outline member_section_toggler
+                         on-surface-text"
+                  style="position: absolute; right: 12px"
                   title="Hide Members"
                   v-on:click="toggleMemberSidebar">
             <i class="bi bi-eye-slash-fill orange-hover"></i>
@@ -1339,38 +1387,38 @@
               </template>
             </template>
             <template v-else>
-              <UserCircleIcon class="sender_avatar"></UserCircleIcon>
+              <UserCircleIcon class="sender_avatar on-background-text"></UserCircleIcon>
             </template>
             <div class="w-[40px] h-[40px] absolute flex items-end justify-end">
               <template v-if="usr.online">
-                <div class="w-[13px] h-[13px] rounded-full bg-green-500 border-2 border-zinc-900"
+                <div class="w-[13px] h-[13px] rounded-full bg-green-500 border border-zinc-700"
                      v-tooltip.top="{ content: 'Online' }"></div>
               </template>
               <template v-else-if="usr.recent">
-                <div class="w-[13px] h-[13px] rounded-full bg-zinc-900 border-2 border-zinc-900"
+                <div class="w-[13px] h-[13px] rounded-full bg-zinc-900 border border-zinc-700"
                      v-tooltip.top="{ content: 'AFK' }">
                   <MoonIcon class="w-full h-full text-orange-400"></MoonIcon>
                 </div>
               </template>
               <template v-else>
-                <div class="w-[13px] h-[13px] rounded-full bg-zinc-600 border-2 border-zinc-900"
+                <div class="w-[13px] h-[13px] rounded-full bg-zinc-600 border border-zinc-700"
                      v-tooltip.top="{ content: 'Offline' }"></div>
               </template>
             </div>
             <div class="font-bold ml-3">
               <template v-if="usr.active">
-                <span class="text-neutral-300">{{ usr.name }}</span>
+                <p class="">{{ usr.name }}</p>
               </template>
               <template v-else>
-                <span class="text-neutral-500">{{ usr.name }}</span>
+                <p class="">{{ usr.name }}</p>
               </template>
             </div>
           </div>
           <div class="px-4 pt-2 flex">
-            <button class="text-neutral-300 btn-no-outline"
+            <button class=" btn-no-outline"
                     title="Invite"
                     v-on:click="invite()">
-              <UserPlusIcon class="w-[24px] h-[24px]"></UserPlusIcon>
+              <UserPlusIcon class="w-[24px] h-[24px] on-surface-text"></UserPlusIcon>
             </button>
             <span class="tooltip-mock-destination" :class="{'show':showInviteCopied}">Copied!</span>
           </div>
@@ -1417,7 +1465,7 @@
     v-show="isViewingNewSubchat"
     @close="hideAllWindows()">
     <template v-slot:header>
-      New Subchat
+      New Channel
     </template>
     <template v-slot:body>
       <div class="new_subchat" style="overflow: hidden; padding: 5px">
@@ -1425,28 +1473,31 @@
           <label for="new_subchat_name" class="font-bold lead c_lightgray">Name:</label>
           <input v-model="new_subchat_name"
                  id="new_subchat_name" type="text"
-                 class="mt-2 b_darkergray text-white p-2 px-3 border-none w-full rounded-md">
-          <label class="font-bold lead mt-4 c_lightgray" style="width: 100%">Create:</label>
+                 class="fmt_input mt-2 w-full">
           <button v-on:click="createSubchatroom('text')"
-                  id="new_subchat_type_text" class="btn darkbutton mt-2 text-neutral-400"
+                  id="new_subchat_type_text" class="btn_bg_primary mt-2"
                   style="width: 100%; text-align: left; display: flex;
                          align-items: center; border-radius: 10px">
-            <span style="font-size: 200%"><i class="bi bi-hash"></i></span>
-            <div class="ml-3">
-              <span class="text-neutral-300">Text Subchat</span>
-              <br>
-              <span class="text-neutral-400 text-xs">Write messages and send files.</span>
+            <div class="flex w-full">
+              <span style="font-size: 200%"><i class="bi bi-hash"></i></span>
+              <div class="ml-3">
+                <span class="">Text Channel</span>
+                <br>
+                <span class=" text-xs">Write messages and send files.</span>
+              </div>
             </div>
           </button>
           <button v-on:click="createSubchatroom('webcam')"
-                  id="new_subchat_type_webcam" class="btn darkbutton mt-2 text-neutral-400"
+                  id="new_subchat_type_webcam" class="btn_bg_primary mt-2"
                   style="width: 100%; text-align: left; display: flex;
                          align-items: center; border-radius: 10px">
-            <span style="font-size: 200%"><i class="bi bi-camera-video"></i></span>
-            <div class="ml-3">
-              <span class="text-neutral-300">Conference Subchat</span>
-              <br>
-              <span class="text-neutral-400 text-xs">Meet up, talk and video chat with others.</span>
+            <div class="flex w-full">
+              <span style="font-size: 200%"><i class="bi bi-camera-video"></i></span>
+              <div class="ml-3">
+                <span class="">Conference Channel</span>
+                <br>
+                <span class=" text-xs">Meet up, talk and video chat with others.</span>
+              </div>
             </div>
           </button>
         </div>
@@ -1587,7 +1638,10 @@ import {
   PlusSmallIcon,
   QrCodeIcon,
   UserCircleIcon,
-  VideoCameraIcon
+  VideoCameraIcon,
+  ArrowUturnLeftIcon,
+  HandThumbUpIcon,
+  HandThumbDownIcon
 } from '@heroicons/vue/24/solid'
 import {
   ArrowLeftOnRectangleIcon,
@@ -1607,8 +1661,7 @@ import {
   UsersIcon,
   ViewColumnsIcon,
   WindowIcon,
-  WrenchIcon,
-  XMarkIcon
+  WrenchIcon
 } from '@heroicons/vue/24/outline'
 import { dbGetDisplayName, dbSetDisplayName } from '@/libs/wikistore'
 
@@ -1624,7 +1677,6 @@ export default {
     PhoneIcon,
     VideoCameraIcon,
     MicrophoneIcon,
-    XMarkIcon,
     DocumentArrowUpIcon,
     GifIcon,
     DocumentTextIcon,
@@ -1652,7 +1704,10 @@ export default {
     UsersIcon,
     ChevronRightIcon,
     ChevronLeftIcon,
-    PlusSmallIcon
+    PlusSmallIcon,
+    ArrowUturnLeftIcon,
+    HandThumbUpIcon,
+    HandThumbDownIcon
   },
   data () {
     return {
@@ -1875,20 +1930,20 @@ export default {
           method: 'get',
           url: 'knowledge/private/chat/' + sessionID
         })
-          .then((data) => {
-            this.knowledgeExists = true
-            this.knowledge = data.result
-            // if (this.knowledge.categories != null) {
-            //   for (let i = 0; i < this.knowledge.categories.length; i++) {
-            //     this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
-            //   }
-            // }
-            resolve()
-          })
-          .catch((err) => {
-            console.debug(err.message)
-            this.knowledgeExists = false
-          })
+        .then((data) => {
+          this.knowledgeExists = true
+          this.knowledge = data.result
+          // if (this.knowledge.categories != null) {
+          //   for (let i = 0; i < this.knowledge.categories.length; i++) {
+          //     this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
+          //   }
+          // }
+          resolve()
+        })
+        .catch((err) => {
+          console.debug(err.message)
+          this.knowledgeExists = false
+        })
       })
     },
     setUpWRTC: function () {
@@ -2091,26 +2146,26 @@ export default {
         // Get metadata and messages
         this.getClarifierMetaData(this.connectParams.sessionID,
           this.connectParams.isSubchat, this.connectParams.novisual)
-          .then(() => this.getClarifierMessages(false, this.connectParams.sessionID))
-          .then(() => this.prepareInputField())
-          .then(() => this.subscribeFCM(this.connectParams.sessionID, this.connectParams.isSubchat))
-          .then(() => {
-            this.scrollToBottom()
-            this.setUpWRTC()
-            this.wRTC.doPause()
-          })
-          .then(() => {
-            if (this.currentSubchat.type === 'webcam' || this.params) {
-              this.wRTC.doUnpause()
-              this.startCall(undefined, {
-                video: undefined,
-                audio: true
-              })
-              this.notifyJoinedSubchat(this.currentSubchat.uid, this.$store.state.username, true)
-            } else if (this.currentSubchat.type === 'screenshare') {
-              this.wRTC.doUnpause()
-            }
-          })
+        .then(() => this.getClarifierMessages(false, this.connectParams.sessionID))
+        .then(() => this.prepareInputField())
+        .then(() => this.subscribeFCM(this.connectParams.sessionID, this.connectParams.isSubchat))
+        .then(() => {
+          this.scrollToBottom()
+          this.setUpWRTC()
+          this.wRTC.doPause()
+        })
+        .then(() => {
+          if (this.currentSubchat.type === 'webcam' || this.params) {
+            this.wRTC.doUnpause()
+            this.startCall(undefined, {
+              video: undefined,
+              audio: true
+            })
+            this.notifyJoinedSubchat(this.currentSubchat.uid, this.$store.state.username, true)
+          } else if (this.currentSubchat.type === 'screenshare') {
+            this.wRTC.doUnpause()
+          }
+        })
       }, 0)
     },
     subscribeFCM: function (uniChatroomGUID) {
@@ -2188,7 +2243,7 @@ export default {
                   setTimeout(() => {
                     const elem = document.getElementById(
                       'react_' + message.uid + '_' + message.msg)
-                    elem.style.display = 'initial'
+                    elem.style.display = 'flex'
                     document.getElementById('react_' + message.uid + '_' + message.msg).title =
                       this.messages[index].reacts[i].src.toString() + ' reacted to this message.'
                   }, 0)
@@ -2221,7 +2276,7 @@ export default {
             setTimeout(() => {
               const elem = document.getElementById(
                 'react_' + message.uid + '_' + message.msg)
-              elem.style.display = 'initial'
+              elem.style.display = 'flex'
               document.getElementById('react_' + message.uid + '_' + message.msg).title =
                 message.usr + ' reacted to this message.'
             }, 0)
@@ -2451,52 +2506,52 @@ export default {
           method: 'get',
           url: 'chat/private/get/' + sessionID
         })
-          .then((data) => {
-            let tmpElem
-            // Remove active flag
+        .then((data) => {
+          let tmpElem
+          // Remove active flag
+          if (!novisual && this.chatroom.type !== 'dm') {
+            if (this.chatroom.uid != null) {
+              tmpElem = document.getElementById('home_subc')
+              if (tmpElem) tmpElem.classList.remove('active')
+            }
+            if (this.currentSubchat.uid != null) {
+              tmpElem = document.getElementById(this.currentSubchat.uid + '_subc')
+              if (tmpElem) tmpElem.classList.remove('active')
+            }
+          }
+          // Set new chatroom or subchat + active flag
+          if (!isSubchat) {
+            this.chatroom = data.result
+            this.chatroom.ts = DateTime.fromISO(this.chatroom.ts).toLocaleString(DateTime.DATETIME_MED)
+            this.chatroom.rank = 99
+            if (this.chatroom.subc != null) {
+              // Parse JSON serialized subchats for performance
+              for (let i = 0; i < this.chatroom.subc.length; i++) {
+                if (this.chatroom.subc[i].type === 'webcam') {
+                  this.getActiveMembers(this.chatroom.subc[i].uid, true)
+                }
+              }
+            }
+            if (!novisual && (this.chatroom.type === undefined || this.chatroom.type !== 'dm')) {
+              tmpElem = document.getElementById('home_subc')
+              if (tmpElem) {
+                tmpElem.classList.toggle('active', true)
+              }
+            }
+          } else {
+            this.currentSubchat = data.result
             if (!novisual && this.chatroom.type !== 'dm') {
-              if (this.chatroom.uid != null) {
-                tmpElem = document.getElementById('home_subc')
-                if (tmpElem) tmpElem.classList.remove('active')
-              }
-              if (this.currentSubchat.uid != null) {
-                tmpElem = document.getElementById(this.currentSubchat.uid + '_subc')
-                if (tmpElem) tmpElem.classList.remove('active')
-              }
+              tmpElem = document.getElementById(this.currentSubchat.uid + '_subc')
+              if (tmpElem) tmpElem.classList.toggle('active', true)
             }
-            // Set new chatroom or subchat + active flag
-            if (!isSubchat) {
-              this.chatroom = data.result
-              this.chatroom.ts = DateTime.fromISO(this.chatroom.ts).toLocaleString(DateTime.DATETIME_MED)
-              this.chatroom.rank = 99
-              if (this.chatroom.subc != null) {
-                // Parse JSON serialized subchats for performance
-                for (let i = 0; i < this.chatroom.subc.length; i++) {
-                  if (this.chatroom.subc[i].type === 'webcam') {
-                    this.getActiveMembers(this.chatroom.subc[i].uid, true)
-                  }
-                }
-              }
-              if (!novisual && (this.chatroom.type === undefined || this.chatroom.type !== 'dm')) {
-                tmpElem = document.getElementById('home_subc')
-                if (tmpElem) {
-                  tmpElem.classList.toggle('active', true)
-                }
-              }
-            } else {
-              this.currentSubchat = data.result
-              if (!novisual && this.chatroom.type !== 'dm') {
-                tmpElem = document.getElementById(this.currentSubchat.uid + '_subc')
-                if (tmpElem) tmpElem.classList.toggle('active', true)
-              }
-            }
-          })
-          .then(() => (
-            setTimeout(() => {
-              this.processMetaDataResponse(isSubchat).then(() => resolve())
-            }, 0)
-          ))
-          .catch((err) => console.debug(err.message))
+          }
+        })
+        .then(() => (
+          setTimeout(() => {
+            this.processMetaDataResponse(isSubchat).then(() => resolve())
+          }, 0)
+        ))
+        .catch((err) => console.debug(err.message))
       })
     },
     processMetaDataResponse: async function (isSubchat = false) {
@@ -2504,8 +2559,8 @@ export default {
       if (this.chatroom.type === 'dm') {
         // chatElem.classList.add('clarifier_chatroom_big')
         this.chatroom.t = this.chatroom.t
-          .replaceAll('|' + this.$store.state.username + '|', '||')
-          .replaceAll('|', ' ').replaceAll('  ', ' ').trim()
+        .replaceAll('|' + this.$store.state.username + '|', '||')
+        .replaceAll('|', ' ').replaceAll('  ', ' ').trim()
       } else {
         if (chatElem) chatElem.classList.remove('clarifier_chatroom_big')
       }
@@ -2555,8 +2610,12 @@ export default {
         await this.getMainMembers()
       }
       const messagesSection = this.$refs.messages_section
+      const messagesContainer = this.$refs.messages_container
+      const inputContainer = this.$refs.input_container
       if (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam' || this.params) {
         messagesSection.style.width = '350px'
+        messagesContainer.style.display = 'block'
+        inputContainer.style.width = '350px'
         this.mediaMaxWidth = 'clamp(200px, 100%, 255px)'
       } else {
         this.peerType = 'idle'
@@ -2564,7 +2623,9 @@ export default {
         this.streamStartTime = ''
         this.streamDuration = ''
         this.exitCinemaMode()
-        messagesSection.style.width = 'initial'
+        messagesSection.style.width = '100%'
+        messagesContainer.style.display = 'flex'
+        inputContainer.style.width = '100%'
         this.mediaMaxWidth = 'clamp(200px, 100%, 400px)'
       }
       document.title = this.chatroom.t
@@ -2586,22 +2647,22 @@ export default {
         method: 'get',
         url: 'chat/private/users/members/' + this.chatroom.uid
       })
-        .then((data) => {
-          if (data.result.members && data.result.members.length > 0) {
-            // Parse JSON serialized users for performance
-            for (let i = 0; i < data.result.members.length; i++) {
-              // Main Members
-              this.mainMembers[i] = data.result.members[i]
-              this.mainMembers[i].taggable = true
-              if (this.mainMembers[i].usr === this.$store.state.username) {
-                this.mainMembers[i].online = true
-                this.mainMembers[i].active = true
-              }
-              // Set username
-              dbSetDisplayName(data.result.members[i].usr, data.result.members[i].name)
+      .then((data) => {
+        if (data.result.members && data.result.members.length > 0) {
+          // Parse JSON serialized users for performance
+          for (let i = 0; i < data.result.members.length; i++) {
+            // Main Members
+            this.mainMembers[i] = data.result.members[i]
+            this.mainMembers[i].taggable = true
+            if (this.mainMembers[i].usr === this.$store.state.username) {
+              this.mainMembers[i].online = true
+              this.mainMembers[i].active = true
             }
+            // Set username
+            dbSetDisplayName(data.result.members[i].usr, data.result.members[i].name)
           }
-        })
+        }
+      })
     },
     getClarifierMessages: async function (lazyLoad = false, sessionID) {
       if (sessionID == null) {
@@ -2621,10 +2682,10 @@ export default {
         method: 'get',
         url: 'msg/private/chat/get/' + sessionID + parameters
       })
-        .then((data) => {
-          this.processMessagesResponse(data.result, lazyLoad)
-        })
-        .catch((err) => console.debug(err.message))
+      .then((data) => {
+        this.processMessagesResponse(data.result, lazyLoad)
+      })
+      .catch((err) => console.debug(err.message))
     },
     processMessagesResponse: async function (data, lazyLoad = false) {
       this.$refs.welcomeMessage.style.display = 'flex'
@@ -2916,18 +2977,18 @@ export default {
           method: 'get'
         }
       )
-        .then((res) => res.json())
-        .then(async (data) => {
-          const imgURL = data.data.images.fixed_height.url
-          const payload = {
-            msg: '![Giphy GIF](' + imgURL + ')',
-            url: imgURL
-          }
-          this.addMessagePar('[c:GIF][c:MSG<ENCR]' +
-            await this.encryptPayload(JSON.stringify(payload))
-          )
-        })
-        .catch((err) => console.debug(err.message))
+      .then((res) => res.json())
+      .then(async (data) => {
+        const imgURL = data.data.images.fixed_height.url
+        const payload = {
+          msg: '![Giphy GIF](' + imgURL + ')',
+          url: imgURL
+        }
+        this.addMessagePar('[c:GIF][c:MSG<ENCR]' +
+          await this.encryptPayload(JSON.stringify(payload))
+        )
+      })
+      .catch((err) => console.debug(err.message))
     },
     getRandomJoke: function (text) {
       let url = 'https://api.humorapi.com/jokes/random?api-key=d47f7eca7f694765adc6389f6ce17ba9'
@@ -2940,22 +3001,22 @@ export default {
           method: 'get'
         }
       )
-        .then((res) => res.json())
-        .then(async (data) => {
-          if (data.joke != null) {
-            this.addMessagePar('[c:JOKE][c:MSG<ENCR]' +
-              await this.encryptPayload(data.joke)
-            )
-          } else {
-            this.$notify(
-              {
-                title: 'No Joke :(',
-                text: 'There was no response... maybe the quota is used up?',
-                type: 'error'
-              })
-          }
-        })
-        .catch((err) => console.debug(err.message))
+      .then((res) => res.json())
+      .then(async (data) => {
+        if (data.joke != null) {
+          this.addMessagePar('[c:JOKE][c:MSG<ENCR]' +
+            await this.encryptPayload(data.joke)
+          )
+        } else {
+          this.$notify(
+            {
+              title: 'No Joke :(',
+              text: 'There was no response... maybe the quota is used up?',
+              type: 'error'
+            })
+        }
+      })
+      .catch((err) => console.debug(err.message))
     },
     sendSelectedGIF: async function (url) {
       const payload = {
@@ -2973,9 +3034,9 @@ export default {
           method: 'get'
         }
       )
-        .then((res) => res.json())
-        .then((data) => (this.gifSelection = data.data))
-        .catch((err) => console.debug(err.message))
+      .then((res) => res.json())
+      .then((data) => (this.gifSelection = data.data))
+      .catch((err) => console.debug(err.message))
     },
     getImgFlipSelection: function () {
       const headers = new Headers()
@@ -2990,9 +3051,9 @@ export default {
           headers
         }
       )
-        .then((res) => res.json())
-        .then((data) => (this.imgflipSelection = data.data.memes))
-        .catch((err) => console.debug(err.message))
+      .then((res) => res.json())
+      .then((data) => (this.imgflipSelection = data.data.memes))
+      .catch((err) => console.debug(err.message))
     },
     submitImgflipMeme: function (boxes = []) {
       const url = 'https://api.imgflip.com/caption_image'
@@ -3050,19 +3111,19 @@ export default {
           body: formBody
         }
       )
-        .then((res) => res.json())
-        .then((data) => (response = data))
-        .then(() => this.handleImgflipSubmissionResponse(response))
-        .then(() => {
-          this.isFillingImgflipTemplate.active = false
-          this.isFillingImgflipTemplate.boxes = []
-          this.isFillingImgflipTemplate.mode = 'top-bottom'
-          this.imgflip_template = {}
-          textOne.value = ''
-          textTwo.value = ''
-          this.focusComment()
-        })
-        .catch((err) => console.debug(err.message))
+      .then((res) => res.json())
+      .then((data) => (response = data))
+      .then(() => this.handleImgflipSubmissionResponse(response))
+      .then(() => {
+        this.isFillingImgflipTemplate.active = false
+        this.isFillingImgflipTemplate.boxes = []
+        this.isFillingImgflipTemplate.mode = 'top-bottom'
+        this.imgflip_template = {}
+        textOne.value = ''
+        textTwo.value = ''
+        this.focusComment()
+      })
+      .catch((err) => console.debug(err.message))
     },
     handleImgflipSubmissionResponse: async function (response) {
       if (response.success !== true) {
@@ -3188,9 +3249,9 @@ export default {
         url: 'm5/addrole/' + this.getSession(),
         body: content
       })
-        .then(() => this.hideUserProfile())
-        .then(() => this.getClarifierMetaData(this.getSession(), false, true))
-        .catch((err) => console.debug(err.message))
+      .then(() => this.hideUserProfile())
+      .then(() => this.getClarifierMetaData(this.getSession(), false, true))
+      .catch((err) => console.debug(err.message))
     },
     hideUserProfile: function () {
       this.isViewingUserProfile = false
@@ -3656,17 +3717,17 @@ export default {
           new: base64
         })
       })
-        .then(() => (updateFun()))
-        .then(() => (getMessagesFun()))
-        .then(() => (this.hideAllWindows()))
-        .then(() => (
-          this.$notify(
-            {
-              title: 'Done!',
-              text: 'User profile picture updated.',
-              type: 'info'
-            })
-        ))
+      .then(() => (updateFun()))
+      .then(() => (getMessagesFun()))
+      .then(() => (this.hideAllWindows()))
+      .then(() => (
+        this.$notify(
+          {
+            title: 'Done!',
+            text: 'User profile picture updated.',
+            type: 'info'
+          })
+      ))
     },
     handleUploadImageSelectDrop: function (evt) {
       this.handleUploadFileSelect(evt, true)
@@ -3737,9 +3798,9 @@ export default {
           new: base64
         })
       })
-        .then(() => (updateFun()))
-        .catch((err) => console.debug(err.message))
-        .finally(() => (disableLoadingFun()))
+      .then(() => (updateFun()))
+      .catch((err) => console.debug(err.message))
+      .finally(() => (disableLoadingFun()))
     },
     toggleElement: function (id, display = 'block') {
       const elem = document.getElementById(id)
@@ -3795,10 +3856,10 @@ export default {
         url: 'chat/private/create',
         body: content
       })
-        .then((data) => (guid = data.result))
-        .then(() => this.getClarifierMetaData(mainSessionGUID, false, true))
-        .then(() => this.gotoSubchat(guid))
-        .catch((err) => console.debug(err.message))
+      .then((data) => (guid = data.result))
+      .then(() => this.getClarifierMetaData(mainSessionGUID, false, true))
+      .then(() => this.gotoSubchat(guid))
+      .catch((err) => console.debug(err.message))
     },
     gotoSubchat: async function (subchatGUID, subchatMode = true) {
       if (subchatGUID == null) {
@@ -3885,9 +3946,9 @@ export default {
         url: 'files/private/create',
         body: content
       })
-        .then((data) => (this.processUploadSnippetResponse(data.result)))
-        .catch((err) => (this.handleUploadSnippetError(err.message)))
-        .finally(() => (this.toggleElement('confirm_snippet_loading', 'flex')))
+      .then((data) => (this.processUploadSnippetResponse(data.result)))
+      .catch((err) => (this.handleUploadSnippetError(err.message)))
+      .finally(() => (this.toggleElement('confirm_snippet_loading', 'flex')))
     },
     handleUploadSnippetError: function (errorMessage = '') {
       this.toggleElement('confirm_snippet_loading', 'flex')
@@ -3979,14 +4040,14 @@ export default {
           url: 'm7/' + endpoint,
           body: bodyPayload
         })
-          .then((data) => {
-            const guid = data.result
-            this.$router.push('/apps/knowledge/' + guid + '?src=' + this.getSession())
-          })
-          .then(() => resolve())
-          .catch((err) => {
-            console.debug(err.message)
-          })
+        .then((data) => {
+          const guid = data.result
+          this.$router.push('/apps/knowledge/' + guid + '?src=' + this.getSession())
+        })
+        .then(() => resolve())
+        .catch((err) => {
+          console.debug(err.message)
+        })
       })
     },
     editMessage: function (msg, remove = false) {
@@ -4005,7 +4066,7 @@ export default {
         this.focusComment(true)
         setTimeout(() => {
           this.auto_grow()
-          document.getElementById(msg.uid).style.backgroundColor = '#71717A'
+          document.getElementById(msg.uid).style.backgroundColor = 'var(--md-sys-color-surface-variant)'
           const editElem = document.getElementById('edit_' + this.messageEditing.uid)
           if (editElem != null) editElem.style.display = 'flex'
         }, 0)
@@ -4019,7 +4080,7 @@ export default {
       this.focusComment(true)
       setTimeout(() => {
         this.auto_grow()
-        document.getElementById(msg.uid).style.backgroundColor = '#71717A'
+        document.getElementById(msg.uid).style.backgroundColor = 'var(--md-sys-color-surface-variant)'
         const editElem = document.getElementById('edit_' + this.messageReplyingTo.uid)
         if (editElem != null) editElem.style.display = 'flex'
       }, 0)
@@ -4052,29 +4113,29 @@ export default {
         guid = this.getSession()
       }
       this.$store.getters.getTimestamp(guid)
-        .then((timestamp) => {
-          if (timestamp == null) return false
-          const lastMessageTS = timestamp.tsNew
-          if (lastMessageTS == null || lastMessageTS <= 0) {
-            return false
-          }
-          let lastReadTS = timestamp.tsRead
-          if (lastReadTS == null) lastReadTS = 0
-          hasUnread = lastReadTS < lastMessageTS
-        })
-        .finally(() => {
-          if (hasUnread) {
-            let elemId = guid + '_notify'
-            if (isHome) elemId = 'home_notify'
-            setTimeout(() => {
-              const notify = document.getElementById(elemId)
-              if (notify != null) {
-                notify.style.opacity = '1'
-                notify.style.display = 'block'
-              }
-            }, 0)
-          }
-        })
+      .then((timestamp) => {
+        if (timestamp == null) return false
+        const lastMessageTS = timestamp.tsNew
+        if (lastMessageTS == null || lastMessageTS <= 0) {
+          return false
+        }
+        let lastReadTS = timestamp.tsRead
+        if (lastReadTS == null) lastReadTS = 0
+        hasUnread = lastReadTS < lastMessageTS
+      })
+      .finally(() => {
+        if (hasUnread) {
+          let elemId = guid + '_notify'
+          if (isHome) elemId = 'home_notify'
+          setTimeout(() => {
+            const notify = document.getElementById(elemId)
+            if (notify != null) {
+              notify.style.opacity = '1'
+              notify.style.display = 'block'
+            }
+          }, 0)
+        }
+      })
     },
     generateRSAKeyPair: async function (uniChatroomGUID, force = false) {
       if (uniChatroomGUID == null || uniChatroomGUID === '') return
@@ -4108,28 +4169,28 @@ export default {
           url: 'chat/private/pubkey/' + uniChatroomGUID,
           body: content
         })
-          .then(() => {
-            if (force) {
-              updateFun()
-            }
-          })
-          .then(() => {
-            if (force) {
-              getMessagesFun()
-            }
-          })
-          .then(() => {
-            if (force === true) {
-              this.$notify(
-                {
-                  title: 'Encryption Key Replaced',
-                  text: '',
-                  type: 'info'
-                })
-            }
-          })
-          .then(resolve)
-          .catch((err) => console.debug(err.message))
+        .then(() => {
+          if (force) {
+            updateFun()
+          }
+        })
+        .then(() => {
+          if (force) {
+            getMessagesFun()
+          }
+        })
+        .then(() => {
+          if (force === true) {
+            this.$notify(
+              {
+                title: 'Encryption Key Replaced',
+                text: '',
+                type: 'info'
+              })
+          }
+        })
+        .then(resolve)
+        .catch((err) => console.debug(err.message))
       })
     },
     arrayBufferToString: function (buf) {
@@ -4752,9 +4813,9 @@ export default {
         url: 'm5/upgrade/' + this.getSession(),
         body: content
       })
-        .then(() => this.getClarifierMetaData(this.getSession(), false, true))
-        .then(() => this.markActiveSubchat())
-        .catch((err) => console.debug(err.message))
+      .then(() => this.getClarifierMetaData(this.getSession(), false, true))
+      .then(() => this.markActiveSubchat())
+      .catch((err) => console.debug(err.message))
     },
     getBadges: function (username) {
       // this.$Worker.execute({
@@ -4778,10 +4839,10 @@ export default {
     markActiveSubchat: function () {
       if (!this.isSubchat) {
         document.getElementById(this.chatroom.uid + '_subc')
-          .classList.toggle('active', true)
+        .classList.toggle('active', true)
       } else {
         document.getElementById(this.currentSubchat.uid + '_subc')
-          .classList.toggle('active', true)
+        .classList.toggle('active', true)
       }
     },
     showUserProfileFromName: function (username) {
@@ -4935,22 +4996,22 @@ export default {
         method: 'get',
         url: 'chat/private/users/active/' + uniChatroomGUID
       })
-        .then((data) => {
-          for (let i = 0; i < this.mainMembers.length; i++) {
-            this.mainMembers[i].active = (this.mainMembers[i].usr === this.$store.state.username)
-          }
-          this.setActiveMembers(data.result.members, true, subchatMemberMode, uniChatroomGUID)
-          if (!subchatMemberMode) {
-            this.getOnlineUsers()
-          }
-        })
-        .finally(() => {
-          if (!subchatMemberMode) {
-            setTimeout(() => {
-              this.addMessagePar('[c:SC]' + '[online]' + this.$store.state.username)
-            }, 0)
-          }
-        })
+      .then((data) => {
+        for (let i = 0; i < this.mainMembers.length; i++) {
+          this.mainMembers[i].active = (this.mainMembers[i].usr === this.$store.state.username)
+        }
+        this.setActiveMembers(data.result.members, true, subchatMemberMode, uniChatroomGUID)
+        if (!subchatMemberMode) {
+          this.getOnlineUsers()
+        }
+      })
+      .finally(() => {
+        if (!subchatMemberMode) {
+          setTimeout(() => {
+            this.addMessagePar('[c:SC]' + '[online]' + this.$store.state.username)
+          }, 0)
+        }
+      })
     },
     setActiveMembers: function (members, override = true, subchatMemberMode = false, subchatGUID = null) {
       if (!members) return
@@ -4989,20 +5050,20 @@ export default {
         url: 'users/private/status',
         body: JSON.stringify(payload)
       })
-        .then((data) => {
-          const dict = new Map()
-          if (!data.result.users) return
-          for (let i = 0; i < data.result.users.length; i++) {
-            dict[data.result.users[i].usr] = {
-              online: data.result.users[i].status === 'online'
-            }
+      .then((data) => {
+        const dict = new Map()
+        if (!data.result.users) return
+        for (let i = 0; i < data.result.users.length; i++) {
+          dict[data.result.users[i].usr] = {
+            online: data.result.users[i].status === 'online'
           }
-          for (let i = 0; i < this.mainMembers.length; i++) {
-            if (dict[this.mainMembers[i].usr]) {
-              this.mainMembers[i].online = dict[this.mainMembers[i].usr].online
-            }
+        }
+        for (let i = 0; i < this.mainMembers.length; i++) {
+          if (dict[this.mainMembers[i].usr]) {
+            this.mainMembers[i].online = dict[this.mainMembers[i].usr].online
           }
-        })
+        }
+      })
     },
     setOverlay: function (type) {
       this.overlayType = type
@@ -5028,22 +5089,22 @@ export default {
         method: 'get',
         url: 'm5/direct/' + username + '?all=true'
       })
-        .then((data) => {
-          if (data.result.chatrooms && data.result.chatrooms.length > 0) {
-            foundDirect = true
-            newId = data.result.chatrooms[0].uid
-            this.connectToGroup(newId, true)
-          }
-        })
-        .then(() => {
-          if (foundDirect) return
-          this.sendFriendRequest(username)
-        })
-        .catch((err) => {
-          console.debug(err.message)
-          if (foundDirect) return
-          this.sendFriendRequest(username)
-        })
+      .then((data) => {
+        if (data.result.chatrooms && data.result.chatrooms.length > 0) {
+          foundDirect = true
+          newId = data.result.chatrooms[0].uid
+          this.connectToGroup(newId, true)
+        }
+      })
+      .then(() => {
+        if (foundDirect) return
+        this.sendFriendRequest(username)
+      })
+      .catch((err) => {
+        console.debug(err.message)
+        if (foundDirect) return
+        this.sendFriendRequest(username)
+      })
     },
     connectToGroup: function (chatroomId, novisual = false) {
       this.$store.commit('setLastClarifierGUID', chatroomId)
@@ -5140,24 +5201,24 @@ export default {
         method: 'get',
         url: 'm2/befriend/' + username
       })
-        .then(() => {
-          this.isAddingFriend = false
-          this.friendName = ''
-          this.getNotifications()
-          this.$notify(
-            {
-              title: 'Request Sent!',
-              text: 'Waiting for approval.',
-              type: 'info'
-            })
-        })
-        .catch((err) => {
-          console.debug(err.message)
-        })
+      .then(() => {
+        this.isAddingFriend = false
+        this.friendName = ''
+        this.getNotifications()
+        this.$notify(
+          {
+            title: 'Request Sent!',
+            text: 'Waiting for approval.',
+            type: 'info'
+          })
+      })
+      .catch((err) => {
+        console.debug(err.message)
+      })
     },
     directCall: function () {
       this.$Worker.execute({
-        action: 'call',
+        act: 'call',
         usernameToCall: this.chatroom.t,
         chatroomGUID: this.chatroom.uid
       })
@@ -5193,10 +5254,10 @@ export default {
             this.processGUID = data.result
             this.isViewingProcess = true
           })
-            .then(() => resolve())
-            .catch((err) => {
-              console.debug(err.message)
-            })
+          .then(() => resolve())
+          .catch((err) => {
+            console.debug(err.message)
+          })
         })
       })
     },
@@ -5239,10 +5300,10 @@ export default {
                   type = 'subchat_leave'
                 }
                 this.$Worker.execute({
-                  action: 'fwd',
-                  username: this.mainMembers[i].usr,
-                  type: type,
-                  value: JSON.stringify({
+                  act: 'fwd',
+                  usr: this.mainMembers[i].usr,
+                  typ: type,
+                  msg: JSON.stringify({
                     user: user,
                     guid: guid
                   })
@@ -5257,42 +5318,14 @@ export default {
 }
 </script>
 
-<style scoped>
-
-.b_purple {
-  background-color: #68349b;
-}
-
-.c_purple {
-  color: #68349b;
-}
+<style>
 
 .b_darkergray {
   @apply darkest_bg;
 }
 
-.c_darkergray {
-  @apply text-neutral-900;
-}
-
 .b_darkgray {
   @apply bg-slate-700;
-}
-
-.c_darkgray {
-  @apply text-neutral-800;
-}
-
-.b_gray {
-  @apply bg-gray-700;
-}
-
-.c_gray {
-  @apply text-neutral-700;
-}
-
-.c_lightgray {
-  @apply text-neutral-300;
 }
 
 .b_orange {
@@ -5305,7 +5338,7 @@ export default {
 
 .user_badge:hover {
   transition: 0.1s ease-in-out;
-  @apply text-white cursor-pointer rounded-xl bg-zinc-500 bg-opacity-50;
+  @apply cursor-pointer rounded-xl bg-zinc-500 bg-opacity-50;
 }
 
 .user_badge:hover .sender_avatar_animated {
@@ -5322,13 +5355,13 @@ export default {
 }
 
 .orange-hover:hover {
-  color: #ff5d37;
   cursor: pointer;
+  @apply surface rounded-md;
 }
 
 .gray-hover:hover,
 .active_gray {
-  @apply bright_bg rounded-md;
+  @apply surface-variant rounded-md;
   cursor: pointer;
 }
 
@@ -5354,7 +5387,8 @@ export default {
   bottom: 80px;
   right: 12px;
   color: white;
-  @apply rounded-lg darkest_bg p-2 w-[400px]
+  background-color: var(--md-sys-color-surface-variant);
+  @apply rounded-lg p-2 w-[400px] fmt_border
   max-w-[calc(100dvw-24px)] max-h-[calc(100%-200px)]
   dshadow;
 }
@@ -5370,7 +5404,7 @@ export default {
 .serverMessage {
   text-wrap: normal;
   word-wrap: anywhere;
-  @apply dark_bg rounded-r-lg rounded-bl-lg p-3 my-2 text-lg font-bold italic text-neutral-300;
+  @apply dark_bg rounded-r-lg rounded-bl-lg p-3 my-2 text-lg font-bold italic ;
   text-align: center;
 }
 
@@ -5383,6 +5417,7 @@ export default {
 
 .input_section {
   display: inline-flex;
+  align-items: center;
   width: 100%;
   min-height: 80px;
   position: relative;
@@ -5394,13 +5429,23 @@ export default {
 .new_comment {
   position: relative;
   left: 10px;
-  color: white;
   border-color: transparent;
-  border-radius: 6px 0 0 6px;
+  border-radius: 6px 6px 6px 6px;
   resize: none;
   overflow-x: hidden;
   overflow-y: auto;
-  @apply h-[40px] min-h-[40px] max-h-[calc(100%-150px)] w-[calc(100%-100px)];
+  scrollbar-color: transparent transparent;
+  padding-right: 80px;
+  @apply h-[40px] min-h-[40px]
+  max-h-[calc(100%-150px)] w-[calc(100%-18px)];
+}
+
+.new_comment::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+.new_comment::-webkit-scrollbar-track {
+  background-color: transparent;
 }
 
 .new_comment:focus {
@@ -5417,22 +5462,21 @@ export default {
 
 .clarifier_chatroom {
   position: relative;
-  @apply h-[calc(100%-55px)] w-full;
+  @apply h_full_nav w-full;
 }
 
 .chat_section {
   @apply w-full h-full overflow-clip
-  dark_bg rounded-tl lg:rounded-tl-none lg:rounded-tr
   flex items-center justify-center
+  min-w-[75vw] lg:min-w-0
 }
 
 .messages_container {
-  @apply h-[calc(100%-130px)] max-h-[calc(100%-130px)] overflow-hidden
-  bright_bg
+  @apply h-[calc(100%-130px)] max-h-[calc(100%-130px)] overflow-hidden flex justify-center;
 }
 
 .messages_section {
-  @apply relative flex h-full
+  @apply relative flex h-full max-w-screen-md w-full
   overflow-y-auto overflow-x-hidden
 }
 
@@ -5443,25 +5487,24 @@ export default {
 .channel_section {
   -ms-overflow-style: none;
   scrollbar-width: none;
-  @apply text-neutral-200;
 }
 
 .sidebar {
   position: relative;
-  min-width: 55px;
   float: left;
+  @apply w-0 md:w-fit md:min-w-[55px]
 }
 
 .sidebar2 {
   opacity: 0;
   width: 0;
-  height: calc(100% - 55px);
   position: relative;
-  z-index: 100;
+  z-index: 110;
   top: 0;
   overflow-x: clip;
   transition: ease-in-out all 0.2s;
   float: left;
+  @apply h_full_nav mt_nav;
 }
 
 .sidebar_bg {
@@ -5473,12 +5516,12 @@ export default {
   overflow-x: clip;
   overflow-y: auto;
   color: white;
-  z-index: 100;
+  z-index: 110;
   position: relative;
   right: 0;
-  height: calc(100% - 55px);
   opacity: 0;
   transition: ease-in-out all 0.2s;
+  @apply h_full_nav mt_nav;
 }
 
 .sidebar.active {
@@ -5525,18 +5568,15 @@ export default {
   .sidebar2,
   .member_section {
     position: absolute;
+    z-index: 112;
   }
 
   .msgTag {
     display: none;
   }
 
-  .sidebar.active, .sidebar2.active, .member_section.active {
-    @apply backdrop-blur-xl darkest_bg bg-opacity-75;
-  }
-
   .darkergray-on-small {
-    @apply darkest_bg border-r-neutral-700;
+    border-right: 1px solid var(--md-sys-color-outline-variant);
   }
 
   .darkergray-on-small.active {
@@ -5670,38 +5710,32 @@ export default {
   cursor: pointer;
   width: calc(100% - 0.5rem);
   height: 36px;
-  @apply pl-2 mr-2 rounded text-neutral-300 relative;
+  @apply pl-2 mr-2 rounded  relative;
 }
 
 .subchat:hover {
-  @apply bg-zinc-500 bg-opacity-50 text-neutral-100;
+  background-color: var(--md-sys-color-primary);
+}
+
+.subchat:hover * {
+  color: var(--md-sys-color-on-primary);
 }
 
 .subchat.active {
-  @apply dark_bg bg-opacity-75
-  border-b-2 border-b-indigo-400
-  text-white;
+  @apply background;
 }
 
 .nopointer {
   pointer-events: none;
 }
 
-.darkbutton {
-  @apply darkest_bg px-2 py-2;
-}
-
-.darkbutton:hover {
-  @apply bg-black;
-}
-
 .message {
-  padding: 0 15px 0 10px;
-  @apply text-neutral-200 my-[1px];
+  padding: 1px 15px 1px 10px;
+  @apply my-[1px];
 }
 
 .message:hover {
-  @apply brightest_bg bg-opacity-25;
+  background-color: rgba(150, 150, 150, 0.05);
 }
 
 .message:hover .sender_avatar_animated {
@@ -5727,7 +5761,7 @@ export default {
   width: 100%;
   display: flex;
   align-items: center;
-  @apply text-neutral-300 text-xs;
+  @apply text-xs;
 }
 
 .message:hover .msg_time,
@@ -5738,9 +5772,11 @@ export default {
 .clientMessage {
   word-wrap: anywhere;
   position: relative;
-  max-width: calc(100% - 42px);
+  max-width: calc(90% - 42px);
   margin: 0 !important;
-  @apply text-neutral-200 rounded-r-lg rounded-bl-lg px-2 py-1 medium_bg;
+  box-shadow: var(--md-sys-color-outline-variant) 0 0 2px 0;
+  background-color: var(--md-sys-color-surface);
+  @apply rounded-lg px-2 py-1 w-fit;
 }
 
 .send_image_button.active {
@@ -5758,10 +5794,15 @@ export default {
 }
 
 .message_button {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-color: transparent;
-  border-radius: 1em
+  border-radius: 1em;
+  transform: translateX(-6px) translateY(-1px);
+}
+
+.message_button:hover {
+  @apply primary-container;
 }
 
 .btn-no-fx,
@@ -5785,7 +5826,7 @@ export default {
 
 .user_tagger,
 .imgflip_selector {
-  @apply rounded-md p-0 dark_bg;
+  @apply rounded-md p-0 surface;
   position: absolute;
   bottom: 80px;
   left: 10px;
@@ -5874,10 +5915,10 @@ export default {
 
 .headerline:before,
 .headerline:after {
-  @apply bg-zinc-500;
+  background-color: var(--md-sys-color-surface-variant);
   content: "";
   display: inline-block;
-  height: 1px;
+  height: 2px;
   position: relative;
   vertical-align: middle;
   width: 50%;
@@ -5894,11 +5935,15 @@ export default {
 }
 
 .user_profile_button {
-  @apply text-neutral-300 rounded medium_bg py-1 px-2 mr-1 hover:brightness-90;
+  @apply rounded surface py-1 px-2 mr-1 hover:dshadow;
 }
 
 .message_body {
-  @apply w-full relative flex pl-[10px];
+  @apply w-full relative flex;
+}
+
+.own_message_body {
+  @apply justify-end;
 }
 
 .shadow-hover:hover {

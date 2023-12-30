@@ -1,6 +1,6 @@
 <template>
   <div class="about min-h-full w-full flex items-center justify-around">
-    <div class="container text-white wrapper mt-[55px] p-2">
+    <div class="container  wrapper mt_nav p-2">
       <div class="text-wrapper mb-5"
            style="text-align: justify; text-justify: inter-word;
            margin: auto">
@@ -12,7 +12,7 @@
           <br>This website is part of a project being worked on by
           <a style="color: white" :href="'https://github.com/glehu'">Luca Goldhausen</a>.
           It currently consists of this website including all its apps and services and
-          <a :href="'https://github.com/glehu/CWO_ERP'" style="color: white">CWO_DB</a>,
+          <a :href="'https://github.com/glehu/WikiricGo/tree/master'" style="color: white">CWO_DB</a>,
           the back-end, database and API hub handling everything being shown on this website.
           <!-- Why -->
           <br><br><span class="h2 font-bold" style="pointer-events: none">

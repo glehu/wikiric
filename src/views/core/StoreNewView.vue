@@ -1,114 +1,102 @@
 <template>
-  <div class="flex w-full h-full pt-[55px] justify-center brightest_bg">
+  <div class="flex w-full h-full pt_nav justify-center">
     <template v-if="store != null">
       <div ref="storeView"
-           class="w-full overflow-x-hidden overflow-y-scroll">
-        <div class="w-full">
-          <div class="w-full mb-4
-                      overflow-hidden bshadow">
-            <div class="p-4 darkest_bg flex justify-center">
-              <div class="max-w-screen-2xl w-full
-                          flex flex-col md:flex-row md:items-center
-                          gap-4">
+           class="w-full overflow-x-hidden overflow-y-scroll relative background">
+        <div class="w-full relative">
+          <div class="w-full overflow-hidden relative surface-variant bshadow z-10">
+            <div class="p-4 flex justify-center">
+              <div class="w-full flex flex-col md:flex-row gap-4 md:items-center">
                 <template v-if="store.iurl == null || store.iurl === ''">
                   <BuildingStorefrontIcon
-                    class="h-14 w-14 text-neutral-300"/>
+                    class="h-20 w-20 "/>
                 </template>
                 <template v-else>
                   <img :src="getImg(store.iurl, true)" alt="?"
-                       class="object-contain w-[176px] max-h-[176px]">
+                       class="object-contain w-[176px] max-h-[176px] rounded-md">
                 </template>
-                <div class="ml-2">
-                  <p class="font-bold text-3xl md:text-4xl lg:text-5xl mb-2">
+                <div class="ml-2 md:ml-4">
+                  <p class="font-bold text-3xl md:text-4xl lg:text-5xl mb-2 ">
                     {{ store.t }}
                   </p>
-                  <p class="text-neutral-400">
+                  <p class="">
                     {{ store.desc }}
                   </p>
                 </div>
               </div>
             </div>
           </div>
-          <div class="flex justify-center px-4">
-            <div class="max-w-screen-2xl w-full xl:flex xl:gap-x-4">
+          <div class="flex justify-center">
+            <div class="w-full lg:flex">
               <div id="shop-sidebar"
-                   class="mb-4 xl:sticky xl:top-4 h-fit">
-                <div class="rounded-lg flex items-center relative mb-4
-                            max-w-[552px] xl:max-w-[350px] w-full">
-                  <MagnifyingGlassIcon class="w-6 h-6 mx-2 text-neutral-300 absolute translate-x-1"/>
+                   class="lg:sticky lg:top-0 h-fit pt-4 px-2 rounded-b-lg background">
+                <div class="rounded-lg flex items-center relative pl-2 pr-4
+                            max-w-[552px] w-full">
+                  <MagnifyingGlassIcon class="w-6 h-6 mx-2 absolute translate-x-1"/>
                   <input id="search-field" type="text"
-                         class="search-field py-6 pl-10 pr-4 w-full
-                                dark_bg h-8 border-2 border-zinc-700"
+                         class="search-field py-6 pl-10 pr-4 w-full h-8
+                                surface on-surface-text bshadow"
+                         style="border: 1px solid var(--md-sys-color-outline-variant)"
                          placeholder="Search..."
                          v-on:keyup.enter="getItems()"
                          v-model="queryText">
                 </div>
                 <div class="max-w-[550px] xl:max-w-[350px] pb-2
-                            rounded overflow-hidden border-2 border-neutral-600">
-                  <div class="w-full bright_bg bg-opacity-75 px-2 py-1
-                            font-bold text-neutral-100
-                            flex items-center bshadow">
-                    <FunnelIcon class="h-5 w-5 mr-2"/>
-                    <p class="text-neutral-100">
-                      {{ $t("gen.filters") }}
-                    </p>
-                  </div>
+                            rounded overflow-hidden">
                   <div class="p-2">
-                    <p class="w-full px-2 mt-2 pb-1 text-sm
-                          font-bold text-neutral-100">
+                    <p class="w-full pb-1 text-sm
+                              font-bold">
                       {{ $t("eco.pricing") }}
                     </p>
-                    <div class="px-2 flex gap-x-2 relative items-center">
-                      <div class="search-field dark_bg w-fit
-                                  border-2 border-zinc-700 text-sm">
-                        <p class="ml-2 mt-1 text-xs">MIN</p>
+                    <div class="flex gap-x-2 relative items-center pr-2 w-full">
+                      <div class="search-field surface w-full text-sm">
+                        <p class="ml-2 mt-1 text-xs">Min</p>
                         <span class="absolute py-2 pl-3">€</span>
                         <input type="number" id="minCost"
                                v-model="queryMinCost"
                                v-on:keyup.enter="getItems()"
                                placeholder="Min"
-                               class="placeholder-neutral-400
-                                  dark_bg py-2 pl-7 pr-4">
+                               class="py-2 pl-7 pr-4
+                                      surface on-surface-text">
                       </div>
-                      <div class="search-field dark_bg w-fit
-                              border-2 border-zinc-700 text-sm">
-                        <p class="ml-2 mt-1 text-xs">MAX</p>
+                      <div class="search-field surface w-full text-sm">
+                        <p class="ml-2 mt-1 text-xs">Max</p>
                         <span class="absolute py-2 pl-3">€</span>
                         <input type="number" id="maxCost"
                                v-model="queryMaxCost"
                                v-on:keyup.enter="getItems()"
                                placeholder="Max"
-                               class="placeholder-neutral-400
-                                  dark_bg py-2 pl-7 pr-4">
+                               class="py-2 pl-7 pr-4
+                                      surface on-surface-text">
                       </div>
                     </div>
-                    <p class="w-full px-2 mt-2 pb-1 text-sm
-                          font-bold text-neutral-100">
+                    <p class="w-full mt-2 pb-1 text-sm
+                              font-bold">
                       {{ $t("gen.sortBy") }}
                     </p>
-                    <div class="px-2 flex gap-x-2 relative">
-                      <div class="metaTag cursor-pointer" :class="{active: sort.byRelevance}"
+                    <div class="flex gap-x-2 relative w-full pr-2">
+                      <div class="metaTag cursor-pointer w-full" :class="{active: sort.byRelevance}"
                            v-on:click="sortResults('relevance')">
-                        <div class="flex items-center text-neutral-300">
-                          <FunnelIcon class="h-4 w-4 mr-1"/>
+                        <div class="flex items-center">
+                          <FunnelIcon class="h-4 w-4 mr-2"/>
                           <p class="text-xs font-bold">
                             {{ $t("gen.relevance") }}
                           </p>
                         </div>
                       </div>
-                      <div class="metaTag cursor-pointer" :class="{active: sort.byViews}"
+                      <div class="metaTag cursor-pointer w-full" :class="{active: sort.byViews}"
                            v-on:click="sortResults('views')">
-                        <div class="flex items-center text-neutral-300">
-                          <EyeIcon class="h-4 w-4 mr-1"/>
+                        <div class="flex items-center">
+                          <EyeIcon class="h-4 w-4 mr-2"/>
                           <p class="text-xs font-bold">
                             {{ $t("gen.views") }}
                           </p>
                         </div>
                       </div>
-                      <div class="metaTag cursor-pointer" :class="{active: sort.byCost}"
+                      <div class="metaTag cursor-pointer w-full" :class="{active: sort.byCost}"
                            v-on:click="sortResults('cost')">
-                        <div class="flex items-center text-neutral-300">
-                          <TagIcon class="h-4 w-4 mr-1"/>
+                        <div class="flex items-center">
+                          <TagIcon class="h-4 w-4 mr-2"/>
                           <p class="text-xs font-bold">
                             {{ $t("gen.cost") }}
                           </p>
@@ -116,24 +104,26 @@
                       </div>
                     </div>
                     <template v-if="filters && filters.vars && filters.vars.length > 0">
-                      <p class="w-full px-2 mt-2 pb-1 text-sm
-                              font-bold text-neutral-100">
+                      <p class="w-full mt-2 pb-1 text-sm
+                                font-bold">
                         {{ $t("gen.variations") }}
                       </p>
-                      <div class="pl-1 pr-3 flex items-start flex-col gap-y-2 w-full
-                                  max-h-[calc(50vh)] overflow-y-scroll pb-4">
+                      <div class="pr-2 flex items-start flex-col gap-y-2 w-full
+                                  max-h-[calc(50vh)] overflow-y-auto pb-2">
                         <template v-for="variation in filters.vars" :key="variation.t">
                           <template v-if="variation.vars">
                             <Disclosure v-slot="{ open }" as="div"
                                         :default-open="true"
-                                        class="flex flex-wrap items-center bg-opacity-50
-                                               gap-2 rounded-xl w-full bright_bg dshadow">
+                                        class="flex flex-wrap items-center
+                                               rounded-xl w-full surface">
                               <DisclosureButton
                                 class="btn_disclosure rounded-lg w-full m-1">
-                                <p class="text-sm font-bold rounded-lg">{{ variation.t }}</p>
+                                <p class="text-sm font-bold rounded-lg">
+                                  {{ variation.t }}
+                                </p>
                                 <ChevronUpIcon
                                   :class="open ? 'rotate-180 transform' : ''"
-                                  class="h-5 w-5 text-neutral-400"
+                                  class="h-5 w-5"
                                 />
                               </DisclosureButton>
                               <transition
@@ -147,9 +137,10 @@
                                 <DisclosurePanel>
                                   <div class="flex flex-wrap gap-2 items-center p-2">
                                     <div v-for="subVariation in variation.vars" :key="subVariation.sval"
-                                         class="metaTag cursor-pointer" style="margin: 0 !important"
+                                         class="metaTag cursor-pointer variTag" style="margin: 0 !important"
+                                         :class="{active: checkActiveVariation(variation.t, subVariation.sval)}"
                                          v-on:click="toggleVariationQuery(variation.t, subVariation.sval)">
-                                      <p class="text-xs font-bold">
+                                      <p class="text-sm">
                                         {{ subVariation.sval }}
                                       </p>
                                     </div>
@@ -164,19 +155,19 @@
                   </div>
                 </div>
               </div>
-              <div class="w-full">
+              <div class="w-full px-4 pt-4">
                 <template v-if="variationQuery.length > 0">
                   <div class="flex flex-wrap gap-2 w-fit mb-4">
                     <div v-for="variation in variationQuery" :key="variation.t"
-                         class="p-1 medium_bg dshadow flex flex-wrap">
-                      <p class="text-sm font-bold px-2 py-1 dark_bg w-fit rounded mr-2">
+                         class="p-1 surface-variant bshadow flex flex-wrap rounded">
+                      <p class="text-sm font-bold px-2 py-1 surface w-fit rounded mr-2">
                         {{ variation.t }}:
                       </p>
                       <div class="flex flex-wrap items-center gap-2 divide-x divide-neutral-500">
                         <div v-for="subVariation in variation.svals" :key="subVariation"
-                             class="px-2 py-1 hover:darkest_bg cursor-pointer flex gap-x-3 items-center"
+                             class="px-2 py-1 hover:primary cursor-pointer flex gap-x-3 items-center"
                              v-on:click="removeVariationQuery(variation.t, subVariation)">
-                          <XMarkIcon class="h-4 w-4 text-neutral-300 ml-2"/>
+                          <XMarkIcon class="h-4 w-4  ml-2"/>
                           <p class="text-sm font-bold">{{ subVariation }}</p>
                         </div>
                       </div>
@@ -186,37 +177,36 @@
                 <template v-if="items.length > 0">
                   <div class="w-full">
                     <div class="metaTag pointer-events-none mb-4">
-                      <p class="text-xs text-neutral-300 font-bold">
+                      <p class="text-sm">
                         {{ items.length }} {{ $t("gen.resultsIn") }} {{ respTime.toFixed(4) }} s
                       </p>
                     </div>
                     <div id="shop-items"
-                         class="grid grid-cols-1
-                              md:grid-cols-2
-                              2xl:grid-cols-3
-                              gap-2 pb-16 w-full">
+                         class="flex flex-col xl:grid xl:grid-cols-2
+                                gap-2 pb-52 w-full pr-2">
                       <template v-for="item in items" :key="item">
-                        <div class="bright_bg dshadow store_item relative w-full rounded-md">
-                          <img v-if="store.shiny"
-                               :src="getImg(item.iurls[item.iix].url, true)" alt="?"
-                               class="absolute w-full h-full opacity-20">
-                          <div class="backdrop-blur-3xl
-                                      p-2 h-full rounded-md">
+                        <div class="surface store_item rounded-md flex-grow w-full
+                                    md:max-w-2xl lg:max-w-7xl"
+                             style="border: 1px solid var(--md-sys-color-outline-variant)">
+                          <div class="p-2 h-full rounded-md
+                                      flex flex-col
+                                      md:flex-row xl:flex-col 2xl:flex-row
+                                      gap-2 lg:gap-x-4">
                             <template v-if="item.iurls == null || item.iurls.length < 1">
-                              <div class="flex flex-col rounded relative">
+                              <div class="flex flex-col rounded relative pl-1 pt-1 pr-1">
                                 <div class="pb-14 flex justify-center">
-                                  <p class="text-xs font-bold text-neutral-400
-                                          imagecontainer">
+                                  <p class="text-xs font-bold
+                                            imagecontainer">
                                     {{ $t("img.no-img") }}
                                   </p>
                                 </div>
                               </div>
                             </template>
                             <template v-else>
-                              <div class="flex flex-col rounded relative">
-                                <div class="pb-14 flex justify-center
-                                            bshadow">
-                                  <div class="imagecontainer">
+                              <div class="flex flex-col rounded relative w-full lg:w-fit">
+                                <div class="pb-16 flex justify-center
+                                            rounded overflow-hidden relative surface">
+                                  <div class="store_image">
                                     <img :src="getImg(item.iurls[item.iix].url, true)" alt="?"
                                          v-on:click="showItemImages(item, item.iix)">
                                   </div>
@@ -231,83 +221,98 @@
                                       </div>
                                     </template>
                                   </div>
-                                  <div class="flex gap-x-1 px-2 py-1 items-baseline">
-                                    <p class="text-sm font-bold text-neutral-300">
+                                  <div class="flex gap-x-1 px-2 py-1 items-baseline w-fit m-1 rounded
+                                              surface-variant">
+                                    <p class="text-sm font-bold ">
                                       [{{ item.iix + 1 }}/{{ item.iurls.length }}]
                                     </p>
-                                    <p class="text-sm text-neutral-200">
+                                    <p class="text-sm ">
                                       {{ item.iurls[item.iix].t }}
                                     </p>
                                   </div>
                                 </div>
                               </div>
                             </template>
-                            <div class="text-sm text-neutral-300 w-full pt-2">
+                            <div class="text-sm w-full pt-2 xl:pt-0
+                                        flex flex-col h-full gap-y-2">
                               <div class="cursor-pointer
                                           rounded px-2 py-1 w-full"
                                    v-on:click="showItem(item)">
-                                <p class="font-bold text-xl lg:text-2xl mb-2 mt-2">
+                                <p class="font-bold text-xl lg:text-2xl
+                                          mb-2 mt-2 xl:mt-0 ">
                                   {{ item.t }}
                                 </p>
-                                <p class="text-sm font-bold">{{ item.desc }}</p>
+                                <p class="max-w-[90%]">
+                                  {{ item.desc }}
+                                </p>
                               </div>
                               <template v-if="item.attr.length > 0">
-                                <div class="border-2 border-neutral-500
-                                          p-2 rounded m-2 w-fit">
-                                  <table style="margin-bottom: 0">
-                                    <template v-for="attribute in item.attr" :key="attribute">
-                                      <tr>
-                                        <td><p class="px-1 font-bold">
-                                          {{ attribute.t }}:
-                                        </p></td>
-                                        <td><p class="px-1 font-bold">
-                                          {{ attribute.sval }}
-                                        </p></td>
-                                        <td><p class="text-neutral-300 px-1">
-                                          {{ attribute.desc }}
-                                        </p></td>
-                                      </tr>
-                                    </template>
-                                  </table>
+                                <div class="m-2">
+                                  <div class="w-fit surface bshadow rounded p-2">
+                                    <table style="margin-bottom: 0 !important;"
+                                           class="divide-y divide-neutral-500">
+                                      <template v-for="attribute in item.attr" :key="attribute">
+                                        <tr>
+                                          <td><p class="pr-1 ">
+                                            {{ attribute.t }}:
+                                          </p></td>
+                                          <td><p class="px-1 ">
+                                            {{ attribute.sval }}
+                                            <br>
+                                            <span class="text-xs">
+                                              {{ attribute.desc }}
+                                            </span>
+                                          </p></td>
+                                        </tr>
+                                      </template>
+                                    </table>
+                                  </div>
                                 </div>
                               </template>
                               <template v-if="item.tvars && item.tvars.length > 0">
-                                <div class="m-2 md:flex md:flex-wrap gap-x-4 gap-y-2">
+                                <p class="w-full px-2 text-sm text-end xl:text-start
+                                         ">
+                                  {{ $t("gen.variations") }}
+                                </p>
+                                <div class="mx-2 flex flex-row flex-wrap
+                                            justify-end xl:justify-start
+                                            gap-x-4 gap-y-2 ml-auto xl:ml-0">
                                   <div v-for="(variation, index) in item.vars" :key="variation">
                                     <Listbox v-model="item.tvars[index].vars[0]">
-                                      <div class="relative mt-1">
+                                      <div class="relative mb-1 ml-2">
                                         <ListboxButton
-                                          class="dark_bg w-full relative cursor-default rounded-lg py-2 pl-3
-                                           min-w-[8rem] bg-opacity-50
-                                           pr-10 text-left shadow-md focus:outline-none
-                                           border-b-[1px] border-b-neutral-500
-                                           focus-visible:ring-2
-                                           focus-visible:ring-white
-                                           focus-visible:ring-opacity-75
-                                           focus-visible:ring-offset-2
-                                           focus-visible:ring-offset-orange-300 sm:text-sm"
+                                          class="background
+                                                 w-full relative cursor-default rounded-lg py-2 pl-3
+                                                 min-w-[12rem]
+                                                 pr-10 text-left shadow-md focus:outline-none
+                                                 border-b-[1px] border-b-neutral-400
+                                                 focus-visible:ring-2
+                                                 focus-visible:ring-white
+                                                 focus-visible:ring-opacity-75
+                                                 focus-visible:ring-offset-2
+                                                 focus-visible:ring-offset-orange-300 sm:text-sm"
                                         >
                                           <template
                                             v-if="item.tvars[index].vars != null && item.tvars[index].vars[0].sval ">
-                                            <div class="block truncate font-bold text-neutral-300">
+                                            <div class="block truncate">
                                               {{ variation.t }}: {{ item.tvars[index].vars[0].sval }}
                                             </div>
                                           </template>
                                           <template v-else>
                                             <template v-if="item.tvars[index].opt">
-                                            <span class="block truncate font-bold text-neutral-300">
-                                              ({{ $t("gen.optional") }}) {{ variation.t }}...
-                                            </span>
+                                              <span class="block truncate">
+                                                ({{ $t("gen.optional") }}) {{ variation.t }}...
+                                              </span>
                                             </template>
                                             <template v-else>
-                                            <span class="block truncate font-bold text-neutral-300">
-                                              {{ $t("gen.select") }} {{ variation.t }}...
-                                            </span>
+                                              <span class="block truncate">
+                                                {{ $t("gen.select") }} {{ variation.t }}...
+                                              </span>
                                             </template>
                                           </template>
                                           <div
                                             class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                            <ArrowsUpDownIcon class="h-5 w-5 text-neutral-400" aria-hidden="true"/>
+                                            <ArrowsUpDownIcon class="h-5 w-5" aria-hidden="true"/>
                                           </div>
                                         </ListboxButton>
                                         <transition
@@ -316,7 +321,7 @@
                                           leave-to-class="opacity-0">
                                           <ListboxOptions
                                             class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md
-                                               dark_bg py-1 text-base shadow-lg ring-1 ring-black
+                                               background py-1 text-base shadow-lg ring-1 ring-black
                                                ring-opacity-5 focus:outline-none sm:text-sm z-50"
                                           >
                                             <ListboxOption
@@ -327,8 +332,8 @@
                                               as="template"
                                             >
                                               <li
-                                                :class="[ active ? 'bg-gray-700' : '',
-                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 text-neutral-200' ]">
+                                                :class="[ active ? 'primary-container' : '',
+                                  'relative cursor-pointer select-none py-2 pl-10 pr-4' ]">
                                                 <div
                                                   :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
                                                   {{ cat.sval }}
@@ -347,27 +352,29 @@
                                   </div>
                                 </div>
                               </template>
-                              <div class="flex items-center gap-x-2 m-2 mt-4 h-14">
+                              <div class="flex items-center gap-x-2 m-2 mt-auto h-14 ml-auto xl:ml-2">
                                 <input type="number" min="0" v-model="item.amt"
-                                       class="border-[1px] w-[5rem] h-full
-                                            border-neutral-500 px-1 py-1 rounded
-                                            dark_bg text-xl text-center">
-                                <div class="cursor-pointer border-[1px] h-full
-                                      border-neutral-500 px-3 py-1 rounded
-                                      dark_bg hover:darkest_bg w-fit
-                                      flex items-center justify-between gap-x-2"
+                                       class="surface w-[5rem] h-full
+                                              px-1 py-1 rounded
+                                              text-xl text-center"
+                                       style="border: 1px solid var(--md-sys-color-outline);">
+                                <div class="primary-container cursor-pointer h-full
+                                            px-3 py-1 rounded w-fit
+                                            hover:primary hover:dshadow
+                                            flex items-center justify-between gap-x-2"
+                                     style="border: 1px solid var(--md-sys-color-primary);"
                                      v-on:click="addToCart(item)">
                                   <ShoppingCartIcon class="h-8 w-8"/>
                                   <div>
-                                    <p class="text-xl font-bold">
+                                    <p class="text-xl font-bold ">
                                       {{ ((item.net * (item.vatp + 1)) * item.amt).toFixed(2) }} €
                                     </p>
                                     <div class="flex items-center text-xs gap-x-2">
-                                      <p class="text-neutral-400">
-                                        {{ item.net.toFixed(2) }} €
+                                      <p class="">
+                                        {{ item.net.toFixed(2) }}&nbsp;€
                                       </p>
-                                      <p class="text-neutral-400">
-                                        {{ item.vatp.toFixed(2) * 100 }} % {{ $t("eco.vat") }}
+                                      <p class="">
+                                        {{ item.vatp.toFixed(2) * 100 }}&nbsp;%&nbsp;{{ $t("eco.vat") }}
                                       </p>
                                     </div>
                                   </div>
@@ -400,15 +407,17 @@
               <template v-if="$store.state.cart && $store.state.cart.length > 0">
                 <div>
                   <div v-on:click="showCart"
-                       class="cartButton">
-                    <ShoppingCartIcon class="h-6 w-6 text-neutral-300 mr-2"/>
-                    <p class="text-neutral-300 font-bold">{{ $t("stores.showCart") }}</p>
-                    <p class="translate-y-4 translate-x-2
-                              text-white bg-orange-900 bg-opacity-50
-                              px-1.5 py-0.5 rounded-full font-bold text-xs
-                              border-[2px] border-orange-600">
-                      {{ $store.state.cart.length }}
-                    </p>
+                       class="cartButton primary">
+                    <ShoppingCartIcon class="h-6 w-6 mr-2"/>
+                    <p class="font-bold">{{ $t("stores.showCart") }}</p>
+                    <div class="translate-y-6
+                                primary bshadow
+                                px-1.5 py-0.5 rounded-full"
+                         style="border: 2px solid var(--md-sys-color-primary-container)">
+                      <p class="font-bold text-xs on-primary-text">
+                        {{ $store.state.cart.length }}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </template>
@@ -419,18 +428,18 @@
     </template>
   </div>
   <div id="cartSidebar" ref="cartSidebar"
-       style="margin-top: 55px; box-shadow: 1px 0 4px 1px rgb(40 40 43)"
-       class="cartSidebar brightest_bg xl:rounded-tl">
+       style="margin-top: 50px; box-shadow: 1px 0 4px 1px rgb(40 40 43)"
+       class="cartSidebar background xl:rounded-tl">
     <div class="h-full relative">
-      <div class="w-full medium_bg px-3 py-2
-                  text-neutral-300
+      <div class="w-full surface px-3 py-2
                   flex items-center bshadow
                   absolute top-0 justify-between">
-        <p class="text-neutral-300 hidden md:block font-bold">
+        <p class=" hidden md:block font-bold">
           {{ $t("stores.shoppingCart") }}
         </p>
-        <div class="px-2 py-1 rounded hover:dark_bg
-                    text-neutral-300 items-center
+        <div class="px-2 py-1 rounded hover:surface-variant
+                    hover:dshadow
+                     items-center
                     cursor-pointer flex gap-x-2"
              v-on:click="hideCart()">
           <p class="text-sm">
@@ -441,13 +450,6 @@
       </div>
       <div class="pt-14 px-2 h-full">
         <template v-if="$store.state.cart && $store.state.cart.length > 0">
-          <div class="cursor-pointer px-1 rounded mb-2 mt-1
-                      dark_bg hover:darkest_bg w-fit"
-               v-on:click="$store.commit('clearCart')">
-            <p class="font-bold text-sm text-neutral-300">
-              {{ $t("gen.clear") }}
-            </p>
-          </div>
           <div class="btn_bg_primary mb-2"
                v-on:click="cartCheckout()">
             <p class="text-center font-bold">
@@ -456,7 +458,7 @@
           </div>
           <div class="flex flex-col gap-y-2">
             <div v-for="cartItem in $store.state.cart" :key="cartItem.uid"
-                 class="p-2 m-1 rounded bright_bg dshadow">
+                 class="p-2 m-1 rounded surface bshadow">
               <p class="font-bold">{{ cartItem.t }}</p>
               <p class="text-sm">{{ cartItem.desc }}</p>
               <div v-if="cartItem.tvars && cartItem.tvars.length > 0"
@@ -476,31 +478,36 @@
               </div>
               <div class="flex gap-x-2 mt-2">
                 <input type="number" min="0" v-model="cartItem.amt"
-                       class="border-[1px] w-[5rem]
-                            border-neutral-500 px-3 py-1 rounded
-                            dark_bg text-xl text-neutral-200">
+                       class="w-[5rem] px-3 py-1 rounded
+                              surface-variant text-xl"
+                       style="border: 1px solid var(--md-sys-color-outline-variant)">
                 <div>
                   <p class="text-xl font-bold">
                     {{ ((cartItem.net * (cartItem.vatp + 1)) * cartItem.amt).toFixed(2) }} €
                   </p>
                   <div class="flex items-center text-xs gap-x-2">
-                    <p class="text-neutral-400">
+                    <p class="">
                       {{ cartItem.net.toFixed(2) }} €
                     </p>
-                    <p class="text-neutral-400">
+                    <p class="">
                       {{ cartItem.vatp.toFixed(2) * 100 }} % {{ $t("eco.vat") }}
                     </p>
                   </div>
                 </div>
               </div>
-              <div class="cursor-pointer px-1 rounded mb-2 mt-2
-                          dark_bg hover:darkest_bg w-fit"
+              <div class="cursor-pointer px-1 rounded mb-2 mt-4 ml-2 w-fit bshadow surface"
                    v-on:click="$store.commit('removeFromCart', cartItem)">
-                <p class="font-bold text-sm text-neutral-300">
+                <p class="font-bold text-sm">
                   {{ $t("stores.removeFromCart") }}
                 </p>
               </div>
             </div>
+          </div>
+          <div class="cursor-pointer px-1 rounded mb-2 mt-4 ml-2 w-fit bshadow surface"
+               v-on:click="$store.commit('clearCart')">
+            <p class="font-bold text-sm">
+              {{ $t("gen.clear") }}
+            </p>
           </div>
         </template>
         <template v-else>
@@ -519,7 +526,7 @@
     </template>
     <template v-slot:body>
       <div v-if="viewingImageURLs.length > 0"
-           class="overflow-hidden w-full h-full p-1 dark_bg relative">
+           class="background overflow-hidden w-full h-full p-1 relative">
         <div class="h-[75vh] w-full flex justify-center items-start pb-16">
           <img :src="getImg(viewingImageURLs[viewingImageIndex].url, true)" alt="?"
                class="object-contain h-full w-full">
@@ -530,15 +537,15 @@
               <div class="img_index"
                    :class="{active: index === viewingImageIndex}"
                    v-on:click="viewingImageIndex = index">
-                <p class="text-neutral-400">{{ index + 1 }}</p>
+                <p class="">{{ index + 1 }}</p>
               </div>
             </template>
           </div>
           <div class="flex gap-x-1 px-2 pt-1 pb-2">
-            <p class="text-sm text-neutral-400">
+            <p class="text-sm">
               [{{ viewingImageIndex + 1 }}/{{ viewingImageURLs.length }}]
             </p>
-            <p class="text-sm text-neutral-400">
+            <p class="text-sm">
               {{ viewingImageURLs[viewingImageIndex].t }}
             </p>
           </div>
@@ -620,7 +627,8 @@ export default {
       },
       isViewingCart: false,
       filters: null,
-      variationQuery: []
+      variationQuery: [],
+      variationMap: new Map()
     }
   },
   mounted () {
@@ -648,15 +656,15 @@ export default {
           method: 'get',
           url: endpoint + this.storeID
         })
-          .then((data) => {
-            this.store = data.result
-            this.storeID = this.store.uid
-          })
-          .then(() => resolve())
-          .catch((err) => {
-            this.store = null
-            console.debug(err.message)
-          })
+        .then((data) => {
+          this.store = data.result
+          this.storeID = this.store.uid
+        })
+        .then(() => resolve())
+        .catch((err) => {
+          this.store = null
+          console.debug(err.message)
+        })
       })
     },
     getItems: function (substitute = null) {
@@ -694,34 +702,34 @@ export default {
           url: 'items/public/query/' + this.store.uid,
           body: JSON.stringify(payload)
         })
-          .then((data) => {
-            if (data.result.items && data.result.items.length > 0) {
-              for (let i = 0; i < data.result.items.length; i++) {
-                data.result.items[i].amt = 1
-                data.result.items[i].iix = 0
-                if (data.result.items[i].vars) {
-                  data.result.items[i].tvars = structuredClone(data.result.items[i].vars)
-                  for (let j = 0; j < data.result.items[i].tvars.length; j++) {
-                    data.result.items[i].tvars[j].vars = [{}]
-                  }
+        .then((data) => {
+          if (data.result.items && data.result.items.length > 0) {
+            for (let i = 0; i < data.result.items.length; i++) {
+              data.result.items[i].amt = 1
+              data.result.items[i].iix = 0
+              if (data.result.items[i].vars) {
+                data.result.items[i].tvars = structuredClone(data.result.items[i].vars)
+                for (let j = 0; j < data.result.items[i].tvars.length; j++) {
+                  data.result.items[i].tvars[j].vars = [{}]
                 }
               }
-              this.items = data.result.items
-              this.respTime = data.result.respTime
-              this.sortResults(null)
-            } else {
-              this.items = []
-              this.noResults = true
             }
-          })
-          .catch((err) => {
+            this.items = data.result.items
+            this.respTime = data.result.respTime
+            this.sortResults(null)
+          } else {
             this.items = []
-            console.debug(err.message)
-          })
-          .finally(() => {
-            this.isLoading = false
-            resolve()
-          })
+            this.noResults = true
+          }
+        })
+        .catch((err) => {
+          this.items = []
+          console.debug(err.message)
+        })
+        .finally(() => {
+          this.isLoading = false
+          resolve()
+        })
       })
     },
     getFilters: function () {
@@ -734,22 +742,22 @@ export default {
           method: 'get',
           url: 'items/public/filters/' + this.store.uid
         })
-          .then((data) => {
-            this.filters = data.result
-            // Conveniently set min and max cost filters
-            if (this.filters.min) {
-              this.queryMinCost = parseFloat((this.filters.min - 1).toFixed(0))
-            }
-            if (this.filters.max) {
-              this.queryMaxCost = parseFloat((this.filters.max + 1).toFixed(0))
-            }
-          })
-          .catch((err) => {
-            console.debug(err.message)
-          })
-          .finally(() => {
-            resolve()
-          })
+        .then((data) => {
+          this.filters = data.result
+          // Conveniently set min and max cost filters
+          if (this.filters.min) {
+            this.queryMinCost = parseFloat((this.filters.min - 1).toFixed(0))
+          }
+          if (this.filters.max) {
+            this.queryMaxCost = parseFloat((this.filters.max + 1).toFixed(0))
+          }
+        })
+        .catch((err) => {
+          console.debug(err.message)
+        })
+        .finally(() => {
+          resolve()
+        })
       })
     },
     sortResults: function (type) {
@@ -863,6 +871,8 @@ export default {
           t: variation,
           svals: [value]
         })
+        // Add to map too
+        this.variationMap.set(`${variation}:${value}`, true)
         if (query) this.getItems()
         return
       }
@@ -874,6 +884,8 @@ export default {
             }
           }
           this.variationQuery[i].svals.push(value)
+          // Add to map too
+          this.variationMap.set(`${variation}:${value}`, true)
           if (query) this.getItems()
           return
         }
@@ -882,6 +894,8 @@ export default {
         t: variation,
         svals: [value]
       })
+      // Add to map too
+      this.variationMap.set(`${variation}:${value}`, true)
       if (query) this.getItems()
     },
     removeVariationQuery: function (variation, value, query = true) {
@@ -892,7 +906,11 @@ export default {
         if (this.variationQuery[i].t === variation) {
           for (let j = 0; j < this.variationQuery[i].svals.length; j++) {
             if (this.variationQuery[i].svals[j] === value) {
+              // Remove subvariation value
               this.variationQuery[i].svals.splice(j, 1)
+              // Remove from map too
+              this.variationMap.delete(`${variation}:${value}`)
+              // Remove whole variation if there are no values anymore
               if (this.variationQuery[i].svals.length < 1) {
                 this.variationQuery.splice(i, 1)
               }
@@ -925,6 +943,9 @@ export default {
         }
       }
       return false
+    },
+    checkActiveVariation: function (variation, subvariation) {
+      return this.variationMap.has(`${variation}:${subvariation}`)
     }
   }
 }
@@ -933,7 +954,6 @@ export default {
 <style>
 
 .search-field {
-  color: white;
   border-radius: 10px;
   resize: none;
   overflow: hidden;
@@ -950,15 +970,15 @@ export default {
 .cartSidebar {
   opacity: 0;
   width: 0;
-  height: calc(100% - 55px);
   position: absolute;
   z-index: 100;
-  top: 0;
+  bottom: 0;
   right: 0;
   overflow-x: clip;
   overflow-y: scroll;
   transition: ease-in-out all 0.2s;
   float: right;
+  @apply h_full_nav;
 }
 
 .cartSidebar.active {
@@ -967,13 +987,29 @@ export default {
 }
 
 .cartButton {
-  @apply rounded-b px-2 py-1
-  medium_bg hover:dark_bg
-  cursor-pointer flex
-  border-l-[4px]
-  border-l-orange-600
-  fixed top-[55px] right-[20px]
-  dshadow;
+  @apply rounded-b pl-4 py-4
+  cursor-pointer flex z-50
+  fixed bottom-[30px] right-[40px]
+  dshadow rounded-md;
+  background-color: var(--md-sys-color-primary-container);
+  border: 1px solid var(--md-sys-color-primary);
+}
+
+.cartButton:hover {
+  @apply primary;
+}
+
+.variTag.active {
+  @apply primary;
+}
+
+.store_image {
+  @apply min-w-[16rem] min-h-[16rem]
+  max-w-[16rem] max-h-[16rem]
+  lg:min-w-[14rem] lg:min-h-[14rem]
+  lg:max-w-[14rem] lg:max-h-[14rem]
+  flex items-center justify-center overflow-hidden
+  p-1;
 }
 
 </style>

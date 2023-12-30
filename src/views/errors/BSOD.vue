@@ -1,5 +1,5 @@
 <template>
-  <div class="supercenter text-white w-[90dvw]"
+  <div class="supercenter  w-[90dvw]"
        style="background-color: darkblue; padding: 50px">
     <div style="position: absolute; top: 10px; left: 15px; display: flex">
       <i class="bi bi-terminal c_lightgray" style="font-size: 125%"></i>
