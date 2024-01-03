@@ -214,23 +214,23 @@
                         leave-to-class="transform opacity-0 scale-95">
               <MenuItems
                 class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg
-                       py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                       py-1 surface ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <template v-if="isLoggedIn">
                   <MenuItem v-slot="{ active }">
                     <a v-on:click="$router.push('/account')"
-                       :class="[active ? 'bg-zinc-300' : '', 'block px-4 py-2 text-sm nav_link_name cursor-pointer']">
+                       :class="[active ? 'primary' : '', 'block px-4 py-2 text-sm nav_link_name cursor-pointer']">
                       Your Profile
                     </a>
                   </MenuItem>
                   <MenuItem v-slot="{ active }">
                     <a v-on:click="$router.push('/preferences')"
-                       :class="[active ? 'bg-zinc-300' : '', 'block px-4 py-2 text-sm nav_link_name cursor-pointer']">
+                       :class="[active ? 'primary' : '', 'block px-4 py-2 text-sm nav_link_name cursor-pointer']">
                       Settings
                     </a>
                   </MenuItem>
                   <MenuItem v-slot="{ active }">
                     <a v-on:click="logout()"
-                       :class="[active ? 'bg-zinc-300' : '', 'block px-4 py-2 text-sm nav_link_name cursor-pointer']">
+                       :class="[active ? 'primary' : '', 'block px-4 py-2 text-sm nav_link_name cursor-pointer']">
                       Sign Out
                     </a>
                   </MenuItem>
@@ -238,13 +238,13 @@
                 <template v-else>
                   <MenuItem v-slot="{ active }">
                     <a v-on:click="$router.push('/login?redirect=/account')"
-                       :class="[active ? 'bg-zinc-300' : '', 'block px-4 py-2 text-sm nav_link_name cursor-pointer']">
+                       :class="[active ? 'primary' : '', 'block px-4 py-2 text-sm nav_link_name cursor-pointer']">
                       <i class="bi bi-key mr-3"></i> Sign In
                     </a>
                   </MenuItem>
                   <MenuItem v-slot="{ active }">
                     <a v-on:click="$router.push('/register?redirect=/account')"
-                       :class="[active ? 'bg-zinc-300' : '', 'block px-4 py-2 text-sm nav_link_name cursor-pointer']">
+                       :class="[active ? 'primary' : '', 'block px-4 py-2 text-sm nav_link_name cursor-pointer']">
                       <i class="bi bi-person-plus mr-3"></i> Sign Up
                     </a>
                   </MenuItem>

@@ -20,17 +20,17 @@
         </p>
         <hr style="color: white">
       </div>
-      <button class="my-4 font-bold text-3xl text-emerald-400
-                     border-2 border-emerald-400 p-2 rounded-md"
+      <button class="my-4 font-bold text-3xl
+                     btn_bg_primary p-2 rounded-md"
               v-on:click="confirm">
-        {{ $t("cookie.btnAccept") }}
+        <span>{{ $t("cookie.btnAccept") }}</span>
       </button>
       <!-- #### REVOKE #### -->
       <template v-if="generalCookieAllowance">
-        <button class="my-4 font-bold text-xl text-red-400
-                       border-2 border-red-400 p-2 rounded-md"
+        <button class="my-4 font-bold text-xl
+                       fmt_button_danger rounded-md"
                 v-on:click="revokeCookieAllowances">
-          {{ $t("cookie.btnReject") }}
+          <span>{{ $t("cookie.btnReject") }}</span>
         </button>
         <div class="">
           {{ $t("cookie.reject") }}

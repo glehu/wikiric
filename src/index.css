@@ -614,19 +614,15 @@
     }
 
     .markedView a {
-        color: var(--md-sys-color-on-primary);
-        border-bottom: 2px solid var(--md-sys-color-primary-light);
-        @apply text-center px-1 primary-container font-bold;
+        color: var(--md-sys-color-tertiary);
+        text-decoration: underline var(--md-sys-color-tertiary);
+        @apply text-center px-1 font-bold;
     }
 
     .markedView a:hover {
-        color: var(--md-sys-color-on-surface);
-        @apply surface-variant;
-    }
-
-    .markedView a::before {
-        content: "»";
-        @apply mr-2 no-underline px-1 font-bold rounded text-xs;
+        color: var(--md-sys-color-on-tertiary);
+        text-decoration: none;
+        @apply tertiary cursor-pointer;
     }
 
     .markedView img {
@@ -691,7 +687,7 @@
     }
 
     .markedView code {
-        @apply py-0.5 px-1 rounded-md fmt_border my-2 surface-variant;
+        @apply py-0.5 px-1 rounded-md fmt_border my-2;
     }
 
     hr {

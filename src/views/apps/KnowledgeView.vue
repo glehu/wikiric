@@ -710,7 +710,7 @@
     </template>
     <template v-slot:body>
       <div class="flex w-[calc(100dvw-36px)] h-[calc(100dvh-150px)] gap-x-1 overflow-x-hidden p-2">
-        <div class="w-full md:w-1/2">
+        <div class="w-full md:w-1/2 md:h-full">
           <div class="md:hidden flex w-full">
             <div class="mb-1 text-black font-bold rounded p-2
                         w-full flex items-center justify-end">
@@ -722,7 +722,7 @@
                 <span>Submit</span>
               </button>
               <button v-on:click="isWritingLesson = false"
-                      class="mr-2 py-2 px-3 rounded-md hover:dshadow"
+                      class="mr-2 py-2 px-3 rounded-md hover:dshadow surface-variant"
                       v-tooltip.top="{
                        content: 'Discard changes'
                      }">
@@ -821,7 +821,7 @@
               </button>
             </div>
           </div>
-          <div class="w-full mt-1 h-full" id="wisDescriptionEditor" ref="wisDescriptionEditor">
+          <div class="w-full mt-1 h-full no_fmt" id="wisDescriptionEditor" ref="wisDescriptionEditor">
             <textarea type="text" id="wisDescription" v-model="wisDescription" ref="wisDescription"
                       rows="20" class="fmt_border w-full surface py-2 px-3 hidden"></textarea>
           </div>
@@ -845,7 +845,7 @@
                 <span>Submit</span>
               </button>
               <button v-on:click="isWritingLesson = false"
-                      class="mr-2 py-2 px-3 rounded-md hover:dshadow"
+                      class="mr-2 py-2 px-3 rounded-md hover:dshadow surface-variant"
                       v-tooltip.top="{
                        content: 'Discard changes'
                      }">
@@ -1492,7 +1492,7 @@ export default {
       // this.mainContent.style.bottom = (this.inputComment.scrollHeight - 40) + 'px'
     },
     auto_grow_wisDescription: function () {
-      this.$refs.wisDescription.style.height = (this.$refs.wisDescription.scrollHeight) + 'px'
+      this.$refs.wisDescriptionEditor.style.height = (this.$refs.wisDescriptionEditor.scrollHeight) + 'px'
     },
     gotoComments: function () {
       document.getElementById('wisdomComments').scrollIntoView({ behavior: 'smooth' })

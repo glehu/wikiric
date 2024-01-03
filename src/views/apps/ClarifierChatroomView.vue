@@ -20,12 +20,11 @@
                 <ChevronLeftIcon v-else class="sb_link_icon
                                                on-background-text"/>
                 <p class="sb_link_text" style="margin-left: 22px">
-                  Minimize
+                  Hide Sidebar
                 </p>
               </div>
             </div>
-            <ul class="nav_list list-unstyled"
-                style="color: white; margin-top: 5px">
+            <ul class="nav_list list-unstyled">
               <li>
                 <div class="sb_link" v-on:click="disconnect(); $router.push('/apps/clarifier')">
                   <div class="orange-hover flex"
@@ -51,7 +50,7 @@
           </div>
           <div id="channel_section" class="channel_section overflow-y-auto overflow-x-hidden"
                style="height: calc(100% - 100px); z-index: 4;
-                      padding-bottom: 20px;">
+                      padding-bottom: 40px;">
             <div v-for="group in $store.state.clarifierSessions" :key="group"
                  class="channel_link"
                  style="position: relative; font-weight: bold">
@@ -101,10 +100,8 @@
           <div class="px-2 h-full
                       overflow-x-hidden overflow-y-hidden">
             <template v-if="chatroom.burl && chatroom.burl !== ''">
-              <div class="rounded my-2 flex
-                          w-full max-h-[128px] overflow-hidden
-                          items-center justify-center">
-                <img class="w-full"
+              <div class="rounded my-2 w-full max-h-[128px] overflow-hidden flex">
+                <img class="object-cover object-center w-full"
                      v-bind:src="getImg(chatroom.burl,true)"
                      :alt="getImgAlt(chatroom.t)"/>
               </div>
@@ -207,13 +204,12 @@
             <template v-else>
               <div class="w-full p-4">
                 <button class="w-full flex items-center justify-center
-                               border border-zinc-600 rounded
-                               px-3 py-2 dark_bg hover:darkest_bg"
+                               btn_bg_primary"
                         v-on:click="directCall()">
                   <PhoneIcon class="on-secondary-container-text
                                     min-w-[20px] min-h-[20px] max-w-[20px]
                                     max-h-[20px] mr-4"></PhoneIcon>
-                  <span class="text-sm  on-secondary-container-text">
+                  <span class="text-sm">
                     Call {{ chatroom.t }}
                   </span>
                 </button>
@@ -994,8 +990,7 @@
                 <div class="absolute w-full h-fit max-w-screen-md
                             max-h-[calc(100vh-150px)]
                             flex-col-reverse flex">
-                  <div class="text-center scroll_to_bottom
-                              orange-hover ml-2.5
+                  <div class="text-center scroll_to_bottom ml-2.5
                               cursor-pointer flex items-center
                               justify-center w-full hover:primary"
                        id="scroll_to_bottom"
@@ -1623,7 +1618,7 @@ import WRTC from '@/libs/wRTC'
 import Markdown from 'vue3-markdown-it'
 import markdownItMermaid from 'markdown-it-mermaid'
 import mermaid from 'mermaid'
-import 'highlight.js/styles/base16/google-dark.css'
+import 'highlight.js/styles/hybrid.css'
 import * as QRCode from 'easyqrcodejs'
 import { DateTime } from 'luxon'
 // Icons
@@ -1820,6 +1815,7 @@ export default {
     setTimeout(() => this.initFunction(), 0)
     const bc = new BroadcastChannel('connector')
     bc.onmessage = event => {
+      console.log(event.data)
       if (event.data.type === 'online') {
         if (this.mainMembers.length <= 0) return
         for (let i = 0; i < this.mainMembers.length; i++) {
@@ -2113,8 +2109,8 @@ export default {
           }
         }
         // Connect to the chat
-        // this.connection = new WebSocket('ws://localhost:9999/ws/chat/' + sessionID + queryString)
-        this.connection = new WebSocket('wss://wikiric.xyz/ws/chat/' + sessionID + queryString)
+        this.connection = new WebSocket('ws://localhost:9999/ws/chat/' + sessionID + queryString)
+        // this.connection = new WebSocket('wss://wikiric.xyz/ws/chat/' + sessionID + queryString)
         // Websocket OPEN
         this.connection.onopen = async () => {
           this.websocketState = 'OPEN'
@@ -2137,6 +2133,7 @@ export default {
         this.connection.onclose = async () => {
           // if (this.websocketState === 'SWITCHING') {}
         }
+        resolve()
       })
     },
     setUpChatSession: async function () {
@@ -2151,6 +2148,7 @@ export default {
         .then(() => this.subscribeFCM(this.connectParams.sessionID, this.connectParams.isSubchat))
         .then(() => {
           this.scrollToBottom()
+          this.checkScroll()
           this.setUpWRTC()
           this.wRTC.doPause()
         })
@@ -2404,20 +2402,24 @@ export default {
         return
       }
       // Handle normal message
-      const messageContent = this.new_message.substring(0, 5000)
-      const encryptedMessage = await this.encryptPayload(messageContent)
+      let messageContent = this.new_message.substring(0, 5000)
+      // Do we need to encrypt the message?
+      if (this.chatroom.crypt) {
+        messageContent = await this.encryptPayload(messageContent)
+        messageContent = '[c:MSG<ENCR]' + messageContent
+      }
       // Pre-Display message
       this.messages.unshift(
         await this.processRawMessage({
           ts: DateTime.now().toISO(),
           usr: this.$store.state.username,
-          msg: '[c:MSG<ENCR]' + encryptedMessage,
+          msg: messageContent,
           isDraft: true
         })
       )
       // Send message to server
       if (this.connection.readyState !== 1) return
-      this.connection.send('[c:MSG<ENCR]' + encryptedMessage)
+      this.connection.send(messageContent)
       // Post-Message Actions
       this.new_message = ''
       this.focusComment(true)
@@ -3820,13 +3822,13 @@ export default {
       const distanceToTop = this.$refs.messages_section.scrollHeight -
         this.$refs.messages_section.clientHeight - distanceToBottom
       // If we're scrolling up, show that we're seeing older messages
-      if (distanceToBottom > 0) {
+      if (distanceToBottom > 100) {
         document.getElementById('scroll_to_bottom').style.opacity = '1'
       } else {
         document.getElementById('scroll_to_bottom').style.opacity = '0'
       }
-      // If we're 100px from the top, start loading new messages
-      if (distanceToTop < 100) {
+      // If we're 200px from the top, start loading new messages
+      if (distanceToTop < 200) {
         if (this.lazyLoadingStatus === 'idle') {
           this.lazyLoadingStatus = 'start'
           this.lazyLoadMessages()
@@ -4022,12 +4024,12 @@ export default {
         return
       }
       const payload = {
-        title: '',
-        description: msg.msg.trim(),
-        knowledgeGUID: this.knowledge.uid,
-        keywords: 'msg message',
+        t: '',
+        desc: msg.msg.trim(),
+        pid: this.knowledge.uid,
+        keys: 'msg message',
         copyContent: '',
-        categories: []
+        cats: []
       }
       // Lesson (teach) or Question (ask)?
       const endpoint = 'teach'
@@ -4654,7 +4656,7 @@ export default {
         for (let i = 0; i < this.mainMembers.length; i++) {
           isActive = activeMap.has(this.mainMembers[i].usr)
           if (this.mainMembers[i].usr !== this.$store.state.username && isActive) {
-            calleeList.push(this.mainMembers[i].usr)
+          calleeList.push(this.mainMembers[i].usr)
           }
         }
       }
@@ -5218,7 +5220,7 @@ export default {
     },
     directCall: function () {
       this.$Worker.execute({
-        act: 'call',
+        action: 'call',
         usernameToCall: this.chatroom.t,
         chatroomGUID: this.chatroom.uid
       })
@@ -5300,7 +5302,7 @@ export default {
                   type = 'subchat_leave'
                 }
                 this.$Worker.execute({
-                  act: 'fwd',
+                  action: 'fwd',
                   usr: this.mainMembers[i].usr,
                   typ: type,
                   msg: JSON.stringify({
@@ -5404,7 +5406,7 @@ export default {
 .serverMessage {
   text-wrap: normal;
   word-wrap: anywhere;
-  @apply dark_bg rounded-r-lg rounded-bl-lg p-3 my-2 text-lg font-bold italic ;
+  @apply surface-variant p-3 my-2 font-bold italic ;
   text-align: center;
 }
 

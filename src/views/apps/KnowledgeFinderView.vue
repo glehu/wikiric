@@ -645,7 +645,7 @@
                   <span>Submit</span>
                 </button>
                 <button v-on:click="isWritingWisdom = false"
-                        class="mr-2 py-2 px-3 hover:dshadow rounded-md"
+                        class="mr-2 py-2 px-3 hover:dshadow rounded-md surface-variant"
                         v-tooltip.top="{
                        content: 'Discard changes'
                      }">
@@ -740,7 +740,7 @@
                 </button>
               </div>
             </div>
-            <div class="w-full mt-1 h-full" id="wisDescriptionEditor" ref="wisDescriptionEditor">
+            <div class="w-full mt-1 h-full no_fmt" id="wisDescriptionEditor" ref="wisDescriptionEditor">
               <textarea type="text" id="wisDescription" v-model="wisDescription"
                         rows="20" class="fmt_input w-full surface py-2 px-3 hidden"></textarea>
             </div>
@@ -764,7 +764,7 @@
                   <span>Submit</span>
                 </button>
                 <button v-on:click="isWritingWisdom = false"
-                        class="mr-2 py-2 px-3 rounded-md hover:dshadow"
+                        class="mr-2 py-2 px-3 rounded-md hover:dshadow surface-variant"
                         v-tooltip.top="{
                        content: 'Discard'
                      }">

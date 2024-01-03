@@ -1,30 +1,51 @@
 <template>
   <div id="clarifier_view_elem"
        class="background w-full h-[calc(100%-50px)] absolute
-              top_nav overflow-x-hidden overflow-y-auto">
-    <div class="wrapper min-h-full w-full">
+              top_nav overflow-y-auto md:overflow-hidden">
+    <div class="flex items-center px-2 h-24 w-full gap-2">
+      <button class="flex items-center justify-center hover:primary
+                     flex-col gap-2 h-20 w-24 fmt_border rounded-md"
+              v-on:click="isAddingFriend = true">
+        <UserPlusIcon class="w-7 h-7"/>
+        <span class="text-sm">
+          Add Friend
+        </span>
+      </button>
+      <button class="flex items-center justify-center hover:primary
+                     flex-col gap-2 h-20 w-24 fmt_border rounded-md"
+              v-on:click="openJoin()">
+        <ArrowRightOnRectangleIcon class="w-7 h-7"/>
+        <span class="text-sm">
+            Join
+          </span>
+      </button>
+      <button class="flex items-center justify-center hover:primary
+                     flex-col gap-2 h-20 w-24 fmt_border rounded-md"
+              v-on:click="openCreate()">
+        <PlusIcon class="w-7 h-7"/>
+        <span class="text-sm">
+            Create
+          </span>
+      </button>
+    </div>
+    <div class="wrapper h-[calc(100%-6rem)] w-full md:grid-cols-3">
       <!-- Active Sessions -->
       <div class="col-span-1 md:col-span-2 xl:h-full">
-        <div class="row flex justify-center items-center xl:h-full">
-          <div class="w-full xl:h-full">
-            <div class="p-2 rounded-lg xl:w-full xl:h-full">
-              <div class="md:mt-0 xl:flex lg:justify-between w-full xl:h-full lg:gap-x-2">
-                <div class="w-full xl:h-full mb-2 p-2 surface rounded-lg">
+        <div class="row flex justify-center items-center md:h-full">
+          <div class="w-full md:h-full">
+            <div class="px-2 rounded-lg md:w-full md:h-full">
+              <div class="md:mt-0 md:flex md:justify-between w-full md:h-full md:gap-x-2">
+                <div class="w-full md:h-full mb-2 p-2 surface rounded-lg
+                            md:overflow-x-hidden md:overflow-y-auto">
                   <div class="m-2">
-                    <div class="flex items-end justify-between mb-4">
+                    <div class="flex items-start justify-between">
                       <h1 class="font-bold text-3xl pointer-events-none">
                         Friends
                       </h1>
-                      <button class="px-2 py-1 rounded-md primary-container hover:primary"
-                              v-on:click="isAddingFriend = true">
-                        <span class="">
-                          Add Friend
-                        </span>
-                      </button>
                     </div>
                   </div>
                   <!-- -->
-                  <div class="m-2 divide-y-2 divide-zinc-600">
+                  <div class="m-2 divide-y-2 divide-zinc-600 mt-4">
                     <template v-if="friends && friends.size > 0">
                       <template v-for="friend in friends.values()" :key="friend">
                         <div class="w-full h-20 flex items-center pt-1 my-1">
@@ -60,8 +81,9 @@
                     </template>
                   </div>
                 </div>
-                <div class="w-full xl:h-full mb-2 p-2 surface rounded-lg">
-                  <div class="pointer-events-none m-2 mb-4">
+                <div class="w-full md:h-full mb-2 p-2 surface rounded-lg
+                            md:overflow-x-hidden md:overflow-y-auto">
+                  <div class="pointer-events-none m-2">
                     <div class="flex items-end justify-between">
                       <h1 class="font-bold text-3xl">
                         Groups
@@ -82,7 +104,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="m-2 flex flex-col gap-y-2">
+                  <div class="m-2 flex flex-col gap-y-2 mt-4">
                     <template v-if="$store.state.clarifierSessions && $store.state.clarifierSessions.length > 0">
                       <template v-for="group in $store.state.clarifierSessions" :key="group">
                         <template v-if="group.type !== 'dm' && group.type !== 'home'">
@@ -94,12 +116,10 @@
                                         flex items-center justify-center"
                                  style="border: 1px solid var(--md-sys-color-outline-variant)"
                                  v-on:click="joinActive(group.id)">
-                              <div class="flex absolute
-                                            w-full h-full overflow-hidden
-                                            items-center justify-center
-                                            brightness-75">
+                              <div class="absolute w-full h-full overflow-hidden
+                                          brightness-75 flex">
                                 <template v-if="group.banner && group.banner !== ''">
-                                  <img class="w-full"
+                                  <img class="object-cover object-center w-full"
                                        v-bind:src="getImg(group.banner,true)"
                                        :alt="getImgAlt(group.t)"/>
                                 </template>
@@ -149,53 +169,58 @@
           </div>
         </div>
       </div>
-      <!-- Join or Create a new Session -->
+    </div>
+  </div>
+  <modal @close="isJoiningOrCreating = false; input_string = ''"
+         v-show="isJoiningOrCreating">
+    <template v-slot:header>
+      <template v-if="isJoining">Join a group</template>
+      <template v-else-if="isCreating">Create a new group</template>
+    </template>
+    <template v-slot:body>
       <div class="mb-4">
         <div class="row flex justify-center items-center">
           <div class="w-full max-w-xl">
-            <div class=" mr-4 p-6 rounded-lg">
-              <div class="md:mt-0">
-                <p class="font-bold mb-2 text-3xl"
-                   style="pointer-events: none">
-                  Join or Add
-                </p>
-                <p style="text-align: justify; text-justify: inter-word; width: 100%; pointer-events: none"
-                   class="">
-                  Enter an invite ID to join an existing group or create your own by typing in a name for it.
-                </p>
-                <input id="input_session"
-                       :ref="'input_session'"
-                       v-model="input_string"
-                       v-on:input="checkInput()"
-                       v-on:keyup="checkInput()"
-                       placeholder="Invite ID or Name..."
-                       class="font-bold px-2 py-1 my-3 surface rounded-lg
-                              w-full text-lg bshadow"
-                       style="border: 1px solid var(--md-sys-color-outline-variant)"
-                       v-on:keyup.enter="joinOrCreate()">
-                <button id="btn_join_session"
-                        :ref="'btn_join_session'"
-                        disabled
-                        class="rounded enabled:primary"
-                        style="max-height: 6ch; height: 6ch"
-                        v-on:click="join()">
-                  <span class="font-bold lead">Join</span>
-                </button>
-                <button id="btn_create_session"
-                        :ref="'btn_create_session'"
-                        disabled
-                        class="rounded enabled:primary"
-                        style="max-height: 6ch; height: 6ch"
-                        v-on:click="create()">
-                  <span class="font-bold lead">Create</span>
-                </button>
-              </div>
-            </div>
+            <p class="mb-2 p-2">
+              <template v-if="isJoining">
+                Enter a valid invite ID to join a group!
+              </template>
+              <template v-else-if="isCreating">
+                Enter a name for your new group to get started!
+              </template>
+            </p>
+            <input id="input_session"
+                   :ref="'input_session'"
+                   v-model="input_string"
+                   v-on:input="checkInput()"
+                   placeholder="Type something!"
+                   class="fmt_input w-full mb-4"
+                   v-on:keyup.enter="joinOrCreate()">
+            <button id="btn_join_session"
+                    :ref="'btn_join_session'"
+                    disabled
+                    class="rounded enabled:primary"
+                    style="max-height: 6ch; height: 6ch"
+                    v-if="isJoining"
+                    v-on:click="join()">
+              <span class="font-bold lead">Join</span>
+            </button>
+            <button id="btn_create_session"
+                    :ref="'btn_create_session'"
+                    disabled
+                    class="rounded enabled:primary"
+                    style="max-height: 6ch; height: 6ch"
+                    v-if="isCreating"
+                    v-on:click="create()">
+              <span class="font-bold lead">Create</span>
+            </button>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
   <modal @close="isAddingFriend = false"
          v-show="isAddingFriend">
     <template v-slot:header>
@@ -204,11 +229,11 @@
     <template v-slot:body>
       <div class="flex flex-col w-full max-w-[300px]">
         <input type="text" v-model="friendName"
-               class="px-2 py-1 medium_bg"
+               class="fmt_input"
                placeholder="Username">
         <textarea v-model="friendMsg"
                   name="frequestMsg" id="frequestMsg" rows="3"
-                  class="my-1 medium_bg px-2 py-1"
+                  class="my-1 fmt_input"
                   placeholder="Message (optional)"></textarea>
         <button class="btn_bg_primary mt-4"
                 v-on:click="sendFriendRequest()">
@@ -225,10 +250,22 @@
 import Wikiricrypt from '@/libs/wikiricrypt'
 import modal from '../../components/Modal.vue'
 
+import {
+  ArrowRightOnRectangleIcon
+} from '@heroicons/vue/24/solid'
+
+import {
+  PlusIcon,
+  UserPlusIcon
+} from '@heroicons/vue/24/outline'
+
 export default {
   name: 'WClarifier',
   components: {
-    modal
+    modal,
+    ArrowRightOnRectangleIcon,
+    PlusIcon,
+    UserPlusIcon
   },
   data () {
     return {
@@ -239,6 +276,9 @@ export default {
       friends: new Map(),
       wcrypt: null,
       isAddingFriend: false,
+      isJoiningOrCreating: false,
+      isJoining: false,
+      isCreating: false,
       friendName: '',
       friendMsg: ''
     }
@@ -296,32 +336,36 @@ export default {
       this.$store.commit('removeClarifierSession', session)
     },
     checkInput: function () {
-      const createBtn = document.getElementById('btn_create_session')
-      const joinBtn = document.getElementById('btn_join_session')
-      createBtn.disabled = true
-      if (createBtn.classList.contains('active')) createBtn.classList.remove('active')
-      if (this.input_string.length > 0) {
-        createBtn.disabled = false
-        if (!createBtn.classList.contains('active')) createBtn.classList.add('active')
-        this.join_type = 'create'
-      }
-      /*
-      000000000011111111112222222222333333
-      012345678901234567890123456789012345
-      76f7fdc1-b699-4551-bb39-3719a25f23f3
-       */
-      joinBtn.disabled = true
-      if (joinBtn.classList.contains('active')) joinBtn.classList.remove('active')
-      if ((this.input_string.length === 36) &&
-        (this.input_string.substring(8, 9) === '-') &&
-        (this.input_string.substring(13, 14) === '-') &&
-        (this.input_string.substring(18, 19) === '-') &&
-        (this.input_string.substring(23, 24) === '-')) {
-        joinBtn.disabled = false
-        if (!joinBtn.classList.contains('active')) joinBtn.classList.add('active')
-        this.join_type = 'join'
+      if (this.isJoining) {
+        const joinBtn = document.getElementById('btn_join_session')
+        if (this.input_string.length > 0) {
+          this.join_type = 'create'
+        }
+        /*
+        000000000011111111112222222222333333
+        012345678901234567890123456789012345
+        76f7fdc1-b699-4551-bb39-3719a25f23f3
+         */
+        joinBtn.disabled = true
+        if (joinBtn.classList.contains('active')) joinBtn.classList.remove('active')
+        if ((this.input_string.length === 36) &&
+          (this.input_string.substring(8, 9) === '-') &&
+          (this.input_string.substring(13, 14) === '-') &&
+          (this.input_string.substring(18, 19) === '-') &&
+          (this.input_string.substring(23, 24) === '-')) {
+          joinBtn.disabled = false
+          if (!joinBtn.classList.contains('active')) joinBtn.classList.add('active')
+          this.join_type = 'join'
+        }
+      } else if (this.isCreating) {
+        const createBtn = document.getElementById('btn_create_session')
         createBtn.disabled = true
         if (createBtn.classList.contains('active')) createBtn.classList.remove('active')
+        if (this.input_string.length > 0) {
+          createBtn.disabled = false
+          if (!createBtn.classList.contains('active')) createBtn.classList.add('active')
+          this.join_type = 'create'
+        }
       }
     },
     joinOrCreate: function () {
@@ -516,6 +560,22 @@ export default {
       .catch((err) => {
         console.debug(err.message)
       })
+    },
+    openJoin: function () {
+      this.isJoiningOrCreating = true
+      this.isJoining = true
+      this.isCreating = false
+      setTimeout(() => {
+        this.$refs.input_session.focus()
+      }, 0)
+    },
+    openCreate: function () {
+      this.isJoiningOrCreating = true
+      this.isJoining = false
+      this.isCreating = true
+      setTimeout(() => {
+        this.$refs.input_session.focus()
+      }, 0)
     }
   }
 }
@@ -552,12 +612,6 @@ export default {
 
 #header_margin {
   min-height: 80px
-}
-
-@media only screen and (min-width: 768px) {
-  .wrapper {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 
 .orange-hover:hover {

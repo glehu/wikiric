@@ -343,7 +343,7 @@ const WRTC = {
         peerConnection.isAccepted = true
       }
       this.worker.execute({
-        act: 'fwd',
+        action: 'fwd',
         usr: peerConnection.remoteName,
         typ: 'wRTC',
         msg: JSON.stringify(
@@ -373,7 +373,7 @@ const WRTC = {
       candidate = { candidate: '' }
     }
     this.worker.execute({
-      act: 'fwd',
+      action: 'fwd',
       usr: peerConnection.remoteName,
       typ: 'wRTC',
       msg: JSON.stringify(
@@ -464,7 +464,7 @@ const WRTC = {
         console.log(`%c${peerConnection.localDescription.type}`, this.logStyle, 'created')
       }
       this.worker.execute({
-        act: 'fwd',
+        action: 'fwd',
         usr: peerConnection.remoteName,
         typ: 'wRTC',
         msg: JSON.stringify(

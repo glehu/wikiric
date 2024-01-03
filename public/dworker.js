@@ -4,10 +4,10 @@ let _u = null
 let _t = null
 let _interval = null
 let _interval2 = null
-// const _endpoint = 'http://localhost:9999/'
-// const _wssEndpoint = 'ws://localhost:9999/'
-const _endpoint = 'https://wikiric.xyz/'
-const _wssEndpoint = 'wss://wikiric.xyz/'
+const _endpoint = 'http://localhost:9999/'
+const _wssEndpoint = 'ws://localhost:9999/'
+// const _endpoint = 'https://wikiric.xyz/'
+// const _wssEndpoint = 'wss://wikiric.xyz/'
 let ws = null
 let bc = null
 
@@ -230,7 +230,7 @@ onmessage = function (e) {
         success: false
       })
     }
-  } else if (msg.act === 'fwd') {
+  } else if (msg.action === 'fwd') {
     try {
       // ws.send('[c:FWD]' + JSON.stringify({
       //   username: msg.username,
@@ -238,7 +238,7 @@ onmessage = function (e) {
       //   value: msg.value
       // }))
       ws.send(JSON.stringify({
-        act: '[c:FWD]',
+        action: '[c:FWD]',
         typ: msg.typ,
         msg: msg.msg,
         usr: msg.usr

@@ -4,7 +4,7 @@
       <section class="flex justify-center">
         <div class="container p-3 h-full">
           <div class="justify-center items-center h-full">
-            <div class="bright_card bshadow">
+            <div class="bright_card">
               <div class="p-4 text-center">
                 <div class="md:mt-0">
                   <h2 class="font-bold text-uppercase text-4xl mb-4">
@@ -58,7 +58,7 @@
         <section class="flex justify-center">
           <div id="metamask_registration" class="container h-full p-3">
             <div class="justify-center items-center h-full">
-              <div class="bright_card bshadow">
+              <div class="bright_card">
                 <div class="p-4 text-center">
                   <div class="md:mt-0">
                     <p class="pointer-events-none">Sign in via</p>
@@ -87,7 +87,7 @@
         <section class="flex justify-center">
           <div id="phantom_registration" class="container h-full p-3">
             <div class="justify-center items-center h-full">
-              <div class="bright_card bshadow">
+              <div class="bright_card">
                 <div class="p-4 text-center">
                   <div class="md:mt-0">
                     <p class="pointer-events-none">Sign in via</p>
@@ -285,7 +285,7 @@ export default {
 }
 
 .bright_card {
-  @apply h-full rounded-md surface;
+  @apply h-full rounded-md surface-variant;
   border: 1px solid var(--md-sys-color-outline-variant);
 }
 
