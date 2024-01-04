@@ -2109,8 +2109,8 @@ export default {
           }
         }
         // Connect to the chat
-        this.connection = new WebSocket('ws://localhost:9999/ws/chat/' + sessionID + queryString)
-        // this.connection = new WebSocket('wss://wikiric.xyz/ws/chat/' + sessionID + queryString)
+        // this.connection = new WebSocket('ws://localhost:9999/ws/chat/' + sessionID + queryString)
+        this.connection = new WebSocket('wss://wikiric.xyz/ws/chat/' + sessionID + queryString)
         // Websocket OPEN
         this.connection.onopen = async () => {
           this.websocketState = 'OPEN'

@@ -4,27 +4,27 @@
               top_nav overflow-y-auto md:overflow-hidden">
     <div class="flex items-center px-2 h-24 w-full gap-2">
       <button class="flex items-center justify-center hover:primary
-                     flex-col gap-2 h-20 w-24 fmt_border rounded-md"
-              v-on:click="isAddingFriend = true">
+                     flex-col gap-2 h-20 w-28 fmt_border rounded-md"
+              v-on:click="openFriendRequest()">
         <UserPlusIcon class="w-7 h-7"/>
         <span class="text-sm">
           Add Friend
         </span>
       </button>
       <button class="flex items-center justify-center hover:primary
-                     flex-col gap-2 h-20 w-24 fmt_border rounded-md"
+                     flex-col gap-2 h-20 w-28 fmt_border rounded-md"
               v-on:click="openJoin()">
         <ArrowRightOnRectangleIcon class="w-7 h-7"/>
         <span class="text-sm">
-            Join
+            Join Group
           </span>
       </button>
       <button class="flex items-center justify-center hover:primary
-                     flex-col gap-2 h-20 w-24 fmt_border rounded-md"
+                     flex-col gap-2 h-20 w-28 fmt_border rounded-md"
               v-on:click="openCreate()">
         <PlusIcon class="w-7 h-7"/>
         <span class="text-sm">
-            Create
+            Create Group
           </span>
       </button>
     </div>
@@ -45,14 +45,13 @@
                     </div>
                   </div>
                   <!-- -->
-                  <div class="m-2 divide-y-2 divide-zinc-600 mt-4">
+                  <div class="m-2 mt-4">
                     <template v-if="friends && friends.size > 0">
                       <template v-for="friend in friends.values()" :key="friend">
                         <div class="w-full h-20 flex items-center pt-1 my-1">
                           <div v-on:click="joinActive(friend.chatroom.uid)"
-                               class="w-full h-20 p-2 cursor-pointer surface-variant
-                                    flex items-center
-                                    hover:brightness-125 hover:rounded ">
+                               class="w-full h-20 p-2 cursor-pointer fmt_border
+                                      flex items-center hover:background rounded-md">
                             <div v-show="hasUnread(friend.chatroom.uid)"
                                  class="flex items-center justify-center ml-2 mr-3">
                               <i class="bi bi-chat-quote-fill z-[500] text-orange-500 text-lg"></i>
@@ -60,7 +59,7 @@
                             <div class="w-full">
                               <div class="flex items-center w-full">
                                 <div class="font-bold">
-                                  {{ getDirectChatroomName(friend.chatroom.directMessageUsername) }}
+                                  {{ friend.display }}
                                 </div>
                                 <div class="ml-auto text-sm">
                                   {{ getHumanReadableDateText(friend.ts) }}
@@ -112,9 +111,8 @@
                             <div class="h-full
                                         surface rounded overflow-hidden
                                         hover:background cursor-pointer
-                                        hover:rounded w-full relative
+                                        fmt_border w-full relative
                                         flex items-center justify-center"
-                                 style="border: 1px solid var(--md-sys-color-outline-variant)"
                                  v-on:click="joinActive(group.id)">
                               <div class="absolute w-full h-full overflow-hidden
                                           brightness-75 flex">
@@ -178,10 +176,10 @@
       <template v-else-if="isCreating">Create a new group</template>
     </template>
     <template v-slot:body>
-      <div class="mb-4">
+      <div class="mb-4 p-4">
         <div class="row flex justify-center items-center">
           <div class="w-full max-w-xl">
-            <p class="mb-2 p-2">
+            <p class="mb-4 p-4">
               <template v-if="isJoining">
                 Enter a valid invite ID to join a group!
               </template>
@@ -227,8 +225,9 @@
       Add Friend
     </template>
     <template v-slot:body>
-      <div class="flex flex-col w-full max-w-[300px]">
+      <div class="flex flex-col w-full max-w-[300px] p-4">
         <input type="text" v-model="friendName"
+               ref="frequestUsr"
                class="fmt_input"
                placeholder="Username">
         <textarea v-model="friendMsg"
@@ -390,20 +389,20 @@ export default {
         url: 'chat/private/users/friends'
       })
       .then(async (data) => {
-        // OLD Code ahead
-        if (data.result.thiswillneverwork && data.result && data.result.friends && data.result.friends.length > 0) {
+        if (data.result && data.result.friends && data.result.friends.length > 0) {
           this.friends = new Map()
-          // Iterate over all direct chatrooms
-          for (let i = 0; i < data.result.chatrooms.length; i++) {
-            this.friends.set(data.result.chatrooms[i], {
-              chatroom: data.result.chatrooms[i],
+          // Iterate over all friends and their DM groups
+          for (let i = 0; i < data.result.friends.length; i++) {
+            this.friends.set(data.result.friends[i].chat.uid, {
+              display: data.result.friends[i].friend.name,
+              chatroom: data.result.friends[i],
               msg: '',
               loading: true
             })
             this.processFriend(data, i)
             .then((result) => {
               if (result.chatroom) {
-                this.friends.set(result.chatroom, result)
+                this.friends.set(result.chatroom.uid, result)
               }
             })
           }
@@ -414,43 +413,40 @@ export default {
       .catch((err) => console.debug(err.message))
     },
     processFriend: async function (data, i) {
-      let userId = 'none'
-      // Iterate over all members of a single direct chatroom
-      // We do this to figure out the user ID for decryption
-      for (let j = 0; j < data.result.chatrooms[i].members.length; j++) {
-        const member = JSON.parse(data.result.chatrooms[i].members[j])
-        if (member.usr === this.$store.state.username) {
-          userId = member.id
-          break
-        }
-      }
-      const lastMessage = await this.getLastMessage(data.result.chatrooms[i].uid)
+      const entry = data.result.friends[i]
+      const lastMessage = entry.msg
+      const userId = this.$store.state.username
+      console.log(lastMessage)
       if (lastMessage.usr !== '_server') {
-        const key = await this.$store.getters.getClarifierKeyPair(data.result.chatrooms[i].uid)
+        const key = await this.$store.getters.getClarifierKeyPair(entry.chat.uid)
         if (key != null) {
           try {
             const decryptedMessage = await this.wcrypt.decryptPayload(lastMessage, userId, key)
             return {
-              chatroom: data.result.chatrooms[i],
+              display: entry.friend.name,
+              chatroom: entry.chat,
               msg: lastMessage.usr + ': ' + decryptedMessage.substring(0, 100).trim(),
               ts: new Date(lastMessage.ts)
             }
           } catch (e) {
             return {
-              chatroom: data.result.chatrooms[i],
+              display: entry.friend.name,
+              chatroom: entry.chat,
               msg: '',
               ts: new Date(lastMessage.ts)
             }
           }
         } else {
           return {
-            chatroom: data.result.chatrooms[i],
+            display: entry.friend.name,
+            chatroom: entry.chat,
             msg: ''
           }
         }
       } else {
         return {
-          chatroom: data.result.chatrooms[i],
+          display: entry.friend.name,
+          chatroom: entry.chat,
           msg: ''
         }
       }
@@ -481,18 +477,19 @@ export default {
       })
     },
     hasUnread: function (guid) {
-      if (guid === null) {
-        return false
-      }
-      const timestamp = this.$store.getters.getTimestamp(guid)
-      if (timestamp == null) return false
-      const lastMessageTS = timestamp.tsNew
-      if (lastMessageTS == null || lastMessageTS <= 0) {
-        return false
-      }
-      let lastReadTS = timestamp.tsRead
-      if (lastReadTS == null) lastReadTS = 0
-      return lastReadTS < lastMessageTS
+      // if (guid === null) {
+      //   return false
+      // }
+      // const timestamp = this.$store.getters.getTimestamp(guid)
+      // if (timestamp == null) return false
+      // const lastMessageTS = timestamp.tsNew
+      // if (lastMessageTS == null || lastMessageTS <= 0) {
+      //   return false
+      // }
+      // let lastReadTS = timestamp.tsRead
+      // if (lastReadTS == null) lastReadTS = 0
+      // return lastReadTS < lastMessageTS
+      return false
     },
     getHumanReadableDateText: function (date, withTime = false) {
       if (date == null) return ''
@@ -575,6 +572,12 @@ export default {
       this.isCreating = true
       setTimeout(() => {
         this.$refs.input_session.focus()
+      }, 0)
+    },
+    openFriendRequest: function () {
+      this.isAddingFriend = true
+      setTimeout(() => {
+        this.$refs.frequestUsr.focus()
       }, 0)
     }
   }
