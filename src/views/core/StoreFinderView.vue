@@ -647,7 +647,7 @@ export default {
         {
           title: 'Link Copied',
           text: '',
-          type: 'info'
+          type: 'fmt_notify'
         })
     }
   }

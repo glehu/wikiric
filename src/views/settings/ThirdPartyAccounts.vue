@@ -43,7 +43,7 @@ export default {
         {
           title: 'Imgflip Account Updated',
           text: 'Credentials change was submitted.',
-          type: 'info'
+          type: 'fmt_notify'
         })
     }
   }

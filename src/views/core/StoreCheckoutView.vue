@@ -394,7 +394,7 @@ export default {
               {
                 title: 'Order Submitted',
                 text: '',
-                type: 'info'
+                type: 'fmt_notify'
               })
           })
           .then(() => {

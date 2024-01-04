@@ -304,7 +304,8 @@
                 <option value="404">404 Not Found</option>
               </optgroup>
             </select>
-            <template v-if="config.respType === 'message-fixed'">
+            <div v-show="config.respType === 'message-fixed'"
+                 class="flex flex-col w-full gap-y-2">
               <label for="response_content_type" class="text-sm">Content&nbsp;Type:</label>
               <select id="response_content_type" name="content_type"
                       v-model="config.respContentType"
@@ -322,7 +323,7 @@
                           v-model="config.response"
                           class="px-2 py-1 fmt_input hidden"></textarea>
               </div>
-            </template>
+            </div>
           </div>
         </div>
         <button class="btn_bg_primary mt-4 ml-auto min-w-[100px]"
@@ -482,7 +483,7 @@ export default {
           {
             title: 'Settings Adapted',
             text: 'Response message type changed due to request method being changed to GET',
-            type: 'info'
+            type: 'fmt_notify'
           })
       }
     },
@@ -550,9 +551,6 @@ export default {
           if (elem == null) {
             return
           }
-          // this.cm = CodeMirror.fromTextArea(elem, {
-          //   lineNumbers: true
-          // })
           const tabSize = new Compartment()
           const languageConf = new Compartment()
           const autoLanguage = EditorState.transactionExtender.of(tr => {
@@ -594,7 +592,7 @@ export default {
         {
           title: 'Request copied!',
           text: 'CTRL-V to paste.',
-          type: 'info'
+          type: 'fmt_notify'
         })
     },
     copyConfigURL: function (config) {
@@ -603,7 +601,7 @@ export default {
         {
           title: 'URL copied!',
           text: 'CTRL-V to paste.',
-          type: 'info'
+          type: 'fmt_notify'
         })
     },
     handleIncomingRequest: function (request) {

@@ -204,7 +204,8 @@
             <template v-else>
               <div class="w-full p-4">
                 <button class="w-full flex items-center justify-center
-                               btn_bg_primary"
+                               fmt_border rounded m-1
+                               p-1 background hover:primary"
                         v-on:click="directCall()">
                   <PhoneIcon class="on-secondary-container-text
                                     min-w-[20px] min-h-[20px] max-w-[20px]
@@ -261,8 +262,8 @@
                   <div v-else>
                     <template v-if="chatroom.type === 'dm'">
                       <button class="w-full flex lg:hidden items-center justify-center
-                                     border border-zinc-600 rounded ml-6
-                                     p-1 dark_bg hover:darkest_bg"
+                                     fmt_border rounded ml-6
+                                     p-1 background hover:primary"
                               v-on:click="directCall()">
                         <PhoneIcon class="min-w-[20px] min-h-[20px] max-w-[20px] max-h-[20px]"></PhoneIcon>
                       </button>
@@ -384,7 +385,7 @@
                   </div>
                   <div v-if="!isStreamingVideo && (currentSubchat.type === 'screenshare')"
                        style="position: absolute; top: 10px; right: 10px" class="text-end">
-                    <button v-on:click="startCall()"
+                    <button v-on:click="startCall(null)"
                             class="gray-hover px-3 py-2"
                             style="position: relative;
                                margin-left: 20px; margin-top: 10px;
@@ -1400,12 +1401,12 @@
                      v-tooltip.top="{ content: 'Offline' }"></div>
               </template>
             </div>
-            <div class="font-bold ml-3">
+            <div class="font-bold ml-3" style="color: initial">
               <template v-if="usr.active">
-                <p class="">{{ usr.name }}</p>
+                <p class="fmt_text">{{ usr.name }}</p>
               </template>
               <template v-else>
-                <p class="">{{ usr.name }}</p>
+                <p class="fmt_text_inactive">{{ usr.name }}</p>
               </template>
             </div>
           </div>
@@ -1816,11 +1817,16 @@ export default {
     const bc = new BroadcastChannel('connector')
     bc.onmessage = event => {
       console.log(event.data)
-      if (event.data.type === 'online') {
-        if (this.mainMembers.length <= 0) return
-        for (let i = 0; i < this.mainMembers.length; i++) {
-          if (this.mainMembers[i].usr === event.data.srcUsername) {
-            this.mainMembers[i].online = true
+      if (event.data.typ === '[s:ustat]') {
+        if (event.data.act === 'update') {
+          if (this.mainMembers.length <= 0) return
+          for (let i = 0; i < this.mainMembers.length; i++) {
+            if (this.mainMembers[i].usr === event.data.usr) {
+              this.mainMembers[i].online = event.data.msg === 'online'
+              if (event.data.msg === 'offline') {
+                this.mainMembers[i].active = false
+              }
+            }
           }
         }
       } else if (event.data.type === 'fwd:subchat_join') {
@@ -3727,7 +3733,7 @@ export default {
           {
             title: 'Done!',
             text: 'User profile picture updated.',
-            type: 'info'
+            type: 'fmt_notify'
           })
       ))
     },
@@ -4187,7 +4193,7 @@ export default {
               {
                 title: 'Encryption Key Replaced',
                 text: '',
-                type: 'info'
+                type: 'fmt_notify'
               })
           }
         })
@@ -4656,7 +4662,7 @@ export default {
         for (let i = 0; i < this.mainMembers.length; i++) {
           isActive = activeMap.has(this.mainMembers[i].usr)
           if (this.mainMembers[i].usr !== this.$store.state.username && isActive) {
-          calleeList.push(this.mainMembers[i].usr)
+            calleeList.push(this.mainMembers[i].usr)
           }
         }
       }
@@ -5211,7 +5217,7 @@ export default {
           {
             title: 'Request Sent!',
             text: 'Waiting for approval.',
-            type: 'info'
+            type: 'fmt_notify'
           })
       })
       .catch((err) => {

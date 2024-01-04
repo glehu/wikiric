@@ -26,7 +26,7 @@
         </div>
       </template>
     </div>
-    <notifications position="bottom right"/>
+    <notifications position="top right"/>
   </div>
 </template>
 
@@ -65,6 +65,15 @@ export default {
         if (event.data.typ === 'incoming call') {
           this.incomingCall = true
           this.call = event.data
+        } else if (event.data.typ === '[s:ustat]') {
+          if (event.data.msg === 'online') {
+            this.$notify(
+              {
+                title: event.data.usr + ' is online!',
+                text: '',
+                type: 'fmt_notify'
+              })
+          }
         }
       }
 
@@ -81,7 +90,8 @@ export default {
       // Initialize Firebase and its listeners etc.
       try {
         firebase.initializeApp(firebaseConfig)
-        // Broadcast channel to listen to firebase cloud messaging notifications
+        // Broadcast channel to listen to firebase cloud messaging notifications being clicked
+        // We will join the chat group being referenced
         const bc = new BroadcastChannel('dlChannel')
         bc.onmessage = event => {
           console.debug('firebase->dlChannel->connect')
@@ -122,7 +132,7 @@ export default {
               {
                 title: payload.notification.title,
                 text: payload.notification.body,
-                type: 'info',
+                type: 'fmt_notify',
                 duration: 5000
               })
             if (payload.data.dlType === 'clarifier') {

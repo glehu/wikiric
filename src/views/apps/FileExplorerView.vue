@@ -184,7 +184,7 @@ export default {
             {
               title: 'File Deleted',
               text: '',
-              type: 'info'
+              type: 'fmt_notify'
             })
         })
     }

@@ -563,7 +563,7 @@ export default {
           {
             title: 'Canvas cleared!',
             text: '',
-            type: 'info'
+            type: 'fmt_notify'
           })
     },
     inviteUser: async function (remoteId) {
@@ -596,7 +596,7 @@ export default {
             {
               title: 'User joined!',
               text: `${username} is now collaborating with you.`,
-              type: 'info'
+              type: 'fmt_notify'
             })
         // Add data channel and connection
         const dC = this.session.wRTC.getPeerConnection(event.data.remoteId).dataChannel

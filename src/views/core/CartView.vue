@@ -76,7 +76,7 @@ export default {
           {
             title: 'Cart cleared.',
             text: '',
-            type: 'info'
+            type: 'fmt_notify'
           })
         if (this.usageTracker) {
           this.sendUsageData({
@@ -108,7 +108,7 @@ export default {
             {
               title: 'Order #' + data + ' submitted',
               text: 'Thanks for your order.',
-              type: 'info'
+              type: 'fmt_notify'
             })
           )
         this.clearCart(false)

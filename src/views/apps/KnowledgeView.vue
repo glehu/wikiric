@@ -1266,7 +1266,7 @@ export default {
             {
               title: 'Feedback sent to the server.',
               text: 'Thanks!',
-              type: 'info'
+              type: 'fmt_notify'
             })
         })
         .then(() => resolve)
@@ -1281,7 +1281,7 @@ export default {
         {
           title: 'Quick Copy Done!',
           text: 'CTRL-V to paste.',
-          type: 'info'
+          type: 'fmt_notify'
         })
     },
     capitalizeFirstLetter: function ([first, ...rest], locale = navigator.language) {
@@ -1338,7 +1338,7 @@ export default {
             {
               title: 'Wisdom deleted.',
               text: '',
-              type: 'info'
+              type: 'fmt_notify'
             })
           this.$router.back()
         })
@@ -1454,7 +1454,7 @@ export default {
             {
               title: 'Comment submitted.',
               text: 'Thanks for your contribution!',
-              type: 'info'
+              type: 'fmt_notify'
             })
           setTimeout(() => {
             this.inputComment.blur()
@@ -1669,7 +1669,7 @@ export default {
         {
           title: 'Link Copied!',
           text: '',
-          type: 'info'
+          type: 'fmt_notify'
         })
     },
     addToTextArea: function (id, text) {

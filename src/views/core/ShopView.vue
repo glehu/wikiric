@@ -126,7 +126,7 @@ export default {
         {
           title: amount + 'x ' + item.description + ' added to the cart.',
           text: '',
-          type: 'info'
+          type: 'fmt_notify'
         })
       if (this.usageTracker) {
         this.sendUsageData({

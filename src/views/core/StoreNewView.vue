@@ -809,7 +809,7 @@ export default {
         {
           title: copy.amt + 'x ' + copy.t + ' added to the cart!',
           text: '',
-          type: 'info'
+          type: 'fmt_notify'
         })
       if (tmp === 0) {
         this.showCart()

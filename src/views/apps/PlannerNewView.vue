@@ -2500,7 +2500,7 @@ export default {
               {
                 title: 'Success',
                 text: 'Collaborator(s) submitted.',
-                type: 'info'
+                type: 'fmt_notify'
               })
           ))
           .then(() => resolve)

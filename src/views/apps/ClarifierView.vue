@@ -45,13 +45,13 @@
                     </div>
                   </div>
                   <!-- -->
-                  <div class="m-2 mt-4">
+                  <div class="m-2 mt-3">
                     <template v-if="friends && friends.size > 0">
                       <template v-for="friend in friends.values()" :key="friend">
-                        <div class="w-full h-20 flex items-center pt-1 my-1">
+                        <div class="w-full h-20 flex items-center pt-1 my-2">
                           <div v-on:click="joinActive(friend.chatroom.uid)"
                                class="w-full h-20 p-2 cursor-pointer fmt_border
-                                      flex items-center hover:background rounded-md">
+                                      flex items-center hover:background rounded">
                             <div v-show="hasUnread(friend.chatroom.uid)"
                                  class="flex items-center justify-center ml-2 mr-3">
                               <i class="bi bi-chat-quote-fill z-[500] text-orange-500 text-lg"></i>
@@ -107,7 +107,7 @@
                     <template v-if="$store.state.clarifierSessions && $store.state.clarifierSessions.length > 0">
                       <template v-for="group in $store.state.clarifierSessions" :key="group">
                         <template v-if="group.type !== 'dm' && group.type !== 'home'">
-                          <div class="flex items-center h-16">
+                          <div class="flex items-center h-20">
                             <div class="h-full
                                         surface rounded overflow-hidden
                                         hover:background cursor-pointer
@@ -538,7 +538,7 @@ export default {
           {
             title: 'Request Sent!',
             text: 'Waiting for approval.',
-            type: 'info'
+            type: 'fmt_notify'
           })
       })
       .catch((err) => {
