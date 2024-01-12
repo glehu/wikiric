@@ -136,9 +136,9 @@
             <template v-if="wisdom.cats && wisdom.cats.length > 0">
               <template v-for="cat in wisdom.cats" :key="cat">
                 <div v-if="cat != null"
-                     class=" border-[1px] border-zinc-600 flex items-center
-                            py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm darkest_bg">
-                  {{ cat }}
+                     class="fmt_border flex items-center
+                            py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm background">
+                  {{ cat.t }}
                 </div>
               </template>
             </template>
@@ -149,7 +149,7 @@
             </template>
           </div>
           <div class="px-3">
-            <div class=" mb-4 flex items-center">
+            <div class="mb-4 flex items-center">
               <div class="flex items-center gap-x-2">
                 <div class="font-bold pointer-events-none">
                   <template v-if="wisdom.type === 'lesson'">

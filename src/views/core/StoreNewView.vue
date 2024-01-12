@@ -15,11 +15,11 @@
                   <img :src="getImg(store.iurl, true)" alt="?"
                        class="object-contain w-[176px] max-h-[176px] rounded-md">
                 </template>
-                <div class="ml-2 md:ml-4">
-                  <p class="font-bold text-3xl md:text-4xl lg:text-5xl mb-2 ">
+                <div class="ml-2 md:ml-4 flex flex-col justify-end h-full">
+                  <p class="font-bold text-3xl md:text-4xl lg:text-5xl mb-2">
                     {{ store.t }}
                   </p>
-                  <p class="">
+                  <p>
                     {{ store.desc }}
                   </p>
                 </div>
@@ -203,7 +203,7 @@
                               </div>
                             </template>
                             <template v-else>
-                              <div class="flex flex-col rounded relative w-full lg:w-fit">
+                              <div class="flex flex-col rounded relative w-full">
                                 <div class="pb-16 flex justify-center
                                             rounded overflow-hidden relative surface">
                                   <div class="store_image">
@@ -248,15 +248,17 @@
                               </div>
                               <template v-if="item.attr.length > 0">
                                 <div class="m-2">
-                                  <div class="w-fit surface bshadow rounded p-2">
+                                  <div class="fmt_border rounded p-2 w-full">
                                     <table style="margin-bottom: 0 !important;"
-                                           class="divide-y divide-neutral-500">
+                                           class="divide-y divide-neutral-500 w-full">
                                       <template v-for="attribute in item.attr" :key="attribute">
                                         <tr>
-                                          <td><p class="pr-1 ">
-                                            {{ attribute.t }}:
-                                          </p></td>
-                                          <td><p class="px-1 ">
+                                          <td class="flex items-start">
+                                            <p class="pr-1">
+                                              {{ attribute.t }}:
+                                            </p>
+                                          </td>
+                                          <td><p class="px-1">
                                             {{ attribute.sval }}
                                             <br>
                                             <span class="text-xs">
@@ -270,22 +272,18 @@
                                 </div>
                               </template>
                               <template v-if="item.tvars && item.tvars.length > 0">
-                                <p class="w-full px-2 text-sm text-end xl:text-start
-                                         ">
-                                  {{ $t("gen.variations") }}
-                                </p>
                                 <div class="mx-2 flex flex-row flex-wrap
                                             justify-end xl:justify-start
-                                            gap-x-4 gap-y-2 ml-auto xl:ml-0">
+                                            gap-x-4 gap-y-2 ml-auto xl:ml-0 mt-auto">
                                   <div v-for="(variation, index) in item.vars" :key="variation">
                                     <Listbox v-model="item.tvars[index].vars[0]">
                                       <div class="relative mb-1 ml-2">
                                         <ListboxButton
-                                          class="background
+                                          class="surface-variant
                                                  w-full relative cursor-default rounded-lg py-2 pl-3
                                                  min-w-[12rem]
                                                  pr-10 text-left shadow-md focus:outline-none
-                                                 border-b-[1px] border-b-neutral-400
+                                                 fmt_border_bottom
                                                  focus-visible:ring-2
                                                  focus-visible:ring-white
                                                  focus-visible:ring-opacity-75
@@ -352,7 +350,7 @@
                                   </div>
                                 </div>
                               </template>
-                              <div class="flex items-center gap-x-2 m-2 mt-auto h-14 ml-auto xl:ml-2">
+                              <div class="flex items-center gap-x-2 m-2 bottom-0 h-14 ml-auto xl:ml-2">
                                 <input type="number" min="0" v-model="item.amt"
                                        class="surface w-[5rem] h-full
                                               px-1 py-1 rounded
@@ -1008,8 +1006,8 @@ export default {
   max-w-[16rem] max-h-[16rem]
   lg:min-w-[14rem] lg:min-h-[14rem]
   lg:max-w-[14rem] lg:max-h-[14rem]
-  flex items-center justify-center overflow-hidden
-  p-1;
+  overflow-hidden
+  m-1 object-contain;
 }
 
 </style>

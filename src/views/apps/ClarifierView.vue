@@ -124,10 +124,11 @@
                               </div>
                               <template v-if="group.img && group.img !== ''">
                                 <div class="flex items-center p-1 pr-4 h-full">
-                                  <img class="w-[48px] h-[48px] z-10 rounded-lg ml-1"
+                                  <img class="w-[64px] h-[64px] min-w-[64px] min-h-[64px]
+                                              z-10 rounded-lg ml-1"
                                        v-bind:src="getImg(group.img,true)" :alt="getImgAlt(group.title)"/>
-                                  <div class="surface z-10 ml-4 px-1 rounded flex items-center">
-                                    <p class="text-nowrap text-lg font-bold">
+                                  <div class="backdrop-brightness-50 z-10 ml-4 px-1 rounded flex items-center">
+                                    <p class="text-nowrap text-lg font-bold text-white">
                                       {{ group.title }}
                                     </p>
                                   </div>
@@ -136,16 +137,19 @@
                               <template v-else>
                                 <div class="flex items-center h-full p-1">
                                   <div class="surface-variant flex items-center justify-center
-                                              w-[48px] h-[48px] z-10 rounded-lg ml-1">
+                                              w-[64px] h-[64px] min-w-[64px] min-h-[64px]
+                                              z-10 rounded-lg ml-1">
                                     {{ getImgAlt(group.title) }}
                                   </div>
-                                  <p class="text-nowrap z-10 text-xl font-bold
-                                            rounded ml-4 px-2">
-                                    {{ group.title }}
-                                  </p>
+                                  <div class="backdrop-brightness-50 z-10 ml-4 px-1 rounded flex items-center">
+                                    <p class="text-nowrap text-lg font-bold text-white">
+                                      {{ group.title }}
+                                    </p>
+                                  </div>
                                 </div>
                               </template>
-                              <i class="bi bi-shield-lock z-10 surface px-1 py-0.5 rounded"
+                              <i class="bi bi-shield-lock z-10 backdrop-brightness-50
+                                        px-1 py-0.5 rounded text-white"
                                  title="End-to-End Encrypted Group"
                                  style="margin-left: auto; margin-right: 8px"></i>
                             </div>
@@ -225,19 +229,31 @@
       Add Friend
     </template>
     <template v-slot:body>
-      <div class="flex flex-col w-full max-w-[300px] p-4">
-        <input type="text" v-model="friendName"
-               ref="frequestUsr"
-               class="fmt_input"
-               placeholder="Username">
-        <textarea v-model="friendMsg"
-                  name="frequestMsg" id="frequestMsg" rows="3"
-                  class="my-1 fmt_input"
-                  placeholder="Message (optional)"></textarea>
-        <button class="btn_bg_primary mt-4"
-                v-on:click="sendFriendRequest()">
-          <span class="">Send Request</span>
-        </button>
+      <div class="mb-4 p-4">
+        <div class="row flex justify-center items-center">
+          <div class="w-full max-w-xl">
+            <button class="fmt_button flex items-center gap-x-1"
+                    v-on:click="copyUsername()">
+              <ClipboardIcon class="w-6 h-6"/>
+              <span class="p-1">Copy Username ({{ $store.state.username }})</span>
+            </button>
+            <p class="mb-4 p-4">
+              Enter your friend's username to send an invite!
+            </p>
+            <input type="text" v-model="friendName"
+                   ref="frequestUsr"
+                   class="fmt_input w-full"
+                   placeholder="Username">
+            <textarea v-model="friendMsg"
+                      name="frequestMsg" id="frequestMsg" rows="3"
+                      class="my-1 fmt_input w-full"
+                      placeholder="Message (optional)"></textarea>
+            <button class="btn_bg_primary mt-4"
+                    v-on:click="sendFriendRequest()">
+              <span class="">Send Request</span>
+            </button>
+          </div>
+        </div>
       </div>
     </template>
     <template v-slot:footer>
@@ -255,7 +271,8 @@ import {
 
 import {
   PlusIcon,
-  UserPlusIcon
+  UserPlusIcon,
+  ClipboardIcon
 } from '@heroicons/vue/24/outline'
 
 export default {
@@ -264,7 +281,8 @@ export default {
     modal,
     ArrowRightOnRectangleIcon,
     PlusIcon,
-    UserPlusIcon
+    UserPlusIcon,
+    ClipboardIcon
   },
   data () {
     return {
@@ -579,6 +597,15 @@ export default {
       setTimeout(() => {
         this.$refs.frequestUsr.focus()
       }, 0)
+    },
+    copyUsername: function () {
+      navigator.clipboard.writeText(this.$store.state.username)
+      this.$notify(
+        {
+          title: 'Username Copied!',
+          text: '',
+          type: 'fmt_notify'
+        })
     }
   }
 }

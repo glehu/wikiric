@@ -52,14 +52,13 @@
                         <i class="bi bi-plus lead orange-hover" style="font-size: 150%"></i>
                       </button>
                     </div>
-                    <div class="pb-2 flex items-center w-full">
+                    <div class="py-2 flex items-center w-full">
                       <div class="overflow-x-hidden overflow-y-auto pb-2 w-full">
                         <template v-if="knowledge.cats && knowledge.cats.length > 0">
-                          <template v-for="category in knowledge.categories" :key="category">
-                            <div
-                              class="kf_category">
-                              <p>{{ category.category.replace(' ', '&nbsp;') }}</p>
-                              <template v-if="category.count > 0">
+                          <template v-for="category in knowledge.cats" :key="category">
+                            <div class="kf_category">
+                              <p>{{ category.t.replace(' ', '&nbsp;') }}</p>
+                              <template v-if="category.count && category.count > 0">
                                 <p class="ml-auto">{{ category.count }}</p>
                               </template>
                             </div>
@@ -354,11 +353,11 @@
                                   </ClipboardIcon>
                                 </template>
                                 <template v-for="cat in result.result.cats" :key="cat">
-                                  <div v-if="cat.category != null"
-                                       class="border-[1px] border-zinc-600 flex items-center
+                                  <div v-if="cat.t != null"
+                                       class="fmt_border flex items-center
                                               py-0.5 px-1 rounded mr-1 mb-1
-                                              pointer-events-none text-sm darkest_bg">
-                                    {{ cat }}
+                                              pointer-events-none text-sm background">
+                                    {{ cat.t }}
                                   </div>
                                 </template>
                               </div>
@@ -671,7 +670,7 @@
                     >
                       <template v-if="wisCategories.length > 0">
                         <div class="block truncate font-bold">
-                          <p>{{ wisCategories.map((cat) => cat.category).join(', ') }}</p>
+                          <p>{{ wisCategories.map((cat) => cat.t).join(', ') }}</p>
                         </div>
                       </template>
                       <template v-else>
@@ -691,7 +690,7 @@
                       >
                         <ListboxOption
                           v-slot="{ active, selected }"
-                          v-for="cat in knowledge.categories"
+                          v-for="cat in knowledge.cats"
                           :key="cat"
                           :value="cat"
                           as="template"
@@ -701,7 +700,7 @@
                                   'relative cursor-pointer select-none py-2 pl-10 pr-4' ]">
                             <div
                               :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
-                              <p>{{ cat.category }}</p>
+                              <p>{{ cat.t }}</p>
                             </div>
                             <div
                               v-if="selected"
@@ -975,6 +974,8 @@ export default {
   },
   data () {
     return {
+      sourceID: '',
+      params: null,
       chatGUID: '',
       source: '',
       knowledgeExists: true,
@@ -1061,6 +1062,25 @@ export default {
       // Focus search field
       const input = document.getElementById('search-field')
       if (input) input.focus()
+      await this.setupChatAndKnowledge()
+      // Did we already search for something?
+      const queryText = params.query
+      if (queryText != null) {
+        this.queryText = queryText
+        await this.searchWisdom()
+      } else {
+        await this.getRecentKeywords()
+      }
+      this.getTopContributors(this.sourceID)
+      this.getRecentCategories()
+      this.getRecentQuestions()
+      this.getProcesses('.')
+    },
+    setupChatAndKnowledge: async function () {
+      // Get URL parameters
+      const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop)
+      })
       // Whose knowledge are we trying to see? Return if there is no source
       let fromChat = false
       let srcGUID = this.srcguid
@@ -1078,22 +1098,11 @@ export default {
         srcGUID = params.kguid
         if (!srcGUID) return
       }
+      this.sourceID = srcGUID
       const knowledge = await this.getKnowledge(srcGUID, fromChat)
       if (knowledge != null) {
         this.knowledge = knowledge
       }
-      // Did we already search for something?
-      const queryText = params.query
-      if (queryText != null) {
-        this.queryText = queryText
-        await this.searchWisdom()
-      } else {
-        await this.getRecentKeywords()
-      }
-      this.getTopContributors(srcGUID)
-      this.getRecentCategories()
-      this.getRecentQuestions()
-      this.getProcesses('.')
     },
     getClarifierChatroom: async function (sessionID) {
       if (!sessionID) return
@@ -1153,23 +1162,22 @@ export default {
     },
     addCategory: async function () {
       const payload = {
-        action: 'add',
-        category: this.newCategory
+        t: this.newCategory
       }
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/edit/categories/' + this.knowledge.uid,
+          url: 'knowledge/private/cats/mod/' + this.knowledge.uid,
           body: JSON.stringify(payload)
         })
         .then(() => {
           this.newCategory = ''
           this.knowledgeExists = true
           this.isAddingCategory = false
-          this.getKnowledge(this.srcguid)
+          this.setupChatAndKnowledge()
         })
-        .then(() => resolve)
+        .then(() => resolve())
         .catch((err) => console.debug(err.message))
       })
     },
@@ -1245,6 +1253,10 @@ export default {
             tmpNoResults = false
             this.addResults(parsedData.boxes, 'box', questionsOnly)
           }
+          if (parsedData.misc && parsedData.misc.length > 0) {
+            tmpNoResults = false
+            this.addResults(parsedData.misc, 'misc', questionsOnly)
+          }
           if (!questionsOnly) this.noResults = tmpNoResults
         })
         .then(() => resolve())
@@ -1317,7 +1329,7 @@ export default {
     createLesson: async function () {
       const categories = []
       for (let i = 0; i < this.wisCategories.length; i++) {
-        categories.push(JSON.stringify(this.wisCategories[i]))
+        categories.push(this.wisCategories[i])
       }
       let keywordSuffix = ''
       if (this.isWritingQuestion && !this.wisKeywords.includes('question')) {
@@ -1931,7 +1943,8 @@ export default {
 }
 
 .kf_category {
-  @apply font-bold text-xs bg-black bg-opacity-40 cursor-default mb-1 flex items-center text-center px-3 rounded-full hover:border-gray-100 h-8;
+  @apply font-bold text-xs background cursor-default
+  mb-1 flex items-center text-center px-3 rounded-md h-8;
 }
 
 .result {

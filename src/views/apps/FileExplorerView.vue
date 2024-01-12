@@ -20,7 +20,7 @@
       <div class="h-[calc(100%-50px)] w-full flex flex-col relative gap-2
                   overflow-x-hidden overflow-y-auto p-2 background">
         <template v-for="snippet in snippets" :key="snippet.uid">
-          <template v-if="query === '' || snippet.t.toLowerCase().includes(query)">
+          <template v-if="query === '' || queryValid(snippet)">
             <div class="w-full h-fit relative file_outer pr-2">
               <div class="error file_download absolute top-2 right-4 rounded p-2 cursor-pointer"
                    style="border: 1px solid var(--md-sys-color-outline-variant)"
@@ -46,11 +46,17 @@
                       Your browser does not support playing audio.
                     </audio>
                   </template>
-                  <p class="font-bold text-sm mb-1">{{ snippet.t }}</p>
-                  <div class="flex gap-x-2 items-center">
+                  <p class="font-bold text-sm my-1">{{ snippet.t }}</p>
+                  <div class="flex gap-x-2 items-center my-1">
                     <FolderArrowDownIcon class="h-6 w-6"></FolderArrowDownIcon>
                     <p class="text-sm">{{ snippet.mb }} MB</p>
                   </div>
+                  <template v-if="snippet.emote">
+                    <div class="flex gap-x-2 items-center my-1">
+                      <FaceSmileIcon class="h-6 w-6"></FaceSmileIcon>
+                      <p class="text-sm">{{ snippet.ph }}</p>
+                    </div>
+                  </template>
                   <p class="font-bold text-xs text-end">
                     {{ getHumanReadableDateText(snippet.ts) }}
                   </p>
@@ -70,7 +76,7 @@
 </template>
 
 <script>
-import { FolderArrowDownIcon, TrashIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+import { FolderArrowDownIcon, TrashIcon, XMarkIcon, FaceSmileIcon } from '@heroicons/vue/24/outline'
 import { DateTime } from 'luxon'
 
 export default {
@@ -84,7 +90,8 @@ export default {
   components: {
     XMarkIcon,
     FolderArrowDownIcon,
-    TrashIcon
+    TrashIcon,
+    FaceSmileIcon
   },
   data () {
     return {
@@ -127,9 +134,13 @@ export default {
           this.snippets = data.result.files
           for (let i = 0; i < this.snippets.length; i++) {
             this.snippets[i].pth = this.$store.state.serverIP + '/' + this.snippets[i].pth
+            if (this.snippets[i].type === 'emote') {
+              this.snippets[i].emote = true
+              this.snippets[i].ph = ':' + this.snippets[i].t.split('.')[0] + ':'
+            }
           }
         })
-          .then(() => resolve())
+        .then(() => resolve())
       })
     },
     getHumanReadableDateText: function (date, withTime = true) {
@@ -178,15 +189,23 @@ export default {
         method: 'get',
         url: 'files/private/delete/' + guid
       })
-        .then(() => {
-          this.getSnippets()
-          this.$notify(
-            {
-              title: 'File Deleted',
-              text: '',
-              type: 'fmt_notify'
-            })
-        })
+      .then(() => {
+        this.getSnippets()
+        this.$notify(
+          {
+            title: 'File Deleted',
+            text: '',
+            type: 'fmt_notify'
+          })
+      })
+    },
+    queryValid (snippet) {
+      let valid = false
+      valid = snippet.t.toLowerCase().includes(this.query)
+      if (!valid && snippet.ph != null) {
+        valid = snippet.ph.toLowerCase().includes(this.query)
+      }
+      return valid
     }
   }
 }

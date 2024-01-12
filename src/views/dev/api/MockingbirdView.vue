@@ -87,8 +87,8 @@
                    content: 'Incoming requests will be shown below'
                  }">
               <div class="relative flex items-center justify-center w-fit">
+                <div class="absolute h-3 w-3 rounded-full tertiary animate-ping"></div>
                 <div class="absolute h-3 w-3 rounded-full primary-light"></div>
-                <div class="absolute h-3 w-3 rounded-full primary-light animate-ping"></div>
               </div>
               <p class="text-sm">Recording</p>
             </div>

@@ -627,6 +627,15 @@
 
     .markedView img {
         max-width: clamp(200px, 100%, 36rem);
+        object-fit: contain;
+        display: inline-block;
+    }
+
+    .markedView.big_img img {
+        max-height: 450px;
+        max-width: 100%;
+        width: 100%;
+        object-fit: contain;
     }
 
     .markedView ul {
@@ -687,7 +696,7 @@
     }
 
     .markedView code {
-        @apply py-0.5 px-1 rounded-md fmt_border my-2;
+        @apply py-0.5 px-1 rounded-md fmt_border my-2 text-sm;
     }
 
     hr {
