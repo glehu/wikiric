@@ -38,17 +38,6 @@
                 <p class="text-sm font-bold">{{ post.name }}</p>
                 <p class="text-xs">{{ getHumanReadableDateText(post.result.ts, true) }}</p>
               </div>
-              <div v-if="post.result.cats.length > 0"
-                   class="flex gap-2 mt-1 mb-2 mx-2">
-                <template v-for="cat in post.result.cats" :key="cat">
-                  <div v-if="cat.t != null"
-                       class="fmt_border flex items-center
-                              py-0.5 px-1 rounded
-                              pointer-events-none text-sm background">
-                    {{ cat.t }}
-                  </div>
-                </template>
-              </div>
               <div class="px-2 pt-2 surface md:rounded-t-md">
                 <div v-if="post.result.views && post.result.views > 0"
                      class="flex items-center p-1">
@@ -76,6 +65,16 @@
                 </template>
               </div>
               <div class="post">
+                <div v-if="post.result.cats.length > 0"
+                     class="flex gap-2 mb-2">
+                  <template v-for="cat in post.result.cats" :key="cat">
+                    <div v-if="cat.t != null"
+                         class="wisdomCat"
+                         :style="{borderColor: cat.hex}">
+                      {{ cat.t }}
+                    </div>
+                  </template>
+                </div>
                 <p class="text-2xl mb-2 font-bold">{{ post.result.t }}</p>
                 <template v-if="post.result.desc">
                   <Markdown class="markedView big_img break-words"
@@ -297,21 +296,24 @@
                     leave-from-class="opacity-100"
                     leave-to-class="opacity-0">
                     <ListboxOptions
-                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md surface py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                    >
+                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md surface
+                               py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5
+                               focus:outline-none sm:text-sm z-50">
                       <ListboxOption
                         v-slot="{ active, selected }"
                         v-for="cat in knowledge.cats"
                         :key="cat"
                         :value="cat"
-                        as="template"
-                      >
+                        as="template">
                         <li
                           :class="[ active ? 'primary-container' : '',
                                   'relative cursor-pointer select-none py-2 pl-10 pr-4' ]">
                           <div
                             :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
-                            <p>{{ cat.t }}</p>
+                            <p class="border-l-8 pl-2 rounded-l-md"
+                               :style="{borderColor: cat.hex}">
+                              {{ cat.t }}
+                            </p>
                           </div>
                           <div
                             v-if="selected"
@@ -1104,4 +1106,12 @@ export default {
 .sidebar_button:hover {
   @apply primary;
 }
+
+.wisdomCat {
+  @apply fmt_border flex items-center
+  py-0.5 px-1 rounded mr-1 mb-1
+  pointer-events-none text-sm background
+  border-l-8;
+}
+
 </style>

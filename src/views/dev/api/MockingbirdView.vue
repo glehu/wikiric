@@ -104,15 +104,16 @@
               </template>
             </div>
           </div>
-          <div class="relative w-full overflow-hidden my-2">
+          <div v-show="isActive"
+               class="relative w-full overflow-hidden my-2">
             <canvas id="chart_canvas"></canvas>
           </div>
-          <div class="relative w-full flex items-start gap-2">
+          <div v-show="isActive"
+               class="relative w-full flex items-start gap-2">
             <div class="relative w-full max-w-xs overflow-hidden my-2">
               <canvas id="chart_canvas_methods"></canvas>
             </div>
-            <div v-if="isActive"
-                 class="w-full m-1 max-h-80 overflow-y-auto">
+            <div class="w-full m-1 max-h-80 overflow-y-auto">
               <table class="w-full fmt_border surface-variant">
                 <tr class="sticky top-0">
                   <th>
@@ -133,18 +134,18 @@
               </table>
             </div>
           </div>
+          <div class="flex gap-2 my-2 items-center">
+            <input type="text" class="fmt_input" placeholder="Search Requests..."
+                   v-model="searchTextRequests">
+            <button v-on:click="searchTextRequests = ''" class="fmt_input">
+              <span class="text-sm">Reset</span>
+            </button>
+            <label for="max_requests" class="text-sm">Max Requests:</label>
+            <input type="text" v-model="maxRequests"
+                   id="max_requests"
+                   class="px-2 py-1 fmt_input w-24">
+          </div>
           <template v-if="requests && requests.length > 0">
-            <div class="flex gap-2 my-2 items-center">
-              <input type="text" class="fmt_input" placeholder="Search Requests..."
-                     v-model="searchTextRequests">
-              <button v-on:click="searchTextRequests = ''" class="fmt_input">
-                <span class="text-sm">Reset</span>
-              </button>
-              <label for="max_requests" class="text-sm">Max Requests:</label>
-              <input type="text" v-model="maxRequests"
-                     id="max_requests"
-                     class="px-2 py-1 fmt_input w-24">
-            </div>
             <div class="flex flex-col gap-2">
               <template v-for="request in requests" :key="request">
                 <div v-if="searchTextRequests === '' || requestSearchValid(request)"

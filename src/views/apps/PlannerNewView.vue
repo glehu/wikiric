@@ -14,7 +14,7 @@
               <div class="h-full mr-2 px-1 rounded-xl">
                 <i class="sb_link_icon bi bi-x-square text-xl"></i>
               </div>
-              <div class="font-bold">
+              <div class="font-bold text-sm">
                 Exit
               </div>
             </div>
@@ -24,7 +24,7 @@
               <div class="h-full mr-2 px-1 rounded-xl">
                 <i class="sb_link_icon bi bi-caret-left text-xl"></i>
               </div>
-              <div class="font-bold">
+              <div class="font-bold text-sm">
                 Collapse
               </div>
             </div>
@@ -37,56 +37,46 @@
         </div>
       </div>
       <div class="w-full h-full overflow-hidden lg:p-2">
-        <div class="flex m-2 h-[42px] gap-xl-4
-                    background rounded-md w-fit"
+        <div class="flex m-2 h-[42px] gap-xl-4 pl-2 pr-4
+                    background rounded-md w-full overflow-x-auto"
              style="border: 1px solid var(--md-sys-color-outline-variant);">
-          <div class="px-2 flex items-center cursor-pointer hover:primary rounded-md"
+          <div class="p-1 flex items-center cursor-pointer hover:primary rounded-md"
                v-on:click="$router.back()">
-            <div class="h-full mr-3 px-1 rounded-xl flex items-center">
-              <i class="sb_link_icon bi bi-x-square text-xl"></i>
-            </div>
-            <div class="font-bold">
+            <ArrowLeftIcon class="h-6 w-6"></ArrowLeftIcon>
+            <div class="font-bold text-sm mx-2">
               <p>Exit</p>
             </div>
           </div>
-          <div class="px-2 flex items-center cursor-pointer hover:primary p-2 rounded-md"
+          <div class="p-1 flex items-center cursor-pointer hover:primary rounded-md"
                v-on:click="toggleSidebar()">
-            <div class="h-full mr-2 px-1 rounded-xl">
-              <CalendarDaysIcon class="h-6 w-6"></CalendarDaysIcon>
-            </div>
-            <div class="font-bold">
+            <CalendarDaysIcon class="h-6 w-6"></CalendarDaysIcon>
+            <div class="font-bold text-sm mx-2">
               <p>Calendar</p>
             </div>
           </div>
-          <div class="px-2 flex items-center cursor-pointer hover:primary p-2 rounded-md"
+          <div class="p-1 flex items-center cursor-pointer hover:primary rounded-md"
                v-on:click="getBoxes()">
-            <div class="h-full mr-2 px-1 rounded-xl">
-              <ArrowPathIcon class="h-6 w-6"></ArrowPathIcon>
-            </div>
-            <div class="font-bold">
+            <ArrowPathIcon class="h-6 w-6"></ArrowPathIcon>
+            <div class="font-bold text-sm mx-2">
               <p>Reload</p>
             </div>
           </div>
-          <div class="px-2 flex items-center cursor-pointer hover:primary p-2 rounded-md"
+          <div class="p-1 flex items-center cursor-pointer hover:primary rounded-md"
                v-on:click="openSearch()">
-            <div class="h-full mr-2 px-1 rounded-xl">
-              <FunnelIcon class="h-6 w-6"></FunnelIcon>
-            </div>
-            <div class="font-bold">
+            <FunnelIcon class="h-6 w-6"></FunnelIcon>
+            <div class="font-bold text-sm mx-2">
               <p>Filter</p>
             </div>
           </div>
-          <div class="px-2 flex items-center cursor-pointer hover:primary p-2 rounded-md"
+          <div class="p-1 flex items-center cursor-pointer hover:primary rounded-md"
                v-on:click="isListView = !isListView">
-            <div class="h-full mr-2 px-1 rounded-xl">
-              <template v-if="!isListView">
-                <ListBulletIcon class="h-6 w-6"></ListBulletIcon>
-              </template>
-              <template v-else>
-                <ViewColumnsIcon class="h-6 w-6"></ViewColumnsIcon>
-              </template>
-            </div>
-            <div class="font-bold">
+            <template v-if="!isListView">
+              <ListBulletIcon class="h-6 w-6"></ListBulletIcon>
+            </template>
+            <template v-else>
+              <ViewColumnsIcon class="h-6 w-6"></ViewColumnsIcon>
+            </template>
+            <div class="font-bold text-sm mx-2">
               <template v-if="!isListView">
                 <p>List</p>
               </template>
@@ -96,10 +86,16 @@
             </div>
           </div>
           <div class="pl-4 ml-4 border-l-[2px] border-l-neutral-500"></div>
-          <div class="flex items-center cursor-pointer hover:primary rounded-md p-2"
+          <div class="p-1 flex items-center cursor-pointer hover:primary rounded-md"
                v-on:click="getBoxes(false, true)">
-            <input type="checkbox" id="input_show_unfinished" ref="input_show_unfinished" class="mr-2 cursor-pointer">
-            <label for="input_show_unfinished" class="font-bold cursor-pointer">Show All</label>
+            <input type="checkbox"
+                   id="input_show_unfinished"
+                   ref="input_show_unfinished"
+                   class="mr-2 cursor-pointer">
+            <label for="input_show_unfinished"
+                   class="font-bold text-sm cursor-pointer">
+              All
+            </label>
           </div>
         </div>
         <template v-if="!isListView">
@@ -220,13 +216,13 @@
                                   </div>
                                 </div>
                               </template>
-                              <template v-if="element.categories">
+                              <template v-if="element.cats">
                                 <div class="flex flex-wrap mb-2 items-center w-full overflow-x-hidden">
-                                  <template v-for="cat in element.categories" :key="cat">
-                                    <div v-if="JSON.parse(cat).category != null"
-                                         class="border-[1px] border-zinc-600 flex items-center
-                                                py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm surface">
-                                      {{ JSON.parse(cat).category }}
+                                  <template v-for="cat in element.cats" :key="cat">
+                                    <div v-if="cat.t != null"
+                                         class="wisdomCat"
+                                         :style="{borderColor: cat.hex}">
+                                      {{ cat.t }}
                                     </div>
                                   </template>
                                 </div>
@@ -455,7 +451,7 @@
                               placeholder="Description"
                               v-on:keydown="newTaskKeyUp(box.box, 'taskname_' + box.box.uid)"
                               v-on:keyup="auto_grow('taskname_' + box.box.uid + '_desc')"></textarea>
-                    <Listbox v-model="newTask.categories" multiple id="newtaskcategories">
+                    <Listbox v-model="newTask.cats" multiple id="newtaskcategories">
                       <div class="relative mt-1">
                         <ListboxButton
                           :id="'taskname_' + box.box.uid + '_lbox'"
@@ -467,9 +463,9 @@
                                  focus-visible:ring-offset-2
                                  focus-visible:ring-offset-orange-300 sm:text-sm"
                         >
-                          <template v-if="newTask.categories.length > 0">
+                          <template v-if="newTask.cats.length > 0">
                             <div class="block truncate font-bold">
-                              {{ newTask.categories.map((cat) => cat.category).join(', ') }}
+                              {{ newTask.cats.map((cat) => cat.t).join(', ') }}
                             </div>
                           </template>
                           <template v-else>
@@ -485,21 +481,24 @@
                           leave-from-class="opacity-100"
                           leave-to-class="opacity-0">
                           <ListboxOptions
-                            class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md dark_bg py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                          >
+                            class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md surface
+                               py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5
+                               focus:outline-none sm:text-sm z-50">
                             <ListboxOption
                               v-slot="{ active, selected }"
-                              v-for="cat in knowledge.categories"
+                              v-for="cat in knowledge.cats"
                               :key="cat"
                               :value="cat"
-                              as="template"
-                            >
+                              as="template">
                               <li
-                                :class="[ active ? 'bg-gray-700' : '',
-                                  'relative cursor-pointer select-none py-2 pl-10 pr-4 ' ]">
+                                :class="[ active ? 'primary-container' : '',
+                                  'relative cursor-pointer select-none py-2 pl-10 pr-4' ]">
                                 <div
                                   :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
-                                  {{ cat.category }}
+                                  <p class="border-l-8 pl-2 rounded-l-md"
+                                     :style="{borderColor: cat.hex}">
+                                    {{ cat.t }}
+                                  </p>
                                 </div>
                                 <div
                                   v-if="selected"
@@ -592,14 +591,14 @@
                           {{ task.desc }}
                         </p>
                       </td>
-                      <template v-if="task.categories">
+                      <template v-if="task.cats">
                         <td class="p-2">
                           <div class="flex flex-wrap items-center">
-                            <template v-for="cat in task.categories" :key="cat">
-                              <div v-if="JSON.parse(cat).category != null"
-                                   class="border-[1px] border-zinc-600 flex items-center
-                                          py-0.5 px-1 rounded mr-1 mb-1 pointer-events-none text-sm surface">
-                                <span>{{ JSON.parse(cat).category }}</span>
+                            <template v-for="cat in task.cats" :key="cat">
+                              <div v-if="cat.t != null"
+                                   class="wisdomCat"
+                                   :style="{borderColor: cat.hex}">
+                                <span>{{ cat.t }}</span>
                               </div>
                             </template>
                           </div>
@@ -708,9 +707,7 @@
   <modal @close="isShowingTask = false; sharing.collaborators = []"
          v-show="isShowingTask">
     <template v-slot:header>
-      <div class="h-4 flex items-center text-xs">
-        <p class="mr-1">{{ showingTask.uid }}</p>
-        <i class="bi bi-dot mr-1"></i>
+      <div class="h-4 flex items-center text-sm">
         <p class="mr-1">
           {{ new Date(showingTask.ts).toLocaleString('de-DE').replace(' ', '&nbsp;') }}
         </p>
@@ -723,14 +720,13 @@
         <div class="w-[calc(100%-50px)] sm:w-[calc(100%-100px)] h-full mr-1"
              v-if="!isShowingTaskHistory">
           <div class="w-full surface p-2 rounded bshadow">
-            <template v-if="showingTask.categories && showingTask.categories.length > 0">
+            <template v-if="showingTask.cats && showingTask.cats.length > 0">
               <div class="flex mb-2 items-center">
-                <template v-for="cat in showingTask.categories" :key="cat">
-                  <div v-if="JSON.parse(cat).category != null"
-                       class="border-[1px] border-zinc-600
-                              flex items-center py-0.5 px-1 rounded mr-1
-                              mb-1 pointer-events-none text-sm surface-variant">
-                    {{ JSON.parse(cat).category }}
+                <template v-for="cat in showingTask.cats" :key="cat">
+                  <div v-if="cat.t != null"
+                       class="wisdomCat"
+                       :style="{borderColor: cat.hex}">
+                    {{ cat.t }}
                   </div>
                 </template>
               </div>
@@ -1221,7 +1217,8 @@ import {
   Squares2X2Icon,
   TrashIcon,
   UserIcon,
-  WindowIcon
+  WindowIcon,
+  ArrowLeftIcon
 } from '@heroicons/vue/24/solid'
 import {
   Listbox,
@@ -1291,7 +1288,8 @@ export default {
     ViewColumnsIcon,
     Cog6ToothIcon,
     draggable,
-    CalendarDaysIcon
+    CalendarDaysIcon,
+    ArrowLeftIcon
   },
   data () {
     return {
@@ -1308,7 +1306,7 @@ export default {
       newTask: {
         name: '',
         description: '',
-        categories: []
+        cats: []
       },
       inputComment: null,
       isWritingComment: false,
@@ -1450,20 +1448,15 @@ export default {
           method: 'get',
           url: 'knowledge/private/chat/' + sessionID
         })
-          .then((data) => {
-            this.knowledgeExists = true
-            this.knowledge = data.result
-            if (this.knowledge.categories != null) {
-              for (let i = 0; i < this.knowledge.categories.length; i++) {
-                this.knowledge.categories[i] = JSON.parse(this.knowledge.categories[i])
-              }
-            }
-            resolve()
-          })
-          .catch((err) => {
-            console.debug(err.message)
-            this.knowledgeExists = false
-          })
+        .then((data) => {
+          this.knowledgeExists = true
+          this.knowledge = data.result
+          resolve()
+        })
+        .catch((err) => {
+          console.debug(err.message)
+          this.knowledgeExists = false
+        })
       })
     },
     getBoxes: async function (silent = false, showAll = false) {
@@ -1485,38 +1478,38 @@ export default {
           method: 'get',
           url: 'wisdom/private/tasks/' + this.knowledge.uid + suffix
         })
-          .then(async (data) => {
-            // Retrieve all boxes and tasks from server response
-            this.boxes = data.result.boxes.reverse()
-            this.calendarOptions.events = []
-            // Iterate over all boxes
-            for (let i = 0; i < this.boxes.length; i++) {
-              if (this.boxes[i].tasks) {
-                // Iterate over all tasks of this box
-                for (let j = 0; j < this.boxes[i].tasks.length; j++) {
-                  this.boxes[i].tasks[j].name = await dbGetDisplayName(this.boxes[i].tasks[j].usr)
-                  if (this.boxes[i].tasks[j].due) {
-                    // Add entry to calendar if there's a due date
-                    this.calendarOptions.events.push({
-                      id: this.boxes[i].tasks[j].uid,
-                      title: this.boxes[i].tasks[j].t + ' - ' + this.boxes[i].tasks[j].desc,
-                      start: this.boxes[i].tasks[j].due,
-                      end: this.boxes[i].tasks[j].duet
-                    })
-                  }
+        .then(async (data) => {
+          // Retrieve all boxes and tasks from server response
+          this.boxes = data.result.boxes.reverse()
+          this.calendarOptions.events = []
+          // Iterate over all boxes
+          for (let i = 0; i < this.boxes.length; i++) {
+            if (this.boxes[i].tasks) {
+              // Iterate over all tasks of this box
+              for (let j = 0; j < this.boxes[i].tasks.length; j++) {
+                this.boxes[i].tasks[j].name = await dbGetDisplayName(this.boxes[i].tasks[j].usr)
+                if (this.boxes[i].tasks[j].due) {
+                  // Add entry to calendar if there's a due date
+                  this.calendarOptions.events.push({
+                    id: this.boxes[i].tasks[j].uid,
+                    title: this.boxes[i].tasks[j].t + ' - ' + this.boxes[i].tasks[j].desc,
+                    start: this.boxes[i].tasks[j].due,
+                    end: this.boxes[i].tasks[j].duet
+                  })
                 }
               }
             }
-            // Draw Mermaid content in tasks
-            this.renderMermaid()
-            resolve()
-          })
-          .catch((err) => {
-            console.debug(err.message)
-          })
-          .finally(() => {
-            this.isLoading = false
-          })
+          }
+          // Draw Mermaid content in tasks
+          this.renderMermaid()
+          resolve()
+        })
+        .catch((err) => {
+          console.debug(err.message)
+        })
+        .finally(() => {
+          this.isLoading = false
+        })
       })
     },
     newBoxKeyUp: function () {
@@ -1562,23 +1555,23 @@ export default {
           url: 'wisdom/private/create',
           body: bodyPayload
         })
-          .then(() => {
-            this.newBox.name = ''
-            this.getBoxes()
-          })
-          .then(() => resolve)
-          .catch((err) => {
-            console.debug(err.message)
-            this.noResults = true
-          })
+        .then(() => {
+          this.newBox.name = ''
+          this.getBoxes()
+        })
+        .then(() => resolve)
+        .catch((err) => {
+          console.debug(err.message)
+          this.noResults = true
+        })
       })
     },
     createTask: async function (box, taskUpdate = false) {
       let categories = []
       let payload = {}
       if (!taskUpdate) {
-        for (let i = 0; i < this.newTask.categories.length; i++) {
-          categories.push(this.newTask.categories[i])
+        for (let i = 0; i < this.newTask.cats.length; i++) {
+          categories.push(this.newTask.cats[i])
         }
         payload = {
           t: this.newTask.name,
@@ -1593,9 +1586,9 @@ export default {
         }
       } else if (taskUpdate) {
         categories = []
-        if (this.showingTask.categories) {
-          for (let i = 0; i < this.showingTask.categories.length; i++) {
-            categories.push(this.showingTask.categories[i])
+        if (this.showingTask.cats) {
+          for (let i = 0; i < this.showingTask.cats.length; i++) {
+            categories.push(this.showingTask.cats[i])
           }
         }
         let combinedDateTime = ''
@@ -1637,19 +1630,19 @@ export default {
           url: 'wisdom/private/create',
           body: bodyPayload
         })
-          .then(() => {
-            this.getBoxes()
-            this.newTask.name = ''
-            this.newTask.description = ''
-            this.newTask.categories = []
-            this.hideNewTaskInputs()
-            this.moveToSelectedTask()
-          })
-          .then(() => resolve())
-          .catch((err) => {
-            console.debug(err.message)
-            this.noResults = true
-          })
+        .then(() => {
+          this.getBoxes()
+          this.newTask.name = ''
+          this.newTask.description = ''
+          this.newTask.cats = []
+          this.hideNewTaskInputs()
+          this.moveToSelectedTask()
+        })
+        .then(() => resolve())
+        .catch((err) => {
+          console.debug(err.message)
+          this.noResults = true
+        })
       })
     },
     toggleElement: function (id, display = 'block') {
@@ -1692,21 +1685,21 @@ export default {
           method: 'get',
           url: 'wisdom/private/' + endpoint + '/' + task.uid
         })
-          .then(() => {
-            if (this.isShowingTask) this.isShowingTask = false
-            this.getBoxes()
-            this.resetLastSelection()
-          })
-          .then(() => resolve)
-          .catch((err) => {
-            this.$notify(
-              {
-                title: 'Error!',
-                text: 'Maybe you aren\'t the owner or a collaborator of this entry?',
-                type: 'error'
-              })
-            console.debug(err.message)
-          })
+        .then(() => {
+          if (this.isShowingTask) this.isShowingTask = false
+          this.getBoxes()
+          this.resetLastSelection()
+        })
+        .then(() => resolve)
+        .catch((err) => {
+          this.$notify(
+            {
+              title: 'Error!',
+              text: 'Maybe you aren\'t the owner or a collaborator of this entry?',
+              type: 'error'
+            })
+          console.debug(err.message)
+        })
       })
     },
     hideNewTaskInputs: function () {
@@ -1783,24 +1776,24 @@ export default {
           method: 'get',
           url: 'wisdom/private/investigate/' + task.uid
         })
-          .then(async (data) => {
-            if (data.result.replies != null && data.result.replies.length > 0) {
-              for (let i = 0; i < data.result.replies.length; i++) {
-                data.result.replies[i].name = await dbGetDisplayName(data.result.replies[i].usr)
-              }
+        .then(async (data) => {
+          if (data.result.replies != null && data.result.replies.length > 0) {
+            for (let i = 0; i < data.result.replies.length; i++) {
+              data.result.replies[i].name = await dbGetDisplayName(data.result.replies[i].usr)
             }
-            if (showingTask) {
-              this.showingTaskRelated = data.result
-            } else {
-              this.taskRelated = data.result
-            }
-          })
-          .then(() => {
-            resolve()
-          })
-          .catch((err) => {
-            console.debug(err.message)
-          })
+          }
+          if (showingTask) {
+            this.showingTaskRelated = data.result
+          } else {
+            this.taskRelated = data.result
+          }
+        })
+        .then(() => {
+          resolve()
+        })
+        .catch((err) => {
+          console.debug(err.message)
+        })
       })
     },
     handleEnter: async function () {
@@ -1840,21 +1833,21 @@ export default {
           url: 'wisdom/private/reply',
           body: bodyPayload
         })
-          .then(() => {
-            this.getRelated(this.showingTask)
-            this.resetValues()
-            setTimeout(() => {
-              this.inputComment.blur()
-              this.auto_grow('input_comment')
-            }, 0)
-          })
-          .then(() => resolve())
-          .catch((err) => {
-            console.debug(err.message)
-          })
-          .finally(() => {
-            this.isWritingComment = false
-          })
+        .then(() => {
+          this.getRelated(this.showingTask)
+          this.resetValues()
+          setTimeout(() => {
+            this.inputComment.blur()
+            this.auto_grow('input_comment')
+          }, 0)
+        })
+        .then(() => resolve())
+        .catch((err) => {
+          console.debug(err.message)
+        })
+        .finally(() => {
+          this.isWritingComment = false
+        })
       })
     },
     resetValues: function () {
@@ -2141,25 +2134,25 @@ export default {
               new: start
             })
           })
-            .then(() => {
-              this.$Worker.execute({
-                action: 'api',
-                method: 'post',
-                url: 'wisdom/private/mod/' + guid,
-                body: JSON.stringify({
-                  type: 'edit',
-                  field: 'dueEnd',
-                  new: end.toISOString()
-                })
+          .then(() => {
+            this.$Worker.execute({
+              action: 'api',
+              method: 'post',
+              url: 'wisdom/private/mod/' + guid,
+              body: JSON.stringify({
+                type: 'edit',
+                field: 'dueEnd',
+                new: end.toISOString()
               })
-                .then(() => {
-                  this.getBoxes()
-                })
-                .then(() => resolve())
-                .catch((err) => {
-                  console.debug(err.message)
-                })
             })
+            .then(() => {
+              this.getBoxes()
+            })
+            .then(() => resolve())
+            .catch((err) => {
+              console.debug(err.message)
+            })
+          })
         } else {
           this.$Worker.execute({
             action: 'api',
@@ -2171,13 +2164,13 @@ export default {
               new: start
             })
           })
-            .then(() => {
-              this.getBoxes()
-            })
-            .then(() => resolve())
-            .catch((err) => {
-              console.debug(err.message)
-            })
+          .then(() => {
+            this.getBoxes()
+          })
+          .then(() => resolve())
+          .catch((err) => {
+            console.debug(err.message)
+          })
         }
       })
     },
@@ -2219,36 +2212,36 @@ export default {
           url: 'wisdom/private/query/' + this.knowledge.uid,
           body: JSON.stringify(payload)
         })
-          .then((data) => {
-            const parsedData = data.result
-            if (parsedData.tasks && parsedData.tasks.length > 0) {
-              this.addResults(parsedData.tasks, 'task')
+        .then((data) => {
+          const parsedData = data.result
+          if (parsedData.tasks && parsedData.tasks.length > 0) {
+            this.addResults(parsedData.tasks, 'task')
+          }
+        })
+        .then(() => {
+          // Make tasks visible if they are part of the search results
+          let elem
+          for (let i = 0; i < this.results.length; i++) {
+            // Display box
+            if (!this.isListView) {
+              elem = document.getElementById('boxcontainer_' + this.results[i].result.ref)
+            } else {
+              elem = document.getElementById('list_box_' + this.results[i].result.ref)
             }
-          })
-          .then(() => {
-            // Make tasks visible if they are part of the search results
-            let elem
-            for (let i = 0; i < this.results.length; i++) {
-              // Display box
-              if (!this.isListView) {
-                elem = document.getElementById('boxcontainer_' + this.results[i].result.ref)
-              } else {
-                elem = document.getElementById('list_box_' + this.results[i].result.ref)
-              }
-              if (elem) elem.style.display = ''
-              // Display task
-              if (!this.isListView) {
-                elem = document.getElementById('taskcontainer_' + this.results[i].result.uid)
-              } else {
-                elem = document.getElementById('list_task_' + this.results[i].result.uid)
-              }
-              if (elem) elem.style.display = ''
+            if (elem) elem.style.display = ''
+            // Display task
+            if (!this.isListView) {
+              elem = document.getElementById('taskcontainer_' + this.results[i].result.uid)
+            } else {
+              elem = document.getElementById('list_task_' + this.results[i].result.uid)
             }
-          })
-          .then(() => resolve())
-          .catch((err) => {
-            console.debug(err.message)
-          })
+            if (elem) elem.style.display = ''
+          }
+        })
+        .then(() => resolve())
+        .catch((err) => {
+          console.debug(err.message)
+        })
       })
     },
     addResults: function (results, type) {
@@ -2372,11 +2365,11 @@ export default {
           method: 'get',
           url: 'chat/private/get/' + sessionID
         })
-          .then((data) => {
-            this.sharing.chatroom = data.result
-          })
-          .then(resolve())
-          .catch((err) => console.debug(err.message))
+        .then((data) => {
+          this.sharing.chatroom = data.result
+        })
+        .then(resolve())
+        .catch((err) => console.debug(err.message))
       })
     },
     shareTask: async function () {
@@ -2396,17 +2389,17 @@ export default {
           url: 'm5/addmessage',
           body: JSON.stringify(bodyPayload)
         })
-          .then(() => {
-            this.sharing.message = ''
-            this.sharing.selectedSubchat = ''
-            this.sharing.chatroom = null
-            this.sharing.group = null
-            this.isSharingTask = false
-          })
-          .then(() => resolve)
-          .catch((err) => {
-            console.debug(err.message)
-          })
+        .then(() => {
+          this.sharing.message = ''
+          this.sharing.selectedSubchat = ''
+          this.sharing.chatroom = null
+          this.sharing.group = null
+          this.isSharingTask = false
+        })
+        .then(() => resolve)
+        .catch((err) => {
+          console.debug(err.message)
+        })
       })
     },
     setVisibilityOfBoxesAndTasks: function (display = '') {
@@ -2489,24 +2482,24 @@ export default {
           url: 'm7/modifycollab/' + this.showingTask.uid,
           body: JSON.stringify(payload)
         })
-          .then(() => {
-            this.sharing.collaborators = []
-          })
-          .then(() => (
-            this.getBoxes()
-          ))
-          .then(() => (
-            this.$notify(
-              {
-                title: 'Success',
-                text: 'Collaborator(s) submitted.',
-                type: 'fmt_notify'
-              })
-          ))
-          .then(() => resolve)
-          .catch((err) => {
-            console.debug(err.message)
-          })
+        .then(() => {
+          this.sharing.collaborators = []
+        })
+        .then(() => (
+          this.getBoxes()
+        ))
+        .then(() => (
+          this.$notify(
+            {
+              title: 'Success',
+              text: 'Collaborator(s) submitted.',
+              type: 'fmt_notify'
+            })
+        ))
+        .then(() => resolve)
+        .catch((err) => {
+          console.debug(err.message)
+        })
       })
     },
     preventDefaultFun: function (event) {
@@ -2526,12 +2519,12 @@ export default {
           url: 'knowledge/private/create',
           body: JSON.stringify(payload)
         })
-          .then((data) => {
-            this.knowledgeExists = true
-            this.getKnowledge(data.result, false)
-          })
-          .then(() => resolve())
-          .catch((err) => console.debug(err.message))
+        .then((data) => {
+          this.knowledgeExists = true
+          this.getKnowledge(data.result, false)
+        })
+        .then(() => resolve())
+        .catch((err) => console.debug(err.message))
       })
     },
     handleDragChange: function (e) {
@@ -2593,14 +2586,14 @@ export default {
           url: 'wisdom/private/move/' + taskGUID,
           body: bodyPayload
         })
-          .then(() => {
-            this.getBoxes()
-          })
-          .then(() => resolve())
-          .catch((err) => {
-            console.debug(err.message)
-            this.noResults = true
-          })
+        .then(() => {
+          this.getBoxes()
+        })
+        .then(() => resolve())
+        .catch((err) => {
+          console.debug(err.message)
+          this.noResults = true
+        })
       })
     },
     endDrag: function () {
@@ -2876,7 +2869,14 @@ export default {
 }
 
 .p_new_task_disclosure {
-  @apply surface-variant bshadow p-3;
+  @apply surface-variant bshadow p-3 pb-36;
+}
+
+.wisdomCat {
+  @apply fmt_border flex items-center
+  py-0.5 px-1 rounded mr-1 mb-1
+  pointer-events-none text-sm background
+  border-l-8;
 }
 
 </style>

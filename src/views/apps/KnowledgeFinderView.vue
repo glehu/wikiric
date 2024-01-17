@@ -39,7 +39,7 @@
                            v-on:keyup.enter="searchWisdom(); getProcesses()"
                            v-model="queryText">
                   </div>
-                  <template class="hidden lg:block">
+                  <template class="block">
                     <div style="width: 100%; height: 35px; padding-top: 5px;
                                 display: flex; position: relative; align-items: center">
                       <p class="font-bold pointer-events-none">
@@ -56,7 +56,8 @@
                       <div class="overflow-x-hidden overflow-y-auto pb-2 w-full">
                         <template v-if="knowledge.cats && knowledge.cats.length > 0">
                           <template v-for="category in knowledge.cats" :key="category">
-                            <div class="kf_category">
+                            <div class="kf_category border-l-8"
+                                 :style="{borderColor: category.hex}">
                               <p>{{ category.t.replace(' ', '&nbsp;') }}</p>
                               <template v-if="category.count && category.count > 0">
                                 <p class="ml-auto">{{ category.count }}</p>
@@ -99,7 +100,7 @@
                     <button :class="[
                               'w-full',
                               selected
-                              ? 'active_tab'
+                              ? 'active_tab fmt_border_top'
                               : 'hover:surface',
                             ]"
                             class="tab"
@@ -111,7 +112,7 @@
                     <button :class="[
                               'w-full',
                               selected
-                              ? 'active_tab'
+                              ? 'active_tab fmt_border_top'
                               : 'hover:surface',
                             ]"
                             class="tab"
@@ -354,9 +355,8 @@
                                 </template>
                                 <template v-for="cat in result.result.cats" :key="cat">
                                   <div v-if="cat.t != null"
-                                       class="fmt_border flex items-center
-                                              py-0.5 px-1 rounded mr-1 mb-1
-                                              pointer-events-none text-sm background">
+                                       class="wisdomCat"
+                                       :style="{borderColor: cat.hex}">
                                     {{ cat.t }}
                                   </div>
                                 </template>
@@ -604,16 +604,18 @@
         <span class="text-xl font-bold">Add Category</span>
       </template>
       <template v-slot:body>
-        <div class="m-3">
-          <label for="new_category" class="mb-2 font-bold">Name:</label>
-          <br>
-          <input type="text" id="new_category" v-model="newCategory"
-                 class="search-field py-1 px-2 darkest_bg text-lg border-2 border-neutral-800"
+        <div class="m-3 flex flex-col gap-1">
+          <label for="new_category" class="font-bold">Name:</label>
+          <input type="text" id="new_category" v-model="newCategory.t"
+                 class="fmt_input"
                  v-on:keyup.enter="addCategory()">
-          <br>
+          <label for="new_category_color" class="font-bold">Color:</label>
+          <input type="color" id="new_category_color" v-model="newCategory.hex"
+                 class="fmt_input"
+                 v-on:keyup.enter="addCategory()">
           <button v-on:click="addCategory()"
                   class="mt-3 btn_bg_primary">
-            Add
+            <span>Add</span>
           </button>
         </div>
       </template>
@@ -631,26 +633,24 @@
         </template>
       </template>
       <template v-slot:body>
-        <div class="flex w-[calc(100dvw-36px)] h-[calc(100dvh-150px)] gap-x-1 p-2 overflow-x-hidden">
-          <div class="w-full md:w-1/2">
-            <div class="md:hidden flex mt-2 w-full">
-              <div class="mb-1 text-black font-bold rounded
-                          w-full flex items-center justify-end">
-                <button v-on:click="createLesson()"
-                        class="mr-2 btn_bg_primary"
-                        v-tooltip.top="{
+        <div class="flex w-[calc(100dvw-36px)] h-[calc(100dvh-142px)] gap-x-1 px-2 pb-2 overflow-x-hidden">
+          <div class="w-full md:w-1/2 relative">
+            <div class="mb-1 font-bold rounded pr-2 pb-2 sticky top-0
+                        w-full flex items-center justify-end background z-50">
+              <button v-on:click="createLesson()"
+                      class="mr-2 btn_bg_primary"
+                      v-tooltip.top="{
                        content: 'Save changes'
                      }">
-                  <span>Submit</span>
-                </button>
-                <button v-on:click="isWritingWisdom = false"
-                        class="mr-2 py-2 px-3 hover:dshadow rounded-md surface-variant"
-                        v-tooltip.top="{
+                <span>Submit</span>
+              </button>
+              <button v-on:click="isWritingWisdom = false"
+                      class="mr-2 py-2 px-3 hover:dshadow rounded-md surface-variant"
+                      v-tooltip.top="{
                        content: 'Discard changes'
                      }">
-                  <span>Cancel</span>
-                </button>
-              </div>
+                <span>Cancel</span>
+              </button>
             </div>
             <div class="block lg:flex w-full">
               <div class="lg:w-1/2">
@@ -686,21 +686,24 @@
                       leave-from-class="opacity-100"
                       leave-to-class="opacity-0">
                       <ListboxOptions
-                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md surface py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                      >
+                        class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md surface
+                               py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5
+                               focus:outline-none sm:text-sm z-50">
                         <ListboxOption
                           v-slot="{ active, selected }"
                           v-for="cat in knowledge.cats"
                           :key="cat"
                           :value="cat"
-                          as="template"
-                        >
+                          as="template">
                           <li
                             :class="[ active ? 'primary-container' : '',
                                   'relative cursor-pointer select-none py-2 pl-10 pr-4' ]">
                             <div
                               :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
-                              <p>{{ cat.t }}</p>
+                              <p class="border-l-8 pl-2 rounded-l-md"
+                                 :style="{borderColor: cat.hex}">
+                                {{ cat.t }}
+                              </p>
                             </div>
                             <div
                               v-if="selected"
@@ -750,27 +753,6 @@
             </div>
           </div>
           <div class="hidden md:block w-1/2">
-            <label class="text-xl font-bold pointer-events-none">Preview:</label>
-            <br>
-            <div class="flex mt-1 w-full">
-              <div class="text-black font-bold rounded-md w-full
-                          flex justify-end items-center mb-2">
-                <button v-on:click="createLesson()"
-                        class="mr-2 btn_bg_primary"
-                        v-tooltip.top="{
-                       content: 'Submit entry'
-                     }">
-                  <span>Submit</span>
-                </button>
-                <button v-on:click="isWritingWisdom = false"
-                        class="mr-2 py-2 px-3 rounded-md hover:dshadow surface-variant"
-                        v-tooltip.top="{
-                       content: 'Discard'
-                     }">
-                  <span>Cancel</span>
-                </button>
-              </div>
-            </div>
             <div class="surface rounded-md p-2 mt-1 cursor-not-allowed fmt_border">
               <Markdown :source="'# ' + wisTitle" class="w-full markedView" :plugins="plugins"></Markdown>
               <Markdown :source="wisDescription" class="w-full mt-4 markedView" :plugins="plugins"></Markdown>
@@ -999,7 +981,10 @@ export default {
       processDescription: '',
       processKeywords: '',
       // Etc.
-      newCategory: '',
+      newCategory: {
+        t: '',
+        hex: ''
+      },
       isAddingCategory: false,
       isWritingWisdom: false,
       isWritingLesson: false,
@@ -1161,15 +1146,12 @@ export default {
       })
     },
     addCategory: async function () {
-      const payload = {
-        t: this.newCategory
-      }
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
           url: 'knowledge/private/cats/mod/' + this.knowledge.uid,
-          body: JSON.stringify(payload)
+          body: JSON.stringify(this.newCategory)
         })
         .then(() => {
           this.newCategory = ''
@@ -1579,6 +1561,11 @@ export default {
       })
     },
     startAddingCategory: function () {
+      this.newCategory = {
+        t: '',
+        hex: window.getComputedStyle(document.documentElement)
+        .getPropertyValue('--md-sys-color-tertiary')
+      }
       this.isAddingCategory = true
       setTimeout(() => {
         const input = document.getElementById('new_category')
@@ -1974,6 +1961,13 @@ export default {
 .cm-editor {
   @apply w-full h-full fmt_border overflow-hidden;
   background-color: var(--md-sys-color-surface-light);
+}
+
+.wisdomCat {
+  @apply fmt_border flex items-center
+  py-0.5 px-1 rounded mr-1 mb-1
+  pointer-events-none text-sm background
+  border-l-8;
 }
 
 </style>

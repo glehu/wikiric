@@ -69,7 +69,7 @@
     </template>
     <template v-else>
       <div class="w-full h-[calc(100%-50px)] flex items-center justify-center pointer-events-none">
-        <p class="p-2 text-sm  dark_bg rounded-md">No files found!</p>
+        <p class="p-2 text-sm surface rounded-md">No files found!</p>
       </div>
     </template>
   </div>

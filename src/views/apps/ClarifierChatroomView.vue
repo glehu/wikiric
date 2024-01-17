@@ -105,7 +105,7 @@
                     v-on:click="toggleSidebar2()">
               <ChatBubbleBottomCenterTextIcon class="sb_link_icon orange-hover"
                                               style="height: 24px; width: 24px"/>
-              <span>Hide Channels</span>
+              <span class="ml-1.5">Hide Channels</span>
             </button>
             <template v-if="chatroom.burl && chatroom.burl !== ''">
               <div class="rounded my-2 w-full max-h-[128px] overflow-hidden flex">
@@ -242,37 +242,34 @@
               <div class="chat_header background fmt_border_bottom">
                 <div class="flex overflow-x-clip items-center"
                      style="width: calc(100% - 90px); font-size: 80%">
-                  <div class="overflow-x-clip relative md:hidden">
-                    <div class="w-6 h-6 mr-2 ml-1" v-on:click="toggleSidebar()">
-                      <div class="orange-hover flex"
-                           v-tooltip.bottom="{
+                  <div class="overflow-x-clip relative md:hidden w-6 h-6 mr-2 ml-1"
+                       v-if="!sidebar.active"
+                       v-on:click="toggleSidebar()">
+                    <div class="orange-hover flex"
+                         v-tooltip.bottom="{
                              content: 'Toggle Sidebar',
                              disabled: sidebar.active,
                            }">
-                        <ChevronRightIcon v-if="!sidebar.active"
-                                          class="sb_link_icon
-                                         on-background-text"/>
-                      </div>
+                      <ArrowLeftIcon class="sb_link_icon
+                                            on-background-text"/>
                     </div>
                   </div>
-                  <button class="member_section_toggler block mr-2 p-1 rounded
-                                 fmt_border lg:border-none hover:primary"
-                          title="Toggle Channels"
-                          v-on:click="toggleSidebar2()"
-                          v-tooltip.bottom="{
+                  <div class="member_section_toggler channel_toggler"
+                       title="Toggle Channels"
+                       v-on:click="toggleSidebar2()"
+                       v-tooltip.bottom="{
                             content: 'Toggle Channels'
                           }">
                     <ChatBubbleBottomCenterTextIcon class="sb_link_icon"
                                                     style="height: 24px; width: 24px"/>
-                  </button>
-                  <div class="orange-hover pl-2 pr-1 py-1 rounded-md"
-                       v-on:click="gotoSubchat(null, false)">
-                    <p class="text-sm md:text-base -translate-y-0.5">{{ chatroom.t }}</p>
+                    <p class="text-sm lg:text-base translate-y-0.5 lg:translate-y-0">
+                      {{ chatroom.t }}
+                    </p>
                   </div>
-                  <div v-if="isSubchat === true" class="nopointer flex gap-x-1 items-center ml-1">
+                  <div v-if="isSubchat === true" class="nopointer flex gap-x-1 items-center">
                     <ChevronRightIcon class="w-[16px]"/>
-                    <div class="pr-1 rounded-md -translate-y-0.5">
-                      <p class="text-sm md:text-base">{{ currentSubchat.t }}</p>
+                    <div class="pr-1 rounded-md">
+                      <p class="text-sm lg:text-base">{{ currentSubchat.t }}</p>
                     </div>
                   </div>
                   <div v-if="isStreamingVideo"
@@ -865,7 +862,9 @@
                       <p class="text-3xl">
                         Welcome to
                         <template v-if="!isSubchat">
-                          <span class="font-bold">{{ chatroom.t }},</span>
+                          <span class="font-bold">
+                            {{ chatroom.t }}<span v-if="chatroom.type === 'dm'">'s DM's</span>,
+                          </span>
                         </template>
                         <template v-else>
                           <span class="font-bold">{{ currentSubchat.t }},</span>
@@ -895,25 +894,14 @@
                   </div>
                 </div>
               </div>
-              <div v-if="isTaggingUser"
-                   class="user_tagger c_lightgray"
-                   style="padding: 10px; position: absolute; z-index: 100">
-                <p class="pointer-events-none mb-2">Tag a member:</p>
-                <div v-for="(usr, index) in mainMembers" :key="usr"
-                     :id="'usertagger_' + index"
-                     class="gray-hover relative flex items-center mb-1"
-                     :class="{'active_gray': index === tagIndex}"
-                     v-on:click="tagUserProfile(usr)">
-                  <template v-if="usr.taggable === true">
-                    <div class="px-1 flex items-center">
-                      <i class="bi bi-at"
-                         style="font-size: 200%">
-                      </i>
-                      <span style="font-weight: bold; margin-left: 5px"> {{ usr.usr }} </span>
-                    </div>
-                  </template>
-                </div>
-              </div>
+              <listpickerviewer v-if="isTaggingUser"
+                                class="user_tagger"
+                                :list="mainMembers"
+                                :query="new_message"
+                                :keyName="'usr'"
+                                :headline="'Tag a member'"
+                                @confirm="handleUserTagConfirmation"
+                                @close="isTaggingUser = false"/>
               <div v-if="isSelectingImgflipTemplate"
                    class="imgflip_selector c_lightgray"
                    style="padding: 10px; position: absolute; z-index: 100">
@@ -1088,147 +1076,11 @@
           </div>
           <div class="user_profile overflow-x-hidden overflow-y-auto"
                v-show="isViewingUserProfile" @click.stop>
-            <div class="relative h-full p-2 surface-variant">
-              <i class="bi bi-x-lg lead orange-hover"
-                 style="cursor: pointer; position:absolute; right: 0" title="Close"
-                 v-on:click="hideAllWindows()"></i>
-              <div class="flex items-center">
-                <template v-if="viewedUserProfile.iurl && viewedUserProfile.iurl !== ''">
-                  <img :src="getImg(viewedUserProfile.iurl, true)" alt="?"
-                       class="sender_avatar_big">
-                  <template v-if="viewedUserProfile.iurla && viewedUserProfile.iurla !== ''">
-                    <img :src="getImg(viewedUserProfile.iurla, true)" alt="?"
-                         class="sender_avatar_big absolute sender_avatar_animated">
-                  </template>
-                </template>
-                <template v-else>
-                  <UserCircleIcon class="sender_avatar_big">
-                  </UserCircleIcon>
-                </template>
-                <div class="w-[80px] h-[80px] absolute flex items-end justify-end">
-                  <template v-if="viewedUserProfile.online">
-                    <div class="w-[24px] h-[24px] rounded-full bg-green-500 border-2 border-zinc-900"
-                         v-tooltip.top="{ content: 'Online' }"></div>
-                  </template>
-                  <template v-else-if="viewedUserProfile.recent">
-                    <div class="w-[24px] h-[24px] rounded-full bg-zinc-900 border-2 border-zinc-900"
-                         v-tooltip.top="{ content: 'AFK' }">
-                      <MoonIcon class="w-full h-full text-orange-400"></MoonIcon>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div class="w-[24px] h-[24px] rounded-full bg-zinc-500 border-2 border-zinc-900"
-                         v-tooltip.top="{ content: 'Offline' }"></div>
-                  </template>
-                </div>
-                <div class="block ml-2 surface-variant">
-                  <p class="font-bold text-2xl">
-                    {{ viewedUserProfile.name }}
-                  </p>
-                  <p class="">
-                    {{ viewedUserProfile.usr }}
-                  </p>
-                  <p class="mb-2 text-sm">
-                    Member since {{ viewedUserProfile.tsFormat }}
-                  </p>
-                  <div title="This member's messages are being End-to-End encrypted"
-                       style="display: flex; align-items: center">
-                    <i class="bi bi-shield-lock-fill" style="margin-right: 1ch"></i>
-                    <p class="c_lightgray" style="cursor: default; font-size: 75%; margin: 0">
-                      RSA-OAEP
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div class="items-center flex mt-3 surface-variant">
-                <template v-if="viewedUserProfile.usr === $store.state.username">
-                  <button class="user_profile_button"
-                          v-on:click="isEditingProfile = true">
-                    <i class="bi bi-pencil mr-2"></i>Edit Profile
-                  </button>
-                  <button class="user_profile_button"
-                          v-on:click="startTransferring()">
-                    <span class="flex items-center"><QrCodeIcon class="h-5 w-5 mr-1"></QrCodeIcon>Transfer</span>
-                  </button>
-                </template>
-                <template v-else>
-                  <button class="user_profile_button"
-                          v-on:click="gotoDirectMessages(viewedUserProfile.usr)">
-                    <i class="bi bi-send mr-2"></i>Direct Message
-                  </button>
-                  <button class="user_profile_button">
-                    <i class="bi bi-arrow-bar-left mr-2"></i>Kick
-                  </button>
-                  <button class="user_profile_button">
-                    <i class="bi bi-hammer mr-2"></i>Ban
-                  </button>
-                </template>
-              </div>
-              <h5 class="mt-3 mb-2 headerline text-sm">Roles</h5>
-              <div style="display: flex; flex-wrap: wrap">
-                <div v-for="role in viewedUserProfile.roles" :key="role"
-                     class="inverse-surface"
-                     style="border-radius: 5px; padding: 0 6px 4px 6px; margin-right: 1ch; margin-bottom: 1ch">
-                  <i v-show="isEditingRoles" class="bi bi-x-circle-fill orange-hover"
-                     style="margin-right: 4px"></i>
-                  <p>{{ role }}</p>
-                </div>
-                <span style="border-radius: 2rem; margin-right: 1em" class="orange-hover"
-                      v-on:click="addUserRole" title="Add new Role">
-          <i class="bi bi-plus-circle"></i>
-        </span>
-              </div>
-              <div class="user_role b_darkergray items-center"
-                   v-show="isAddingRole" @click.stop>
-                <div style="position: relative">
-                  <i class="bi bi-x-lg lead" style="cursor: pointer; position: absolute; right: 0" title="Close"
-                     v-on:click="isAddingRole = false"></i>
-                  <h4 class="font-bold">Add a new Role</h4>
-                  <input id="new_role"
-                         type="text"
-                         class="font-bold b_darkergray my-4"
-                         style="height: 4ch; padding-left: 1ch; color: white; width: calc(100% - 1ch);
-                        border: 1px solid white; border-radius: 10px"
-                         v-model="new_role"
-                         :placeholder="'Role'"
-                         v-on:keyup.enter="commitUserRole">
-                </div>
-              </div>
-              <template v-if="chatroom.rank > 1">
-                <h5 class="mt-3 mb-2 headerline text-sm">Badges</h5>
-                <template v-if="viewedUserProfile.badges == null || viewedUserProfile.badges.length < 1">
-                  <div style="border: 1px solid rgb(128,128,128); border-radius: 10px; width: 100%; padding: 10%"
-                       class="text-center items-center pointer-events-none">
-                    <i class="bi bi-award-fill lead"></i>
-                    <br>Keep communicating to earn badges!
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="w-full grid grid-cols-2 gap-3 mb-4">
-                    <div v-for="badge in viewedUserProfile.badges" :key="badge.handle"
-                         class="text-center rounded-xl border-2 border-zinc-600 py-1 px-2 hover:medium_bg">
-                      <div class="pointer-events-none">
-                        <div v-if="badge.handle.startsWith('msg')"
-                             style="font-size: 150%">
-                          📢
-                        </div>
-                        <div v-else-if="badge.handle.startsWith('rt')"
-                             style="font-size: 150%">
-                          💕
-                        </div>
-                        <h5 style="margin: 5px 0 5px 0">
-                          {{ badge.title }}
-                        </h5>
-                        <div style="font-size: 75%; margin-bottom: 5px">
-                          {{ badge.description }}
-                        </div>
-                        <span> +{{ badge.xpGain }} xp</span>
-                      </div>
-                    </div>
-                  </div>
-                </template>
-              </template>
-            </div>
+            <userviewer :isoverlay="true"
+                        :user="viewedUserProfile"
+                        :chatroom="chatroom"
+                        @update="handleUserProfileUpdate()"
+                        @close="isViewingUserProfile = false"/>
           </div>
           <div class="giphygrid p-3 h-full"
                style="overflow: hidden" v-show="isViewingGIFSelection" @click.stop>
@@ -1252,58 +1104,6 @@
                      v-on:keyup.enter="getGIFSelection(gif_query_string)">
               <img src="../../assets/giphy/PoweredBy_200px-Black_HorizText.png" alt="Powered By GIPHY"
                    style="width: 90px; height: 10px" class="ml-2"/>
-            </div>
-          </div>
-          <div class="session_settings"
-               style="overflow-x: hidden; overflow-y: auto"
-               v-show="isViewingSessionSettings" @click.stop>
-            <div class="relative w-full p-2 surface-variant">
-              <i class="bi bi-x-lg lead orange-hover"
-                 style="cursor: pointer; position:absolute; right: 0" title="Close"
-                 v-on:click="hideAllWindows()"></i>
-              <div class="flex w-full gap-x-3">
-                <template v-if="chatroom.iurl && chatroom.iurl !== ''">
-                  <img class="w-[96px] h-[96px] z-10 rounded-lg"
-                       v-bind:src="getImg(chatroom.iurl,true)" :alt="getImgAlt(chatroom.t)"/>
-                </template>
-                <template v-else>
-                  <span class="w-[96px] h-[96px] flex items-center
-                              justify-center z-10 rounded-lg">
-                    {{ getImgAlt(chatroom.t) }}
-                  </span>
-                </template>
-                <div class="surface-variant">
-                  <h1 class="text-2xl font-bold">{{ chatroom.t }}</h1>
-                  <p class="text-sm">
-                    Created: {{ chatroom.ts }}
-                  </p>
-                </div>
-              </div>
-              <p class="headerline mt-4 mb-1">Appearance</p>
-              <div class="p-2 rounded surface">
-                <p class="font-bold">Change Image</p>
-                <input type="file" class="file_input w-full" id="files"
-                       accept="image/jpeg, image/png"
-                       v-on:change="handleFileSelect"/>
-                <p class="mt-2 font-bold">Change Banner</p>
-                <input type="file" class="file_input w-full" id="filesBanner"
-                       accept="image/jpeg, image/png"
-                       v-on:change="handleFileSelectBanner"/>
-                <div id="confirm_settings_loading" class="ml-3 mt-3" style="display: none">
-                  <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
-                  <span class="jetb ms-2">Uploading...</span>
-                </div>
-              </div>
-              <p class="headerline mt-4 mb-1">Administration</p>
-              <div class="p-2 rounded surface border-[1px] border-red-700">
-                <p class="font-bold text-lg nopointer">
-                  Restoration
-                </p>
-                <button class="mt-2 fmt_button_danger"
-                        v-on:click="generateRSAKeyPair(getSession(),true)">
-                  <span class="font-bold">Replace Encryption Key</span>
-                </button>
-              </div>
             </div>
           </div>
           <div class="session_settings shadow" style="overflow-x: hidden; overflow-y: auto"
@@ -1404,6 +1204,12 @@
           <feedviewer :isoverlay="true" :srcguid="getSession()"
                       @close="setOverlay(0); prepareInputField()"/>
         </template>
+        <template v-else-if="overlayType === 3"
+                  class="h-[calc(100%-50px)] w-full translate-y-[50px] overflow-clip
+                         background lg:rounded-xl sm:border-[1px] sm:border-[rgba(174,174,183,0.25)]">
+          <serversettingsviewer :isoverlay="true" :chatroom="chatroom"
+                                @close="setOverlay(0); prepareInputField()"/>
+        </template>
       </div>
       <div id="member_section"
            class="member_section overflow-hidden background">
@@ -1441,17 +1247,17 @@
             </template>
             <div class="w-[40px] h-[40px] absolute flex items-end justify-end">
               <template v-if="usr.online">
-                <div class="w-[13px] h-[13px] rounded-full bg-green-500 border border-zinc-700"
+                <div class="w-[13px] h-[13px] rounded-full bg-green-500 fmt_border"
                      v-tooltip.top="{ content: 'Online' }"></div>
               </template>
               <template v-else-if="usr.recent">
-                <div class="w-[13px] h-[13px] rounded-full bg-zinc-900 border border-zinc-700"
+                <div class="w-[13px] h-[13px] rounded-full bg-zinc-900 fmt_border"
                      v-tooltip.top="{ content: 'AFK' }">
                   <MoonIcon class="w-full h-full text-orange-400"></MoonIcon>
                 </div>
               </template>
               <template v-else>
-                <div class="w-[13px] h-[13px] rounded-full bg-zinc-600 border border-zinc-700"
+                <div class="w-[13px] h-[13px] rounded-full bg-zinc-600 fmt_border"
                      v-tooltip.top="{ content: 'Offline' }"></div>
               </template>
             </div>
@@ -1476,41 +1282,6 @@
       </div>
     </div>
   </div>
-  <modal
-    v-show="isEditingProfile"
-    @close="isEditingProfile = false">
-    <template v-slot:header>
-      <h3>Edit Your Profile</h3>
-    </template>
-    <template v-slot:body>
-      <div style="display: flex; margin-bottom: 5px" class="items-center">
-        <img :src="getImg(viewedUserProfile.iurl, true)" alt="No Picture"
-             class="b_darkergray"
-             style="width: 100px; height: 100px; border-radius: 100%">
-        <div class="block ml-2">
-          <h2 class="font-bold text-2xl">
-            {{ viewedUserProfile.usr }}
-          </h2>
-          <div title="This member's messages are being End-to-End encrypted"
-               style="display: flex; align-items: center">
-            <i class="bi bi-shield-lock-fill" style="margin-right: 1ch"></i>
-            <p class="c_lightgray" style="cursor: default; font-size: 75%; margin: 0">
-              RSA-OAEP
-            </p>
-          </div>
-        </div>
-      </div>
-      <label for="setProfilePicInput">
-        Set a Profile Picture:
-      </label>
-      <br>
-      <input id="setProfilePicInput" type="file"
-             accept="image/jpeg, image/png, image/gif"
-             v-on:change="setProfilePicture">
-    </template>
-    <template v-slot:footer>
-    </template>
-  </modal>
   <modal
     v-show="isViewingNewSubchat"
     @close="hideAllWindows()">
@@ -1667,8 +1438,11 @@ import modal from '../../components/Modal.vue'
 import taskcontainer from '../../components/TaskContainer.vue'
 import knowledgefinder from '../../views/apps/KnowledgeFinderView'
 import processviewer from '../../views/apps/ProcessView'
-import fileviewer from '../../views/apps/FileExplorerView'
+import fileviewer from '../components/FileExplorerView.vue'
 import feedviewer from '../../views/apps/BroadcastFeedView'
+import userviewer from '../../views/components/UserView.vue'
+import serversettingsviewer from '../../views/components/ServerSettingsView.vue'
+import listpickerviewer from '../../views/components/ListPickerView.vue'
 import WRTC from '@/libs/wRTC'
 // External
 import Markdown from 'vue3-markdown-it'
@@ -1687,7 +1461,6 @@ import {
   PhoneIcon,
   PhoneXMarkIcon,
   PlusSmallIcon,
-  QrCodeIcon,
   UserCircleIcon,
   VideoCameraIcon,
   ArrowUturnLeftIcon,
@@ -1698,6 +1471,7 @@ import {
   ArrowLeftOnRectangleIcon,
   BookOpenIcon,
   ChatBubbleBottomCenterTextIcon,
+  ArrowLeftIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   DocumentArrowUpIcon,
@@ -1725,6 +1499,12 @@ export default {
     modal,
     taskcontainer,
     knowledgefinder,
+    processviewer,
+    fileviewer,
+    feedviewer,
+    userviewer,
+    serversettingsviewer,
+    listpickerviewer,
     Markdown,
     PhoneIcon,
     VideoCameraIcon,
@@ -1733,7 +1513,6 @@ export default {
     GifIcon,
     DocumentTextIcon,
     FolderArrowDownIcon,
-    QrCodeIcon,
     ViewColumnsIcon,
     BookOpenIcon,
     ChartBarIcon,
@@ -1746,9 +1525,6 @@ export default {
     UserPlusIcon,
     MoonIcon,
     PhoneXMarkIcon,
-    processviewer,
-    fileviewer,
-    feedviewer,
     FolderIcon,
     RectangleGroupIcon,
     ArrowLeftOnRectangleIcon,
@@ -1761,7 +1537,8 @@ export default {
     ArrowUturnLeftIcon,
     HandThumbUpIcon,
     HandThumbDownIcon,
-    MegaphoneIcon
+    MegaphoneIcon,
+    ArrowLeftIcon
   },
   data () {
     return {
@@ -3224,9 +3001,8 @@ export default {
       this.isUploadingSnippet = !wasShowing
     },
     toggleSessionSettings: function () {
-      const wasShowing = this.isViewingSessionSettings
       this.hideAllWindows()
-      this.isViewingSessionSettings = !wasShowing
+      this.setOverlay(3)
     },
     showNewSubchatWindow: function () {
       this.hideAllWindows()
@@ -3258,6 +3034,7 @@ export default {
             }
           }
           this.new_message = this.new_message.substring(0, i + 1) + user.usr + ' ' + this.new_message.substring(j)
+          break
         }
       }
       this.focusComment(true)
@@ -3304,37 +3081,13 @@ export default {
       this.imgflip_template = {}
       this.viewingImageURL = ''
       this.hideUserProfile()
-      this.hideSessionSettings()
       this.hideNewSubchatWindow()
-    },
-    addUserRole: function () {
-      this.isAddingRole = true
-      const roleInput = document.getElementById('new_role')
-      setTimeout(() => roleInput.focus(), 0)
-    },
-    commitUserRole: function () {
-      const content = JSON.stringify({
-        member: this.viewedUserProfile.usr,
-        role: this.new_role
-      })
-      this.$Worker.execute({
-        action: 'api',
-        method: 'post',
-        url: 'm5/addrole/' + this.getSession(),
-        body: content
-      })
-      .then(() => this.hideUserProfile())
-      .then(() => this.getClarifierMetaData(this.getSession(), false, true))
-      .catch((err) => console.debug(err.message))
     },
     hideUserProfile: function () {
       this.isViewingUserProfile = false
       this.isAddingRole = false
       this.new_role = ''
       this.isEditingProfile = false
-    },
-    hideSessionSettings: function () {
-      this.isViewingSessionSettings = false
     },
     hideNewSubchatWindow: function () {
       this.isViewingNewSubchat = false
@@ -3499,7 +3252,6 @@ export default {
       if (event.key === 'Enter') {
         if (this.isTaggingUser === true) {
           event.preventDefault()
-          this.tagUserProfile(this.mainMembers[this.tagIndex])
         } else if (this.isSelectingImgflipTemplate === true) {
           event.preventDefault()
           this.selectImgflipTemplate(this.imgflipSelection[this.tagIndex])
@@ -3515,32 +3267,6 @@ export default {
         if (this.new_message !== '') {
           if (this.isTaggingUser === true) {
             event.preventDefault()
-            if (this.tagIndex > 0) {
-              for (let ii = this.tagIndex - 1; ii >= 0; ii--) {
-                if (this.mainMembers[ii].taggable === true) {
-                  this.tagIndex--
-                  if (this.mainMembers[this.tagIndex].taggable !== true) {
-                    for (let i = this.tagIndex; i > 0; i--) {
-                      if (this.mainMembers[this.tagIndex].taggable !== true) {
-                        this.tagIndex--
-                      } else {
-                        break
-                      }
-                    }
-                  }
-                  break
-                }
-              }
-            } else {
-              this.tagIndex = 0
-            }
-            const tmpElem = document.getElementById('usertagger_' + this.tagIndex)
-            if (tmpElem) {
-              tmpElem.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-              })
-            }
           } else if (this.isSelectingImgflipTemplate === true) {
             event.preventDefault()
             if (this.tagIndex > 0) {
@@ -3578,32 +3304,6 @@ export default {
       } else if (event.key === 'ArrowDown') {
         if (this.isTaggingUser === true) {
           event.preventDefault()
-          if (this.tagIndex < this.mainMembers.length - 1) {
-            for (let ii = this.tagIndex + 1; ii <= this.mainMembers.length - 1; ii++) {
-              if (this.mainMembers[ii].taggable === true) {
-                this.tagIndex++
-                if (this.mainMembers[this.tagIndex].taggable !== true) {
-                  for (let i = this.tagIndex; i < this.mainMembers.length - 1; i++) {
-                    if (this.mainMembers[this.tagIndex].taggable !== true) {
-                      this.tagIndex++
-                    } else {
-                      break
-                    }
-                  }
-                }
-                break
-              }
-            }
-          } else {
-            this.tagIndex = this.mainMembers.length - 1
-          }
-          const tmpElem = document.getElementById('usertagger_' + this.tagIndex)
-          if (tmpElem) {
-            tmpElem.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center'
-            })
-          }
         } else if (this.isSelectingImgflipTemplate === true) {
           event.preventDefault()
           if (this.tagIndex < this.imgflipSelection.length - 1) {
@@ -3746,61 +3446,6 @@ export default {
     closeModals: function () {
       this.hideUserProfile()
       this.hideNewSubchatWindow()
-    },
-    handleFileSelect: function (evt, drop = false) {
-      evt.stopPropagation()
-      evt.preventDefault()
-      // Start uploading animation
-      this.toggleElement('confirm_settings_loading', 'flex')
-      let files
-      if (drop) {
-        files = evt.dataTransfer.files
-      } else {
-        files = evt.target.files
-      }
-      this.setSessionImage(files[0])
-    },
-    handleFileSelectBanner: function (evt, drop = false) {
-      evt.stopPropagation()
-      evt.preventDefault()
-      // Start uploading animation
-      this.toggleElement('confirm_settings_loading', 'flex')
-      let files
-      if (drop) {
-        files = evt.dataTransfer.files
-      } else {
-        files = evt.target.files
-      }
-      this.setSessionImage(files[0], true)
-    },
-    setProfilePicture: async function (evt) {
-      evt.stopPropagation()
-      evt.preventDefault()
-      const base64 = await this.getBase64(evt.target.files[0])
-      const url = 'chat/private/self/mod/' + this.getSession()
-      const updateFun = this.getClarifierMetaData
-      const getMessagesFun = this.getClarifierMessages
-      this.$Worker.execute({
-        action: 'api',
-        method: 'post',
-        url: url,
-        body: JSON.stringify({
-          type: 'edit',
-          field: 'iurl',
-          new: base64
-        })
-      })
-      .then(() => (updateFun()))
-      .then(() => (getMessagesFun()))
-      .then(() => (this.hideAllWindows()))
-      .then(() => (
-        this.$notify(
-          {
-            title: 'Done!',
-            text: 'User profile picture updated.',
-            type: 'fmt_notify'
-          })
-      ))
     },
     handleUploadImageSelectDrop: function (evt) {
       this.handleUploadFileSelect(evt, true)
@@ -4904,16 +4549,6 @@ export default {
       //   .then((data) => (this.setUserBadges(data.result)))
       //   .catch((err) => console.debug(err.message))
     },
-    setUserBadges: function (response) {
-      this.viewedUserProfile.badges = []
-      if (response.length > 0) {
-        let badge
-        for (let i = 0; i < response.length; i++) {
-          badge = JSON.parse(response[i])
-          this.viewedUserProfile.badges.push(badge)
-        }
-      }
-    },
     markActiveSubchat: function () {
       if (!this.isSubchat) {
         document.getElementById(this.chatroom.uid + '_subc')
@@ -5142,33 +4777,6 @@ export default {
           window.onresize = null
         }
       }, 0)
-    },
-    gotoDirectMessages: async function (username) {
-      this.hideAllWindows()
-      // First check if there is already a direct message server
-      let foundDirect = false
-      let newId = ''
-      this.$Worker.execute({
-        action: 'api',
-        method: 'get',
-        url: 'm5/direct/' + username + '?all=true'
-      })
-      .then((data) => {
-        if (data.result.chatrooms && data.result.chatrooms.length > 0) {
-          foundDirect = true
-          newId = data.result.chatrooms[0].uid
-          this.connectToGroup(newId, true)
-        }
-      })
-      .then(() => {
-        if (foundDirect) return
-        this.sendFriendRequest(username)
-      })
-      .catch((err) => {
-        console.debug(err.message)
-        if (foundDirect) return
-        this.sendFriendRequest(username)
-      })
     },
     connectToGroup: function (chatroomId, novisual = false) {
       this.$store.commit('setLastClarifierGUID', chatroomId)
@@ -5414,9 +5022,23 @@ export default {
       // Check if there is only one image link inside a paragraph
       const rgx = /^!\[:.+:]\(.+\)$/
       const results = message.msg.match(rgx)
-      if (results != null && results.length > 0) {
+      if (results != null && results.length === 1) {
         message.enlarge = true
       }
+    },
+    handleUserProfileUpdate: function () {
+      this.getClarifierMetaData()
+      this.isViewingUserProfile = false
+      this.hideAllSidebars()
+      this.$notify(
+        {
+          title: 'User Profile Updated',
+          text: '',
+          type: 'fmt_notify'
+        })
+    },
+    handleUserTagConfirmation: function (obj) {
+      this.tagUserProfile(obj)
     }
   }
 }
@@ -5495,14 +5117,6 @@ export default {
   @apply rounded-lg p-2 w-[400px] fmt_border
   max-w-[calc(100dvw-24px)] max-h-[calc(100%-200px)]
   dshadow;
-}
-
-.user_role {
-  color: white;
-  width: 250px;
-  padding: 5px 20px;
-  overflow: hidden;
-  @apply rounded-lg;
 }
 
 .serverMessage {
@@ -5887,7 +5501,7 @@ export default {
 
 .clientMessage p img {
   max-height: 32px;
-  max-width:  32px;
+  max-width: 32px;
 }
 
 .cmBigImg img {
@@ -6080,6 +5694,12 @@ export default {
 
 .tr_br_none_force {
   @apply rounded-tr-none !important
+}
+
+.channel_toggler {
+  @apply px-2 py-1 rounded mr-1
+  fmt_border lg:border-none hover:primary lg:mr-0
+  flex gap-x-2 justify-center cursor-pointer;
 }
 
 </style>
