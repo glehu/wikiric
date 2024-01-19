@@ -135,9 +135,9 @@
   --md-sys-color-scrim-light: #000000;
   /* dark */
   --md-sys-color-primary-dark: #5a4896;
-  --md-sys-color-on-primary-dark: #e6e6e6;
+  --md-sys-color-on-primary-dark: #e0e0e0;
   --md-sys-color-primary-container-dark: #6854ad;
-  --md-sys-color-on-primary-container-dark: #f0f0f0;
+  --md-sys-color-on-primary-container-dark: #e0e0e0;
   --md-sys-color-secondary-dark: #5edbbb;
   --md-sys-color-on-secondary-dark: #00382c;
   --md-sys-color-secondary-container-dark: #005141;
@@ -145,20 +145,20 @@
   --md-sys-color-tertiary-dark: #a5c8ff;
   --md-sys-color-on-tertiary-dark: #00315e;
   --md-sys-color-tertiary-container-dark: #004785;
-  --md-sys-color-on-tertiary-container-dark: #f0f0f0;
+  --md-sys-color-on-tertiary-container-dark: #e0e0e0;
   --md-sys-color-error-dark: #ffb4ab;
   --md-sys-color-error-container-dark: #93000a;
   --md-sys-color-on-error-dark: #690005;
   --md-sys-color-on-error-container-dark: #ffffff;
   --md-sys-color-background-dark: #1e2123;
-  --md-sys-color-on-background-dark: #f0f0f0;
+  --md-sys-color-on-background-dark: #e0e0e0;
   --md-sys-color-surface-dark: #313437;
-  --md-sys-color-on-surface-dark: #f0f0f0;
+  --md-sys-color-on-surface-dark: #e0e0e0;
   --md-sys-color-surface-variant-dark: #282b2d;
-  --md-sys-color-on-surface-variant-dark: #f0f0f0;
+  --md-sys-color-on-surface-variant-dark: #e0e0e0;
   --md-sys-color-outline-dark: #938f99;
   --md-sys-color-inverse-on-surface-dark: #1c1b1e;
-  --md-sys-color-inverse-surface-dark: #f0f0f0;
+  --md-sys-color-inverse-surface-dark: #e0e0e0;
   --md-sys-color-inverse-primary-dark: #6451a5;
   --md-sys-color-shadow-dark: #000000;
   --md-sys-color-surface-tint-dark: #cdbdff;

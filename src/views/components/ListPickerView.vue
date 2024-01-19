@@ -1,17 +1,25 @@
 <template>
   <div>
     <div id="listPickerWrapper" ref="listPickerWrapper"
-         class="flex flex-col surface-variant pt-2 relative">
+         class="flex flex-col surface-variant pt-2 relative z-50">
       <div v-for="(obj, ix) in list_obj" :key="obj"
            v-show="!obj._isHidden"
            v-on:click="confirmOnClick(obj)"
            :id="'listPickObj_' + index"
-           class="mx-2 mb-2 p-2 rounded
+           class="mx-2 mb-2 p-2 rounded flex flex-row gap-4 items-center
                   surface hover:tertiary cursor-pointer"
            :class="{'tertiary': ix === index}">
+        <template v-if="obj._md">
+          <div class="w-20">
+            <Markdown class="markedView w-fit"
+                      :source="obj._md"
+                      :breaks="true"
+                      :plugins="plugins"/>
+          </div>
+        </template>
         <p class="font-bold">
           <template v-if="keyName === 't'">
-            {{ obj.usr }}
+            {{ obj.t }}
           </template>
           <template v-else-if="keyName === 'usr'">
             {{ obj.usr }}
@@ -20,6 +28,11 @@
             {{ obj }}
           </template>
         </p>
+        <template v-if="obj._hint">
+          <p class="font-normal">
+            {{ obj._hint }}
+          </p>
+        </template>
       </div>
       <div class="w-full flex mt-2 pl-3 pr-1 items-center">
         <p class="p-1 font-bold pointer-events-none">
@@ -39,15 +52,19 @@
 <script>
 
 import { XMarkIcon } from '@heroicons/vue/24/outline'
+import { toRaw } from 'vue'
+import Markdown from 'vue3-markdown-it'
+import markdownItMermaid from 'markdown-it-mermaid'
 
 export default {
   name: 'ListPickerView',
-  components: { XMarkIcon },
+  components: { Markdown, XMarkIcon },
   props: {
     list: Array,
     keyName: String,
     query: String,
-    headline: String
+    headline: String,
+    prefix: String
   },
   watch: {
     query: function (newVal) {
@@ -58,7 +75,13 @@ export default {
   data () {
     return {
       list_obj: [],
-      index: 0
+      index: 0,
+      prefixString: '',
+      plugins: [
+        {
+          plugin: markdownItMermaid
+        }
+      ]
     }
   },
   mounted () {
@@ -70,7 +93,11 @@ export default {
   computed: {},
   methods: {
     initFunction: async function () {
-      this.list_obj = this.list
+      this.list_obj = toRaw(this.list)
+      this.filterResults('')
+      if (this.prefix) {
+        this.prefixString = this.prefix
+      }
       window.addEventListener('keyup', this.handleKeyUp, false)
     },
     handleKeyUp: function (e) {
@@ -124,28 +151,28 @@ export default {
       this.$emit('close')
     },
     filterResults: function (query) {
-      console.log(query)
       if (this.list_obj.length < 1) return
-      const splits = query.split('@')
-      // Extract the actual query which sits after the @ symbol
+      const splits = query.split(this.prefixString)
+      // Extract the actual query which sits after the prefix symbol e.g. @
       // e.g.: hello @max
       // Here the actual query would be max
-      const queryTmp = splits[splits.length - 1]
+      let queryTmp = splits[splits.length - 1]
       // Put _isHidden value for all objects
       for (let i = 0; i < this.list_obj.length; i++) {
-        if (query === '') {
+        if (queryTmp === '' || queryTmp == null) {
           this.list_obj[i]._isHidden = false
           continue
         }
+        queryTmp = queryTmp.toLowerCase()
         switch (this.keyName) {
           case 't':
-            this.list_obj[i]._isHidden = !this.list_obj[i].t.includes(queryTmp)
+            this.list_obj[i]._isHidden = !this.list_obj[i].t.toLowerCase().includes(queryTmp)
             break
           case 'usr':
-            this.list_obj[i]._isHidden = !this.list_obj[i].usr.includes(queryTmp)
+            this.list_obj[i]._isHidden = !this.list_obj[i].usr.toLowerCase().includes(queryTmp)
             break
           default:
-            this.list_obj[i]._isHidden = !this.list_obj[i].includes(queryTmp)
+            this.list_obj[i]._isHidden = !this.list_obj[i].toLowerCase().includes(queryTmp)
         }
       }
       // After filtering we need to check
@@ -169,7 +196,8 @@ export default {
       this.clickedBack()
     },
     confirmOnEnter: function () {
-      if (this.list_obj.length < 1) {
+      if (this.list_obj.length < 1 || this.list_obj[this.index]._isHidden) {
+        this.clickedBack()
         return
       }
       this.confirmOnClick(this.list_obj[this.index])

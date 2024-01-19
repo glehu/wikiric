@@ -597,7 +597,9 @@
                             </div>
                           </div>
                         </template>
-                        <div class="message_body" :class="{ 'own_message_body': msg.editable}">
+                        <div class="message_body"
+                             :class="{ 'own_message_body': msg.editable,
+                                       'bg-orange-500 bg-opacity-25 rounded-r-lg rounded-l-lg': msg.tagActive}">
                           <div style="min-width: 42px; max-width: 42px">
                             <template v-if="msg.header === false">
                               <div class="msg_time" style="pointer-events: none">
@@ -605,10 +607,6 @@
                               </div>
                             </template>
                           </div>
-                          <template v-if="msg.tagActive === true">
-                            <div class="b_orange z-[5] w-[4px] rounded-l-md">
-                            </div>
-                          </template>
                           <div v-if="!msg.usr.startsWith('_server')"
                                class="msg_options gap-x-2">
                             <div class="inverse-surface rounded gap-x-4 flex px-2 py-1">
@@ -744,8 +742,8 @@
                           <template v-else-if="msg.mType === 'Reply'">
                             <div class="w-full flex flex-col"
                                  :class="{ 'items-start': !msg.editable, 'items-end': msg.editable}">
-                              <div class="flex mt-2 mb-1 w-fit rounded-lg overflow-hidden">
-                                <div class="flex-grow w-[4px] primary"></div>
+                              <div class="flex mt-2 w-fit rounded-l-lg rounded-tr-lg overflow-hidden
+                                          primary_border_bottom">
                                 <div class="w-fit surface max-w-lg">
                                   <div class="w-fit py-1 px-2 pl-2">
                                     <p class="text-xs pointer-events-none w-fit">
@@ -757,7 +755,7 @@
                                     <ArrowUturnLeftIcon class="w-5 h-5 on-background-text"/>
                                     <Markdown :id="'rsr_' + msg.uid"
                                               class="py-1 w-fit mb-1
-                                                   clientMessage markedView text-sm"
+                                                     clientMessage markedView text-sm"
                                               :source="msg.source.msg.replaceAll('\n', ' ')"
                                               :breaks="true"
                                               :plugins="plugins"
@@ -766,6 +764,7 @@
                                 </div>
                               </div>
                               <Markdown :id="'msg_' + msg.uid"
+                                        style="border-top-right-radius: 0"
                                         class="clientMessage markedView w-fit"
                                         :class="{'cmBigImg': msg.enlarge}"
                                         :source="msg.msg"
@@ -796,13 +795,14 @@
                           <template v-else>
                             <Markdown :id="'msg_' + msg.uid"
                                       class="clientMessage markedView"
-                                      :class="{'cmBigImg': msg.enlarge}"
+                                      :class="{'cmBigImg': msg.enlarge,
+                                              'border-b-4 border-b-orange-500': msg.tagActive}"
                                       :source="msg.msg"
                                       :breaks="true"
                                       :plugins="plugins"/>
                           </template>
                           <template v-if="msg.e">
-                            <div class="flex items-end pl-2 pb-1">
+                            <div class="flex items-end px-2 pb-1">
                               <p class="text-xs">
                                 Edited
                               </p>
@@ -898,10 +898,29 @@
                                 class="user_tagger"
                                 :list="mainMembers"
                                 :query="new_message"
+                                :prefix="'@'"
                                 :keyName="'usr'"
                                 :headline="'Tag a member'"
                                 @confirm="handleUserTagConfirmation"
                                 @close="isTaggingUser = false"/>
+              <listpickerviewer v-if="isWritingEmote"
+                                class="user_tagger"
+                                :list="emoteList"
+                                :query="new_message"
+                                :prefix="':'"
+                                :keyName="'t'"
+                                :headline="'Send a custom emote'"
+                                @confirm="handleCustomEmoteConfirmation"
+                                @close="isWritingEmote = false"/>
+              <listpickerviewer v-if="isWritingCommand"
+                                class="user_tagger"
+                                :list="commandList"
+                                :query="new_message"
+                                :prefix="':'"
+                                :keyName="'t'"
+                                :headline="'Send command'"
+                                @confirm="handleCommandConfirmation"
+                                @close="isWritingCommand = false"/>
               <div v-if="isSelectingImgflipTemplate"
                    class="imgflip_selector c_lightgray"
                    style="padding: 10px; position: absolute; z-index: 100">
@@ -1544,6 +1563,8 @@ export default {
     return {
       chatroom: {},
       emotes: null, // Custom Emote-Map
+      emoteList: [], // Custom Emote-Array
+      commandList: [{ t: '/leaderboard', _hint: 'Prints a summary of contributors for all channels.' }],
       subchats: [],
       isSubchat: false,
       userId: null,
@@ -1607,6 +1628,8 @@ export default {
       isEditingMessage: false,
       isReplyingToMessage: false,
       isTaggingUser: false,
+      isWritingEmote: false,
+      isWritingCommand: false,
       isSelectingImgflipTemplate: false,
       isFillingImgflipTemplate: {
         active: false,
@@ -2157,6 +2180,11 @@ export default {
         ts: new Date().getTime()
       })
       if (this.isEditingMessage === true) {
+        // Was the message actually edited?
+        if (this.new_message === this.messageEditing._msg) {
+          this.resetEditing()
+          return
+        }
         let editPayloadMessage
         if (this.new_message !== '') {
           editPayloadMessage = '[c:MSG<ENCR]' +
@@ -2776,7 +2804,10 @@ export default {
           console.debug('Reply Message Parsing Error')
         }
       }
-      message.tagActive = message.msg.includes('@' + this.$store.state.username) === true
+      message.tagActive = message.msg.includes('@' + this.$store.state.username)
+      if (!message.tagActive) {
+        message.tagActive = message.msg.includes('@everyone') || message.msg.includes('@here')
+      }
       if (!draft) {
         // Set this message as the last that was processed
         this.last_message = message
@@ -2784,10 +2815,17 @@ export default {
         this.last_message.msgMonth = msgMonth
         this.last_message.msgYear = msgYear
       }
+      // Save original message content
+      message._msg = message.msg
       // Replace emote placeholders
       message.msg = this.replaceEmotePlaceholders(message.msg)
+      message.msg = this.replaceMemberTags(message.msg)
       // Check if msg only consists of an emote
-      this.checkMsgLoneEmote(message)
+      const rgx = /^!\[:.+:]\(.+\)$/
+      const results = message.msg.match(rgx)
+      if (results != null && results.length > 0) {
+        message.enlarge = true
+      }
       return new Promise((resolve) => {
         resolve(message)
       })
@@ -3075,6 +3113,8 @@ export default {
       this.isViewingFiles = false
       this.isViewingImage = false
       this.isTaggingUser = false
+      this.isWritingEmote = false
+      this.isWritingCommand = false
       this.isSelectingImgflipTemplate = false
       this.isFillingImgflipTemplate.active = false
       this.isTransferring = false
@@ -3250,7 +3290,7 @@ export default {
     },
     handleEnter: function () {
       if (event.key === 'Enter') {
-        if (this.isTaggingUser === true) {
+        if (this.isTaggingUser === true || this.isWritingEmote === true || this.isWritingCommand === true) {
           event.preventDefault()
         } else if (this.isSelectingImgflipTemplate === true) {
           event.preventDefault()
@@ -3265,7 +3305,7 @@ export default {
         }
       } else if (event.key === 'ArrowUp') {
         if (this.new_message !== '') {
-          if (this.isTaggingUser === true) {
+          if (this.isTaggingUser === true || this.isWritingEmote === true || this.isWritingCommand === true) {
             event.preventDefault()
           } else if (this.isSelectingImgflipTemplate === true) {
             event.preventDefault()
@@ -3302,7 +3342,7 @@ export default {
           this.editOwnLastMessage()
         }
       } else if (event.key === 'ArrowDown') {
-        if (this.isTaggingUser === true) {
+        if (this.isTaggingUser === true || this.isWritingEmote === true || this.isWritingCommand === true) {
           event.preventDefault()
         } else if (this.isSelectingImgflipTemplate === true) {
           event.preventDefault()
@@ -3346,29 +3386,24 @@ export default {
           this.isTaggingUser = false
         }
       }
-      if (this.isTaggingUser === true) {
-        for (let i = this.new_message.length - 1; i >= 0; i--) {
-          if (this.new_message.substring(i, i + 1) === '@') {
-            let string = ''
-            for (let j = i + 1; j < this.new_message.length; j++) {
-              if (this.new_message.substring(j, j + 1) === ' ') {
-                this.isTaggingUser = false
-                return
-              }
-              string += this.new_message.substring(j, j + 1).toUpperCase()
-            }
-            for (let k = 0; k < this.mainMembers.length; k++) {
-              this.mainMembers[k].taggable = string === '' ||
-                this.mainMembers[k].usr.toUpperCase().includes(string)
-            }
-            for (let k = 0; k < this.mainMembers.length; k++) {
-              if (this.mainMembers[k].taggable === true) {
-                this.tagIndex = k
-                break
-              }
-            }
-            break
-          }
+      // Check for : to prompt user for completing a custom emote text
+      if (this.new_message.substring(this.new_message.length - 1) === ':') {
+        this.isWritingEmote = true
+      } else {
+        // Hide the emote window if we typed a space
+        if (this.isWritingEmote &&
+          (this.new_message.substring(this.new_message.length - 1) === ' ' || !this.new_message.includes(':'))) {
+          this.isWritingEmote = false
+        }
+      }
+      // Check for / to prompt user for completing a command
+      if (this.new_message.substring(this.new_message.length - 1) === '/') {
+        this.isWritingCommand = true
+      } else {
+        // Hide the emote window if we typed a space
+        if (this.isWritingEmote &&
+          (this.new_message.substring(this.new_message.length - 1) === ' ' || !this.new_message.includes('/'))) {
+          this.isWritingCommand = false
         }
       }
       // Check for /flip to prompt user for selecting a meme template
@@ -3690,28 +3725,30 @@ export default {
       return chatGUID.trim()
     },
     processUploadSnippetResponse: async function (response) {
-      const contentURL = this.$store.state.serverIP + '/files/public/get/' + response.trim()
-      let prefix
-      if (this.uploadFileType.includes('audio')) {
-        prefix = '[c:AUD]'
-      } else if (this.uploadFileType.includes('image')) {
-        prefix = '[c:IMG]'
-      } else if (this.uploadFileType.includes('text')) {
-        prefix = '[c:TXT]'
-      } else if (this.uploadFileType.includes('compressed')) {
-        prefix = '[c:ZIP]'
-      } else {
-        prefix = '[c:FIL]'
+      if (!this.uploadAsEmote) {
+        const contentURL = this.$store.state.serverIP + '/files/public/get/' + response.trim()
+        let prefix
+        if (this.uploadFileType.includes('audio')) {
+          prefix = '[c:AUD]'
+        } else if (this.uploadFileType.includes('image')) {
+          prefix = '[c:IMG]'
+        } else if (this.uploadFileType.includes('text')) {
+          prefix = '[c:TXT]'
+        } else if (this.uploadFileType.includes('compressed')) {
+          prefix = '[c:ZIP]'
+        } else {
+          prefix = '[c:FIL]'
+        }
+        // Add the link as a message, so it shows up in the chat
+        const payload = JSON.stringify({
+          msg: '![Snippet](' + contentURL + ')',
+          url: contentURL,
+          fileName: this.uploadFileName
+        })
+        this.addMessagePar(prefix + '[c:MSG<ENCR]' +
+          await this.encryptPayload(payload)
+        )
       }
-      // Add the link as a message, so it shows up in the chat
-      const payload = JSON.stringify({
-        msg: '![Snippet](' + contentURL + ')',
-        url: contentURL,
-        fileName: this.uploadFileName
-      })
-      this.addMessagePar(prefix + '[c:MSG<ENCR]' +
-        await this.encryptPayload(payload)
-      )
       this.uploadFileBase64 = ''
       this.uploadFileType = ''
       this.uploadFileName = ''
@@ -3785,7 +3822,7 @@ export default {
         this.resetReplying()
         this.isEditingMessage = true
         this.messageEditing = msg
-        this.new_message = msg.msg
+        this.new_message = msg._msg
         this.focusComment(true)
         setTimeout(() => {
           this.auto_grow()
@@ -4999,12 +5036,16 @@ export default {
           let md
           let fname
           this.emotes = new Map()
+          this.emoteList = []
           for (let i = 0; i < emotes.length; i++) {
             url = this.$store.state.serverIP + '/' + emotes[i].pth
             fname = ':' + emotes[i].t.split('.')[0] + ':'
             // Build Markdown image string
             md = `![${fname}](${url})`
             this.emotes[fname] = md
+            // Add to emote list (user prompt)
+            emotes[i]._md = md
+            this.emoteList.push(emotes[i])
           }
         })
         .then(() => resolve())
@@ -5018,13 +5059,9 @@ export default {
       )
       return msg.replace(pattern, match => this.emotes[match])
     },
-    checkMsgLoneEmote: function (message) {
-      // Check if there is only one image link inside a paragraph
-      const rgx = /^!\[:.+:]\(.+\)$/
-      const results = message.msg.match(rgx)
-      if (results != null && results.length === 1) {
-        message.enlarge = true
-      }
+    replaceMemberTags: function (msg) {
+      const pattern = /@\w+/
+      return msg.replace(pattern, match => `**\`${match}\`**`)
     },
     handleUserProfileUpdate: function () {
       this.getClarifierMetaData()
@@ -5039,6 +5076,46 @@ export default {
     },
     handleUserTagConfirmation: function (obj) {
       this.tagUserProfile(obj)
+    },
+    handleCustomEmoteConfirmation: function (obj) {
+      this.isWritingEmote = false
+      if (obj == null || obj.t == null) {
+        return
+      }
+      for (let i = this.new_message.length - 1; i >= 0; i--) {
+        if (this.new_message.substring(i, i + 1) === ':') {
+          let j = i + 1
+          for (j; j < this.new_message.length; j++) {
+            if (this.new_message.substring(j, j + 1) === ' ') {
+              break
+            }
+          }
+          this.new_message = this.new_message.substring(0, i + 1) +
+            obj.t.split('.')[0] + ': ' + this.new_message.substring(j)
+          break
+        }
+      }
+      this.focusComment(true)
+    },
+    handleCommandConfirmation: function (obj) {
+      this.isWritingCommand = false
+      if (obj == null || obj.t == null) {
+        return
+      }
+      for (let i = this.new_message.length - 1; i >= 0; i--) {
+        if (this.new_message.substring(i, i + 1) === '/') {
+          let j = i + 1
+          for (j; j < this.new_message.length; j++) {
+            if (this.new_message.substring(j, j + 1) === ' ') {
+              break
+            }
+          }
+          this.new_message = this.new_message.substring(0, i + 1) +
+            obj.t.split('/')[1] + ' ' + this.new_message.substring(j)
+          break
+        }
+      }
+      this.focusComment(true)
     }
   }
 }
@@ -5500,11 +5577,11 @@ export default {
 }
 
 .clientMessage p img {
-  max-height: 32px;
-  max-width: 32px;
+  max-height: 48px;
+  max-width: 48px;
 }
 
-.cmBigImg img {
+.cmBigImg p img {
   min-width: 64px;
   min-height: 64px;
 }

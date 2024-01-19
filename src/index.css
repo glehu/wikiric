@@ -225,7 +225,7 @@
     }
 
     .primary_border_bottom {
-        border-bottom: 2px solid var(--md-sys-color-primary-light);
+        border-bottom: 4px solid var(--md-sys-color-primary-light);
     }
 
     .fmt_border_left {

@@ -888,4 +888,9 @@ export default {
 
 <style>
 
+.cm-editor {
+  @apply w-full h-full fmt_border overflow-hidden;
+  background-color: var(--md-sys-color-surface-light);
+}
+
 </style>
