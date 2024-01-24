@@ -98,11 +98,9 @@ export default {
           if (event.data.subchatGUID) {
             console.debug('firebase->dlChannel->connect as SUBCHAT', event.data.subchatGUID)
             this.$router.push('/redirect?redirect=' + event.data.destination + '?sub=' + event.data.subchatGUID)
-          } else {
-            if (event.data.destination != null) {
-              console.debug('firebase->dlChannel->connect as GENERAL', event.data.destination)
-              this.$router.push('/redirect?redirect=' + event.data.destination)
-            }
+          } else if (event.data.destination != null) {
+            console.debug('firebase->dlChannel->connect as GENERAL', event.data.destination)
+            this.$router.push('/redirect?redirect=' + event.data.destination)
           }
         }
         // eslint-disable-next-line no-unused-vars
@@ -111,16 +109,16 @@ export default {
           {
             vapidKey: 'BOzbV7unTf_hYvuQj6sjJkJ-5G6msi1sLNc3-8zJ6VBtOrrxTnGRjob0fck7A8V8scucPw_hq3ReBDCljZTrC9g'
           })
-          .then((currentToken) => {
-            if (currentToken) {
-              this.$store.commit('setFCMToken', currentToken)
-            } else {
-              console.log('No registration token available. Request permission to generate one.')
-            }
-          })
-          .catch((err) => {
-            console.log('An error occurred while retrieving token. ', err)
-          })
+        .then((currentToken) => {
+          if (currentToken) {
+            this.$store.commit('setFCMToken', currentToken)
+          } else {
+            console.log('No registration token available. Request permission to generate one.')
+          }
+        })
+        .catch((err) => {
+          console.log('An error occurred while retrieving token. ', err)
+        })
         messaging.onMessage((payload) => {
           console.log('Message received. ', payload)
           let notify = false
@@ -206,9 +204,9 @@ export default {
         ? this.navigation
         : this.navigation.filter((nav) =>
           nav.name
-            .toLowerCase()
-            .replace(/\s+/g, '')
-            .includes(this.navQuery.toLowerCase().replace(/\s+/g, ''))
+          .toLowerCase()
+          .replace(/\s+/g, '')
+          .includes(this.navQuery.toLowerCase().replace(/\s+/g, ''))
         )
     }
   }

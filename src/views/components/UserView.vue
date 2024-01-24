@@ -101,12 +101,61 @@
           <i class="bi bi-x-lg lead" style="cursor: pointer; position: absolute; right: 0" title="Close"
              v-on:click="isAddingRole = false"></i>
           <p class="font-bold text-sm">Add a new Role</p>
-          <input id="new_role"
-                 type="text"
-                 class="fmt_input mb-4"
-                 v-model="new_role"
-                 :placeholder="'Role'"
-                 v-on:keyup.enter="commitUserRole">
+          <div class="h-full z-50 relative">
+            <Listbox v-model="new_role">
+              <div class="relative mt-1">
+                <ListboxButton class="listbox_button p-2 mt-1">
+                  <template v-if="new_role && new_role.t">
+                    <span class="block truncate">{{ new_role.t }}</span>
+                  </template>
+                  <template v-else>
+                    <span class="block truncate italic">Select Role...</span>
+                  </template>
+                  <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                  <ChevronUpDownIcon
+                    class="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </span>
+                </ListboxButton>
+                <transition
+                  leave-active-class="transition duration-100 ease-in"
+                  leave-from-class="opacity-100"
+                  leave-to-class="opacity-0">
+                  <ListboxOptions
+                    class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md surface
+                               py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5
+                               focus:outline-none sm:text-sm z-50">
+                    <ListboxOption
+                      v-slot="{ active, selected }"
+                      v-for="role in chatroom.roles"
+                      :key="role.t"
+                      :value="role"
+                      as="template">
+                      <li
+                        :class="[ active ? 'primary-container' : '',
+                                  'relative cursor-pointer select-none py-2 pl-10 pr-4' ]">
+                      <span :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
+                        {{ role.t }}
+                      </span>
+                        <span
+                          v-if="selected"
+                          class="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                        <CheckIcon class="h-5 w-5" aria-hidden="true"/>
+                      </span>
+                      </li>
+                    </ListboxOption>
+                  </ListboxOptions>
+                </transition>
+              </div>
+            </Listbox>
+            <div class="flex w-full">
+              <div class="fmt_button ml-auto"
+                   v-on:click="commitUserRole()">
+                <p class="px-2">Add</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <h5 class="mt-3 mb-2 headerline text-sm">Badges</h5>
@@ -258,8 +307,14 @@
 </template>
 
 <script>
-import { MoonIcon, QrCodeIcon, UserCircleIcon } from '@heroicons/vue/24/solid'
+import { ChevronUpDownIcon, CheckIcon, MoonIcon, QrCodeIcon, UserCircleIcon } from '@heroicons/vue/24/solid'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions
+} from '@headlessui/vue'
 import * as QRCode from 'easyqrcodejs'
 import modal from '@/components/Modal.vue'
 import { dbGetDisplayName } from '@/libs/wikistore'
@@ -273,6 +328,12 @@ export default {
   },
   emits: ['close', 'update'],
   components: {
+    Listbox,
+    ListboxButton,
+    ListboxOption,
+    ListboxOptions,
+    CheckIcon,
+    ChevronUpDownIcon,
     modal,
     XMarkIcon,
     QrCodeIcon,
@@ -430,6 +491,7 @@ export default {
             text: '',
             type: 'fmt_notify'
           })
+        this.$emit('update')
       })
       .catch((e) => {
         if (e) {
@@ -454,23 +516,30 @@ export default {
     },
     addUserRole: function () {
       this.isAddingRole = true
-      const roleInput = document.getElementById('new_role')
-      setTimeout(() => roleInput.focus(), 0)
     },
     commitUserRole: function () {
       const content = JSON.stringify({
-        member: this.viewedUserProfile.usr,
-        role: this.new_role
+        usr: this.user.usr,
+        role: this.new_role.t
       })
+      this.new_role = ''
+      this.isAddingRole = false
       this.$Worker.execute({
         action: 'api',
         method: 'post',
-        url: 'm5/addrole/' + this.getSession(),
+        url: 'chat/private/users/roles/mod/' + this.chatroom.uid,
         body: content
       })
-      .then(() => this.hideUserProfile())
-      .then(() => this.getClarifierMetaData(this.getSession(), false, true))
-      .catch((err) => console.debug(err.message))
+      .then(() => this.$emit('update'))
+      .catch((err) => {
+        console.debug(err)
+        this.$notify(
+          {
+            title: 'Error!',
+            text: 'Maybe you do not have admin rights to be able to modify roles.',
+            type: 'fmt_notify'
+          })
+      })
     },
     exportPrivateKey: async function () {
       const key = await this.$store.getters.getClarifierKeyPair(this.chatroom.uid)
@@ -491,7 +560,7 @@ export default {
 <style>
 
 .user_role {
-  @apply rounded-lg overflow-hidden p-2;
+  @apply rounded-b-lg p-2;
 }
 
 </style>

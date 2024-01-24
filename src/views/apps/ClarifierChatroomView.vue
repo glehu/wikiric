@@ -1410,32 +1410,6 @@
       <p class="pl-4">Happy Chatting!</p>
     </template>
   </modal>
-  <modal
-    v-show="isTransferring"
-    @close="hideAllWindows()">
-    <template v-slot:header>
-      <h2 class="font-bold text-2xl">Transfer</h2>
-    </template>
-    <template v-slot:body>
-      <div class="md:flex">
-        <div id="transfer_qrcode"></div>
-        <div class="mt-4 md:mt-0 md:mx-4">
-          <p class="text-xl">Guide:</p>
-          <ol class="list-decimal list-inside">
-            <li>Get the device that you are trying to migrate to.</li>
-            <li>Scan the QR Code on the device.</li>
-            <li>Wait for the transfer to finish.</li>
-          </ol>
-          <div class="flex mt-4 items-center">
-            <span class="spinner-border c_orange" role="status" aria-hidden="true"></span>
-            <span class="ml-2 font-bold c_lightgray">Waiting...</span>
-          </div>
-        </div>
-      </div>
-    </template>
-    <template v-slot:footer>
-    </template>
-  </modal>
   <template v-if="isViewingProcess">
     <template v-if="processGUID != null && processGUID !== ''">
       <div class="session_settings h-full w-full">
@@ -1500,7 +1474,6 @@ import Markdown from 'vue3-markdown-it'
 import markdownItMermaid from 'markdown-it-mermaid'
 import mermaid from 'mermaid'
 import 'highlight.js/styles/hybrid.css'
-import * as QRCode from 'easyqrcodejs'
 import { DateTime } from 'luxon'
 // Icons
 import {
@@ -1598,7 +1571,10 @@ export default {
       chatroom: {},
       emotes: null, // Custom Emote-Map
       emoteList: [], // Custom Emote-Array
-      commandList: [{ t: '/leaderboard', _hint: 'Prints a summary of contributors for all channels.' }],
+      commandList: [{
+        t: '/leaderboard',
+        _hint: 'Prints a summary of contributors for all channels.'
+      }],
       subchats: [],
       isSubchat: false,
       userId: null,
@@ -1672,7 +1648,6 @@ export default {
       },
       isStreamingVideo: false,
       isEditingProfile: false,
-      isTransferring: false,
       isBanned: false,
       canShowSidebar: true,
       isViewingProcess: false,
@@ -2118,6 +2093,7 @@ export default {
           // Edit message
           try {
             this.messages[index].msg = message.msg
+            this.messages[index]._msg = message._msg
             this.messages[index].e = true
             // this.removeUserFromActivity(this.messages[index].usr)
             setTimeout(() => {
@@ -2227,6 +2203,9 @@ export default {
           this.resetEditing()
           return
         }
+        // Apply edited content
+        this.messageEditing._msg = this.new_message
+        // Transmit
         let editPayloadMessage
         if (this.new_message !== '') {
           editPayloadMessage = '[c:MSG<ENCR]' +
@@ -3168,7 +3147,6 @@ export default {
       this.isWritingCommand = false
       this.isSelectingImgflipTemplate = false
       this.isFillingImgflipTemplate.active = false
-      this.isTransferring = false
       this.imgflip_template = {}
       this.viewingImageURL = ''
       this.hideUserProfile()
@@ -3445,7 +3423,7 @@ export default {
         this.isWritingEmote = true
       } else {
         // Do not hide emote selection if we are reacting to a message
-        if (!this.isEditingMessage && this.messageEditing != null && this.isWritingEmote) {
+        if (!this.isEditingMessage && this.messageEditing && this.messageEditing.uid != null && this.isWritingEmote) {
           // Do nothing :D
         } else {
           // Hide the emote window if we typed a space
@@ -3826,18 +3804,16 @@ export default {
         desc: msg.msg.trim(),
         pid: this.knowledge.uid,
         keys: 'msg message',
-        copyContent: '',
+        type: 'lesson',
         cats: []
       }
-      // Lesson (teach) or Question (ask)?
-      const endpoint = 'teach'
       // Create entry on the backend
       const bodyPayload = JSON.stringify(payload)
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm7/' + endpoint,
+          url: 'wisdom/private/create',
           body: bodyPayload
         })
         .then((data) => {
@@ -4643,27 +4619,6 @@ export default {
         }
       }
     },
-    startTransferring: function () {
-      this.isTransferring = true
-      setTimeout(() => {
-        const elem = document.getElementById('transfer_qrcode')
-        while (elem.firstChild) {
-          elem.firstChild.remove()
-        }
-        const qrCodePayload = this.$store.state.serverIP +
-          '/apps/clarifier/transfer' +
-          '?guid=' + this.chatroom.uid +
-          '&who=' + this.$store.state.username
-        const qrCode = new QRCode(elem, {
-          text: qrCodePayload,
-          quietZone: 10,
-          quietZoneColor: 'rgba(255,255,255,1)'
-        })
-        if (qrCode) {
-          console.debug(qrCode)
-        }
-      }, 0)
-    },
     shareActivity: async function () {
       // Check if activity was previously shared already
       if (this.lastSharedActivity == null) {
@@ -5125,7 +5080,7 @@ export default {
         return
       }
       // Are we trying to react with an emote? Do not set message then
-      if (!this.isEditingMessage && this.messageEditing != null) {
+      if (!this.isEditingMessage && this.messageEditing && this.messageEditing.uid != null) {
         this.reactToMessage(this.messageEditing, ':' + obj.t + ':')
         this.new_message = ''
         this.messageEditing = null

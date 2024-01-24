@@ -226,11 +226,13 @@
                   </template>
                 </div>
               </div>
-              <div class="xl:hidden surface p-2 mb-2 w-fit rounded-md">
-                <p class="m-0">{{ wisdom.name }}</p>
-                <p class="m-0 text-sm">
-                  {{ getHumanReadableDateText(wisdom.ts, true, true) }}
-                </p>
+              <div class="pb-2">
+                <div class="xl:hidden surface p-2 w-fit rounded-md">
+                  <p class="m-0">{{ wisdom.name }}</p>
+                  <p class="m-0 text-sm">
+                    {{ getHumanReadableDateText(wisdom.ts, true, true) }}
+                  </p>
+                </div>
               </div>
               <template v-if="wisdom.type === 'question' && wisdom.done !== true">
                 <div class="w-full pb-1">
@@ -744,9 +746,7 @@
               <br>
               <Listbox v-model="wisCategories" multiple id="wisCategories" by="t">
                 <div class="relative mt-1">
-                  <ListboxButton
-                    class="listbox_button"
-                  >
+                  <ListboxButton class="listbox_button">
                     <template v-if="wisCategories.length > 0">
                       <div class="block truncate font-bold">
                         {{ wisCategories.map((cat) => cat.t).join(', ') }}
@@ -1915,7 +1915,11 @@ export default {
           this.cm = view
         } else {
           this.cm.dispatch({
-            changes: { from: 0, to: this.cm.state.doc.length, insert: this.wisDescription }
+            changes: {
+              from: 0,
+              to: this.cm.state.doc.length,
+              insert: this.wisDescription
+            }
           })
         }
       }, 0)
