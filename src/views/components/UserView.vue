@@ -203,6 +203,25 @@
             </div>
             <span class="ms-2">Waiting...</span>
           </div>
+          <div class="p-2 fmt_border surface rounded mt-2">
+            <p class="font-bold text-xl mb-2">wikiric SDK</p>
+            <p class="text-sm">
+              Alternatively you can export this group's
+              <br>private key to be used for the wikiric SDK:
+            </p>
+            <p class="mt-2 text-sm">
+              WARNING
+              <br>The private key provides access to encrypted messages.
+            </p>
+            <p class="my-2 font-bold">
+              DO NOT distribute this key!
+              <br>NEVER make this key leave this device!
+            </p>
+            <div class="fmt_button mt-2 mb-1"
+                 v-on:click="exportPrivateKey()">
+              <p class="font-bold px-2 py-1">Export Private Key</p>
+            </div>
+          </div>
         </div>
       </div>
     </template>
@@ -253,7 +272,13 @@ export default {
     user: Object
   },
   emits: ['close', 'update'],
-  components: { modal, XMarkIcon, QrCodeIcon, UserCircleIcon, MoonIcon },
+  components: {
+    modal,
+    XMarkIcon,
+    QrCodeIcon,
+    UserCircleIcon,
+    MoonIcon
+  },
   data () {
     return {
       isTransferring: false,
@@ -446,6 +471,18 @@ export default {
       .then(() => this.hideUserProfile())
       .then(() => this.getClarifierMetaData(this.getSession(), false, true))
       .catch((err) => console.debug(err.message))
+    },
+    exportPrivateKey: async function () {
+      const key = await this.$store.getters.getClarifierKeyPair(this.chatroom.uid)
+      if (key != null) {
+        await navigator.clipboard.writeText(key.priv)
+        this.$notify(
+          {
+            title: 'Private Key Copied!',
+            text: '',
+            type: 'fmt_notify'
+          })
+      }
     }
   }
 }
