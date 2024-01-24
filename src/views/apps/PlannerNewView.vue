@@ -37,7 +37,7 @@
         </div>
       </div>
       <div class="w-full h-full overflow-hidden lg:p-2">
-        <div class="flex m-2 h-[42px] gap-xl-4 pl-2 pr-4
+        <div class="flex h-[42px] gap-xl-4 pl-2 pr-4
                     background rounded-md w-full overflow-x-auto"
              style="border: 1px solid var(--md-sys-color-outline-variant);">
           <div class="p-1 flex items-center cursor-pointer hover:primary rounded-md"
@@ -848,13 +848,8 @@
             <div class="w-full">
               <textarea type="text" id="input_comment" v-model="showingTaskComment" rows="1"
                         placeholder="Write a comment"
-                        class="w-full                                focus:outline-none px-2 py-1 p_input"
+                        class="w-full focus:outline-none px-2 py-1 p_input"
                         v-on:keyup="showingTaskKeyup()"></textarea>
-              <div hidden
-                   class="p-2 rounded-full
-                          relative right-1 sidebar_button cursor-pointer">
-                <Squares2X2Icon class="h-6 w-6"></Squares2X2Icon>
-              </div>
             </div>
             <template v-if="!showingTaskRelated.replies || showingTaskRelated.replies.length < 1">
               <div class="flex w-full items-center justify-center py-4">
@@ -1214,7 +1209,6 @@ import {
   DocumentTextIcon,
   InboxIcon,
   ShareIcon,
-  Squares2X2Icon,
   TrashIcon,
   UserIcon,
   WindowIcon,
@@ -1269,7 +1263,6 @@ export default {
     EllipsisVerticalIcon,
     CubeTransparentIcon,
     ChatBubbleLeftEllipsisIcon,
-    Squares2X2Icon,
     Listbox,
     ListboxButton,
     ListboxOptions,
@@ -1473,6 +1466,13 @@ export default {
           suffix = '?state=todo'
           checkbox.checked = false
         }
+        // Prepare category color map
+        const catColors = new Map()
+        if (this.knowledge.cats) {
+          for (let i = 0; i < this.knowledge.cats.length; i++) {
+            catColors[this.knowledge.cats[i].t] = this.knowledge.cats[i].hex
+          }
+        }
         this.$Worker.execute({
           action: 'api',
           method: 'get',
@@ -1488,6 +1488,16 @@ export default {
               // Iterate over all tasks of this box
               for (let j = 0; j < this.boxes[i].tasks.length; j++) {
                 this.boxes[i].tasks[j].name = await dbGetDisplayName(this.boxes[i].tasks[j].usr)
+                // Replace category colors with knowledge category colors if present
+                if (this.boxes[i].tasks[j].cats) {
+                  let clr = ''
+                  for (let k = 0; k < this.boxes[i].tasks[j].cats.length; k++) {
+                    clr = catColors[this.boxes[i].tasks[j].cats[k].t]
+                    if (clr && clr !== '') {
+                      this.boxes[i].tasks[j].cats[k].hex = clr
+                    }
+                  }
+                }
                 if (this.boxes[i].tasks[j].due) {
                   // Add entry to calendar if there's a due date
                   this.calendarOptions.events.push({
@@ -2246,7 +2256,6 @@ export default {
     },
     addResults: function (results, type) {
       let entry
-      console.log(results)
       for (let i = 0; i < results.length; i++) {
         results[i].t = this.formatTitle(results[i].t)
         entry = {
@@ -2296,7 +2305,8 @@ export default {
       if (elemContainer) {
         elemContainer.scrollIntoView({
           behavior: 'smooth',
-          block: 'center'
+          block: 'nearest',
+          inline: 'nearest'
         })
       }
       if (elem && setActive) {
@@ -2870,13 +2880,6 @@ export default {
 
 .p_new_task_disclosure {
   @apply surface-variant bshadow p-3 pb-36;
-}
-
-.wisdomCat {
-  @apply fmt_border flex items-center
-  py-0.5 px-1 rounded mr-1 mb-1
-  pointer-events-none text-sm background
-  border-l-8;
 }
 
 </style>

@@ -1,41 +1,8 @@
 <template>
-  <div>
-    <div id="listPickerWrapper" ref="listPickerWrapper"
-         class="flex flex-col surface-variant pt-2 relative z-50">
-      <div v-for="(obj, ix) in list_obj" :key="obj"
-           v-show="!obj._isHidden"
-           v-on:click="confirmOnClick(obj)"
-           :id="'listPickObj_' + index"
-           class="mx-2 mb-2 p-2 rounded flex flex-row gap-4 items-center
-                  surface hover:tertiary cursor-pointer"
-           :class="{'tertiary': ix === index}">
-        <template v-if="obj._md">
-          <div class="w-20">
-            <Markdown class="markedView w-fit"
-                      :source="obj._md"
-                      :breaks="true"
-                      :plugins="plugins"/>
-          </div>
-        </template>
-        <p class="font-bold">
-          <template v-if="keyName === 't'">
-            {{ obj.t }}
-          </template>
-          <template v-else-if="keyName === 'usr'">
-            {{ obj.usr }}
-          </template>
-          <template v-else>
-            {{ obj }}
-          </template>
-        </p>
-        <template v-if="obj._hint">
-          <p class="font-normal">
-            {{ obj._hint }}
-          </p>
-        </template>
-      </div>
-      <div class="w-full flex mt-2 pl-3 pr-1 items-center">
-        <p class="p-1 font-bold pointer-events-none">
+  <div class="w-full flex justify-center">
+    <div class="max-w-screen-md w-full fmt_border rounded overflow-hidden h-full">
+      <div class="w-full flex pl-3 pr-1 items-center background sticky">
+        <p class="p-1 font-bold pointer-events-none text-sm">
           {{ headline }}
         </p>
         <div class="rounded-md w-fit ml-auto
@@ -43,6 +10,41 @@
              v-on:click="clickedBack()"
              v-tooltip="{ content: 'Exit' }">
           <XMarkIcon class="h-7 w-7"></XMarkIcon>
+        </div>
+      </div>
+      <div id="listPickerWrapper" ref="listPickerWrapper"
+           class="flex flex-col surface-variant pt-2 relative z-50">
+        <div v-for="(obj, ix) in list_obj" :key="obj"
+             v-show="!obj._isHidden"
+             v-on:click="confirmOnClick(obj)"
+             :id="'listPickObj_' + ix"
+             class="mx-2 mb-2 p-2 rounded flex flex-row gap-4 items-center
+                  surface hover:tertiary cursor-pointer"
+             :class="{'tertiary': ix === index}">
+          <template v-if="obj._md">
+            <div class="w-20">
+              <Markdown class="markedView w-fit"
+                        :source="obj._md"
+                        :breaks="true"
+                        :plugins="plugins"/>
+            </div>
+          </template>
+          <p class="font-bold">
+            <template v-if="keyName === 't'">
+              {{ obj.t }}
+            </template>
+            <template v-else-if="keyName === 'usr'">
+              {{ obj.usr }}
+            </template>
+            <template v-else>
+              {{ obj }}
+            </template>
+          </p>
+          <template v-if="obj._hint">
+            <p class="font-bold text-sm">
+              {{ obj._hint }}
+            </p>
+          </template>
         </div>
       </div>
     </div>
@@ -62,6 +64,7 @@ export default {
   props: {
     list: Array,
     keyName: String,
+    keyHelper: Boolean,
     query: String,
     headline: String,
     prefix: String
@@ -109,7 +112,7 @@ export default {
         e.preventDefault()
         e.stopPropagation()
         this.moveSelection(1)
-      } else if (e.key === 'Enter') {
+      } else if (e.key === 'Tab' || e.key === 'Tabulator') {
         e.preventDefault()
         e.stopPropagation()
         this.confirmOnEnter()
@@ -131,11 +134,12 @@ export default {
         return
       }
       this.index = indexTmp
-      const tmpElem = document.getElementById('listViewObj_' + this.index)
+      const tmpElem = document.getElementById('listPickObj_' + this.index)
       if (tmpElem) {
         tmpElem.scrollIntoView({
           behavior: 'smooth',
-          block: 'center'
+          block: 'nearest',
+          inline: 'nearest'
         })
       }
       // Move selection until we have moved the delta
@@ -173,6 +177,9 @@ export default {
             break
           default:
             this.list_obj[i]._isHidden = !this.list_obj[i].toLowerCase().includes(queryTmp)
+        }
+        if (this.list_obj[i]._isHidden && this.keyHelper) {
+          this.list_obj[i]._isHidden = !this.list_obj[i]._keys.toLowerCase().includes(queryTmp)
         }
       }
       // After filtering we need to check

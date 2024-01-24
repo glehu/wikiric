@@ -238,7 +238,7 @@ onmessage = function (e) {
       //   value: msg.value
       // }))
       ws.send(JSON.stringify({
-        action: '[c:FWD]',
+        act: '[c:FWD]',
         typ: msg.typ,
         msg: msg.msg,
         usr: msg.usr

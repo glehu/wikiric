@@ -10,7 +10,7 @@
           <div class="flex-shrink-0 flex items-center font-bold cursor-pointer text-2xl"
                v-on:click="$router.push('/')">
             <div class="w-[55px] flex items-center justify-center">
-              <img src='@/assets/wikiric/wikiric-logo-big.webp' alt="Logo"
+              <img src='../../assets/wikiric/wikiric-logo-big.webp' alt="Logo"
                    style="max-width: 28px; max-height: 28px; object-fit: contain;
                           filter: brightness(0%) invert(1)">
             </div>
@@ -29,7 +29,7 @@
           <div class="hidden sm:flex flex-shrink-0 items-center font-bold cursor-pointer text-2xl"
                v-on:click="$router.push('/')">
             <div class="w-[55px] flex items-center justify-center">
-              <img src='@/assets/wikiric/wikiric-logo-big.webp' alt="Logo"
+              <img src='../../assets/wikiric/wikiric-logo-big.webp' alt="Logo"
                    style="max-width: 28px; max-height: 28px; object-fit: contain;
                           filter: brightness(0%) invert(1)">
             </div>

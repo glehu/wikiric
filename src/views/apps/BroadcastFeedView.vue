@@ -64,7 +64,7 @@
                   </div>
                 </template>
               </div>
-              <div class="post">
+              <div class="post relative">
                 <div v-if="post.result.cats.length > 0"
                      class="flex gap-2 mb-2">
                   <template v-for="cat in post.result.cats" :key="cat">
@@ -81,6 +81,18 @@
                             :source="post.result.desc"
                             :plugins="plugins"></Markdown>
                 </template>
+                <div :id="'post_emotes_' + post.result.uid"
+                     class="hidden w-full h-full absolute bottom-0">
+                  <listpickerviewer v-show="isWritingEmote"
+                                    class="w-fit z-50 absolute bottom-0 left-0 -translate-x-4"
+                                    :list="emoteList"
+                                    :query="commentText"
+                                    :prefix="':'"
+                                    :key-name="'t'"
+                                    :headline="'Send a custom emote (Tab to complete)'"
+                                    @confirm="handleCustomEmoteConfirmation"
+                                    @close="isWritingEmote = false"/>
+                </div>
               </div>
             </div>
             <div class="my-1 flex justify-between">
@@ -93,11 +105,13 @@
                 </button>
                 <div :id="'post_comment_text_' + post.result.uid"
                      class="hidden w-full h-fit mb-4">
-                    <textarea :id="'post_comment_textarea_' + post.result.uid"
-                              v-model="commentText"
-                              name="post_comment"
-                              rows="3"
-                              class="w-full fmt_input ml-1"></textarea>
+                  <textarea :id="'post_comment_textarea_' + post.result.uid"
+                            v-model="commentText"
+                            v-on:input="handleCommentInput()"
+                            v-on:keydown="handleEnter()"
+                            name="post_comment"
+                            rows="3"
+                            class="w-full fmt_input ml-1"></textarea>
                   <div class="w-full flex justify-end gap-x-4">
                     <div v-on:click="cancelReplying()"
                          class="w-fit px-4 py-0.5 mt-1 rounded-full surface-variant
@@ -475,6 +489,7 @@ import { languages } from '@codemirror/language-data'
 import { dbGetDisplayName } from '@/libs/wikistore'
 import { DateTime } from 'luxon'
 import mermaid from 'mermaid'
+import listpickerviewer from '@/views/components/ListPickerView.vue'
 
 export default {
   name: 'BroadcastFeedView',
@@ -484,6 +499,7 @@ export default {
   },
   emits: ['close'],
   components: {
+    listpickerviewer,
     EyeIcon,
     HandThumbDownIcon,
     HandThumbUpIcon,
@@ -524,6 +540,8 @@ export default {
       pageSize: 5,
       isWritingPost: false,
       isAddingMedia: false,
+      isWritingEmote: false,
+      isTaggingUser: false,
       lastReplyUID: '',
       plugins: [
         {
@@ -533,7 +551,9 @@ export default {
       uploadFileName: '',
       uploadFileType: '',
       uploadFileBase64: '',
-      commentText: ''
+      commentText: '',
+      emotes: null,
+      emoteList: []
     }
   },
   mounted () {
@@ -576,6 +596,10 @@ export default {
       const knowledge = await this.getKnowledge(srcGUID, fromChat)
       if (knowledge != null) {
         this.knowledge = knowledge
+        this.chatGUID = this.knowledge.pid
+      }
+      if (fromChat) {
+        await this.getCustomEmotes(srcGUID)
       }
       this.getFeed()
     },
@@ -768,6 +792,15 @@ export default {
         if (dName == null) {
           dName = results[i].usr
         }
+        // Replace emotes in main content
+        results[i].desc = this.replaceEmotePlaceholders(results[i].desc)
+        // Are there comments? If so, replace emotes there, too
+        if (results[i].replies) {
+          for (let j = 0; j < results[i].replies.length; j++) {
+            results[i].replies[j].desc = this.replaceEmotePlaceholders(results[i].replies[j].desc)
+          }
+        }
+        // Add post to list
         entry = {
           priority: 'high',
           type: type,
@@ -967,9 +1000,16 @@ export default {
       const input = document.getElementById('post_comment_text_' + uid)
       button.style.display = 'none'
       input.style.display = 'block'
+      const emoteSelector = document.getElementById('post_emotes_' + uid)
+      emoteSelector.style.display = 'block'
       setTimeout(() => {
         const text = document.getElementById('post_comment_textarea_' + uid)
         text.focus()
+        text.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest'
+        })
       }, 0)
     },
     cancelReplying: function (uid) {
@@ -983,6 +1023,8 @@ export default {
       const input = document.getElementById('post_comment_text_' + uid)
       button.style.display = 'block'
       input.style.display = 'none'
+      const emoteSelector = document.getElementById('post_emotes_' + uid)
+      emoteSelector.style.display = 'none'
     },
     replyToPost: async function (post, title = '') {
       const comment = this.commentText
@@ -1018,6 +1060,8 @@ export default {
         })
         .finally(() => {
           this.loadMoreReplies(post, 4)
+          this.isWritingEmote = false
+          this.isTaggingUser = false
         })
       })
     },
@@ -1042,6 +1086,7 @@ export default {
                 maxResults = related.replies.length
               }
               for (let i = 0; i < maxResults; i++) {
+                related.replies[i].desc = this.replaceEmotePlaceholders(related.replies[i].desc)
                 post.result.replies.push(related.replies[i])
               }
               post.result.moreReplies = related.replies.length > maxResults
@@ -1068,6 +1113,100 @@ export default {
           this.searchWisdom('.', true)
         }
       }
+    },
+    getCustomEmotes: function (chatID) {
+      return new Promise((resolve) => {
+        this.$Worker.execute({
+          action: 'api',
+          method: 'get',
+          url: 'files/private/chat/' + chatID + '?type=emote'
+        }).then((data) => {
+          const emotes = data.result.files
+          if (emotes.length < 1) return
+          let url
+          let md
+          let fname
+          this.emotes = new Map()
+          this.emoteList = []
+          for (let i = 0; i < emotes.length; i++) {
+            url = this.$store.state.serverIP + '/' + emotes[i].pth
+            emotes[i].t = emotes[i].t.split('.')[0]
+            fname = ':' + emotes[i].t + ':'
+            // Build Markdown image string
+            md = `![${fname}](${url})`
+            this.emotes[fname] = md
+            // Add to emote list (user prompt)
+            emotes[i]._md = md
+            this.emoteList.push(emotes[i])
+          }
+        })
+        .then(() => resolve())
+      })
+    },
+    replaceEmotePlaceholders: function (msg) {
+      if (this.emotes == null) return msg
+      const escape = s => s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
+      const pattern = new RegExp(
+        Object.keys(this.emotes).map(escape).join('|'), 'g'
+      )
+      return msg.replace(pattern, match => this.emotes[match])
+    },
+    handleCommentInput: function () {
+      // Check for @ to prompt user for tagging a person
+      if (this.commentText.substring(this.commentText.length - 1) === '@') {
+        this.isTaggingUser = true
+      } else {
+        // Hide the tagging window if there is no @ present
+        if (this.isTaggingUser === true && !this.commentText.includes('@')) {
+          this.isTaggingUser = false
+        }
+      }
+      // Check for : to prompt user for completing a custom emote text
+      if ((this.commentText.length === 1 && this.commentText.substring(this.commentText.length - 1)) === ':' ||
+        this.commentText.substring(this.commentText.length - 2) === ' :') {
+        this.isWritingEmote = true
+        setTimeout(() => {
+          const text = document.getElementById('post_comment_textarea_' + this.lastReplyUID)
+          text.focus()
+          text.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'nearest'
+          })
+        }, 0)
+      } else {
+        // Hide the emote window if we typed a space
+        if (this.isWritingEmote &&
+          (this.commentText.substring(this.commentText.length - 1) === ' ' || !this.commentText.includes(':'))) {
+          this.isWritingEmote = false
+        }
+      }
+    },
+    handleEnter: function () {
+      if (event.key === 'Tab' || event.key === 'Tabulator' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        if (this.isTaggingUser === true || this.isWritingEmote === true) {
+          event.preventDefault()
+        }
+      }
+    },
+    handleCustomEmoteConfirmation: function (obj) {
+      this.isWritingEmote = false
+      if (obj == null || obj.t == null) {
+        return
+      }
+      for (let i = this.commentText.length - 1; i >= 0; i--) {
+        if (this.commentText.substring(i, i + 1) === ':') {
+          let j = i + 1
+          for (j; j < this.commentText.length; j++) {
+            if (this.commentText.substring(j, j + 1) === ' ') {
+              break
+            }
+          }
+          this.commentText = this.commentText.substring(0, i + 1) +
+            obj.t + ': ' + this.commentText.substring(j)
+          break
+        }
+      }
     }
   }
 }
@@ -1088,7 +1227,7 @@ export default {
 }
 
 .post_container {
-  @apply w-full overflow-hidden md:rounded-md;
+  @apply w-full md:rounded-md;
 }
 
 .post_header {
@@ -1096,7 +1235,7 @@ export default {
 }
 
 .post {
-  @apply p-2 surface overflow-hidden;
+  @apply p-2 surface;
 }
 
 .sidebar_button {
@@ -1105,13 +1244,6 @@ export default {
 
 .sidebar_button:hover {
   @apply primary;
-}
-
-.wisdomCat {
-  @apply fmt_border flex items-center
-  py-0.5 px-1 rounded mr-1 mb-1
-  pointer-events-none text-sm background
-  border-l-8;
 }
 
 </style>

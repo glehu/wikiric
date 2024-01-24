@@ -5,7 +5,7 @@
         <div class="container p-3 h-full">
           <div class="justify-center items-center h-full">
             <div class="bright_card">
-              <div class="p-4 text-center">
+              <div class="p-4 text-center md:flex md:flex-row md:w-full">
                 <div class="md:mt-0">
                   <h2 class="font-bold text-uppercase text-4xl mb-4">
                     Sign In
@@ -48,6 +48,11 @@
                       <span>Sign Up</span>
                     </button>
                   </div>
+                </div>
+                <div class="hidden md:flex flex-col items-center justify-center background
+                            ml-8 p-4 rounded-md">
+                  <img src='../../assets/wikiric/wikiric-logo-big.webp' alt="Logo"
+                       style="max-width: 128px; max-height: 128px; object-fit: contain;">
                 </div>
               </div>
             </div>
@@ -182,19 +187,19 @@ export default {
         action: 'login',
         u: Base64.encode(u + ':' + p)
       })
-        .then((data) => {
-          this.processLogin(data)
-        })
-        .catch((err) => {
-          this.$notify(
-            {
-              title: 'Login Failed',
-              text: 'Check Credentials or Register.',
-              type: 'error'
-            })
-          this.user.password = ''
-          console.debug(err.message)
-        })
+      .then((data) => {
+        this.processLogin(data)
+      })
+      .catch((err) => {
+        this.$notify(
+          {
+            title: 'Login Failed',
+            text: 'Check Credentials or Register.',
+            type: 'error'
+          })
+        this.user.password = ''
+        console.debug(err.message)
+      })
     },
     processLogin (response) {
       this.user.username = response.result.username

@@ -131,192 +131,193 @@
               </template>
             </div>
           </div>
-          <div id="taskstart" class="flex mb-2 items-center pt-3 px-3">
-            <TagIcon class=" h-5 w-5 mr-2"></TagIcon>
-            <template v-if="wisdom.cats && wisdom.cats.length > 0">
-              <template v-for="cat in wisdom.cats" :key="cat">
-                <div v-if="cat != null"
-                     class="wisdomCat"
-                     :style="{borderColor: cat.hex}">
-                  {{ cat.t }}
+          <div class="surface-variant w-full">
+            <div id="taskstart" class="flex mb-2 items-center pt-3 px-3">
+              <template v-if="wisdom.cats && wisdom.cats.length > 0">
+                <template v-for="cat in wisdom.cats" :key="cat">
+                  <div v-if="cat != null"
+                       class="wisdomCat"
+                       :style="{borderColor: cat.hex}">
+                    {{ cat.t }}
+                  </div>
+                </template>
+              </template>
+              <template v-else>
+                <div class="text-xs pointer-events-none">
+                  <p>(No Categories)</p>
                 </div>
               </template>
-            </template>
-            <template v-else>
-              <div class="text-xs pointer-events-none">
-                <p>(No Categories)</p>
-              </div>
-            </template>
-          </div>
-          <div class="px-3">
-            <div class="mb-4 flex items-center">
-              <div class="flex items-center gap-x-2">
-                <div class="font-bold pointer-events-none">
-                  <template v-if="wisdom.type === 'lesson'">
-                    <div class="px-1 py-0.5 inline-flex rounded-md primary-container">
-                      <p>{{ capitalizeFirstLetter(wisdom.type) }}</p>
-                    </div>
+            </div>
+            <div class="px-3">
+              <div class="mb-4 flex items-center">
+                <div class="flex items-center gap-x-2">
+                  <div class="font-bold pointer-events-none">
+                    <template v-if="wisdom.type === 'lesson'">
+                      <div class="px-1 py-0.5 inline-flex rounded-md primary-container">
+                        <p>{{ capitalizeFirstLetter(wisdom.type) }}</p>
+                      </div>
+                    </template>
+                    <template v-else-if="wisdom.type === 'question'">
+                      <div class="px-1 py-0.5 inline-flex rounded-md tertiary-container">
+                        <p>{{ capitalizeFirstLetter(wisdom.type) }}</p>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div class="px-1 py-0.5 inline-flex rounded-md surface-variant">
+                        <p>{{ capitalizeFirstLetter(wisdom.type) }}</p>
+                      </div>
+                    </template>
+                  </div>
+                  <template v-if="wisdom.type === 'task'">
+                    <template v-if="wisdom.done">
+                      <div class="px-2 py-1 rounded primary flex w-fit pointer-events-none">
+                        <CheckIcon class="h-4 w-4 mr-1"></CheckIcon>
+                        <span class="text-xs font-bold">Done</span>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div class="px-2 py-1 rounded error flex w-fit pointer-events-none">
+                        <Cog6ToothIcon class="h-4 w-4 mr-1"></Cog6ToothIcon>
+                        <span class="text-xs font-bold">WIP</span>
+                      </div>
+                    </template>
                   </template>
-                  <template v-else-if="wisdom.type === 'question'">
-                    <div class="px-1 py-0.5 inline-flex rounded-md tertiary-container">
-                      <p>{{ capitalizeFirstLetter(wisdom.type) }}</p>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div class="px-1 py-0.5 inline-flex rounded-md surface-variant">
-                      <p>{{ capitalizeFirstLetter(wisdom.type) }}</p>
-                    </div>
-                  </template>
-                </div>
-                <template v-if="wisdom.type === 'task'">
-                  <template v-if="wisdom.done">
-                    <div class="px-2 py-1 rounded primary flex w-fit pointer-events-none">
-                      <CheckIcon class="h-4 w-4 mr-1"></CheckIcon>
-                      <span class="text-xs font-bold">Done</span>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div class="px-2 py-1 rounded error flex w-fit pointer-events-none">
-                      <Cog6ToothIcon class="h-4 w-4 mr-1"></Cog6ToothIcon>
-                      <span class="text-xs font-bold">WIP</span>
-                    </div>
-                  </template>
-                </template>
-                <div v-if="wisdom.views && wisdom.views > 0"
-                     class="flex items-center p-1">
-                  <EyeIcon class="w-5 h-5 mr-1"></EyeIcon>
-                  <span class="font-bold text-sm">{{ wisdom.views }}</span>
-                </div>
-                <template v-if="wisdom.reacts && wisdom.reacts.length > 0">
-                  <div class="flex">
-                    <div v-for="reaction in wisdom.reacts" :key="reaction.src"
-                         class="flex items-center p-1 mr-1
+                  <div v-if="wisdom.views && wisdom.views > 0"
+                       class="flex items-center p-1">
+                    <EyeIcon class="w-5 h-5 mr-1"></EyeIcon>
+                    <span class="font-bold text-sm">{{ wisdom.views }}</span>
+                  </div>
+                  <template v-if="wisdom.reacts && wisdom.reacts.length > 0">
+                    <div class="flex">
+                      <div v-for="reaction in wisdom.reacts" :key="reaction.src"
+                           class="flex items-center p-1 mr-1
                                 cursor-pointer"
-                         :title="reaction.src.toString() + ' reacted to this.'"
-                         v-on:click="reactToMessage(wisdom, reaction.t)"
-                         :id="'react_' + wisdom.uid + '_' + reaction.t">
-                      <HandThumbUpIcon v-if="reaction.t === '+'"
-                                       class="w-5 h-5 mr-1"></HandThumbUpIcon>
-                      <HandThumbDownIcon v-else-if="reaction.t === '-'"
-                                         class="w-5 h-5 mr-1"></HandThumbDownIcon>
-                      <StarIcon v-else-if="reaction.t === '⭐'"
-                                class="w-5 h-5 mr-1"></StarIcon>
-                      <span v-else> {{ reaction.t }} </span>
-                      <span class="font-bold text-sm">{{ reaction.src.length }}</span>
+                           :title="reaction.src.toString() + ' reacted to this.'"
+                           v-on:click="reactToMessage(wisdom, reaction.t)"
+                           :id="'react_' + wisdom.uid + '_' + reaction.t">
+                        <HandThumbUpIcon v-if="reaction.t === '+'"
+                                         class="w-5 h-5 mr-1"></HandThumbUpIcon>
+                        <HandThumbDownIcon v-else-if="reaction.t === '-'"
+                                           class="w-5 h-5 mr-1"></HandThumbDownIcon>
+                        <StarIcon v-else-if="reaction.t === '⭐'"
+                                  class="w-5 h-5 mr-1"></StarIcon>
+                        <span v-else> {{ reaction.t }} </span>
+                        <span class="font-bold text-sm">{{ reaction.src.length }}</span>
+                      </div>
                     </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="text-xs pointer-events-none">
-                    <p>(Unrated)</p>
-                  </div>
-                </template>
-                <template v-if="related.replies && related.replies.length > 0">
-                  <div class="flex items-center p-1 cursor-pointer"
-                       v-on:click="gotoComments()"
-                       title="Go to Comments">
-                    <ChatBubbleLeftEllipsisIcon class="h-6 w-6 mr-1"></ChatBubbleLeftEllipsisIcon>
-                    <p>{{ related.replies.length }}</p>
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="text-xs pointer-events-none">
-                    <p>(No Comments)</p>
-                  </div>
-                </template>
+                  </template>
+                  <template v-else>
+                    <div class="text-xs pointer-events-none">
+                      <p>(Unrated)</p>
+                    </div>
+                  </template>
+                  <template v-if="related.replies && related.replies.length > 0">
+                    <div class="flex items-center p-1 cursor-pointer"
+                         v-on:click="gotoComments()"
+                         title="Go to Comments">
+                      <ChatBubbleLeftEllipsisIcon class="h-6 w-6 mr-1"></ChatBubbleLeftEllipsisIcon>
+                      <p>{{ related.replies.length }}</p>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="text-xs pointer-events-none">
+                      <p>(No Comments)</p>
+                    </div>
+                  </template>
+                </div>
               </div>
-            </div>
-            <div class="xl:hidden surface p-2 mb-2 w-fit rounded-md">
-              <p class="m-0">{{ wisdom.name }}</p>
-              <p class="m-0 text-sm">
-                {{ getHumanReadableDateText(wisdom.ts, true, true) }}
-              </p>
-            </div>
-            <template v-if="wisdom.type === 'question' && wisdom.done !== true">
-              <div class="w-full">
-                <p class="mt-2 mb-4 p-2 border-l-8 border-l-orange-600 surface-variant
-                          text-sm rounded w-fit">
-                  This question is unanswered (or at least not yet confirmed)!
-                  <br>Help by submitting a comment, providing useful information on this topic.
+              <div class="xl:hidden surface p-2 mb-2 w-fit rounded-md">
+                <p class="m-0">{{ wisdom.name }}</p>
+                <p class="m-0 text-sm">
+                  {{ getHumanReadableDateText(wisdom.ts, true, true) }}
                 </p>
               </div>
-            </template>
-            <div v-if="wisdom.type === 'question' && wisdom.done === true"
-                 v-on:click="gotoComments()"
-                 class="flex w-full items-center cursor-pointer my-2">
-              <div class="px-1 py-0.5 primary rounded-md w-fit">
-                <p class="font-bold">
-                  Answered
-                </p>
-              </div>
-              <div class="ml-2 text-xs">
-                <p>(Click to scroll to the answer)</p>
-              </div>
-            </div>
-            <template v-if="related.ref">
-              <div class="overflow-hidden">
-                <div class="w-fit rounded-r-md py-1 pr-2">
-                  <p class="font-bold pointer-events-none">
-                    Source Entry:
+              <template v-if="wisdom.type === 'question' && wisdom.done !== true">
+                <div class="w-full pb-1">
+                  <p class="mt-2 mb-4 p-2 border-l-8 border-l-orange-600 surface-variant
+                            text-sm rounded w-fit fmt_border">
+                    This question is unanswered (or at least not yet confirmed)!
+                    <br>Help by submitting a comment, providing useful information on this topic.
                   </p>
                 </div>
-                <div class="my-2 p-2 surface rounded fmt_border">
-                  <template v-if="related.ref.t && related.ref.t.length > 0">
-                    <Markdown class="markedView"
-                              :source="'# ' + related.ref.t"
-                              :plugins="plugins"></Markdown>
-                  </template>
-                  <template v-else>
-                    <Markdown v-if="related.ref.desc && related.ref.desc.length > 0"
-                              class="markedView"
-                              :source="related.ref.desc.substring(0, 100)"
-                              :plugins="plugins"></Markdown>
-                  </template>
-                  <Disclosure v-slot="{ open }" v-if="related.ref.desc && related.ref.desc.length > 0">
-                    <DisclosureButton
-                      class="my-2 flex w-full justify-between rounded-lg px-2 py-1 surface-variant hover:primary
+              </template>
+              <div v-if="wisdom.type === 'question' && wisdom.done === true"
+                   v-on:click="gotoComments()"
+                   class="flex w-full items-center cursor-pointer my-2">
+                <div class="px-1 py-0.5 primary rounded-md w-fit">
+                  <p class="font-bold">
+                    Answered
+                  </p>
+                </div>
+                <div class="ml-2 text-xs">
+                  <p>(Click to scroll to the answer)</p>
+                </div>
+              </div>
+              <template v-if="related.ref">
+                <div class="overflow-hidden">
+                  <div class="w-fit rounded-r-md py-1 pr-2">
+                    <p class="font-bold pointer-events-none">
+                      Source Entry:
+                    </p>
+                  </div>
+                  <div class="my-2 p-2 surface rounded fmt_border">
+                    <template v-if="related.ref.t && related.ref.t.length > 0">
+                      <Markdown class="markedView"
+                                :source="'# ' + related.ref.t"
+                                :plugins="plugins"></Markdown>
+                    </template>
+                    <template v-else>
+                      <Markdown v-if="related.ref.desc && related.ref.desc.length > 0"
+                                class="markedView"
+                                :source="related.ref.desc.substring(0, 100)"
+                                :plugins="plugins"></Markdown>
+                    </template>
+                    <Disclosure v-slot="{ open }" v-if="related.ref.desc && related.ref.desc.length > 0">
+                      <DisclosureButton
+                        class="my-2 flex w-full justify-between rounded-lg px-2 py-1 surface-variant hover:primary
                          focus:outline-none focus-visible:ring focus-visible:ring-neutral-500
                          focus-visible:ring-opacity-75"
-                    >
-                      <div class="text-sm w-full">
-                        <template v-if="open">
-                          <div>Show less</div>
-                        </template>
-                        <template v-else>
-                          <div>Show all</div>
-                        </template>
-                      </div>
-                      <ChevronUpIcon
-                        :class="open ? 'rotate-180 transform' : ''"
-                        class="h-5 w-5"
-                      />
-                    </DisclosureButton>
-                    <transition
-                      enter-active-class="transition duration-100 ease-out"
-                      enter-from-class="transform scale-95 opacity-0"
-                      enter-to-class="transform scale-100 opacity-100"
-                      leave-active-class="transition duration-75 ease-out"
-                      leave-from-class="transform scale-100 opacity-100"
-                      leave-to-class="transform scale-95 opacity-0"
-                    >
-                      <DisclosurePanel>
-                        <div class="p-2">
-                          <Markdown class="markedView"
-                                    :source="related.ref.desc"
-                                    :plugins="plugins"></Markdown>
+                      >
+                        <div class="text-sm w-full">
+                          <template v-if="open">
+                            <div>Show less</div>
+                          </template>
+                          <template v-else>
+                            <div>Show all</div>
+                          </template>
                         </div>
-                      </DisclosurePanel>
-                    </transition>
-                  </Disclosure>
+                        <ChevronUpIcon
+                          :class="open ? 'rotate-180 transform' : ''"
+                          class="h-5 w-5"
+                        />
+                      </DisclosureButton>
+                      <transition
+                        enter-active-class="transition duration-100 ease-out"
+                        enter-from-class="transform scale-95 opacity-0"
+                        enter-to-class="transform scale-100 opacity-100"
+                        leave-active-class="transition duration-75 ease-out"
+                        leave-from-class="transform scale-100 opacity-100"
+                        leave-to-class="transform scale-95 opacity-0"
+                      >
+                        <DisclosurePanel>
+                          <div class="p-2">
+                            <Markdown class="markedView"
+                                      :source="related.ref.desc"
+                                      :plugins="plugins"></Markdown>
+                          </div>
+                        </DisclosurePanel>
+                      </transition>
+                    </Disclosure>
+                  </div>
+                  <div class="w-fit py-1 pr-2">
+                    <p class="font-bold pointer-events-none">
+                      {{ capitalizeFirstLetter(wisdom.type) }} to {{ related.ref.name }}'s
+                      {{ capitalizeFirstLetter(related.ref.type) }}:
+                    </p>
+                  </div>
                 </div>
-                <div class="w-fit py-1 pr-2">
-                  <p class="font-bold pointer-events-none">
-                    {{ capitalizeFirstLetter(wisdom.type) }} to {{ related.ref.name }}'s
-                    {{ capitalizeFirstLetter(related.ref.type) }}:
-                  </p>
-                </div>
-              </div>
-            </template>
+              </template>
+            </div>
           </div>
           <div id="wisdom_content" ref="wisdom_content"
                class="surface p-3 max-lg:fmt_border_top max-lg:fmt_border_bottom lg:fmt_border">
@@ -741,7 +742,7 @@
                 Categories:
               </label>
               <br>
-              <Listbox v-model="wisCategories" multiple id="wisCategories">
+              <Listbox v-model="wisCategories" multiple id="wisCategories" by="t">
                 <div class="relative mt-1">
                   <ListboxButton
                     class="listbox_button"
@@ -770,7 +771,7 @@
                       <ListboxOption
                         v-slot="{ active, selected }"
                         v-for="cat in knowledge.cats"
-                        :key="cat"
+                        :key="cat.t"
                         :value="cat"
                         as="template">
                         <li
@@ -917,7 +918,6 @@ import {
   PencilSquareIcon,
   ShareIcon,
   StarIcon,
-  TagIcon,
   XMarkIcon,
   EyeIcon
 } from '@heroicons/vue/24/outline'
@@ -945,6 +945,7 @@ import { EditorView, keymap } from '@codemirror/view'
 import { indentWithTab } from '@codemirror/commands'
 import { markdown } from '@codemirror/lang-markdown'
 import { languages } from '@codemirror/language-data'
+import { ref } from 'vue'
 
 export default {
   name: 'KnowledgeView',
@@ -965,7 +966,6 @@ export default {
     HandThumbDownIcon,
     StarIcon,
     XMarkIcon,
-    TagIcon,
     Listbox,
     ListboxButton,
     ListboxOptions,
@@ -1049,16 +1049,6 @@ export default {
   },
   methods: {
     fetchData: async function (guidOverride = '') {
-      document.getElementById('taskstart').scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      })
-      this.srcguidOverride = guidOverride
-      await this.getWisdom()
-      await this.getRelated()
-      if (this.wisdom.type === 'task') {
-        await this.getRelated(this.wisdom.ref, true)
-      }
       // Whose knowledge are we trying to see?
       let knowledgeGUID
       if (!this.isoverlay) {
@@ -1074,6 +1064,16 @@ export default {
         if (knowledge != null) {
           this.knowledge = knowledge
         }
+      }
+      document.getElementById('taskstart').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      })
+      this.srcguidOverride = guidOverride
+      await this.getWisdom()
+      await this.getRelated()
+      if (this.wisdom.type === 'task') {
+        await this.getRelated(this.wisdom.ref, true)
       }
       await this.getRelatedSearch()
       return new Promise((resolve) => {
@@ -1136,6 +1136,21 @@ export default {
             dName = this.wisdom.usr
           }
           this.wisdom.name = dName
+          if (this.knowledge && this.knowledge.cats && this.wisdom.cats) {
+            // Prepare category color map
+            const catColors = new Map()
+            for (let i = 0; i < this.knowledge.cats.length; i++) {
+              catColors[this.knowledge.cats[i].t] = this.knowledge.cats[i].hex
+            }
+            // Replace category colors with knowledge category colors if present
+            let clr = ''
+            for (let j = 0; j < this.wisdom.cats.length; j++) {
+              clr = catColors[this.wisdom.cats[j].t]
+              if (clr && clr !== '') {
+                this.wisdom.cats[j].hex = clr
+              }
+            }
+          }
         })
         .then(() => {
           this.buildContentLinks()
@@ -1348,6 +1363,7 @@ export default {
           this.wisCategories.push(wisdom.cats[i])
         }
       }
+      this.wisCategories = ref(this.wisCategories)
       this.wisCopyContent = wisdom.copyContent
       this.wisGUID = wisdom.uid
       this.renderMermaid()
@@ -1933,13 +1949,6 @@ export default {
 .cm-editor {
   @apply w-full h-full fmt_border overflow-hidden;
   background-color: var(--md-sys-color-surface-light);
-}
-
-.wisdomCat {
-  @apply fmt_border flex items-center
-  py-0.5 px-1 rounded mr-1 mb-1
-  pointer-events-none text-sm background
-  border-l-8;
 }
 
 </style>

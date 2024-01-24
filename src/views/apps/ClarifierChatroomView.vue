@@ -49,48 +49,49 @@
             </p>
           </div>
           <div id="channel_section" class="channel_section overflow-y-auto overflow-x-hidden"
-               style="height: calc(100% - 100px); z-index: 4;
-                      padding-bottom: 40px;">
-            <div v-for="group in $store.state.clarifierSessions" :key="group"
-                 class="channel_link"
-                 style="position: relative; font-weight: bold">
-              <a class="font-bold  orange-hover" style="text-decoration: none"
-                 v-on:click="connectToGroup(group.id)"
-                 v-tooltip.right="{
+               style="height: calc(100% - 100px); z-index: 4; padding-bottom: 40px;">
+            <template v-for="group in $store.state.clarifierSessions" :key="group">
+              <div v-if="group.type !== 'home'"
+                   class="channel_link prevent-select"
+                   style="position: relative; font-weight: bold">
+                <a class="font-bold  orange-hover" style="text-decoration: none"
+                   v-on:click="connectToGroup(group.id)"
+                   v-tooltip.right="{
                    content: group.title,
                    disabled: sidebar.active,
                  }">
-                <div class="orange-hover"
-                     style="height: 50px; display: flex; align-items: center;">
-                  <div style="width: 50px; height: 100%; position: relative;
+                  <div class="orange-hover"
+                       style="height: 50px; display: flex; align-items: center;">
+                    <div style="width: 50px; height: 100%; position: relative;
                             display: flex; align-items: center; justify-content: center;">
-                    <div v-if="group.id === chatroom.uid"
-                         style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5"
-                         class="primary rounded-r">
-                    </div>
-                    <div :id="group.id + '_notify'"
-                         class="hidden bg-orange-500 rounded-r"
-                         style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5">
-                      <div class="hidden">{{ hasUnread(group.id) }}</div>
-                    </div>
-                    <template v-if="group.img && group.img !== ''">
-                      <img class="w-[40px] h-[40px] z-10 rounded-lg ml-[5px]"
-                           v-bind:src="getImg(group.img,true)" :alt="getImgAlt(group.title)"/>
-                    </template>
-                    <template v-else>
-                      <div class="background flex items-center justify-center
-                                  w-[40px] h-[40px] z-10 rounded-lg ml-[5px]">
-                        <p>{{ getImgAlt(group.title) }}</p>
+                      <div v-if="group.id === chatroom.uid"
+                           style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5"
+                           class="primary rounded-r">
                       </div>
-                    </template>
+                      <div :id="group.id + '_notify'"
+                           class="hidden bg-orange-500 rounded-r"
+                           style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5">
+                        <div class="hidden">{{ hasUnread(group.id) }}</div>
+                      </div>
+                      <template v-if="group.img && group.img !== ''">
+                        <img class="w-[40px] h-[40px] z-10 rounded-lg ml-[5px]"
+                             v-bind:src="getImg(group.img,true)" :alt="getImgAlt(group.title)"/>
+                      </template>
+                      <template v-else>
+                        <div class="background flex items-center justify-center
+                                  w-[40px] h-[40px] z-10 rounded-lg ml-[5px]">
+                          <p>{{ getImgAlt(group.title) }}</p>
+                        </div>
+                      </template>
+                    </div>
+                    <p class="sb_link_text text-nowrap"
+                       style="position: absolute; left: 36px;">
+                      {{ group.title }}
+                    </p>
                   </div>
-                  <p class="sb_link_text text-nowrap"
-                     style="position: absolute; left: 36px;">
-                    {{ group.title }}
-                  </p>
-                </div>
-              </a>
-            </div>
+                </a>
+              </div>
+            </template>
           </div>
         </div>
       </div>
@@ -114,108 +115,22 @@
                      :alt="getImgAlt(chatroom.t)"/>
               </div>
             </template>
-            <div style="height: 50px; align-items: center; display: flex">
-              <div id="home_subc" class="subchat"
-                   style="width: 100%; margin-right: 0; padding-right: 0.5rem"
-                   v-on:click="gotoSubchat(null, false)">
-                <i id="home_notify"
-                   class="absolute -translate-x-4
+            <div v-if="chatroom.type !== 'dm'"
+                 id="home_subc"
+                 class="subchat mt-2"
+                 style="width: 100%; margin-right: 0; padding-right: 0.5rem"
+                 v-on:click="gotoSubchat(null, false)">
+              <i id="home_notify"
+                 class="absolute -translate-x-4
                           w-[6px] h-[28px] rounded-r-full
                           z-50 bg-orange-500 hidden">
-                  <span class="hidden">{{ hasUnread(getSession(), true) }}</span>
-                </i>
-                <HomeIcon class="h-5 w-5"></HomeIcon>
-                <p class="relative left-[20px]">Home</p>
-              </div>
+                <span class="hidden">{{ hasUnread(getSession(), true) }}</span>
+              </i>
+              <HomeIcon class="h-5 w-5"></HomeIcon>
+              <p class="relative left-[20px]">Home</p>
             </div>
-            <div v-if="canShowSidebar"
-                 class="overflow-x-clip overflow-y-auto h-[calc(100%-238px)]">
-              <div style="width: 100%; height: 35px; padding-top: 5px">
-                <p class="px-2 font-bold nopointer">Apps</p>
-              </div>
-              <template v-if="chatroom.rank > 1">
-                <div class="w-full">
-                  <template v-if="chatroom.rank > 3">
-                    <div class="subchat w-full flex items-center"
-                         v-on:click="gotoStudio()">
-                      <RectangleGroupIcon class="h-5 w-5"></RectangleGroupIcon>
-                      <p class="relative left-[20px]">Studio</p>
-                    </div>
-                  </template>
-                  <template v-if="chatroom.rank > 3">
-                    <div class="subchat w-full flex items-center"
-                         v-on:click="gotoPlanner()">
-                      <ViewColumnsIcon class="h-5 w-5"></ViewColumnsIcon>
-                      <p class="relative left-[20px]">Planner</p>
-                    </div>
-                  </template>
-                  <template v-if="chatroom.rank > 2">
-                    <div class="subchat w-full flex items-center">
-                      <div v-on:click="setOverlay(1)" class="w-full flex items-center">
-                        <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
-                        <p class="relative left-[20px]">Knowledge</p>
-                      </div>
-                      <div class="ml-auto p-2 translate-x-2 shadow-hover
-                                  rounded-r hover:bg-indigo-600"
-                           v-on:click="createProcess()"
-                           v-tooltip.top="{ content: 'Quick Note' }">
-                        <DocumentTextIcon class="h-5 w-5"></DocumentTextIcon>
-                      </div>
-                    </div>
-                  </template>
-                </div>
-              </template>
-              <div class="subchat w-full flex items-center"
-                   v-on:click="showFiles()">
-                <FolderIcon class="h-5 w-5"></FolderIcon>
-                <p class="relative left-[20px]">Files</p>
-              </div>
-              <div class="subchat w-full flex items-center"
-                   v-on:click="setOverlay(2)">
-                <MegaphoneIcon class="h-5 w-5"></MegaphoneIcon>
-                <p class="relative left-[20px]">Feed</p>
-              </div>
-              <div style="width: 100%; height: 35px; padding-top: 5px"
-                   class="px-2 flex relative items-center justify-between">
-                <p class="font-bold nopointer">Channels</p>
-                <button class="btn-no-outline translate-x-0.5"
-                        v-tooltip.top="{ content: 'New Channel' }"
-                        v-on:click="showNewSubchatWindow">
-                  <PlusSmallIcon class="orange-hover h-6 w-6"/>
-                </button>
-              </div>
-              <template v-for="subchat in chatroom.subc" :key="subchat">
-                <div :id="subchat.uid + '_subc'"
-                     class="subchat"
-                     style="display: flex"
-                     v-on:click="gotoSubchat(subchat.uid)">
-                  <i :id="subchat.uid + '_notify'"
-                     class="absolute -translate-x-4
-                            w-[6px] min-h-[28px] rounded-r-full h-fit
-                            z-50 bg-orange-500 hidden">
-                    <span class="hidden">{{ hasUnread(subchat.uid) }}</span>
-                  </i>
-                  <template v-if="subchat.type === 'screenshare'">
-                    <WindowIcon class="h-5 w-5"></WindowIcon>
-                  </template>
-                  <template v-else-if="subchat.type === 'webcam'">
-                    <i class="bi bi-camera-video h-5 w-5 flex items-center justify-center text-lg"></i>
-                  </template>
-                  <template v-else>
-                    <HashtagIcon class="h-5 w-5"></HashtagIcon>
-                  </template>
-                  <p class="relative left-[20px]">{{ subchat.t }}</p>
-                </div>
-                <template v-if="subchat._subMembers">
-                  <div v-for="subMember in subchat._subMembers" :key="subMember"
-                       class="flex items-center pl-3.5 ml-3.5 border-l-[4px] border-zinc-500">
-                    <div class="text-sm pt-1">{{ subMember.name }}</div>
-                  </div>
-                </template>
-              </template>
-            </div>
-            <template v-else>
-              <div class="w-full p-4">
+            <template v-if="!canShowSidebar">
+              <div class="w-full p-2">
                 <button class="w-full flex items-center justify-center
                                fmt_border rounded m-1
                                p-1 background hover:primary"
@@ -229,6 +144,98 @@
                 </button>
               </div>
             </template>
+            <div class="overflow-x-clip overflow-y-auto h-[calc(100%-218px)]">
+              <div class="subchat w-full flex items-center"
+                   v-on:click="toggleSessionSettings()">
+                <WrenchIcon class="h-5 w-5"></WrenchIcon>
+                <p class="relative left-[20px]">Settings</p>
+              </div>
+              <div class="subchat w-full flex items-center"
+                   v-on:click="showFiles()">
+                <FolderIcon class="h-5 w-5"></FolderIcon>
+                <p class="relative left-[20px]">Files</p>
+              </div>
+              <template v-if="canShowSidebar">
+                <div style="width: 100%; height: 35px; padding-top: 5px">
+                  <p class="px-2 font-bold nopointer">Apps</p>
+                </div>
+                <template v-if="chatroom.rank > 1">
+                  <div class="w-full">
+                    <template v-if="chatroom.rank > 3">
+                      <div class="subchat w-full flex items-center"
+                           v-on:click="gotoStudio()">
+                        <RectangleGroupIcon class="h-5 w-5"></RectangleGroupIcon>
+                        <p class="relative left-[20px]">Studio</p>
+                      </div>
+                    </template>
+                    <template v-if="chatroom.rank > 3">
+                      <div class="subchat w-full flex items-center"
+                           v-on:click="gotoPlanner()">
+                        <ViewColumnsIcon class="h-5 w-5"></ViewColumnsIcon>
+                        <p class="relative left-[20px]">Planner</p>
+                      </div>
+                    </template>
+                    <template v-if="chatroom.rank > 2">
+                      <div class="subchat w-full flex items-center">
+                        <div v-on:click="setOverlay(1)" class="w-full flex items-center">
+                          <BookOpenIcon class="h-5 w-5"></BookOpenIcon>
+                          <p class="relative left-[20px]">Knowledge</p>
+                        </div>
+                        <div class="ml-auto p-2 translate-x-2 shadow-hover
+                                  rounded-r hover:bg-indigo-600"
+                             v-on:click="createProcess()"
+                             v-tooltip.top="{ content: 'Quick Note' }">
+                          <DocumentTextIcon class="h-5 w-5"></DocumentTextIcon>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+                <div class="subchat w-full flex items-center"
+                     v-on:click="setOverlay(2)">
+                  <MegaphoneIcon class="h-5 w-5"></MegaphoneIcon>
+                  <p class="relative left-[20px]">Feed</p>
+                </div>
+                <div style="width: 100%; height: 35px; padding-top: 5px"
+                     class="px-2 flex relative items-center justify-between">
+                  <p class="font-bold nopointer">Channels</p>
+                  <button class="btn-no-outline translate-x-0.5"
+                          v-tooltip.top="{ content: 'New Channel' }"
+                          v-on:click="showNewSubchatWindow">
+                    <PlusSmallIcon class="orange-hover h-6 w-6"/>
+                  </button>
+                </div>
+                <template v-for="subchat in chatroom.subc" :key="subchat">
+                  <div :id="subchat.uid + '_subc'"
+                       class="subchat"
+                       style="display: flex"
+                       v-on:click="gotoSubchat(subchat.uid)">
+                    <i :id="subchat.uid + '_notify'"
+                       class="absolute -translate-x-4
+                            w-[6px] min-h-[28px] rounded-r-full h-fit
+                            z-50 bg-orange-500 hidden">
+                      <span class="hidden">{{ hasUnread(subchat.uid) }}</span>
+                    </i>
+                    <template v-if="subchat.type === 'screenshare'">
+                      <WindowIcon class="h-5 w-5"></WindowIcon>
+                    </template>
+                    <template v-else-if="subchat.type === 'webcam'">
+                      <i class="bi bi-camera-video h-5 w-5 flex items-center justify-center text-lg"></i>
+                    </template>
+                    <template v-else>
+                      <HashtagIcon class="h-5 w-5"></HashtagIcon>
+                    </template>
+                    <p class="relative left-[20px]">{{ subchat.t }}</p>
+                  </div>
+                  <template v-if="subchat._subMembers">
+                    <div v-for="subMember in subchat._subMembers" :key="subMember"
+                         class="flex items-center pl-3.5 ml-3.5 border-l-[4px] border-zinc-500">
+                      <div class="text-sm pt-1">{{ subMember.name }}</div>
+                    </div>
+                  </template>
+                </template>
+              </template>
+            </div>
           </div>
         </div>
       </div>
@@ -291,16 +298,6 @@
                   </div>
                 </div>
                 <div class="absolute inset-y-0 right-0 flex items-center mx-2 my-1 gap-4">
-                  <button class="btn-no-outline"
-                          style=""
-                          title="Show Settings"
-                          v-on:click="toggleSessionSettings()"
-                          v-tooltip.bottom="{
-                            content: 'Show Settings'
-                          }">
-                    <WrenchIcon class="sb_link_icon orange-hover"
-                                style="height: 24px; width: 24px"/>
-                  </button>
                   <button class="btn-no-outline member_section_toggler"
                           style=""
                           title="Toggle Members"
@@ -513,7 +510,7 @@
                 </div>
               </div>
               <div id="messages_container" ref="messages_container"
-                   class="background messages_container">
+                   class="background messages_container flex-col-reverse items-center">
                 <div id="messages_section" ref="messages_section"
                      class="messages_section flex-col-reverse">
                   <div id="init_loading" style="display: none">
@@ -556,15 +553,18 @@
                                   </UserCircleIcon>
                                 </template>
                               </template>
-                              <div class="orange-hover ml-[10px]"
+                              <div class="orange-hover ml-[4px] overflow-hidden"
                                    style="font-weight: bold"
                                    @click.stop="showUserProfileFromName(msg.usr)">
-                                <p>{{ msg.name }}</p>
+                                <p class="w-max">
+                                  {{ msg.name }}
+                                </p>
                               </div>
                             </template>
-                            <div class="flex gap-x-2  text-xs ml-3 w-full"
-                                 :class="{ 'justify-end': msg.editable }">
-                              <div style="pointer-events: none">
+                            <div class="flex gap-x-2 text-xs ml-3"
+                                 :class="{ 'justify-end w-full': msg.editable }">
+                              <div style="pointer-events: none"
+                                   class="whitespace-nowrap">
                                 <template v-if="!msg.isDraft">
                                   <p>{{ getHumanReadableDateText(msg.ts, true) }}</p>
                                 </template>
@@ -632,17 +632,23 @@
                               <div class="inverse-surface rounded gap-x-4 flex px-2 py-1">
                                 <button title="Upvote" class="orange-hover"
                                         v-on:click="reactToMessage(msg, '+')">
-                                  <i class="bi bi-hand-thumbs-up text-inherit"></i>
+                                  <HandThumbUpIcon class="w-6 h-6"/>
                                 </button>
                                 <button title="Downvote" class="orange-hover"
                                         v-on:click="reactToMessage(msg, '-')">
-                                  <i class="bi bi-hand-thumbs-down text-inherit"></i>
+                                  <HandThumbDownIcon class="w-6 h-6"/>
                                 </button>
                               </div>
                               <div class="inverse-surface rounded gap-x-4 flex px-2 py-1">
                                 <button title="Awesome!" class="orange-hover"
                                         v-on:click="reactToMessage(msg, '⭐')">
                                   <i class="bi bi-star-fill text-inherit"></i>
+                                </button>
+                              </div>
+                              <div class="inverse-surface rounded gap-x-4 flex px-2 py-1">
+                                <button title="Emote" class="orange-hover"
+                                        v-on:click="isWritingEmote = true; messageEditing = msg">
+                                  <FaceSmileIcon class="w-6 h-6"/>
                                 </button>
                               </div>
                               <div class="inverse-surface rounded gap-x-4 flex px-2 py-1">
@@ -740,10 +746,10 @@
                                            class="clientMessage"/>
                           </template>
                           <template v-else-if="msg.mType === 'Reply'">
-                            <div class="w-full flex flex-col"
+                            <div class="flex flex-col"
                                  :class="{ 'items-start': !msg.editable, 'items-end': msg.editable}">
-                              <div class="flex mt-2 w-fit rounded-l-lg rounded-tr-lg overflow-hidden
-                                          primary_border_bottom">
+                              <div class="flex mt-2 w-fit rounded-lg overflow-hidden
+                                          primary_border_bottom reply_target">
                                 <div class="w-fit surface max-w-lg">
                                   <div class="w-fit py-1 px-2 pl-2">
                                     <p class="text-xs pointer-events-none w-fit">
@@ -764,8 +770,7 @@
                                 </div>
                               </div>
                               <Markdown :id="'msg_' + msg.uid"
-                                        style="border-top-right-radius: 0"
-                                        class="clientMessage markedView w-fit"
+                                        class="clientMessage markedView w-fit reply_msg"
                                         :class="{'cmBigImg': msg.enlarge}"
                                         :source="msg.msg"
                                         :breaks="true"
@@ -823,7 +828,9 @@
                                              class="w-5 h-5"/>
                             <HandThumbDownIcon v-else-if="reaction.t === '-'"
                                                class="w-5 h-5"/>
-                            <span v-else> {{ reaction.t }} </span>
+                            <Markdown v-else class="markedView"
+                                      :source="reaction._t"
+                                      :plugins="plugins"/>
                             <p class="text-sm font-bold">
                               {{ reaction.src.length }}
                             </p>
@@ -899,8 +906,9 @@
                                 :list="mainMembers"
                                 :query="new_message"
                                 :prefix="'@'"
-                                :keyName="'usr'"
-                                :headline="'Tag a member'"
+                                :key-name="'usr'"
+                                :key-helper="true"
+                                :headline="'Tag a member (Tab to complete)'"
                                 @confirm="handleUserTagConfirmation"
                                 @close="isTaggingUser = false"/>
               <listpickerviewer v-if="isWritingEmote"
@@ -908,8 +916,8 @@
                                 :list="emoteList"
                                 :query="new_message"
                                 :prefix="':'"
-                                :keyName="'t'"
-                                :headline="'Send a custom emote'"
+                                :key-name="'t'"
+                                :headline="'Send a custom emote (Tab to complete)'"
                                 @confirm="handleCustomEmoteConfirmation"
                                 @close="isWritingEmote = false"/>
               <listpickerviewer v-if="isWritingCommand"
@@ -918,7 +926,7 @@
                                 :query="new_message"
                                 :prefix="':'"
                                 :keyName="'t'"
-                                :headline="'Send command'"
+                                :headline="'Send a command (Tab to complete)'"
                                 @confirm="handleCommandConfirmation"
                                 @close="isWritingCommand = false"/>
               <div v-if="isSelectingImgflipTemplate"
@@ -1227,7 +1235,7 @@
                   class="h-[calc(100%-50px)] w-full translate-y-[50px] overflow-clip
                          background lg:rounded-xl sm:border-[1px] sm:border-[rgba(174,174,183,0.25)]">
           <serversettingsviewer :isoverlay="true" :chatroom="chatroom"
-                                @close="setOverlay(0); prepareInputField()"/>
+                                @close="handleServerSettingsClose()"/>
         </template>
       </div>
       <div id="member_section"
@@ -1239,7 +1247,7 @@
             Members&nbsp;-&nbsp;{{ getMemberCount() }}
           </p>
           <button class="btn-no-outline member_section_toggler
-                         on-surface-text"
+                         on-surface-text lg:hidden"
                   style="position: absolute; right: 12px"
                   title="Hide Members"
                   v-on:click="toggleMemberSidebar"
@@ -1310,7 +1318,9 @@
     <template v-slot:body>
       <div class="new_subchat" style="overflow: hidden; padding: 5px">
         <div class="relative w-full">
-          <label for="new_subchat_name" class="font-bold lead c_lightgray">Name:</label>
+          <label for="new_subchat_name" class="font-bold">
+            <span>Name:</span>
+          </label>
           <input v-model="new_subchat_name"
                  id="new_subchat_name" type="text"
                  class="fmt_input mt-2 w-full">
@@ -1449,6 +1459,28 @@
     <template v-slot:footer>
     </template>
   </modal>
+  <modal
+    v-show="isBanned"
+    @close="$router.push('/')">
+    <template v-slot:header>
+    </template>
+    <template v-slot:body>
+      <div class="h-[60vh] w-[60vw] flex flex-col justify-center items-center">
+        <p class="text-3xl font-bold prevent-select pointer-events-none">
+          You Are Banned
+        </p>
+        <p class="prevent-select pointer-events-none mt-2">
+          Access to this chat group is forbidden.
+        </p>
+        <div class="fmt_button mt-10 dshadow"
+             v-on:click="$router.push('/')">
+          <p class="font-bold text-4xl">Leave</p>
+        </div>
+      </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
 </template>
 
 <script>
@@ -1484,7 +1516,8 @@ import {
   VideoCameraIcon,
   ArrowUturnLeftIcon,
   HandThumbUpIcon,
-  HandThumbDownIcon
+  HandThumbDownIcon,
+  FaceSmileIcon
 } from '@heroicons/vue/24/solid'
 import {
   ArrowLeftOnRectangleIcon,
@@ -1557,7 +1590,8 @@ export default {
     HandThumbUpIcon,
     HandThumbDownIcon,
     MegaphoneIcon,
-    ArrowLeftIcon
+    ArrowLeftIcon,
+    FaceSmileIcon
   },
   data () {
     return {
@@ -1639,6 +1673,7 @@ export default {
       isStreamingVideo: false,
       isEditingProfile: false,
       isTransferring: false,
+      isBanned: false,
       canShowSidebar: true,
       isViewingProcess: false,
       isViewingFiles: false,
@@ -1690,10 +1725,10 @@ export default {
             }
           }
         }
-      } else if (event.data.type === 'fwd:subchat_join') {
+      } else if (event.data.typ === 'subchat_join') {
         const payload = JSON.parse(event.data.msg)
         this.notifyJoinedSubchat(payload.uid, payload.user)
-      } else if (event.data.type === 'fwd:subchat_leave') {
+      } else if (event.data.typ === 'subchat_leave') {
         const payload = JSON.parse(event.data.msg)
         this.notifyJoinedSubchat(payload.uid, payload.user, false, true)
       }
@@ -1736,7 +1771,7 @@ export default {
       this.resizeCanvas()
       document.onkeydown = this.handleGlobalKeyEvents
       // Set message section with its scroll event
-      this.$refs.messages_section.onscroll = this.checkScroll
+      this.$refs.messages_container.onscroll = this.checkScroll
       // Broadcast channels to listen to firebase cloud messaging notifications
       const bc = new BroadcastChannel('dlChannel')
       bc.onmessage = event => {
@@ -1752,10 +1787,13 @@ export default {
           .items
         for (const item of items) {
           if (item.kind === 'file') {
+            event.preventDefault()
+            event.stopPropagation()
             const blob = item.getAsFile()
             const reader = new FileReader()
             reader.onload = (event) => {
               this.isUploadingSnippet = true
+              this.uploadFileName = blob.name
               this.uploadFileType = blob.type
               this.uploadFileBase64 = event.target.result
             }
@@ -2051,6 +2089,9 @@ export default {
       if (msg.substring(0, 8) === '[s:wlcm]') {
         await this.setUpChatSession()
         return
+      } else if (msg.substring(0, 10) === '[s:banned]') {
+        this.isBanned = true
+        return
       }
       // This function gets called upon receiving a message via the websocket connection
       const message = await this.processRawMessage(msg)
@@ -2137,7 +2178,8 @@ export default {
           if (message.e === false) {
             this.messages[index].reacts.push({
               src: [message.usr],
-              t: message.msg
+              t: message.msg,
+              _t: this.replaceEmotePlaceholders(message.msg)
             })
             setTimeout(() => {
               const elem = document.getElementById(
@@ -2295,6 +2337,7 @@ export default {
       this.connection.send(messageContent)
       // Post-Message Actions
       this.new_message = ''
+      this.hideAllWindows()
       this.focusComment(true)
       setTimeout(() => this.auto_grow(), 0)
       this.isTaggingUser = false
@@ -2488,9 +2531,9 @@ export default {
       const messagesContainer = this.$refs.messages_container
       const inputContainer = this.$refs.input_container
       if (this.currentSubchat.type === 'screenshare' || this.currentSubchat.type === 'webcam' || this.params) {
-        messagesSection.style.width = '350px'
-        messagesContainer.style.display = 'block'
-        inputContainer.style.width = '350px'
+        if (messagesSection) messagesSection.style.width = '350px'
+        if (messagesContainer) messagesContainer.style.display = 'block'
+        if (inputContainer) inputContainer.style.width = '350px'
         this.mediaMaxWidth = 'clamp(200px, 100%, 255px)'
       } else {
         this.peerType = 'idle'
@@ -2498,9 +2541,9 @@ export default {
         this.streamStartTime = ''
         this.streamDuration = ''
         this.exitCinemaMode()
-        messagesSection.style.width = '100%'
-        messagesContainer.style.display = 'flex'
-        inputContainer.style.width = '100%'
+        if (messagesSection) messagesSection.style.width = '100%'
+        if (messagesContainer) messagesContainer.style.display = 'flex'
+        if (inputContainer) inputContainer.style.width = '100%'
         this.mediaMaxWidth = 'clamp(200px, 100%, 400px)'
       }
       document.title = this.chatroom.t
@@ -2517,6 +2560,7 @@ export default {
     },
     getMainMembers: async function () {
       this.members = []
+      this.mainMembers = []
       this.$Worker.execute({
         action: 'api',
         method: 'get',
@@ -2534,7 +2578,10 @@ export default {
               this.mainMembers[i].active = true
             }
             // Set username
-            dbSetDisplayName(data.result.members[i].usr, data.result.members[i].name)
+            dbSetDisplayName(this.mainMembers[i].usr, this.mainMembers[i].name)
+            // Set keys for easy searching
+            this.mainMembers[i]._keys = this.mainMembers[i].usr + ' ' + this.mainMembers[i].name
+            this.mainMembers[i]._hint = this.mainMembers[i].name
           }
         }
       })
@@ -2635,7 +2682,7 @@ export default {
               const container = document.getElementById('screenshare_container_' + remoteId)
               if (videoElem) videoElem.srcObject = null
               if (audioElem) audioElem.srcObject = null
-              container.style.display = 'none'
+              if (container) container.style.display = 'none'
             }
           }
         }
@@ -2704,6 +2751,8 @@ export default {
         for (let i = message.reacts.length - 1; i >= 0; i--) {
           if (message.reacts[i].src.length === 0) {
             message.reacts.splice(i, 1)
+          } else {
+            message.reacts[i]._t = this.replaceEmotePlaceholders(message.reacts[i].t)
           }
         }
       } else {
@@ -2818,7 +2867,9 @@ export default {
       // Save original message content
       message._msg = message.msg
       // Replace emote placeholders
-      message.msg = this.replaceEmotePlaceholders(message.msg)
+      if (message.mType !== 'ReactNotification') {
+        message.msg = this.replaceEmotePlaceholders(message.msg)
+      }
       message.msg = this.replaceMemberTags(message.msg)
       // Check if msg only consists of an emote
       const rgx = /^!\[:.+:]\(.+\)$/
@@ -3290,9 +3341,7 @@ export default {
     },
     handleEnter: function () {
       if (event.key === 'Enter') {
-        if (this.isTaggingUser === true || this.isWritingEmote === true || this.isWritingCommand === true) {
-          event.preventDefault()
-        } else if (this.isSelectingImgflipTemplate === true) {
+        if (this.isSelectingImgflipTemplate === true) {
           event.preventDefault()
           this.selectImgflipTemplate(this.imgflipSelection[this.tagIndex])
         } else if (this.isFillingImgflipTemplate.active === true) {
@@ -3302,6 +3351,10 @@ export default {
           if (event.shiftKey) return
           event.preventDefault()
           this.addMessage()
+        }
+      } else if (event.key === 'Tab' || event.key === 'Tabulator') {
+        if (this.isTaggingUser === true || this.isWritingEmote === true || this.isWritingCommand === true) {
+          event.preventDefault()
         }
       } else if (event.key === 'ArrowUp') {
         if (this.new_message !== '') {
@@ -3387,13 +3440,19 @@ export default {
         }
       }
       // Check for : to prompt user for completing a custom emote text
-      if (this.new_message.substring(this.new_message.length - 1) === ':') {
+      if ((this.new_message.length === 1 && this.new_message.substring(this.new_message.length - 1)) === ':' ||
+        this.new_message.substring(this.new_message.length - 2) === ' :') {
         this.isWritingEmote = true
       } else {
-        // Hide the emote window if we typed a space
-        if (this.isWritingEmote &&
-          (this.new_message.substring(this.new_message.length - 1) === ' ' || !this.new_message.includes(':'))) {
-          this.isWritingEmote = false
+        // Do not hide emote selection if we are reacting to a message
+        if (!this.isEditingMessage && this.messageEditing != null && this.isWritingEmote) {
+          // Do nothing :D
+        } else {
+          // Hide the emote window if we typed a space
+          if (this.isWritingEmote &&
+            (this.new_message.substring(this.new_message.length - 1) === ' ' || !this.new_message.includes(':'))) {
+            this.isWritingEmote = false
+          }
         }
       }
       // Check for / to prompt user for completing a command
@@ -3401,7 +3460,7 @@ export default {
         this.isWritingCommand = true
       } else {
         // Hide the emote window if we typed a space
-        if (this.isWritingEmote &&
+        if (this.isWritingCommand &&
           (this.new_message.substring(this.new_message.length - 1) === ' ' || !this.new_message.includes('/'))) {
           this.isWritingCommand = false
         }
@@ -3450,6 +3509,7 @@ export default {
       this.isEditingMessage = false
       this.messageEditing = {}
       this.new_message = ''
+      this.hideAllWindows()
       setTimeout(() => {
         this.auto_grow()
         this.focusComment(true)
@@ -3465,6 +3525,7 @@ export default {
       if (editElem != null) editElem.style.display = 'none'
       this.isReplyingToMessage = false
       this.messageReplyingTo = {}
+      this.hideAllWindows()
       setTimeout(() => {
         this.auto_grow()
         this.focusComment(true)
@@ -3534,27 +3595,6 @@ export default {
         reader.readAsDataURL(file)
       })
     },
-    setSessionImage: async function (image, isBanner = false) {
-      const url = 'chat/private/mod/' + this.getSession()
-      const base64 = await this.getBase64(image)
-      const updateFun = this.getClarifierMetaData
-      const disableLoadingFun = this.toggleSettingsLoading
-      let fieldType = 'iurl'
-      if (isBanner) fieldType = 'burl'
-      this.$Worker.execute({
-        action: 'api',
-        method: 'post',
-        url: url,
-        body: JSON.stringify({
-          type: 'edit',
-          field: fieldType,
-          new: base64
-        })
-      })
-      .then(() => (updateFun()))
-      .catch((err) => console.debug(err.message))
-      .finally(() => (disableLoadingFun()))
-    },
     toggleElement: function (id, display = 'block') {
       const elem = document.getElementById(id)
       if (!elem) return
@@ -3569,9 +3609,9 @@ export default {
     },
     checkScroll: function (e, preventLazyLoad = false) {
       if (this.websocketState !== 'OPEN') return
-      const distanceToBottom = (this.$refs.messages_section.scrollTop * -1)
-      const distanceToTop = this.$refs.messages_section.scrollHeight -
-        this.$refs.messages_section.clientHeight - distanceToBottom
+      const distanceToBottom = (this.$refs.messages_container.scrollTop * -1)
+      const distanceToTop = this.$refs.messages_container.scrollHeight -
+        this.$refs.messages_container.clientHeight - distanceToBottom
       // If we're scrolling up, show that we're seeing older messages
       if (distanceToBottom > 100) {
         document.getElementById('scroll_to_bottom').style.opacity = '1'
@@ -3864,7 +3904,7 @@ export default {
       }
     },
     scrollToBottom: function (focusInput = true) {
-      this.$refs.messages_section.scrollTop = 0
+      this.$refs.messages_container.scrollTop = 0
       if (focusInput) this.focusComment(true)
     },
     hasUnread: function (guid, isHome = false) {
@@ -4407,6 +4447,7 @@ export default {
           method: 'get',
           url: 'chat/private/users/active/' + guid
         })
+        console.log(actives)
         for (let i = 0; i < actives.result.active.length; i++) {
           activeMap.set(actives.result.active[i], true)
         }
@@ -4835,7 +4876,7 @@ export default {
         return
       }
       // Set message section with its scroll event
-      this.$refs.messages_section.onscroll = this.checkScroll
+      this.$refs.messages_container.onscroll = this.checkScroll
       // Remove event listeners first to avoid having multiple
       this.inputField.removeEventListener('keydown', this.handleEnter, false)
       this.inputField.removeEventListener('input', this.handleCommentInput, false)
@@ -5039,7 +5080,8 @@ export default {
           this.emoteList = []
           for (let i = 0; i < emotes.length; i++) {
             url = this.$store.state.serverIP + '/' + emotes[i].pth
-            fname = ':' + emotes[i].t.split('.')[0] + ':'
+            emotes[i].t = emotes[i].t.split('.')[0]
+            fname = ':' + emotes[i].t + ':'
             // Build Markdown image string
             md = `![${fname}](${url})`
             this.emotes[fname] = md
@@ -5082,6 +5124,13 @@ export default {
       if (obj == null || obj.t == null) {
         return
       }
+      // Are we trying to react with an emote? Do not set message then
+      if (!this.isEditingMessage && this.messageEditing != null) {
+        this.reactToMessage(this.messageEditing, ':' + obj.t + ':')
+        this.new_message = ''
+        this.messageEditing = null
+        return
+      }
       for (let i = this.new_message.length - 1; i >= 0; i--) {
         if (this.new_message.substring(i, i + 1) === ':') {
           let j = i + 1
@@ -5091,7 +5140,7 @@ export default {
             }
           }
           this.new_message = this.new_message.substring(0, i + 1) +
-            obj.t.split('.')[0] + ': ' + this.new_message.substring(j)
+            obj.t + ': ' + this.new_message.substring(j)
           break
         }
       }
@@ -5116,6 +5165,12 @@ export default {
         }
       }
       this.focusComment(true)
+    },
+    handleServerSettingsClose: function () {
+      this.setOverlay(0)
+      this.prepareInputField()
+      this.gotoSubchat(null, false)
+      this.getClarifierMetaData(this.getSession())
     }
   }
 }
@@ -5267,12 +5322,12 @@ export default {
 }
 
 .messages_container {
-  @apply h-[calc(100%-130px)] max-h-[calc(100%-130px)] overflow-hidden flex justify-center;
+  @apply h-[calc(100%-130px)] max-h-[calc(100%-130px)]
+  overflow-x-hidden overflow-y-auto flex justify-center;
 }
 
 .messages_section {
   @apply relative flex h-full max-w-screen-md w-full
-  overflow-y-auto overflow-x-hidden
 }
 
 .channel_section::-webkit-scrollbar {
@@ -5505,7 +5560,7 @@ export default {
   cursor: pointer;
   width: calc(100% - 0.5rem);
   min-height: 36px;
-  @apply pl-2 mr-2 rounded relative h-fit mb-1;
+  @apply pl-2 mr-2 rounded relative h-fit prevent-select;
 }
 
 .subchat:hover {
@@ -5633,7 +5688,7 @@ export default {
 
 .user_tagger,
 .imgflip_selector {
-  @apply rounded-md p-0 surface;
+  @apply rounded-md p-0;
   position: absolute;
   bottom: 80px;
   left: 10px;
@@ -5715,32 +5770,6 @@ export default {
   @apply my-2;
 }
 
-.headerline {
-  overflow: hidden;
-  text-align: center;
-}
-
-.headerline:before,
-.headerline:after {
-  background-color: var(--md-sys-color-surface-variant);
-  content: "";
-  display: inline-block;
-  height: 2px;
-  position: relative;
-  vertical-align: middle;
-  width: 50%;
-}
-
-.headerline:before {
-  right: 0.5em;
-  margin-left: -50%;
-}
-
-.headerline:after {
-  left: 0.5em;
-  margin-right: -50%;
-}
-
 .user_profile_button {
   @apply rounded surface py-1 px-2 mr-1 hover:dshadow;
 }
@@ -5777,6 +5806,22 @@ export default {
   @apply px-2 py-1 rounded mr-1
   fmt_border lg:border-none hover:primary lg:mr-0
   flex gap-x-2 justify-center cursor-pointer;
+}
+
+.reply_target {
+  @apply rounded-lg rounded-bl-none;
+}
+
+.reply_msg {
+  @apply rounded-lg rounded-tl-none
+}
+
+.own_message_body .reply_target {
+  @apply rounded-lg rounded-br-none;
+}
+
+.own_message_body .reply_msg {
+  @apply rounded-lg rounded-tr-none;
 }
 
 </style>

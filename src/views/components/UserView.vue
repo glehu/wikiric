@@ -58,7 +58,7 @@
           </div>
         </div>
       </div>
-      <div class="items-center flex mt-3 surface-variant">
+      <div class="items-center flex mt-3 background p-2 rounded">
         <template v-if="user.usr === $store.state.username">
           <button class="user_profile_button"
                   v-on:click="isEditingProfile = true">
@@ -74,25 +74,22 @@
                   v-on:click="gotoDirectMessages(user.usr)">
             <i class="bi bi-send mr-2"></i>Direct Message
           </button>
-          <button class="user_profile_button">
-            <i class="bi bi-arrow-bar-left mr-2"></i>Kick
-          </button>
-          <button class="user_profile_button">
+          <button class="user_profile_button"
+                  v-on:click="banMember(user.usr)">
             <i class="bi bi-hammer mr-2"></i>Ban
           </button>
         </template>
       </div>
       <h5 class="mt-3 mb-2 headerline text-sm">Roles</h5>
       <div class="background rounded p-2">
-        <div style="display: flex; flex-wrap: wrap">
+        <div class="gap-1 flex-wrap flex">
           <div v-for="role in user.roles" :key="role"
-               class="inverse-surface"
-               style="border-radius: 5px; padding: 0 6px 4px 6px; margin-right: 1ch; margin-bottom: 1ch">
+               class="inverse-surface rounded px-1 py-0.5">
             <i v-show="isEditingRoles" class="bi bi-x-circle-fill orange-hover"
                style="margin-right: 4px"></i>
             <p>{{ role }}</p>
           </div>
-          <span style="border-radius: 2rem; margin-right: 1em" class="orange-hover"
+          <span class="orange-hover rounded-full mx-1 px-1 flex items-center justify-center"
                 v-on:click="addUserRole" title="Add new Role">
           <i class="bi bi-plus-circle"></i>
         </span>
@@ -103,10 +100,10 @@
         <div style="position: relative">
           <i class="bi bi-x-lg lead" style="cursor: pointer; position: absolute; right: 0" title="Close"
              v-on:click="isAddingRole = false"></i>
-          <h4 class="font-bold">Add a new Role</h4>
+          <p class="font-bold text-sm">Add a new Role</p>
           <input id="new_role"
                  type="text"
-                 class="fmt_input my-4"
+                 class="fmt_input mb-4"
                  v-model="new_role"
                  :placeholder="'Role'"
                  v-on:keyup.enter="commitUserRole">
@@ -212,6 +209,33 @@
     <template v-slot:footer>
     </template>
   </modal>
+  <modal
+    v-show="isAttemptingBan"
+    @close="isAttemptingBan = false">
+    <template v-slot:header>
+      <h2 class="font-bold text-2xl">Confirm Ban</h2>
+    </template>
+    <template v-slot:body>
+      <div class="p-20 flex flex-col justify-center items-center gap-2">
+        <p class="font-bold">Are you sure you want to ban:</p>
+        <p class="font-bold my-4">
+          <span class="text-3xl">{{ banningUser }}</span>
+          <span class="mx-3">aka</span> <span class="text-3xl">{{ banningUserDisplayName }}</span>
+        </p>
+        <p class="font-bold">
+          This action is irreversible thus making {{ banningUser }}
+          unable to access this chats resources forever.
+        </p>
+        <p class="font-bold">Proceed?</p>
+        <div class="fmt_button_danger"
+             v-on:click="doBanMember()">
+          <p class="font-bold">Ban {{ banningUser }}</p>
+        </div>
+      </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
 </template>
 
 <script>
@@ -219,6 +243,7 @@ import { MoonIcon, QrCodeIcon, UserCircleIcon } from '@heroicons/vue/24/solid'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import * as QRCode from 'easyqrcodejs'
 import modal from '@/components/Modal.vue'
+import { dbGetDisplayName } from '@/libs/wikistore'
 
 export default {
   name: 'UserView',
@@ -235,7 +260,10 @@ export default {
       isEditingProfile: false,
       isEditingRoles: false,
       isAddingRole: false,
-      new_role: ''
+      isAttemptingBan: false,
+      new_role: '',
+      banningUser: '',
+      banningUserDisplayName: ''
     }
   },
   mounted () {
@@ -354,6 +382,39 @@ export default {
         console.debug(err.message)
         if (foundDirect) return
         this.sendFriendRequest(username)
+      })
+    },
+    banMember: async function (username) {
+      this.isAttemptingBan = true
+      this.banningUser = username
+      this.banningUserDisplayName = await dbGetDisplayName(username)
+    },
+    doBanMember: function () {
+      const username = this.banningUser
+      this.banningUser = ''
+      this.isAttemptingBan = false
+      this.$Worker.execute({
+        action: 'api',
+        method: 'get',
+        url: 'chat/private/users/ban/' + this.chatroom.uid + '?usr=' + username
+      })
+      .then(() => {
+        this.$notify(
+          {
+            title: 'User Banned!',
+            text: '',
+            type: 'fmt_notify'
+          })
+      })
+      .catch((e) => {
+        if (e) {
+          this.$notify(
+            {
+              title: 'Error!',
+              text: 'Maybe you do not have the rights to ban?',
+              type: 'fmt_notify'
+            })
+        }
       })
     },
     setUserBadges: function (response) {

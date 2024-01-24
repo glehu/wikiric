@@ -37,7 +37,8 @@
 
     .btn_bg_primary {
         background-color: var(--md-sys-color-primary);
-        @apply m-1 py-2 px-4 rounded-md cursor-pointer hover:bshadow flex justify-center;
+        @apply m-1 py-2 px-4 rounded-md cursor-pointer
+        hover:bshadow flex justify-center prevent-select;
     }
 
     .btn_bg_primary:hover {
@@ -56,7 +57,7 @@
 
     .btn_small_icon {
         @apply text-sm flex items-center py-2 pl-2 pr-3 rounded
-        hover:primary hover:dshadow
+        hover:primary hover:dshadow prevent-select
     }
 
     .prevent-select {
@@ -749,12 +750,12 @@
 
     .fmt_button {
         @apply px-1 py-0.5 cursor-pointer flex items-center w-fit
-        hover:primary rounded h-fit background fmt_border;
+        hover:primary rounded h-fit background fmt_border prevent-select;
     }
 
     .fmt_button_danger {
         @apply m-1 py-2 px-4 error hover:error-container rounded-md
-        cursor-pointer w-fit h-fit flex items-center justify-center;
+        cursor-pointer w-fit h-fit flex items-center justify-center prevent-select;
         border: 1px solid var(--md-sys-color-error);
     }
 
@@ -803,5 +804,48 @@
             border-bottom: 4px solid var(--md-sys-color-tertiary);
             border-radius: 4px;
         }
+    }
+
+    .hover_show {
+        @apply hidden;
+    }
+
+    .hover_field:hover .hover_show {
+        @apply flex;
+    }
+
+    .headerline {
+        overflow: hidden;
+        text-align: center;
+        pointer-events: none;
+        @apply prevent-select;
+    }
+
+    .headerline:before,
+    .headerline:after {
+        background-color: var(--md-sys-color-surface-variant);
+        content: "";
+        display: inline-block;
+        height: 2px;
+        position: relative;
+        vertical-align: middle;
+        width: 50%;
+    }
+
+    .headerline:before {
+        right: 0.5em;
+        margin-left: -50%;
+    }
+
+    .headerline:after {
+        left: 0.5em;
+        margin-right: -50%;
+    }
+
+    .wisdomCat {
+        @apply fmt_border flex items-center
+        py-0.5 px-1 rounded mr-1 mb-1
+        pointer-events-none text-sm background
+        border-l-[24px];
     }
 }

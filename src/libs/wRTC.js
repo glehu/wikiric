@@ -168,7 +168,11 @@ const WRTC = {
           console.debug(`%cADD TRACK ${sCount}`, this.logStyle, 'for', remoteName, remoteId, track.kind)
           sCount++
         }
-        peerConnection.addTrack(track, stream)
+        try {
+          peerConnection.addTrack(track, stream)
+        } catch (e) {
+          console.log('(Track was not added)')
+        }
       })
       // } else {
       //   this.replaceTrack(stream, 'audio')
@@ -594,7 +598,11 @@ const WRTC = {
               sCount++
             }
             try {
-              peerConnection.addTrack(track, stream)
+              try {
+                peerConnection.addTrack(track, stream)
+              } catch (e) {
+                console.log('(Track was not added)')
+              }
             } catch (e) {
               console.debug(e.message)
             }

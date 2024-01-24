@@ -19,7 +19,7 @@
                     </div>
                     <div class="w-full overflow-x-hidden pr-2">
                       <div class="py-2 pointer-events-none">
-                        <div class="text-xl border-l border-gray-300 pl-3  font-bold">
+                        <div class="text-xl border-l border-gray-300 pl-3 font-bold">
                           <p>{{ this.knowledge.t }}</p>
                         </div>
                         <div class="text-sm border-l border-gray-300 pl-3">
@@ -56,12 +56,17 @@
                       <div class="overflow-x-hidden overflow-y-auto pb-2 w-full">
                         <template v-if="knowledge.cats && knowledge.cats.length > 0">
                           <template v-for="category in knowledge.cats" :key="category">
-                            <div class="kf_category border-l-8"
+                            <div class="kf_category border-l-[12px]"
                                  :style="{borderColor: category.hex}">
                               <p>{{ category.t.replace(' ', '&nbsp;') }}</p>
                               <template v-if="category.count && category.count > 0">
                                 <p class="ml-auto">{{ category.count }}</p>
                               </template>
+                              <div class="kf_category_edit w-6 h-6 ml-auto hover:primary
+                                          rounded p-1 cursor-pointer"
+                                   v-on:click="editCategory(category)">
+                                <PencilIcon/>
+                              </div>
                             </div>
                           </template>
                         </template>
@@ -601,7 +606,7 @@
     <modal @close="isAddingCategory = false"
            v-show="isAddingCategory">
       <template v-slot:header>
-        <span class="text-xl font-bold">Add Category</span>
+        <span class="text-xl font-bold">Category</span>
       </template>
       <template v-slot:body>
         <div class="m-3 flex flex-col gap-1">
@@ -614,8 +619,12 @@
                  class="fmt_input"
                  v-on:keyup.enter="addCategory()">
           <button v-on:click="addCategory()"
-                  class="mt-3 btn_bg_primary">
-            <span>Add</span>
+                  class="mt-3 btn_bg_primary w-full">
+            <span>Submit</span>
+          </button>
+          <button v-on:click="removeCategory()"
+                  class="mt-3 fmt_button_danger w-full">
+            <span>Remove</span>
           </button>
         </div>
       </template>
@@ -886,7 +895,8 @@ import {
   SparklesIcon,
   StarIcon,
   UserIcon,
-  WindowIcon
+  WindowIcon,
+  PencilIcon
 } from '@heroicons/vue/24/solid'
 import {
   Listbox,
@@ -952,7 +962,8 @@ export default {
     ChatBubbleLeftEllipsisIcon,
     UserIcon,
     EyeIcon,
-    FunnelIcon
+    FunnelIcon,
+    PencilIcon
   },
   data () {
     return {
@@ -985,6 +996,7 @@ export default {
         t: '',
         hex: ''
       },
+      oldCategory: '',
       isAddingCategory: false,
       isWritingWisdom: false,
       isWritingLesson: false,
@@ -1145,23 +1157,39 @@ export default {
         .catch((err) => console.debug(err.message))
       })
     },
-    addCategory: async function () {
+    addCategory: async function (doRemove = false, silent = false) {
+      // Remove old category in case name was changed
+      if (!doRemove && this.newCategory.t !== this.oldCategory) {
+        const tmp = this.newCategory.t
+        this.newCategory.t = this.oldCategory
+        await this.addCategory(true, true)
+        this.newCategory.t = tmp
+      }
       return new Promise((resolve) => {
+        let delPar = ''
+        if (doRemove) {
+          delPar = '?del=true'
+        }
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'knowledge/private/cats/mod/' + this.knowledge.uid,
+          url: 'knowledge/private/cats/mod/' + this.knowledge.uid + delPar,
           body: JSON.stringify(this.newCategory)
         })
-        .then(() => {
-          this.newCategory = ''
-          this.knowledgeExists = true
-          this.isAddingCategory = false
-          this.setupChatAndKnowledge()
-        })
-        .then(() => resolve())
         .catch((err) => console.debug(err.message))
+        .finally(() => {
+          if (!silent) {
+            this.newCategory = ''
+            this.knowledgeExists = true
+            this.isAddingCategory = false
+          }
+          this.setupChatAndKnowledge()
+          resolve()
+        })
       })
+    },
+    removeCategory: function () {
+      this.addCategory(true)
     },
     searchWisdom: async function (substitute = null, questionsOnly = false, fields = '') {
       if (!questionsOnly) {
@@ -1211,33 +1239,41 @@ export default {
           let tmpNoResults = true
           const parsedData = data.result
           this.results.time = parsedData.respTime
+          // Prepare category color map
+          const catColors = new Map()
+          if (this.knowledge.cats) {
+            for (let i = 0; i < this.knowledge.cats.length; i++) {
+              catColors[this.knowledge.cats[i].t] = this.knowledge.cats[i].hex
+            }
+          }
+          // Add results to list
           if (parsedData.lessons && parsedData.lessons.length > 0) {
             tmpNoResults = false
-            this.addResults(parsedData.lessons, 'lesson', questionsOnly)
+            this.addResults(parsedData.lessons, 'lesson', questionsOnly, catColors)
           }
           if (parsedData.tasks && parsedData.tasks.length > 0) {
             tmpNoResults = false
-            this.addResults(parsedData.tasks, 'task', questionsOnly)
+            this.addResults(parsedData.tasks, 'task', questionsOnly, catColors)
           }
           if (parsedData.answers && parsedData.answers.length > 0) {
             tmpNoResults = false
-            this.addResults(parsedData.answers, 'answer', questionsOnly)
+            this.addResults(parsedData.answers, 'answer', questionsOnly, catColors)
           }
           if (parsedData.questions && parsedData.questions.length > 0) {
             tmpNoResults = false
-            this.addResults(parsedData.questions, 'question', questionsOnly)
+            this.addResults(parsedData.questions, 'question', questionsOnly, catColors)
           }
           if (parsedData.replies && parsedData.replies.length > 0) {
             tmpNoResults = false
-            this.addResults(parsedData.replies, 'reply', questionsOnly)
+            this.addResults(parsedData.replies, 'reply', questionsOnly, catColors)
           }
           if (parsedData.boxes && parsedData.boxes.length > 0) {
             tmpNoResults = false
-            this.addResults(parsedData.boxes, 'box', questionsOnly)
+            this.addResults(parsedData.boxes, 'box', questionsOnly, catColors)
           }
           if (parsedData.misc && parsedData.misc.length > 0) {
             tmpNoResults = false
-            this.addResults(parsedData.misc, 'misc', questionsOnly)
+            this.addResults(parsedData.misc, 'misc', questionsOnly, catColors)
           }
           if (!questionsOnly) this.noResults = tmpNoResults
         })
@@ -1269,14 +1305,26 @@ export default {
         })
       })
     },
-    addResults: async function (results, type, questionsOnly) {
+    addResults: async function (results, type, questionsOnly, catColors) {
       let entry
       for (let i = 0; i < results.length; i++) {
         results[i].t = this.formatTitle(results[i].t)
+        // Replace username with display name
         let dName = await dbGetDisplayName(results[i].usr)
         if (dName == null) {
           dName = results[i].usr
         }
+        // Replace category colors with knowledge category colors if present
+        if (results[i].cats) {
+          let clr = ''
+          for (let j = 0; j < results[i].cats.length; j++) {
+            clr = catColors[results[i].cats[j].t]
+            if (clr && clr !== '') {
+              results[i].cats[j].hex = clr
+            }
+          }
+        }
+        // Add entry to list
         entry = {
           priority: 'high',
           type: type,
@@ -1566,6 +1614,15 @@ export default {
         hex: window.getComputedStyle(document.documentElement)
         .getPropertyValue('--md-sys-color-tertiary')
       }
+      this.isAddingCategory = true
+      setTimeout(() => {
+        const input = document.getElementById('new_category')
+        input.focus()
+      }, 0)
+    },
+    editCategory: function (category) {
+      this.newCategory = category
+      this.oldCategory = category.t
       this.isAddingCategory = true
       setTimeout(() => {
         const input = document.getElementById('new_category')
@@ -1963,11 +2020,12 @@ export default {
   background-color: var(--md-sys-color-surface-light);
 }
 
-.wisdomCat {
-  @apply fmt_border flex items-center
-  py-0.5 px-1 rounded mr-1 mb-1
-  pointer-events-none text-sm background
-  border-l-8;
+.kf_category_edit {
+  @apply hidden;
+}
+
+.kf_category:hover .kf_category_edit {
+  @apply block;
 }
 
 </style>

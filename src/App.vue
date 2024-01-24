@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import navbarelem from './views/core/Navbar.vue'
+import navbarelem from './views/components/Navbar.vue'
 import firebase from 'firebase/app'
 import 'firebase/firebase-messaging'
 import { PhoneIcon, PhoneXMarkIcon } from '@heroicons/vue/24/solid'
