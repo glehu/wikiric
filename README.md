@@ -1,10 +1,6 @@
-# wikiric
-
-This repository contains the front end for the wikiric collaboration platform.
-
-In the /libs folder you will find an SDK for easy access to the wikiric chats.
-
 # The official wikiric SDK
+
+---
 
 ## Features
 
@@ -15,6 +11,12 @@ This SDK provides easy access to the chat functionality.
 - Automatic chat session authorization
 - Decryption of incoming E2E encrypted messages
 - Sending of messages
+
+## Dependencies
+
+The only requirement to be able to use this SDK is the `wikiricrypt` library
+that is being developed for wikiric, too. The library needs to be in
+the same folder as the wikiric SDK.
 
 ## Private Key
 
@@ -27,13 +29,19 @@ On the bottom side of the modal you will see the button to copy the private Key.
 Quick Start Copy&Paste Template:
 
 ```js
-// 1. Get token
-await this.sdk.login('changeThisUsername', 'changeThisPassword')
-// 2. Connect to chat group
-this.sdk.connect('changeThisChatGroupUUID', 'changeThisPrivateKey')
-// 3. Listen to incoming messages
+// 0. Initialize SDK
+const wikiric = wikiricSDK
+
+// 1. Authorize
+await wikiric.login('yourUsername', 'yourPassword')
+
+// 2. Connect to the chat group (or channel if provided)
+wikiric.connect('yourChatID', 'yourPrivateKey', 'yourOptionalChannelID')
+
+// 3. Listen to the chat group's incoming messages
 const events = new BroadcastChannel('wikiricsdk')
-events.onmessage = event => {
-  console.log('SDK', event.data)
-}
+events.onmessage = event => { console.log('New Message', event.data) }
+
+// 4. Send a message to the chat group
+wikiric.sendMessage('Hello World!')
 ```
