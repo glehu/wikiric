@@ -574,7 +574,7 @@
                 <span>Title</span>
               </label>
               <br>
-              <input type="text" id="title" class="rounded text-xl w-full p-2"
+              <input type="text" id="title" class="fmt_input p-2 w-full text-lg"
                      required v-model="titleCreation">
               <br>
               <label for="description" class="text-2xl">
@@ -582,7 +582,7 @@
               </label>
               <br>
               <textarea type="text" rows="3" id="description"
-                        class="rounded text-xl w-full p-2"
+                        class="fmt_input p-2 w-full text-lg"
                         v-model="descriptionCreation"></textarea>
             </div>
             <div class=" w-full lg:w-[50%]">
@@ -591,7 +591,7 @@
               </label>
               <span class="">Comma separated</span>
               <br>
-              <input type="text" id="keywords" class="rounded text-xl w-full p-2"
+              <input type="text" id="keywords" class="fmt_input p-2 w-full text-lg"
                      v-model="keywordsCreation">
               <br>
               <button type="submit"

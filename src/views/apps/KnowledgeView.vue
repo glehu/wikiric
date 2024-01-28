@@ -3,8 +3,8 @@
        class="background w-full h-full relative overflow-hidden rounded-tr-lg">
     <div class="flex h-full w-full">
       <div id="sidebar"
-           class="h-full min-w-[45px] max-w-[45px] flex-col
-                  items-center overflow-y-auto ml-2 mr-1 hidden lg:flex">
+           class="h-full min-w-[45px] max-w-[45px] flex-col overflow-x-hidden
+                  items-center overflow-y-auto px-2 hidden lg:flex">
         <div class="h-full">
           <div class="sidebar_button rounded-xl">
             <div v-on:click="clickedBack()"
@@ -245,7 +245,7 @@
               </template>
               <div v-if="wisdom.type === 'question' && wisdom.done === true"
                    v-on:click="gotoComments()"
-                   class="flex w-full items-center cursor-pointer my-2">
+                   class="flex w-full items-center cursor-pointer py-2">
                 <div class="px-1 py-0.5 primary rounded-md w-fit">
                   <p class="font-bold">
                     Answered
@@ -714,7 +714,7 @@
     <template v-slot:body>
       <div class="flex w-[calc(100dvw-36px)] h-[calc(100dvh-142px)] gap-x-1 overflow-x-hidden px-2 pb-2">
         <div class="w-full md:w-1/2 md:h-full relative">
-          <div class="mb-1 font-bold rounded pr-2 pb-2 sticky top-0
+          <div class="mb-1 font-bold pr-2 pb-2 sticky top-0
                       w-full flex items-center justify-end background z-50">
             <button v-on:click="editLesson()"
                     class="mr-2 btn_bg_primary hover:dshadow"

@@ -74,6 +74,13 @@ export default {
                 type: 'fmt_notify'
               })
           }
+        } else if (event.data.typ === '[s:chat]') {
+          if (event.data.act === 'mark' && !this.$route.fullPath.includes('clarifier')) {
+            this.$store.commit('addClarifierTimestampNew', {
+              id: event.data.pid,
+              ts: new Date().getTime()
+            })
+          }
         }
       }
 

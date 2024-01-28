@@ -22,17 +22,17 @@ const refreshToken = () => {
       headers: headers
     }
   )
-    .then((res) => res.json())
-    .then((data) => (response = data))
-    .then(() => {
-      if (response.httpCode === 200) {
-        _t = response.token
-        if (_interval) clearInterval(_interval)
-        _interval = setInterval(() => {
-          refreshToken()
-        }, (response.expiresInMs - 60000))
-      }
-    })
+  .then((res) => res.json())
+  .then((data) => (response = data))
+  .then(() => {
+    if (response.httpCode === 200) {
+      _t = response.token
+      if (_interval) clearInterval(_interval)
+      _interval = setInterval(() => {
+        refreshToken()
+      }, (response.expiresInMs - 60000))
+    }
+  })
 }
 
 const wConnect = () => {
@@ -45,17 +45,36 @@ const wConnect = () => {
       } catch (e) {
       }
     }
-    ws.send(_t)
-    bc.postMessage('nav_init_notification')
-    if (_interval2) clearInterval(_interval2)
-    _interval2 = setInterval(() => {
-      checkWConnect()
-    }, 30000)
-    bc.onmessage = event => {
+    // Send token as soon as we can
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(_t)
+      bc.postMessage('nav_init_notification')
+      if (_interval2) clearInterval(_interval2)
+      _interval2 = setInterval(() => {
+        checkWConnect()
+      }, 30000)
+    } else {
+      // Wait a bit and retry
+      setTimeout(() => {
+        bc.postMessage('nav_init_notification')
+        if (_interval2) clearInterval(_interval2)
+        _interval2 = setInterval(() => {
+          checkWConnect()
+        }, 30000)
+      }, 5000)
     }
+    // bc.onmessage = event => {
+    // }
+  }
+  ws.onerror = () => {
+    setTimeout(() => {
+      wConnect()
+    }, 1000)
   }
   ws.onclose = () => {
-    wConnect()
+    setTimeout(() => {
+      wConnect()
+    }, 1000)
   }
 }
 
@@ -92,16 +111,16 @@ onmessage = function (e) {
         })
       }
     )
-      .then(() => {
-        e.ports[0].postMessage({
-          success: true,
-          result: ''
-        })
-        refreshToken()
+    .then(() => {
+      e.ports[0].postMessage({
+        success: true,
+        result: ''
       })
-      .catch((err) => {
-        console.log(err)
-      })
+      refreshToken()
+    })
+    .catch((err) => {
+      console.log(err)
+    })
   } else if (msg.action === 'login') {
     if (!msg.u) return
     _u = msg.u
@@ -115,22 +134,22 @@ onmessage = function (e) {
         headers: headers
       }
     )
-      .then((res) => res.json())
-      .then((data) => (response = data))
-      .then(() => {
-        if (response.httpCode === 200) {
-          _t = response.token
-          e.ports[0].postMessage({
-            success: true,
-            result: response
-          })
-          if (_interval) clearInterval(_interval)
-          _interval = setInterval(() => {
-            refreshToken()
-          }, (response.expiresInMs - 60000))
-          wConnect()
-        }
-      })
+    .then((res) => res.json())
+    .then((data) => (response = data))
+    .then(() => {
+      if (response.httpCode === 200) {
+        _t = response.token
+        e.ports[0].postMessage({
+          success: true,
+          result: response
+        })
+        if (_interval) clearInterval(_interval)
+        _interval = setInterval(() => {
+          refreshToken()
+        }, (response.expiresInMs - 60000))
+        wConnect()
+      }
+    })
   } else if (msg.action === 'logout') {
     const headers = new Headers()
     headers.set('Authorization', 'Basic ' + _u)
@@ -177,33 +196,33 @@ onmessage = function (e) {
       _endpoint + msg.url,
       config
     )
-      .then(res => {
-        if (!res.ok) {
-          throw new Error('Failed API request (or no response)')
-        }
-        res.text()
-          .then(text => {
-            try {
-              const data = JSON.parse(text)
-              e.ports[0].postMessage({
-                success: true,
-                result: data
-              })
-            } catch (err) {
-              e.ports[0].postMessage({
-                success: true,
-                result: text
-              })
-            }
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('Failed API request (or no response)')
+      }
+      res.text()
+      .then(text => {
+        try {
+          const data = JSON.parse(text)
+          e.ports[0].postMessage({
+            success: true,
+            result: data
           })
+        } catch (err) {
+          e.ports[0].postMessage({
+            success: true,
+            result: text
+          })
+        }
       })
-      .catch((err) => {
-        e.ports[0].postMessage({
-          error: new Error(err.message),
-          success: false,
-          errorMessage: err.message
-        })
+    })
+    .catch((err) => {
+      e.ports[0].postMessage({
+        error: new Error(err.message),
+        success: false,
+        errorMessage: err.message
       })
+    })
   } else if (msg.action === 'wss_auth') {
     e.ports[0].postMessage({
       success: true,

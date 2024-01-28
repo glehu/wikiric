@@ -36,10 +36,9 @@
           </template>
         </div>
       </div>
-      <div class="w-full h-full overflow-hidden lg:p-2">
-        <div class="flex h-[42px] gap-xl-4 pl-2 pr-4
-                    background rounded-md w-full overflow-x-auto"
-             style="border: 1px solid var(--md-sys-color-outline-variant);">
+      <div class="w-full h-full overflow-hidden">
+        <div class="flex h-[42px] gap-1 pl-2 pr-4
+                    background w-full overflow-x-auto fmt_border_bottom">
           <div class="p-1 flex items-center cursor-pointer hover:primary rounded-md"
                v-on:click="$router.back()">
             <ArrowLeftIcon class="h-6 w-6"></ArrowLeftIcon>
@@ -100,7 +99,8 @@
         </div>
         <template v-if="!isListView">
           <div id="board"
-               class="h-full w-full flex flex-row gap-x-1 p-1
+               class="h-full w-full mt-2
+                      flex flex-row gap-x-1
                       overflow-x-auto overflow-y-hidden
                       fixed prevent-select">
             <template v-if="boxes.length > 0">
@@ -134,12 +134,14 @@
                           leave-to-class="transform scale-95 opacity-0"
                         >
                           <MenuItems
-                            class="p_card_menu_list_medium_p bg-zinc-100"
+                            class="p_card_menu_list_medium_p surface fmt_border"
                           >
                             <div class="px-1 py-1">
                               <MenuItem v-slot="{ active }">
                                 <button v-on:click="finishTask(box.box, true)"
-                                        :class="[active ? 'p_card_menu_active' : '','group p_card_menu_item']">
+                                        :class="[active
+                                          ? 'p_card_menu_active'
+                                          : 'p_card_menu_item','group p_card_menu_item']">
                                   <TrashIcon
                                     :active="active"
                                     class="mr-2 h-5 w-5"
@@ -152,7 +154,9 @@
                             <div class="px-1 py-1">
                               <MenuItem v-slot="{ active }">
                                 <button
-                                  :class="[active ? 'p_card_menu_active' : '','group p_card_menu_item']">
+                                  :class="[active
+                                      ? 'p_card_menu_active'
+                                      : 'p_card_menu_item','group p_card_menu_item']">
                                   <ArrowsPointingOutIcon
                                     :active="active"
                                     class="mr-2 h-5 w-5"
@@ -233,7 +237,7 @@
                                         :source="element.t"
                                         :plugins="plugins"></Markdown>
                               <Markdown
-                                class="p_markdown p_markdown_xl_only                                                text-sm mt-1 w-full px-1"
+                                class="p_markdown p_markdown_xl_only text-sm mt-1 w-full px-1"
                                 :source="element.desc"
                                 :plugins="plugins"></Markdown>
                               <template v-if="element.collaborators">
@@ -257,8 +261,8 @@
                                 </div>
                               </div>
                             </div>
-                            <template v-if="element.amountComments && element.recentComment">
-                              <Menu as="div" class="absolute bottom-0 left-0">
+                            <template v-if="element.replies && element.replies.length > 0">
+                              <Menu as="div" class="absolute bottom-0 left-0 w-full">
                                 <MenuButton
                                   v-on:click="getRelated(element, false)"
                                   title="Show recent comment"
@@ -267,9 +271,9 @@
                                   <ChatBubbleLeftEllipsisIcon class="h-6 w-6 mr-1"></ChatBubbleLeftEllipsisIcon>
                                   <div class="text-start">
                                     <div class="text-xs">
-                                      {{ getHumanReadableDateText(element.recentComment.ts).replace(' ', '&nbsp;') }}
+                                      {{ getHumanReadableDateText(element.replies[0].ts).replace(' ', '&nbsp;') }}
                                     </div>
-                                    <div class="text-xs">{{ element.amountComments }}</div>
+                                    <div class="text-xs">{{ element.replies[0].t }}</div>
                                   </div>
                                 </MenuButton>
                                 <transition
@@ -278,47 +282,34 @@
                                   enter-to-class="transform scale-100 opacity-100"
                                   leave-active-class="transition duration-75 ease-in"
                                   leave-from-class="transform scale-100 opacity-100"
-                                  leave-to-class="transform scale-95 opacity-0"
-                                >
+                                  leave-to-class="transform scale-95 opacity-0">
                                   <MenuItems
-                                    class="p_card_menu_list_big_p surface notagger"
-                                  >
-                                    <template v-if="taskRelated.replies == null">
+                                    class="p_card_menu_list_big_p surface notagger z-50"
+                                    style="max-width: 100%">
+                                    <template v-for="related in taskRelated.replies" :key="related.uid">
                                       <MenuItem as="div" class="px-3 py-3">
-                                        <div class="flex justify-between text-xs">
-                                          <div>{{ element.recentComment.usr }}</div>
-                                          <div>{{ getHumanReadableDateText(element.recentComment.ts) }}</div>
+                                        <div class="flex justify-between text-xs gap-x-2">
+                                          <div>{{ related.usr }}</div>
+                                          <div class="break-keep whitespace-nowrap">
+                                            {{ getHumanReadableDateText(related.ts) }}
+                                          </div>
                                         </div>
                                         <Markdown
-                                          class="p_markdown p_markdown_xl_only                                            text-sm mt-1 break-words"
-                                          :source="element.recentComment.desc"
+                                          class="p_markdown p_markdown_xl_only text-sm mt-1 break-words pr-4"
+                                          :source="related.desc"
                                           :plugins="plugins"></Markdown>
                                       </MenuItem>
-                                    </template>
-                                    <template v-else>
-                                      <template v-for="related in taskRelated.replies" :key="related.uid">
-                                        <MenuItem as="div" class="px-3 py-3">
-                                          <div class="flex justify-between text-xs">
-                                            <div>{{ related.usr }}</div>
-                                            <div>{{ getHumanReadableDateText(related.ts) }}</div>
-                                          </div>
-                                          <Markdown
-                                            class="p_markdown p_markdown_xl_only                                              text-sm mt-1 break-words"
-                                            :source="related.desc"
-                                            :plugins="plugins"></Markdown>
-                                        </MenuItem>
-                                      </template>
                                     </template>
                                   </MenuItems>
                                 </transition>
                               </Menu>
                             </template>
-                            <div
-                              class="ml-auto absolute top-0 right-0 h-full">
+                            <div class="ml-auto absolute top-0 right-0 h-full">
                               <Menu as="div" class="relative inline-block text-left h-full">
                                 <MenuButton
                                   title="Options"
-                                  class="p_task_overlay hover:bright_bg rounded m-1 p-1 backdrop-blur-3xl flex items-center cursor-pointer">
+                                  class="p_task_overlay hover:bright_bg rounded m-1 p-1
+                                         backdrop-blur-3xl flex items-center cursor-pointer">
                                   <SquaresPlusIcon class="h-5 w-5"></SquaresPlusIcon>
                                 </MenuButton>
                                 <transition
@@ -330,12 +321,14 @@
                                   leave-to-class="transform scale-95 opacity-0"
                                 >
                                   <MenuItems
-                                    class="p_card_menu_list_medium_p bg-zinc-100"
+                                    class="p_card_menu_list_medium_p surface fmt_border"
                                   >
                                     <div class="px-1 py-1">
                                       <MenuItem v-slot="{ active }">
                                         <button v-on:click="finishTask(element)"
-                                                :class="[active ? 'p_card_menu_active' : '','group p_card_menu_item']">
+                                                :class="[active
+                                                  ? 'p_card_menu_active'
+                                                  : 'p_card_menu_item','group p_card_menu_item']">
                                           <CheckIcon
                                             :active="active"
                                             class="mr-2 h-5 w-5"
@@ -346,7 +339,9 @@
                                       </MenuItem>
                                       <MenuItem v-slot="{ active }">
                                         <button v-on:click="finishTask(element, true)"
-                                                :class="[active ? 'p_card_menu_active' : '','group p_card_menu_item']">
+                                                :class="[active
+                                                  ? 'p_card_menu_active'
+                                                  : 'p_card_menu_item','group p_card_menu_item']">
                                           <TrashIcon
                                             :active="active"
                                             class="mr-2 h-5 w-5"
@@ -358,7 +353,8 @@
                                       <Menu as="div" class="relative inline-block text-left w-full">
                                         <MenuButton
                                           title="Options"
-                                          class="items-center cursor-pointer group p_card_menu_item   hover:dark_bg hover:bg-opacity-60">
+                                          class="items-center cursor-pointer group p_card_menu_item
+                                                hover:primary hover:bg-opacity-60">
                                           <ShareIcon
                                             class="mr-2 h-5 w-5"
                                             aria-hidden="true"
@@ -373,7 +369,7 @@
                                           leave-from-class="transform scale-100 opacity-100"
                                           leave-to-class="transform scale-95 opacity-0"
                                         >
-                                          <MenuItems class="p_card_menu_list_medium_p dark_bg">
+                                          <MenuItems class="p_card_menu_list_medium_p surface fmt_border">
                                             <div class="px-1 py-1">
                                               <div class="pointer-events-none">
                                                 <div class="group p_card_menu_item font-bold">
@@ -389,7 +385,8 @@
                                               <template v-for="group in $store.state.clarifierSessions" :key="group">
                                                 <MenuItem v-slot="{ active }" class="mb-1">
                                                   <button v-on:click="showShareTask(group, element)"
-                                                          :class="[active ? 'p_card_menu_active' : ' ','group p_card_menu_item p-1']">
+                                                          :class="[active ? 'p_card_menu_active' : ' ',
+                                                          'group p_card_menu_item p-1']">
                                                     <img class="surface mr-2"
                                                          style="width: 32px; height: 32px; border-radius: 10px"
                                                          v-bind:src="getImg(group.img,true)"
@@ -461,8 +458,7 @@
                                  focus-visible:ring-2 focus-visible:ring-white
                                  focus-visible:ring-opacity-75
                                  focus-visible:ring-offset-2
-                                 focus-visible:ring-offset-orange-300 sm:text-sm"
-                        >
+                                 focus-visible:ring-offset-orange-300 sm:text-sm">
                           <template v-if="newTask.cats.length > 0">
                             <div class="block truncate font-bold">
                               {{ newTask.cats.map((cat) => cat.t).join(', ') }}
@@ -527,9 +523,9 @@
         </template>
         <template v-else>
           <div id="list"
-               class="h-full w-full pb-2 pl-2 pr-4 overflow-y-auto fixed">
+               class="h-full w-full overflow-y-auto fixed">
             <template v-if="boxes.length > 0">
-              <table class="w-full table-auto background rounded"
+              <table class="w-full table-auto background"
                      style="margin-bottom: 312px !important">
                 <thead>
                 <tr class="text-left">
@@ -675,7 +671,7 @@
               <span>Title</span>
             </label>
             <br>
-            <input type="text" id="title" class="rounded text-xl w-full p-2"
+            <input type="text" id="title" class="fmt_input p-2 w-full text-lg"
                    required v-model="titleCreation">
             <br>
             <label for="description" class="text-2xl">
@@ -683,16 +679,16 @@
             </label>
             <br>
             <textarea type="text" rows="3" id="description"
-                      class="rounded text-xl w-full p-2"
+                      class="fmt_input p-2 w-full text-lg"
                       v-model="descriptionCreation"></textarea>
           </div>
-          <div class=" w-full lg:w-[50%]">
+          <div class="w-full lg:w-[50%]">
             <label for="keywords" class="text-2xl mr-3">
               <span>Keywords</span>
             </label>
             <span class="">Comma separated</span>
             <br>
-            <input type="text" id="keywords" class="rounded text-xl w-full p-2"
+            <input type="text" id="keywords" class="fmt_input p-2 w-full text-lg"
                    v-model="keywordsCreation">
             <br>
             <button type="submit"
@@ -950,7 +946,7 @@
                 leave-from-class="transform scale-100 opacity-100"
                 leave-to-class="transform scale-95 opacity-0"
               >
-                <MenuItems class="p_card_menu_list_medium_p dark_bg">
+                <MenuItems class="p_card_menu_list_medium_p surface fmt_border">
                   <div class="px-1 py-1">
                     <div class="pointer-events-none">
                       <div class="group p_card_menu_item font-bold">
@@ -966,7 +962,9 @@
                     <template v-for="group in $store.state.clarifierSessions" :key="group">
                       <MenuItem v-slot="{ active }" class="mb-1">
                         <button v-on:click="showShareTask(group)"
-                                :class="[active ? 'p_card_menu_active' : ' ','group p_card_menu_item p-1']">
+                                :class="[active
+                                  ? 'p_card_menu_active'
+                                  : 'p_card_menu_item','group p_card_menu_item']">
                           <img class="surface mr-2"
                                style="width: 32px; height: 32px; border-radius: 10px"
                                v-bind:src="getImg(group.img,true)"
@@ -1160,7 +1158,8 @@
         </div>
         <textarea type="text" id="share_message" v-model="sharing.message" rows="1"
                   placeholder="Add a message"
-                  class="w-full border-b border-neutral-400 bright_bg bg-opacity-20 focus:outline-none px-2 py-1 p_input mt-2"
+                  class="w-full border-b border-neutral-400 bright_bg bg-opacity-20
+                         focus:outline-none px-2 py-1 p_input mt-2"
                   v-on:keyup="auto_grow('share_message')"></textarea>
         <div class="mt-2 flex w-full relative">
           <div class="ml-auto">
@@ -2342,11 +2341,11 @@ export default {
       }
     },
     getImg: function (imgGUID, get = false) {
-      if (imgGUID === '') {
+      if (imgGUID == null || imgGUID === '') {
         return ''
       } else {
         let ret = imgGUID
-        if (get) ret = this.$store.state.serverIP + '/m6/get/' + imgGUID
+        if (get) ret = this.$store.state.serverIP + '/' + imgGUID
         return ret
       }
     },
@@ -2389,14 +2388,14 @@ export default {
       }
       const prefix = '[c:TASK]'
       const bodyPayload = {
-        uniChatroomGUID: this.sharing.selectedSubchat,
-        text: prefix + JSON.stringify(message)
+        pid: this.sharing.selectedSubchat,
+        msg: prefix + JSON.stringify(message)
       }
       return new Promise((resolve) => {
         this.$Worker.execute({
           action: 'api',
           method: 'post',
-          url: 'm5/addmessage',
+          url: 'msg/private/create',
           body: JSON.stringify(bodyPayload)
         })
         .then(() => {
@@ -2406,7 +2405,7 @@ export default {
           this.sharing.group = null
           this.isSharingTask = false
         })
-        .then(() => resolve)
+        .then(() => resolve())
         .catch((err) => {
           console.debug(err.message)
         })
@@ -2623,7 +2622,7 @@ export default {
 
 /* Sizing */
 .p_card {
-  @apply min-w-[256px] max-w-[256px] h-fit m-1
+  @apply min-w-[256px] max-w-[256px] h-fit
   max-h-[calc(100dvh-140px)] overflow-y-auto;
 }
 
@@ -2650,17 +2649,17 @@ export default {
   opacity: 1;
 }
 
-.p_card_menu_active {
-  @apply surface bg-opacity-60  font-bold;
-}
-
-.p_card_menu_item {
-  @apply flex w-full items-center rounded-md px-1 py-2 text-sm;
-}
-
 .p_card_menu_list_medium_p {
   @apply absolute right-0 mt-2 w-56 origin-top-right divide-y divide-zinc-400 rounded-md
   shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10;
+}
+
+.p_card_menu_active {
+  @apply darkest_bg bg-opacity-60  font-bold;
+}
+
+.p_card_menu_item {
+  @apply flex w-full items-center rounded-md px-1 py-2 text-sm hover:primary-container;
 }
 
 .p_card_menu_list_big_p {

@@ -67,7 +67,7 @@
                               </div>
                               <div class="h-12 max-h-12 overflow-hidden text-ellipsis break-all">
                                 <template v-if="friend.loading">
-                                  <div class="p-1 mt-3">
+                                  <div class="p-1 mt-3 hidden">
                                     <div class="w-2 h-2 rounded-full bg-neutral-400 animate-ping"></div>
                                   </div>
                                 </template>
@@ -153,12 +153,11 @@
                                  title="End-to-End Encrypted Group"
                                  style="margin-left: auto; margin-right: 8px"></i>
                             </div>
-                            <button class="ml-2 h-10 w-10 flex items-center justify-center"
+                            <button class="ml-2 h-10 w-10 flex items-center rounded-xl
+                                           justify-center hover:error-container p-2"
                                     title="Remove Group"
-                                    v-on:click="removeGroup(group)">
-                              <i class="bi bi-x-lg p-2 w-full h-full rounded-xl
-                                        hover:error">
-                              </i>
+                                    v-on:click="tryRemoveGroup(group)">
+                              <i class="bi bi-x-lg w-full h-full"></i>
                             </button>
                           </div>
                         </template>
@@ -259,6 +258,26 @@
     <template v-slot:footer>
     </template>
   </modal>
+  <modal @close="isRemovingGroup = false"
+         v-show="isRemovingGroup">
+    <template v-slot:header>
+      Remove Group
+    </template>
+    <template v-slot:body>
+      <div v-if="removingGroup"
+           class="mb-4 p-4 flex flex-col items-center justify-center">
+        <p>Are you sure you want to remove the group</p>
+        <p class="my-1 font-bold text-lg">{{ removingGroup.title }}</p>
+        <p>from your list of groups?</p>
+        <div class="fmt_button_danger mt-4"
+             v-on:click="confirmRemoveGroup()">
+          <p class="font-bold">Remove {{ removingGroup.title }}</p>
+        </div>
+      </div>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
 </template>
 
 <script>
@@ -296,8 +315,10 @@ export default {
       isJoiningOrCreating: false,
       isJoining: false,
       isCreating: false,
+      isRemovingGroup: false,
       friendName: '',
-      friendMsg: ''
+      friendMsg: '',
+      removingGroup: null
     }
   },
   created () {
@@ -434,7 +455,6 @@ export default {
       const entry = data.result.friends[i]
       const lastMessage = entry.msg
       const userId = this.$store.state.username
-      console.log(lastMessage)
       if (lastMessage.usr !== '_server') {
         const key = await this.$store.getters.getClarifierKeyPair(entry.chat.uid)
         if (key != null) {
@@ -606,6 +626,15 @@ export default {
           text: '',
           type: 'fmt_notify'
         })
+    },
+    tryRemoveGroup: function (group) {
+      this.isRemovingGroup = true
+      this.removingGroup = group
+    },
+    confirmRemoveGroup: function () {
+      this.removeGroup(this.removingGroup)
+      this.isRemovingGroup = false
+      this.removingGroup = null
     }
   }
 }

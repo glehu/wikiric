@@ -122,17 +122,13 @@
                               <Listbox v-model="item.tvars[index].vars[0]">
                                 <div class="relative mt-1">
                                   <ListboxButton
-                                    class="surface
-                                           w-full relative cursor-default rounded-lg py-2 pl-3
-                                           min-w-[12rem]
-                                           pr-10 text-left shadow-md focus:outline-none
-                                           border-b-[1px] border-b-neutral-400
-                                           focus-visible:ring-2
-                                           focus-visible:ring-white
+                                    class="surface w-full relative cursor-default
+                                           rounded-lg py-2 pl-3 pr-10 text-left shadow-sm
+                                           focus:outline-none focus-visible:border-indigo-500
+                                           focus-visible:ring-2 focus-visible:ring-white
                                            focus-visible:ring-opacity-75
                                            focus-visible:ring-offset-2
-                                           focus-visible:ring-offset-orange-300 sm:text-sm"
-                                  >
+                                           focus-visible:ring-offset-orange-300 sm:text-sm">
                                     <template v-if="item.tvars[index].vars != null && item.tvars[index].vars[0].sval ">
                                       <span class="block truncate font-bold">
                                         {{ variation.t }}: {{ item.tvars[index].vars[0].sval }}
@@ -153,10 +149,9 @@
                                     leave-from-class="opacity-100"
                                     leave-to-class="opacity-0">
                                     <ListboxOptions
-                                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md
-                                               background py-1 text-base shadow-lg ring-1 ring-black
-                                               ring-opacity-5 focus:outline-none sm:text-sm z-50"
-                                    >
+                                      class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md surface
+                                             py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5
+                                             focus:outline-none sm:text-sm z-50">
                                       <ListboxOption
                                         v-slot="{ active, selected }"
                                         v-for="cat in variation.vars"
@@ -166,7 +161,7 @@
                                       >
                                         <li
                                           :class="[ active ? 'primary-container' : '',
-                                  'relative cursor-pointer select-none py-2 pl-10 pr-4' ]">
+                                                  'relative cursor-pointer select-none py-2 pl-10 pr-4' ]">
                                           <div
                                             :class="[ selected ? 'font-medium' : 'font-normal', 'block truncate' ]">
                                             {{ cat.sval }}
@@ -220,8 +215,7 @@
                       <Menu as="div" class="relative inline-block text-left h-full">
                         <MenuButton
                           title="Options"
-                          class="store_item_edit_overlay hover:bright_bg rounded
-                               m-1 p-1 backdrop-blur-3xl flex items-center cursor-pointer">
+                          class="items-center cursor-pointer group p_card_menu_item hover:primary store_item_edit_overlay">
                           <SquaresPlusIcon class="h-5 w-5"></SquaresPlusIcon>
                         </MenuButton>
                         <transition
@@ -230,11 +224,9 @@
                           enter-to-class="transform scale-100 opacity-100"
                           leave-active-class="transition duration-75 ease-in"
                           leave-from-class="transform scale-100 opacity-100"
-                          leave-to-class="transform scale-95 opacity-0"
-                        >
+                          leave-to-class="transform scale-95 opacity-0">
                           <MenuItems
-                            class="p_card_menu_list_medium_p bg-zinc-100"
-                          >
+                            class="p_card_menu_list_medium_p surface fmt_border">
                             <div class="px-1 py-1">
                               <MenuItem v-slot="{ active }">
                                 <button v-on:click="editItem(item)"
@@ -1037,4 +1029,8 @@ export default {
   @apply px-2 py-1;
 }
 
+.p_card_menu_list_medium_p {
+  @apply absolute right-0 mt-2 w-56 origin-top-right divide-y divide-zinc-400 rounded-md
+  shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10;
+}
 </style>

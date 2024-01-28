@@ -69,7 +69,7 @@
                            class="primary rounded-r">
                       </div>
                       <div :id="group.id + '_notify'"
-                           class="hidden bg-orange-500 rounded-r"
+                           class="hidden inverse-surface rounded-r"
                            style="position: absolute; height: 40px; width: 5px; left: 0; z-index: 5">
                         <div class="hidden">{{ hasUnread(group.id) }}</div>
                       </div>
@@ -121,10 +121,10 @@
                  style="width: 100%; margin-right: 0; padding-right: 0.5rem"
                  v-on:click="gotoSubchat(null, false)">
               <i id="home_notify"
-                 class="absolute -translate-x-4
-                          w-[6px] h-[28px] rounded-r-full
-                          z-50 bg-orange-500 hidden">
-                <span class="hidden">{{ hasUnread(getSession(), true) }}</span>
+                 class="absolute -translate-x-2
+                        w-[5px] min-h-[28px] rounded-r-full h-fit
+                        z-50 inverse-surface hidden">
+                <span class="hidden">{{ hasUnread(null, true) }}</span>
               </i>
               <HomeIcon class="h-5 w-5"></HomeIcon>
               <p class="relative left-[20px]">Home</p>
@@ -144,7 +144,7 @@
                 </button>
               </div>
             </template>
-            <div class="overflow-x-clip overflow-y-auto h-[calc(100%-218px)]">
+            <div class="overflow-x-clip overflow-y-auto h-[calc(100%-100px)]">
               <div class="subchat w-full flex items-center"
                    v-on:click="toggleSessionSettings()">
                 <WrenchIcon class="h-5 w-5"></WrenchIcon>
@@ -211,9 +211,9 @@
                        style="display: flex"
                        v-on:click="gotoSubchat(subchat.uid)">
                     <i :id="subchat.uid + '_notify'"
-                       class="absolute -translate-x-4
-                            w-[6px] min-h-[28px] rounded-r-full h-fit
-                            z-50 bg-orange-500 hidden">
+                       class="absolute -translate-x-2
+                              w-[5px] min-h-[28px] rounded-r-full h-fit
+                              z-50 inverse-surface hidden">
                       <span class="hidden">{{ hasUnread(subchat.uid) }}</span>
                     </i>
                     <template v-if="subchat.type === 'screenshare'">
@@ -647,7 +647,7 @@
                               </div>
                               <div class="inverse-surface rounded gap-x-4 flex px-2 py-1">
                                 <button title="Emote" class="orange-hover"
-                                        v-on:click="isWritingEmote = true; messageEditing = msg">
+                                        v-on:click="emoteReact(msg)">
                                   <FaceSmileIcon class="w-6 h-6"/>
                                 </button>
                               </div>
@@ -807,10 +807,9 @@
                                       :plugins="plugins"/>
                           </template>
                           <template v-if="msg.e">
-                            <div class="flex items-end px-2 pb-1">
-                              <p class="text-xs">
-                                Edited
-                              </p>
+                            <div class="flex items-end px-2 pb-2"
+                                 title="Edited">
+                              <PencilIcon class="w-4 h-4"/>
                             </div>
                           </template>
                         </div>
@@ -919,7 +918,7 @@
                                 :key-name="'t'"
                                 :headline="'Send a custom emote (Tab to complete)'"
                                 @confirm="handleCustomEmoteConfirmation"
-                                @close="isWritingEmote = false"/>
+                                @close="isWritingEmote = false; messageEditing = {}"/>
               <listpickerviewer v-if="isWritingCommand"
                                 class="user_tagger"
                                 :list="commandList"
@@ -1323,7 +1322,7 @@
           </label>
           <input v-model="new_subchat_name"
                  id="new_subchat_name" type="text"
-                 class="fmt_input mt-2 w-full">
+                 class="fmt_input mt-2 mb-4 w-full">
           <button v-on:click="createSubchatroom('text')"
                   id="new_subchat_type_text" class="btn_bg_primary mt-2"
                   style="width: 100%; text-align: left; display: flex;
@@ -1490,7 +1489,8 @@ import {
   ArrowUturnLeftIcon,
   HandThumbUpIcon,
   HandThumbDownIcon,
-  FaceSmileIcon
+  FaceSmileIcon,
+  PencilIcon
 } from '@heroicons/vue/24/solid'
 import {
   ArrowLeftOnRectangleIcon,
@@ -1564,7 +1564,8 @@ export default {
     HandThumbDownIcon,
     MegaphoneIcon,
     ArrowLeftIcon,
-    FaceSmileIcon
+    FaceSmileIcon,
+    PencilIcon
   },
   data () {
     return {
@@ -1687,7 +1688,6 @@ export default {
     setTimeout(() => this.initFunction(), 0)
     const bc = new BroadcastChannel('connector')
     bc.onmessage = event => {
-      console.debug(event.data)
       if (event.data.typ === '[s:ustat]') {
         if (event.data.act === 'update') {
           if (this.mainMembers.length <= 0) return
@@ -1706,6 +1706,24 @@ export default {
       } else if (event.data.typ === 'subchat_leave') {
         const payload = JSON.parse(event.data.msg)
         this.notifyJoinedSubchat(payload.uid, payload.user, false, true)
+      } else if (event.data.typ === '[s:chat]') {
+        if (event.data.act === 'mark') {
+          // Check if we're already connected to this channel
+          if (this.isSubchat) {
+            if (this.$route.fullPath.includes('?sub=' + event.data.pid)) {
+              return
+            }
+          } else {
+            if (this.$route.fullPath.includes('/' + event.data.pid)) {
+              return
+            }
+          }
+          this.hasUnread(event.data.pid, false, true, true)
+          this.$store.commit('addClarifierTimestampNew', {
+            id: event.data.pid,
+            ts: new Date().getTime()
+          })
+        }
       }
     }
   },
@@ -3137,6 +3155,9 @@ export default {
       this.focusComment(true)
     },
     hideAllWindows: function () {
+      if (this.isWritingEmote && this.messageEditing.uid) {
+        this.messageEditing = {}
+      }
       this.isViewingUserProfile = false
       this.isViewingGIFSelection = false
       this.isUploadingSnippet = false
@@ -3407,8 +3428,9 @@ export default {
       }
     },
     handleCommentInput: function () {
+      const length = this.new_message.length
       // Check for @ to prompt user for tagging a person
-      if (this.new_message.substring(this.new_message.length - 1) === '@') {
+      if (this.new_message.substring(length - 1) === '@') {
         this.isTaggingUser = true
         this.tagIndex = 0
       } else {
@@ -3418,33 +3440,38 @@ export default {
         }
       }
       // Check for : to prompt user for completing a custom emote text
-      if ((this.new_message.length === 1 && this.new_message.substring(this.new_message.length - 1)) === ':' ||
-        this.new_message.substring(this.new_message.length - 2) === ' :') {
+      if ((length === 1 && this.new_message.substring(length - 1)) === ':' ||
+        this.new_message.substring(length - 2) === ' :') {
         this.isWritingEmote = true
       } else {
         // Do not hide emote selection if we are reacting to a message
         if (!this.isEditingMessage && this.messageEditing && this.messageEditing.uid != null && this.isWritingEmote) {
           // Do nothing :D
         } else {
-          // Hide the emote window if we typed a space
-          if (this.isWritingEmote &&
-            (this.new_message.substring(this.new_message.length - 1) === ' ' || !this.new_message.includes(':'))) {
-            this.isWritingEmote = false
+          if (this.isWritingEmote) {
+            // Hide the emote window if we typed a space (or if there is no colon)
+            if (this.new_message.substring(length - 1) === ' ' || !this.new_message.includes(':')) {
+              this.isWritingEmote = false
+            } else {
+              if (this.new_message.substring(length - 1) === ':' && !this.new_message.substring(length - 2) !== ' :') {
+                this.isWritingEmote = false
+              }
+            }
           }
         }
       }
       // Check for / to prompt user for completing a command
-      if (this.new_message.substring(this.new_message.length - 1) === '/') {
+      if (this.new_message.substring(0, 1) === '/') {
         this.isWritingCommand = true
       } else {
         // Hide the emote window if we typed a space
         if (this.isWritingCommand &&
-          (this.new_message.substring(this.new_message.length - 1) === ' ' || !this.new_message.includes('/'))) {
+          (this.new_message.substring(length - 1) === ' ' || !this.new_message.includes('/'))) {
           this.isWritingCommand = false
         }
       }
       // Check for /flip to prompt user for selecting a meme template
-      if (this.new_message.substring(this.new_message.length - 5) === '/flip') {
+      if (this.new_message.substring(length - 5) === '/flip') {
         this.isSelectingImgflipTemplate = true
         this.tagIndex = 0
         this.getImgFlipSelection()
@@ -3455,10 +3482,10 @@ export default {
         }
       }
       if (this.isSelectingImgflipTemplate === true) {
-        for (let i = this.new_message.length - 1; i >= 0; i--) {
+        for (let i = length - 1; i >= 0; i--) {
           if (this.new_message.substring(i, i + 6) === '/flip ') {
             let string = ''
-            for (let j = i + 6; j < this.new_message.length; j++) {
+            for (let j = i + 6; j < length; j++) {
               string += this.new_message.substring(j, j + 1).toUpperCase()
             }
             for (let k = 0; k < this.imgflipSelection.length; k++) {
@@ -3883,31 +3910,52 @@ export default {
       this.$refs.messages_container.scrollTop = 0
       if (focusInput) this.focusComment(true)
     },
-    hasUnread: function (guid, isHome = false) {
+    hasUnread: function (guid, isHome = false, checkBoth = false, force = false) {
       let hasUnread = false
       if (guid === null) {
         guid = this.getSession()
       }
       this.$store.getters.getTimestamp(guid)
       .then((timestamp) => {
-        if (timestamp == null) return false
-        const lastMessageTS = timestamp.tsNew
-        if (lastMessageTS == null || lastMessageTS <= 0) {
-          return false
+        if (!force) {
+          if (timestamp == null) return false
+          const lastMessageTS = timestamp.tsNew
+          if (lastMessageTS == null || lastMessageTS <= 0) {
+            return false
+          }
+          let lastReadTS = timestamp.tsRead
+          if (lastReadTS == null) lastReadTS = 0
+          hasUnread = lastReadTS < lastMessageTS
+        } else {
+          hasUnread = true
         }
-        let lastReadTS = timestamp.tsRead
-        if (lastReadTS == null) lastReadTS = 0
-        hasUnread = lastReadTS < lastMessageTS
       })
       .finally(() => {
         if (hasUnread) {
           let elemId = guid + '_notify'
           if (isHome) elemId = 'home_notify'
           setTimeout(() => {
-            const notify = document.getElementById(elemId)
+            let notify = document.getElementById(elemId)
             if (notify != null) {
               notify.style.opacity = '1'
               notify.style.display = 'block'
+            }
+            // Attempt to find elem again
+            if (checkBoth) {
+              elemId = 'home_notify'
+              if (isHome) {
+                elemId = guid + '_notify'
+              } else {
+                // Don't check home if we're not connected to this channel
+                if (!this.$route.fullPath.includes(guid)) {
+                  return
+                }
+              }
+              notify = document.getElementById(elemId)
+              if (notify != null) {
+                notify.style.opacity = '1'
+                notify.style.display = 'block'
+              }
             }
           }, 0)
         }
@@ -5119,13 +5167,19 @@ export default {
           break
         }
       }
-      this.focusComment(true)
+      this.addMessage()
     },
     handleServerSettingsClose: function () {
       this.setOverlay(0)
       this.prepareInputField()
       this.gotoSubchat(null, false)
       this.getClarifierMetaData(this.getSession())
+    },
+    emoteReact: function (msg) {
+      if (msg == null) return
+      this.isWritingEmote = true
+      this.messageEditing = msg
+      this.focusComment()
     }
   }
 }

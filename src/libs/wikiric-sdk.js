@@ -15,6 +15,12 @@ import Wikiricrypt from './wikiricrypt'
  * - Decryption of incoming E2E encrypted messages
  * - Sending of messages
  *
+ * ## Dependencies
+ *
+ * The only requirement to be able to use this SDK is the `wikiricrypt` library
+ * that is being developed for wikiric, too. The library needs to be in
+ * the same folder as the wikiric SDK.
+ *
  * ## Private Key
  *
  * To get the private key which is needed to connect to a chat group
@@ -26,15 +32,21 @@ import Wikiricrypt from './wikiricrypt'
  * Quick Start Copy&Paste Template:
  *
  * ```js
- * // 1. Get token
- * await this.sdk.login('changeThisUsername', 'changeThisPassword')
- * // 2. Connect to chat group
- * this.sdk.connect('changeThisChatGroupUUID', 'changeThisPrivateKey')
- * // 3. Listen to incoming messages
+ * // 0. Initialize SDK
+ * const wikiric = wikiricSDK
+ *
+ * // 1. Authorize
+ * await wikiric.login('yourUsername', 'yourPassword')
+ *
+ * // 2. Connect to the chat group (or channel if provided)
+ * wikiric.connect('yourChatID', 'yourPrivateKey', 'yourOptionalChannelID')
+ *
+ * // 3. Listen to the chat group's incoming messages
  * const events = new BroadcastChannel('wikiricsdk')
- * events.onmessage = event => {
- *   console.log('SDK', event.data)
- * }
+ * events.onmessage = event => { console.log('New Message', event.data) }
+ *
+ * // 4. Send a message to the chat group
+ * wikiric.sendMessage('Hello World!')
  * ```
  *
  * @type {{_processRawMessage: ((function(*): Promise<void>)|*), eventChannel: module:worker_threads.BroadcastChannel, _token: string, sendMessage: ((function(String): boolean)|*), _key: null, login: (function(String, String): Promise<unknown>), _isBanned: boolean, _isAuthorized: boolean, _websocketState: string, _websocket: null, _username: string, connect: wikiricSDK.connect, _wcrypt: {decryptMessageRSA: (function(*, *): Promise<string>), decryptMessageAES: (function(*, *, *): Promise<string>), decryptPayload: (function(*, *, *): Promise<unknown>), stringToArrayBuffer: (function(*): ArrayBuffer), importRSAPrivKey: (function(*): Promise<CryptoKey>), base64ToArrayBuffer: (function(*): ArrayBuffer), importSecretKey: (function(*): Promise<CryptoKey>)}}}
@@ -86,20 +98,23 @@ const wikiricSDK = {
     })
   },
   /**
-   * Creates a wikiric chat session for the provided sessionID and privateKey
-   * and optionally a queryString e.g. "?sub=channelID" to be able to connect to channels.
+   * Creates a wikiric chat session for the provided chatID and privateKey
+   * and optionally a channelID to be able to connect to channels.
    *
    * The chat session automatically gets authorized, so you can just listen to this SDKs event channel.
-   * @param {String} sessionID
+   * @param {String} chatID
    * @param {String} privateKey
-   * @param {String} queryString
+   * @param {String} channelID
    */
-  connect: function (sessionID, privateKey, queryString = '') {
+  connect: function (chatID, privateKey, channelID = '') {
     this._key = {
-      id: sessionID,
+      id: chatID,
       priv: privateKey
     }
-    this._websocket = new WebSocket('wss://wikiric.xyz/ws/chat/' + sessionID + queryString)
+    if (channelID !== '') {
+      channelID = '?sub=' + channelID
+    }
+    this._websocket = new WebSocket('wss://wikiric.xyz/ws/chat/' + chatID + channelID)
     this._websocketState = 'CLOSED'
     this._websocket.onopen = async () => {
       this._websocket.onmessage = (event) => {
