@@ -167,6 +167,11 @@ const routes = [
     component: () => import('../views/core/StoreCommissionsView.vue'),
     meta: { requiresAuth: true }
   },
+  {
+    path: '/apps/sandbox',
+    name: 'WSandbox',
+    component: () => import('../views/apps/SandboxView.vue')
+  },
   // ERROR HANDLING ROUTES --- MUST BE AT THE BOTTOM ---
   {
     path: '/bsod',
