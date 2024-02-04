@@ -1,6 +1,6 @@
 <template>
   <template v-if="knowledgeExists">
-    <div class="flex w-full h-full pt_nav"
+    <div class="flex w-full h-full pt_nav absolute"
          :style="{backgroundImage: 'url('+require('@/assets/'+'account/pexels-dexter-fernandes-2646237.jpg')+')',
                  backgroundPosition: 'center top', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
       <div id="sidebar"
@@ -20,7 +20,7 @@
             </div>
             <div class="flex items-center cursor-pointer
                         hover:primary p-2 rounded-md"
-                 v-on:click="toggleSidebar()">
+                 v-on:click="togglePlannerSidebar()">
               <div class="h-full mr-2 px-1 rounded-xl">
                 <i class="sb_link_icon bi bi-caret-left text-xl"></i>
               </div>
@@ -47,7 +47,7 @@
             </div>
           </div>
           <div class="p-1 flex items-center cursor-pointer hover:primary rounded-md"
-               v-on:click="toggleSidebar()">
+               v-on:click="togglePlannerSidebar()">
             <CalendarDaysIcon class="h-6 w-6"></CalendarDaysIcon>
             <div class="font-bold text-sm mx-2">
               <p>Calendar</p>
@@ -99,10 +99,10 @@
         </div>
         <template v-if="!isListView">
           <div id="board"
-               class="h-full w-full mt-2
+               class="h-full w-full mt-2 px-2 pb-2
                       flex flex-row gap-x-1
                       overflow-x-auto overflow-y-hidden
-                      fixed prevent-select">
+                      absolute prevent-select">
             <template v-if="boxes.length > 0">
               <template v-for="box in boxes" :key="box.box.uid">
                 <div class="p_card box_container" style="margin-bottom: 312px !important"
@@ -523,7 +523,7 @@
         </template>
         <template v-else>
           <div id="list"
-               class="h-full w-full overflow-y-auto fixed">
+               class="h-full w-full overflow-y-auto absolute">
             <template v-if="boxes.length > 0">
               <table class="w-full table-auto background"
                      style="margin-bottom: 312px !important">
@@ -1240,6 +1240,10 @@ import draggable from 'vuedraggable'
 import { dbGetDisplayName } from '@/libs/wikistore'
 
 export default {
+  props: {
+    isoverlay: Boolean,
+    srcoverride: String
+  },
   name: 'PlannerNewView',
   components: {
     modal,
@@ -1377,13 +1381,20 @@ export default {
     window.removeEventListener('keyup', this.handleDocumentKeyUp, false)
     window.removeEventListener('keydown', this.handleDocumentKeyDown, false)
   },
+  watch: {
+    srcoverride: function () {
+      this.initFunction()
+    }
+  },
   methods: {
     initFunction: async function () {
-      const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop)
-      })
       // Whose knowledge are we trying to see?
-      const srcGUID = params.src
+      let srcGUID
+      if (!this.isoverlay) {
+        srcGUID = this.$route.query.src
+      } else {
+        srcGUID = this.srcoverride
+      }
       if (srcGUID == null) {
         return
       }
@@ -1419,12 +1430,10 @@ export default {
           opener(info.event.id)
         }
       }
-      this.toggleSidebar(true)
+      this.togglePlannerSidebar(true)
+      await this.getClarifierMetaData(this.srcGUID)
       this.getKnowledge(srcGUID).then(() => {
         this.getBoxes()
-        if (this.knowledge.mainChatroomGUID) {
-          this.getClarifierMetaData(this.knowledge.mainChatroomGUID)
-        }
       })
       this.connector = new BroadcastChannel('connector')
       this.connector.onmessage = event => {
@@ -1433,21 +1442,26 @@ export default {
         }
       }
     },
-    getKnowledge: async function (sessionID) {
+    getKnowledge: async function (guid, fromChat = true) {
+      if (!guid) return
       return new Promise((resolve) => {
+        let url
+        if (fromChat) {
+          url = 'knowledge/private/chat/'
+        } else {
+          url = 'knowledge/private/get/'
+        }
         this.$Worker.execute({
           action: 'api',
           method: 'get',
-          url: 'knowledge/private/chat/' + sessionID
-        })
-        .then((data) => {
+          url: url + guid
+        }).then((data) => {
           this.knowledgeExists = true
           this.knowledge = data.result
           resolve()
         })
         .catch((err) => {
-          console.debug(err.message)
-          this.knowledgeExists = false
+          if (err.message) this.knowledgeExists = false
         })
       })
     },
@@ -1458,12 +1472,14 @@ export default {
       return new Promise((resolve) => {
         let suffix = ''
         const checkbox = this.$refs.input_show_unfinished
-        if (checkbox && (showAll || checkbox.checked)) {
-          suffix = '?state=any'
-          checkbox.checked = true
-        } else {
-          suffix = '?state=todo'
-          checkbox.checked = false
+        if (checkbox) {
+          if (showAll || checkbox.checked) {
+            suffix = '?state=any'
+            checkbox.checked = true
+          } else {
+            suffix = '?state=todo'
+            checkbox.checked = false
+          }
         }
         // Prepare category color map
         const catColors = new Map()
@@ -1862,7 +1878,7 @@ export default {
     resetValues: function () {
       this.showingTaskComment = ''
     },
-    toggleSidebar: function (initial = false) {
+    togglePlannerSidebar: function (initial = false) {
       if (!initial) {
         this.$store.commit('togglePlannerCalendar')
       }
@@ -1883,7 +1899,7 @@ export default {
       if (event.key === '[') {
         if (document.activeElement && document.activeElement.classList.contains('p_input')) return
         event.preventDefault()
-        this.toggleSidebar()
+        this.togglePlannerSidebar()
       }
     },
     handleDocumentKeyUp: async function (event) {
@@ -1896,6 +1912,7 @@ export default {
         }
         this.isShowingTask = false
         this.isSharingTask = false
+        if (this.isoverlay) return
         document.activeElement.blur()
         document.body.focus()
         this.sharing.collaborators = []
@@ -1909,18 +1926,21 @@ export default {
           this.toggleAndFocusNewTask('taskname_' + this.boxes[this.selection.row].box.uid)
         }
       } else if (ev.key === 'c') {
+        if (this.isoverlay) return
         if (!this.isShowingTask) return
         if (document.activeElement && document.activeElement.classList.contains('p_input')) return
         ev.preventDefault()
         const elem = document.getElementById('input_comment')
         if (elem) elem.focus()
       } else if (ev.key === 'r') {
+        if (this.isoverlay) return
         if (this.isShowingTask) return
         if (document.activeElement && document.activeElement.classList.contains('p_input')) return
         ev.preventDefault()
         await this.getBoxes()
         this.renderMermaid()
       } else if (ev.key === 'f') {
+        if (this.isoverlay) return
         if (this.isShowingTask) return
         if (document.activeElement && document.activeElement.classList.contains('p_input')) return
         ev.preventDefault()
@@ -1932,6 +1952,7 @@ export default {
         this.showTaskHistory()
       } else if (ev.key === 'l') {
         if (this.isShowingTask) return
+        if (this.isoverlay) return
         if (document.activeElement && document.activeElement.classList.contains('p_input')) return
         this.isListView = !this.isListView
       }
@@ -2516,7 +2537,7 @@ export default {
     },
     createKnowledge: async function () {
       const payload = {
-        pid: this.srcguid,
+        pid: this.srcGUID,
         t: this.titleCreation,
         desc: this.descriptionCreation,
         keys: this.keywordsCreation

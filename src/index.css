@@ -814,8 +814,16 @@
         @apply hidden;
     }
 
+    .hover_show_o {
+        @apply opacity-0 transition-opacity;
+    }
+
     .hover_field:hover .hover_show {
         @apply flex;
+    }
+
+    .hover_field:hover .hover_show_o {
+        @apply opacity-100;
     }
 
     .headerline {

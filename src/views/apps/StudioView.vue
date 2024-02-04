@@ -303,11 +303,8 @@ export default {
       this.setShapeButton()
       this.initCanvas()
       // ---
-      const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop)
-      })
       // Whose knowledge are we trying to see?
-      const srcGUID = params.src
+      const srcGUID = this.$route.query.src
       if (srcGUID == null) {
         return
       }

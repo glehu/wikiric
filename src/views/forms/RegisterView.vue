@@ -254,10 +254,7 @@ export default {
     },
     processRegistration () {
       if (this.response.success) {
-        const params = new Proxy(new URLSearchParams(window.location.search), {
-          get: (searchParams, prop) => searchParams.get(prop)
-        })
-        const redirect = params.redirect
+        const redirect = this.$route.query.redirect
         if (redirect) {
           this.$router.push('/login?redirect=' + redirect)
         } else {

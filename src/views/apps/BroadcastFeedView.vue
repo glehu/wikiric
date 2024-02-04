@@ -187,7 +187,7 @@
                               class="w-full markedView"
                               :plugins="plugins"></Markdown>
                   </div>
-                  <div class="flex w-fit absolute translate-x-4 -translate-y-9 right-0">
+                  <div class="flex w-fit absolute translate-x-5 -translate-y-9 right-0">
                     <div class="flex mr-2 comment_react">
                       <div class="sidebar_button rounded-xl">
                         <div v-on:click="reactToPost(comment, '+')"
@@ -556,6 +556,11 @@ export default {
       emoteList: []
     }
   },
+  watch: {
+    srcguid: function () {
+      this.initFunction()
+    }
+  },
   mounted () {
     this.initFunction()
   },
@@ -564,9 +569,6 @@ export default {
       // Backup new post object
       this.newPostBackup = structuredClone(this.newPost)
       // Get URL parameters
-      const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop)
-      })
       // Set window height
       const mainDiv = document.getElementById('broadcastFeedViewer')
       if (mainDiv) {
@@ -580,7 +582,7 @@ export default {
       let fromChat = false
       let srcGUID = this.srcguid
       if (srcGUID == null || srcGUID === '') {
-        srcGUID = params.cguid
+        srcGUID = this.$route.query.cguid
         this.chatGUID = srcGUID
       }
       if (srcGUID != null) {
@@ -590,7 +592,7 @@ export default {
           this.source = chatroom.t
         }
       } else {
-        srcGUID = params.kguid
+        srcGUID = this.$route.query.kguid
         if (!srcGUID) return
       }
       const knowledge = await this.getKnowledge(srcGUID, fromChat)
@@ -1216,7 +1218,7 @@ export default {
 .newPostButton {
   @apply p-4
   cursor-pointer flex z-50
-  fixed bottom-[30px] right-[40px]
+  absolute bottom-[30px] right-[40px]
   dshadow rounded-full;
   background-color: var(--md-sys-color-primary-container);
   border: 1px solid var(--md-sys-color-primary);
@@ -1244,6 +1246,14 @@ export default {
 
 .sidebar_button:hover {
   @apply primary;
+}
+
+.comment .comment_react {
+  @apply opacity-0;
+}
+
+.comment:hover .comment_react {
+  @apply opacity-100;
 }
 
 </style>

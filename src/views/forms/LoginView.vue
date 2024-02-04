@@ -209,10 +209,7 @@ export default {
       this.$router.replace(this.$route.query.redirect.toString() || '/')
     },
     gotoRegister () {
-      const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop)
-      })
-      const redirect = params.redirect
+      const redirect = this.$route.query.redirect
       if (redirect) {
         this.$router.push('/register?redirect=' + redirect)
       } else {

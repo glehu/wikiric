@@ -1041,12 +1041,14 @@ export default {
   mounted () {
     this.initFunction()
   },
+  watch: {
+    srcguid: function () {
+      this.initFunction()
+    }
+  },
   methods: {
     initFunction: async function () {
       // Get URL parameters
-      const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop)
-      })
       // Set window height
       const mainDiv = document.getElementById('knowledgeFinder')
       if (mainDiv) {
@@ -1061,7 +1063,7 @@ export default {
       if (input) input.focus()
       await this.setupChatAndKnowledge()
       // Did we already search for something?
-      const queryText = params.query
+      const queryText = this.$route.query.query
       if (queryText != null) {
         this.queryText = queryText
         await this.searchWisdom()
@@ -1074,15 +1076,11 @@ export default {
       this.getProcesses('.')
     },
     setupChatAndKnowledge: async function () {
-      // Get URL parameters
-      const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop)
-      })
       // Whose knowledge are we trying to see? Return if there is no source
       let fromChat = false
       let srcGUID = this.srcguid
       if (srcGUID == null || srcGUID === '') {
-        srcGUID = params.cguid
+        srcGUID = this.$route.query.cguid
         this.chatGUID = srcGUID
       }
       if (srcGUID != null) {
@@ -1092,7 +1090,7 @@ export default {
           this.source = chatroom.t
         }
       } else {
-        srcGUID = params.kguid
+        srcGUID = this.$route.query.kguid
         if (!srcGUID) return
       }
       this.sourceID = srcGUID
@@ -1202,13 +1200,10 @@ export default {
         this.emptyState = true
         this.noResults = false
         const queryObj = {}
-        const params = new Proxy(new URLSearchParams(window.location.search), {
-          get: (searchParams, prop) => searchParams.get(prop)
-        })
         // Keep some parameters
-        if (params.kguid) queryObj.kguid = params.kguid
-        if (params.cguid) queryObj.cguid = params.cguid
-        if (params.sub) queryObj.sub = params.sub
+        if (this.$route.query.kguid) queryObj.kguid = this.$route.query.kguid
+        if (this.$route.query.cguid) queryObj.cguid = this.$route.query.cguid
+        if (this.$route.query.sub) queryObj.sub = this.$route.query.sub
         // Replace current router state
         this.$router.replace({
           query: queryObj
@@ -1292,12 +1287,9 @@ export default {
             const queryObj = {
               query: this.querySubmission
             }
-            const params = new Proxy(new URLSearchParams(window.location.search), {
-              get: (searchParams, prop) => searchParams.get(prop)
-            })
-            if (params.kguid) queryObj.kguid = params.kguid
-            if (params.cguid) queryObj.cguid = params.cguid
-            if (params.sub) queryObj.sub = params.sub
+            if (this.$route.query.kguid) queryObj.kguid = this.$route.query.kguid
+            if (this.$route.query.cguid) queryObj.cguid = this.$route.query.cguid
+            if (this.$route.query.sub) queryObj.sub = this.$route.query.sub
             this.$router.replace({
               query: queryObj
             })

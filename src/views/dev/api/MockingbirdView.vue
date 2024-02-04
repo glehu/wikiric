@@ -1,5 +1,5 @@
 <template>
-  <div class="w-screen h-screen overflow-hidden pt_nav">
+  <div class="absolute w-full h-full overflow-hidden pt_nav">
     <div class="w-full h-full rounded-md background px-2.5 py-2 overflow-hidden">
       <div class="w-full h-fit fmt_border_bottom pb-1 mb-4">
         <p class="text-xl font-bold">Mockingbird</p>

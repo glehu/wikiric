@@ -676,16 +676,13 @@ export default {
       }
       // Whose knowledge are we trying to see? Return if there is no source
       // Get URL parameters
-      const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop)
-      })
       let srcGUID = this.chatguid
       if (srcGUID == null || srcGUID === '') {
-        srcGUID = params.cguid
+        srcGUID = this.$route.query.cguid
       }
       let from = 'clarifier'
       if (srcGUID == null) {
-        srcGUID = params.kguid
+        srcGUID = this.$route.query.kguid
         if (!srcGUID) return
         from = 'guid'
       }

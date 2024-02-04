@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import Home from '../views/core/HomeView.vue'
 import store from '../store'
 import { Base64 } from 'js-base64'
@@ -170,7 +170,8 @@ const routes = [
   {
     path: '/apps/sandbox',
     name: 'WSandbox',
-    component: () => import('../views/apps/SandboxView.vue')
+    component: () => import('../views/apps/SandboxView.vue'),
+    meta: { requiresAuth: true }
   },
   // ERROR HANDLING ROUTES --- MUST BE AT THE BOTTOM ---
   {
@@ -187,7 +188,8 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  // history: createWebHistory(process.env.BASE_URL),
+  history: process.env.IS_ELECTRON ? createWebHashHistory() : createWebHistory(),
   routes,
   strict: true,
   sensitive: true,

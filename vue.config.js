@@ -7,6 +7,11 @@ module.exports = {
         fallbackLocale: 'en',
         localeDir: 'locales',
         enableInSFC: false
+      },
+      electronBuilder: {
+        chainWebpackMainProcess: (config) => {
+          config.output.filename('background.js')
+        }
       }
     },
     manifestOptions: {

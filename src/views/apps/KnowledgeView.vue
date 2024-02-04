@@ -1052,10 +1052,7 @@ export default {
       // Whose knowledge are we trying to see?
       let knowledgeGUID
       if (!this.isoverlay) {
-        const params = new Proxy(new URLSearchParams(window.location.search), {
-          get: (searchParams, prop) => searchParams.get(prop)
-        })
-        knowledgeGUID = params.src
+        knowledgeGUID = this.$route.query.src
       } else {
         knowledgeGUID = this.chatguid
       }

@@ -1,7 +1,7 @@
 <template>
   <div id="clarifier_chatroom_view_elem"
        class="background w-full h-full absolute overflow-hidden">
-    <div class="fixed top-0 left-0 w-full h-full flex">
+    <div class="absolute top-0 left-0 w-full h-full flex">
       <div id="sidebar" ref="sidebar"
            class="sidebar surface-variant darkergray-on-small
                   h-full relative top_nav"
@@ -1518,7 +1518,10 @@ import { dbGetDisplayName, dbSetDisplayName } from '@/libs/wikistore'
 
 export default {
   props: {
-    parsed: Object
+    parsed: Object,
+    isoverlay: Boolean,
+    srcoverride: String,
+    srcsuboverride: String
   },
   components: {
     modal,
@@ -1752,13 +1755,25 @@ export default {
       return this.peerStreamScreenshare != null
     }
   },
+  watch: {
+    srcoverride: function () {
+      this.initFunction()
+    },
+    srcsuboverride: function () {
+      this.initFunction()
+    }
+  },
   methods: {
     closeModal: function () {
       this.isModalVisible = false
       this.$store.commit('setE2EncryptionSeen', true)
     },
     initFunction: async function () {
-      this.$store.commit('setLastClarifierGUID', this.$route.params.id)
+      if (this.srcoverride && this.srcoverride !== '') {
+        this.$store.commit('setLastClarifierGUID', this.srcoverride)
+      } else {
+        this.$store.commit('setLastClarifierGUID', this.$route.params.id)
+      }
       // this.toggleElement('init_loading', 'flex')
       window.onresize = this.resizeCanvas
       this.resizeCanvas()
@@ -1798,11 +1813,13 @@ export default {
       this.timerIdle = setInterval(this.clearActivityIdle, 1000)
       // #### #### #### #### #### #### #### #### #### #### #### #### #### ####
       // Are we connecting to a subchat?
-      const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop)
-      })
-      const subchatGUID = params.sub
-      this.params = params.call
+      let subchatGUID
+      if (this.srcoverride && this.srcoverride !== '') {
+        subchatGUID = this.srcoverride
+      } else {
+        subchatGUID = this.$route.query.sub
+      }
+      this.params = this.$route.query.call
       // this.toggleElement('init_loading', 'flex')
       if (subchatGUID != null) {
         this.$store.commit('setLastClarifierSubGUID', subchatGUID)
@@ -1929,6 +1946,7 @@ export default {
         } else {
           this.hideAllWindows()
         }
+        if (this.isoverlay) return
         this.focusComment()
       } else {
         if (document.activeElement.id === 'new_comment') {
@@ -3668,15 +3686,19 @@ export default {
       this.lazyLoadingStatus = 'switching'
       if (subchatMode === true) {
         this.$store.commit('setLastClarifierSubGUID', subchatGUID)
-        await this.$router.replace({
-          path: '/apps/clarifier/wss/' + this.getSession(),
-          query: { sub: subchatGUID }
-        })
+        if (!this.isoverlay) {
+          await this.$router.replace({
+            path: '/apps/clarifier/wss/' + this.getSession(),
+            query: { sub: subchatGUID }
+          })
+        }
       } else {
         this.$store.commit('setLastClarifierSubGUID', 'none')
-        await this.$router.replace({
-          path: '/apps/clarifier/wss/' + subchatGUID // Previously getSession()
-        })
+        if (!this.isoverlay) {
+          await this.$router.replace({
+            path: '/apps/clarifier/wss/' + subchatGUID // Previously getSession()
+          })
+        }
       }
       this.hideAllSidebars()
       await this.connect(subchatGUID, subchatMode)
@@ -4208,14 +4230,13 @@ export default {
       // Revert styling changes
       this.exitCinemaMode()
       const queryObj = {}
-      const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop)
-      })
-      if (params.sub) queryObj.sub = params.sub
-      if (params.query) queryObj.query = params.query
-      this.$router.replace({
-        query: queryObj
-      })
+      if (this.$route.query.sub) queryObj.sub = this.$route.query.sub
+      if (this.$route.query.query) queryObj.query = this.$route.query.query
+      if (!this.isoverlay) {
+        this.$router.replace({
+          query: queryObj
+        })
+      }
       this.params = false
       if (this.chatroom.type === 'dm') {
         const messagesSection = this.$refs.messages_section
@@ -4862,9 +4883,11 @@ export default {
     connectToGroup: function (chatroomId, novisual = false) {
       this.$store.commit('setLastClarifierGUID', chatroomId)
       this.$store.commit('setLastClarifierSubGUID', 'none')
-      this.$router.push({
-        path: '/apps/clarifier/wss/' + chatroomId
-      })
+      if (!this.isoverlay) {
+        this.$router.push({
+          path: '/apps/clarifier/wss/' + chatroomId
+        })
+      }
       this.mainMembers = []
       this.disconnect()
       this.connect(chatroomId, false, novisual)

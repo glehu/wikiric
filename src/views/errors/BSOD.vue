@@ -54,11 +54,8 @@
 export default {
   name: 'BSOD',
   mounted () {
-    const params = new Proxy(new URLSearchParams(window.location.search), {
-      get: (searchParams, prop) => searchParams.get(prop)
-    })
-    if (params.reason != null) {
-      document.getElementById('reason').innerText = 'Reason: ' + params.reason
+    if (this.$route.query.reason != null) {
+      document.getElementById('reason').innerText = 'Reason: ' + this.$route.query.reason
     } else {
       document.getElementById('reason').innerText = '(Unknown Reason)'
     }
