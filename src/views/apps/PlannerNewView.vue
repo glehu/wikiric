@@ -4,7 +4,7 @@
          :style="{backgroundImage: 'url('+require('@/assets/'+'account/pexels-dexter-fernandes-2646237.jpg')+')',
                  backgroundPosition: 'center top', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }">
       <div id="sidebar"
-           class="active h-[calc(100dvh-50px)] p_sidebar_left
+           class="active h-[calc(100%-50px)] p_sidebar_left
                   surface relative">
         <div class="w-full h-[calc(100%-20px)] relative">
           <div class="grid grid-cols-2 m-2 h-[42px]">
@@ -2644,7 +2644,7 @@ export default {
 /* Sizing */
 .p_card {
   @apply min-w-[256px] max-w-[256px] h-fit
-  max-h-[calc(100dvh-140px)] overflow-y-auto;
+  max-h-[calc(100%-140px)] overflow-y-auto;
 }
 
 .p_input {

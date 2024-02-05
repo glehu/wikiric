@@ -32,7 +32,7 @@
                          content: 'Exit',
                          disabled: sidebar.active,
                        }">
-                    <ArrowLeftOnRectangleIcon
+                    <ArrowLeftEndOnRectangleIcon
                       class="sb_link_icon on-background-text"/>
                     <p class="sb_link_text" style="margin-left: 22px">
                       Chat Groups
@@ -1493,7 +1493,7 @@ import {
   PencilIcon
 } from '@heroicons/vue/24/solid'
 import {
-  ArrowLeftOnRectangleIcon,
+  ArrowLeftEndOnRectangleIcon,
   BookOpenIcon,
   ChatBubbleBottomCenterTextIcon,
   ArrowLeftIcon,
@@ -1555,7 +1555,7 @@ export default {
     PhoneXMarkIcon,
     FolderIcon,
     RectangleGroupIcon,
-    ArrowLeftOnRectangleIcon,
+    ArrowLeftEndOnRectangleIcon,
     WrenchIcon,
     ChatBubbleBottomCenterTextIcon,
     UsersIcon,

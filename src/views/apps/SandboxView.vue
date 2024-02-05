@@ -2,7 +2,7 @@
   <div class="mt_nav h_full_nav w-full flex flex-row">
     <div ref="sidebar"
          class="h-full flex flex-col gap-1 surface-variant
-                w-full max-w-[128px] fmt_border_right">
+                w-full max-w-[162px] fmt_border_right overflow-y-auto">
       <div class="w-full surface p-2">
         <p class="font-bold">
           <template v-if="sandboxID === ''">
@@ -14,34 +14,37 @@
         </p>
       </div>
       <div v-if="currentSandbox !== ''"
-           class="w-full surface p-2 grid grid-cols-1 gap-2">
-        <p class="text-xs font-bold">
+           class="w-full surface p-2 grid grid-cols-1 gap-1">
+        <p class="text-xs font-bold headerline">
           Components
         </p>
         <div class="fmt_button w-full py-2"
              v-on:click="addBox('text')">
-          <p class="font-bold text-center w-full text-sm">Text</p>
+          <p class="font-bold w-full text-sm px-2">Text</p>
         </div>
+        <p class="text-xs font-bold headerline mt-1">
+          Apps
+        </p>
         <div class="fmt_button w-full py-2"
              v-on:click="addBox('feed')">
-          <p class="font-bold text-center w-full text-sm">Feed</p>
+          <p class="font-bold w-full text-sm px-2">Feed</p>
         </div>
         <div class="fmt_button w-full py-2"
              v-on:click="addBox('knowledge')">
-          <p class="font-bold text-center w-full text-sm">Knowledge</p>
+          <p class="font-bold w-full text-sm px-2">Knowledge</p>
         </div>
         <div v-if="canUseChat"
              class="fmt_button w-full py-2"
              v-on:click="addBox('chat')">
-          <p class="font-bold text-center w-full text-sm">Chat</p>
+          <p class="font-bold w-full text-sm px-2">Chat</p>
         </div>
         <div class="fmt_button w-full py-2"
              v-on:click="addBox('planner')">
-          <p class="font-bold text-center w-full text-sm">Planner</p>
+          <p class="font-bold w-full text-sm px-2">Planner</p>
         </div>
         <div class="fmt_button w-full py-2"
              v-on:click="addBox('mock')">
-          <p class="font-bold text-center w-full text-sm">API Mock</p>
+          <p class="font-bold w-full text-sm px-2">API Mock</p>
         </div>
       </div>
       <div class="w-full surface p-2">
@@ -52,7 +55,7 @@
           </p>
         </div>
       </div>
-      <div class="w-full surface p-4 flex flex-col-reverse gap-2">
+      <div class="w-full surface p-2 flex flex-col-reverse gap-2">
         <template v-if="!noSandboxes">
           <template v-if="sandboxes.length > 0">
             <template v-for="sandbox in sandboxes" :key="sandbox.uid">
@@ -61,7 +64,7 @@
                           hover:primary font-bold"
                    v-on:click="viewSandbox(sandbox)"
                    :class="{'tertiary': sandbox.t === currentSandbox}">
-                <p class="text-center w-full text-sm">
+                <p class="w-full text-sm px-2">
                   {{ sandbox.t }}
                 </p>
               </div>
@@ -139,6 +142,13 @@
                             width: getDimension(elem.w, elem, elem.w) + 'px',
                             maxHeight: getDimension(elem.h, elem, 65) + 'px',
                             maxWidth: getDimension(elem.w, elem, elem.w) + 'px'}">
+                <div v-if="elem._drag"
+                     class="w-full h-full flex items-center justify-center absolute
+                            backdrop-blur-sm z-40 fmt_border">
+                  <p class="px-3 py-2 rounded-lg surface text-sm font-bold">
+                    Drag
+                  </p>
+                </div>
                 <template v-if="elem.type === 'text'">
                   <div v-if="!elem._edit" class="relative flex flex-col w-full h-full">
                     <Markdown :source="elem.t"
@@ -158,6 +168,14 @@
                     <textarea :id="key + '_input'"
                               v-model="elem.desc"
                               class="fmt_input w-full flex-grow"></textarea>
+                    <button class="btn_small_icon"
+                            v-on:click="addMedia(elem)">
+                      <DocumentArrowUpIcon
+                        class="h-6 w-6 mr-1"
+                        aria-hidden="true"
+                      />
+                      <span>Add File</span>
+                    </button>
                   </template>
                   <div v-if="elem._edit"
                        class="cursor-pointer ml-auto fmt_button mt-1 mb-8 mr-1"
@@ -166,7 +184,7 @@
                   </div>
                 </template>
                 <template v-else-if="elem.type === 'mock'">
-                  <mockingviewer></mockingviewer>
+                  <mockingviewer/>
                 </template>
                 <template v-else>
                   <div class="absolute z-40 w-full background flex flex-row items-center justify-between">
@@ -278,6 +296,57 @@
     <template v-slot:footer>
     </template>
   </modal>
+  <modal
+    v-show="isAddingMedia"
+    @close="cancelAddMedia">
+    <template v-slot:header>
+      Add File
+    </template>
+    <template v-slot:body>
+      <template v-if="uploadFileType !== ''">
+        <div style="display: flex; width: 100%; margin-bottom: 10px; margin-top: 5px"
+             class="markedView max-w-[400px]">
+          <img v-if="uploadFileType.includes('image')"
+               class="uploadFileSnippet"
+               v-bind:src="uploadFileBase64" :alt="'&nbsp;'"/>
+          <audio v-else-if="uploadFileType.includes('audio')"
+                 controls preload="auto"
+                 class="uploadFileSnippet">
+            <source :src="uploadFileBase64" :type="uploadFileType">
+            Your browser does not support playing audio.
+          </audio>
+          <template v-else-if="uploadFileType.includes('zip')">
+            <FolderArrowDownIcon class="h-10 w-10"></FolderArrowDownIcon>
+          </template>
+          <template v-else-if="uploadFileType.includes('text')">
+            <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
+          </template>
+          <template v-else-if="uploadFileType.includes('pdf')">
+            <DocumentTextIcon class="h-10 w-10"></DocumentTextIcon>
+          </template>
+        </div>
+      </template>
+      <input type="file" class="file_input" id="process_add_media" :ref="'process_add_media'" name="files[]"
+             style="width: 100%"
+             multiple v-on:change="handleUploadFileSelect"/>
+      <template v-if="uploadFileBase64 !== ''">
+        <p class=" font-bold">{{ uploadFileName }}</p>
+        <div class="mt-3 w-full">
+          <button class="darkbutton  p-2 w-full
+                           flex items-center justify-center rounded-full"
+                  style="height: 2.5em;
+                           border-color: transparent; margin: auto"
+                  title="Send"
+                  v-on:click="uploadSnippet">
+            <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Submit</span>
+            <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ uploadFileType }}</span>
+          </button>
+        </div>
+      </template>
+    </template>
+    <template v-slot:footer>
+    </template>
+  </modal>
 </template>
 
 <script>
@@ -298,10 +367,15 @@ import {
   MenuItems
 } from '@headlessui/vue'
 import modal from '@/components/Modal.vue'
+import { DocumentArrowUpIcon, DocumentTextIcon, FolderArrowDownIcon } from '@heroicons/vue/24/outline'
+import mermaid from 'mermaid'
 
 export default {
   name: 'SandboxView',
   components: {
+    DocumentTextIcon,
+    FolderArrowDownIcon,
+    DocumentArrowUpIcon,
     modal,
     knowledgefinder,
     feedviewer,
@@ -320,7 +394,7 @@ export default {
     return {
       ctx: null,
       ctx2: null,
-      gridSize: 48,
+      gridSize: 32,
       width: 0,
       height: 0,
       elements: new Map(),
@@ -328,6 +402,11 @@ export default {
       sandboxes: [],
       noSandboxes: false,
       isCreatingSandbox: false,
+      isAddingMedia: false,
+      elemAddingMedia: null,
+      uploadFileName: '',
+      uploadFileType: '',
+      uploadFileBase64: '',
       sandboxID: '',
       sandboxTitle: '',
       currentSandbox: '',
@@ -344,7 +423,8 @@ export default {
         h: 0,
         ref: '',
         hide: false,
-        _edit: false
+        _edit: false,
+        _drag: false
       },
       plugins: [
         {
@@ -385,12 +465,12 @@ export default {
       canvas2.style.maxHeight = canvas.style.minHeight
       canvas2.width = this.width
       canvas2.height = this.height
-      this.ctx.strokeStyle = '#582bff'
-      this.ctx.lineWidth = 1
-      this.ctx.lineHeight = 1
-      this.ctx2.strokeStyle = '#582bff'
-      this.ctx2.lineWidth = 1
-      this.ctx2.lineHeight = 1
+      this.ctx.strokeStyle = '#6451a5'
+      this.ctx.lineWidth = 2
+      this.ctx.lineHeight = 2
+      this.ctx2.strokeStyle = '#6451a5'
+      this.ctx2.lineWidth = 2
+      this.ctx2.lineHeight = 2
       this.ctx.clearRect(0, 0, canvas.width, canvas.height)
       this.ctx2.clearRect(0, 0, canvas.width, canvas.height)
       // Event listeners
@@ -469,7 +549,10 @@ export default {
       const _vue = this
       const _this = this.elements
       const _sidebar = this.$refs.sidebar
-      const container = this.$refs.content_container
+      const _container = this.$refs.content_container
+      const gridSize = this.gridSize
+      const cellWidth = this.width / gridSize
+      const cellHeight = this.height / gridSize
       const updateFun = this.updateCurrentElement
       let elem
       if (!resize) {
@@ -491,6 +574,7 @@ export default {
         document.onmouseup = closeDragElement
         document.onmousemove = elementDrag
         _obj = _this.get(obj.uuid)
+        _obj._drag = true
         _vue.currentElemID = obj.uuid
       }
 
@@ -506,14 +590,22 @@ export default {
           _obj.y = (element.offsetTop - pos2)
           _obj.x = (element.offsetLeft - pos1)
         } else {
-          _obj.h = (pos4 - element.offsetTop - 25 + container.scrollTop)
-          _obj.w = (pos3 - element.offsetLeft - _sidebar.clientWidth + 14 + container.scrollLeft)
+          _obj.h = (pos4 - element.offsetTop - 25 + _container.scrollTop)
+          _obj.w = (pos3 - element.offsetLeft - _sidebar.clientWidth + 14 + _container.scrollLeft)
         }
       }
 
       function closeDragElement () {
         document.onmouseup = null
         document.onmousemove = null
+        _obj._drag = false
+        // Snap element's position to the grid
+        _obj.x = Math.round(_obj.x / cellWidth) * cellWidth
+        _obj.y = Math.round(_obj.y / cellHeight) * cellHeight
+        // Snap element's width and height
+        _obj.w = (Math.round(_obj.w / cellWidth)) * cellWidth
+        _obj.h = (Math.round(_obj.h / cellHeight)) * cellHeight
+        // Update element
         _this.set(obj.uuid, _obj)
         updateFun()
       }
@@ -581,6 +673,9 @@ export default {
     },
     createSandbox: function () {
       this.isCreatingSandbox = true
+      setTimeout(() => {
+        this.$refs.processTitle.focus()
+      }, 0)
     },
     submitSandbox: function () {
       const payload = {
@@ -596,8 +691,10 @@ export default {
         .then((data) => {
           this.isCreatingSandbox = false
           this.getSandboxes()
+          this.getElements()
           this.sandboxID = data.result
           this.currentSandbox = this.sandboxTitle
+          this.canUseChat = true
         })
         .then(() => resolve())
         .catch((err) => console.debug(err.message))
@@ -647,6 +744,7 @@ export default {
           console.debug(e.message)
         })
         .finally(() => {
+          this.renderMermaid()
           if (!preventScroll) {
             setTimeout(() => {
               this.$refs.content_container.scrollTop = 0
@@ -686,6 +784,105 @@ export default {
         .then(() => resolve())
         .catch((err) => console.debug(err.message))
       })
+    },
+    addToTextArea: function (id, text) {
+      if (text == null || text === '') return
+      const textarea = document.getElementById(id)
+      if (textarea == null) return
+      const startPosition = textarea.selectionStart
+      const endPosition = textarea.selectionEnd
+      textarea.value = `${textarea.value.substring(
+        0,
+        startPosition
+      )}${text}${textarea.value.substring(
+        endPosition,
+        textarea.value.length
+      )}`
+      const _elem = this.elements.get(this.elemAddingMedia.uuid)
+      _elem.desc = textarea.value
+      this.elements.set(this.elemAddingMedia.uuid, _elem)
+    },
+    handleUploadFileSelect: async function (evt, drop = false) {
+      if (!evt) return
+      evt.stopPropagation()
+      evt.preventDefault()
+      let files
+      if (drop) {
+        files = evt.dataTransfer.files
+      } else {
+        files = evt.target.files
+      }
+      this.uploadFileBase64 = await this.getBase64(files[0])
+      this.uploadFileType = files[0].type
+      this.uploadFileName = files[0].name
+    },
+    getBase64: function (file) {
+      return new Promise(function (resolve, reject) {
+        const reader = new FileReader()
+        reader.onload = function () {
+          resolve(reader.result)
+        }
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+    },
+    cancelAddMedia: function () {
+      this.isAddingMedia = false
+      this.uploadFileType = ''
+      this.uploadFileName = ''
+      this.uploadFileBase64 = ''
+    },
+    uploadSnippet: function () {
+      const content = JSON.stringify({
+        base64: this.uploadFileBase64,
+        name: this.uploadFileName
+      })
+      this.$Worker.execute({
+        action: 'api',
+        method: 'post',
+        url: 'files/private/create',
+        body: content
+      })
+      .then((data) => (this.processUploadSnippetResponse(data.result)))
+      .catch((err) => (this.handleUploadSnippetError(err.message)))
+    },
+    handleUploadSnippetError: function (errorMessage = '') {
+      console.debug(errorMessage)
+      this.$notify(
+        {
+          title: 'File Not Uploaded',
+          text: 'An Error occurred while uploading the file.',
+          type: 'error'
+        })
+    },
+    processUploadSnippetResponse: async function (response) {
+      const contentURL = this.$store.state.serverIP + '/files/public/get/' + response.trim()
+      let prefix
+      if (this.uploadFileType.includes('image')) {
+        prefix = '!'
+      } else {
+        prefix = '\n\n'
+      }
+      let filename = this.uploadFileName
+      if (filename == null || filename === '') filename = 'Snippet'
+      let text = prefix + '[' + filename + '](' + contentURL + ')'
+      if (prefix === '!') {
+        text = '\n\n' + text + '\n\n'
+      }
+      setTimeout(() => {
+        this.addToTextArea(this.elemAddingMedia.uuid + '_input', text)
+        this.renderMermaid()
+      }, 0)
+      this.cancelAddMedia()
+    },
+    renderMermaid: function () {
+      setTimeout(() => {
+        mermaid.init()
+      }, 0)
+    },
+    addMedia: function (elem) {
+      this.isAddingMedia = true
+      this.elemAddingMedia = elem
     }
   }
 }

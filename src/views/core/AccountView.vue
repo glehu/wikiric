@@ -7,7 +7,7 @@
           <p class="font-bold text-4xl">Account</p>
           <div class="flex flex-row flex-wrap gap-4">
             <div class="app-thumb" v-on:click="logout()">
-              <ArrowLeftOnRectangleIcon class="w-14 h-14"/>
+              <ArrowLeftEndOnRectangleIcon class="w-14 h-14"/>
               <p class="app-text">{{ $t('gen.logout') }}</p>
             </div>
             <div class="app-thumb" v-on:click="gotoPreferences()">
@@ -36,6 +36,14 @@
             <div class="app-thumb" v-on:click="gotoOwnClarifier()">
               <UserIcon class="w-14 h-14"/>
               <p class="app-text">Home</p>
+            </div>
+            <div class="app-thumb relative" v-on:click="gotoSandbox()">
+              <div class="px-1 py-0.5 rounded primary
+                          absolute top-0 right-0">
+                <p class="font-bold text-sm">NEW</p>
+              </div>
+              <PuzzlePieceIcon class="w-14 h-14"/>
+              <p class="app-text">Sandbox</p>
             </div>
           </div>
           <p class="font-bold text-4xl mt-2">E-Commerce</p>
@@ -72,7 +80,7 @@
 <script>
 import {
   ChatBubbleLeftRightIcon,
-  ArrowLeftOnRectangleIcon,
+  ArrowLeftEndOnRectangleIcon,
   Cog6ToothIcon,
   UserGroupIcon,
   CubeIcon,
@@ -81,13 +89,14 @@ import {
   ViewColumnsIcon,
   BookOpenIcon,
   UserIcon,
-  SignalIcon
+  SignalIcon,
+  PuzzlePieceIcon
 } from '@heroicons/vue/24/solid'
 
 export default {
   components: {
     ChatBubbleLeftRightIcon,
-    ArrowLeftOnRectangleIcon,
+    ArrowLeftEndOnRectangleIcon,
     Cog6ToothIcon,
     UserGroupIcon,
     CubeIcon,
@@ -96,7 +105,8 @@ export default {
     ViewColumnsIcon,
     BookOpenIcon,
     UserIcon,
-    SignalIcon
+    SignalIcon,
+    PuzzlePieceIcon
   },
   data () {
     return {
@@ -183,6 +193,9 @@ export default {
     },
     gotoMockingbird () {
       this.$router.push('/dev/mockingbird')
+    },
+    gotoSandbox () {
+      this.$router.push('/apps/sandbox')
     }
   }
 }

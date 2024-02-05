@@ -880,7 +880,7 @@
              style="width: 100%"
              multiple v-on:change="handleUploadFileSelect"/>
       <template v-if="uploadFileBase64 !== ''">
-        <p class=" font-bold">{{ this.uploadFileName }}</p>
+        <p class=" font-bold">{{ uploadFileName }}</p>
         <div class="mt-3 w-full">
           <button class="darkbutton  p-2 w-full
                            flex items-center justify-center rounded-full"
@@ -889,7 +889,7 @@
                   title="Send"
                   v-on:click="uploadSnippet">
             <span class="font-bold flex"><i class="bi bi-send mr-2"></i>Submit</span>
-            <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ this.uploadFileType }}</span>
+            <span style="margin-left: 10px" class="c_lightgray text-xs"> {{ uploadFileType }}</span>
           </button>
         </div>
       </template>
